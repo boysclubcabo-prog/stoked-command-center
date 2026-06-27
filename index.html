@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stoked Brotherhood Command Center</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-mark">⚡</div>
+      <div>
+        <h1 class="header-title">STOKED BROTHERHOOD</h1>
+        <p class="header-sub">Command Center</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-primary" id="addBrotherBtn">+ Add Brother</button>
+    </div>
+  </header>
+
+  <!-- GROUP STATS BAR -->
+  <section class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value" id="statTotalBrothers">0</span>
+      <span class="stat-label">Brothers</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-value accent-orange" id="statGroupDaily">0.0</span>
+      <span class="stat-label">Group Daily Score</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-value accent-blue" id="statAvgMomentum">0.0</span>
+      <span class="stat-label">Avg Momentum</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-value accent-green" id="statTotalXP">0</span>
+      <span class="stat-label">Group Total XP</span>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat-item">
+      <span class="stat-value" id="statTopBrother">—</span>
+      <span class="stat-label">Highest Level</span>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">⚔️</div>
+      <h2>No Brothers Yet</h2>
+      <p>Add your first brother to begin tracking their journey.</p>
+      <button class="btn btn-primary" onclick="openAddModal()">+ Add First Brother</button>
+    </div>
+
+    <!-- BROTHERS GRID -->
+    <div class="brothers-grid" id="brothersGrid"></div>
+  </main>
+
+  <!-- ADD / EDIT BROTHER MODAL -->
+  <div class="modal-overlay" id="brotherModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Add Brother</h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <form class="modal-form" id="brotherForm">
+        <input type="hidden" id="brotherId" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="fieldName" placeholder="Brother's name" required />
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="fieldAge" placeholder="Age" min="8" max="25" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Archetype</label>
+          <select id="fieldArchetype">
+            <option value="">— Select Archetype —</option>
+            <option value="Warrior">⚔️ Warrior</option>
+            <option value="Monk">🧘 Monk</option>
+            <option value="Creator">🎨 Creator</option>
+            <option value="Explorer">🧭 Explorer</option>
+            <option value="Leader">👑 Leader</option>
+            <option value="Builder">🔨 Builder</option>
+            <option value="Guardian">🛡️ Guardian</option>
+            <option value="Pathfinder">🗺️ Pathfinder</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Total XP</label>
+            <input type="number" id="fieldXP" placeholder="0" min="0" max="10000" />
+          </div>
+          <div class="form-group">
+            <label>Momentum Score (0–10)</label>
+            <input type="number" id="fieldMomentum" placeholder="0" min="0" max="10" step="0.1" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Daily Score (0–10)</label>
+            <input type="number" id="fieldDaily" placeholder="0" min="0" max="10" step="0.1" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Main Goal</label>
+          <input type="text" id="fieldGoal" placeholder="e.g. Make the varsity team" />
+        </div>
+
+        <div class="form-group">
+          <label>Weekly Commitment</label>
+          <input type="text" id="fieldCommitment" placeholder="e.g. Train 4x per week" />
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="fieldNotes" placeholder="Any notes about this brother..." rows="3"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">Save Brother</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD XP MODAL -->
+  <div class="modal-overlay" id="xpModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Add XP</h2>
+        <button class="modal-close" id="xpModalClose">✕</button>
+      </div>
+      <div class="xp-brother-name" id="xpBrotherName"></div>
+      <form class="modal-form" id="xpForm">
+        <input type="hidden" id="xpBrotherId" />
+
+        <div class="form-group">
+          <label>XP Amount *</label>
+          <input type="number" id="xpAmount" placeholder="e.g. 100" min="1" max="5000" required />
+        </div>
+
+        <div class="form-group">
+          <label>Reason</label>
+          <select id="xpReason">
+            <option value="Attended session">Attended session</option>
+            <option value="Completed weekly commitment">Completed weekly commitment</option>
+            <option value="Helped another brother">Helped another brother</option>
+            <option value="Earned badge">Earned badge</option>
+            <option value="Led an exercise">Led an exercise</option>
+            <option value="Completed challenge">Completed challenge</option>
+            <option value="Personal breakthrough">Personal breakthrough</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="xpCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-orange">+ Add XP</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Remove Brother?</h2>
+      </div>
+      <p class="delete-msg" id="deleteMsg"></p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="deleteCancelBtn">Cancel</button>
+        <button class="btn btn-danger" id="deleteConfirmBtn">Remove</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
