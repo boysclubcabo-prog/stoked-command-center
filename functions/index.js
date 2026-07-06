@@ -75,6 +75,17 @@ exports.onSubmissionUpdated = onDocumentUpdated('submissions/{subId}', async eve
   );
 });
 
+// ── TRIGGER: New challenge → notify everyone ──
+exports.onNewChallenge = onDocumentCreated('challenges/{challengeId}', async event => {
+  const challenge = event.data.data();
+  if (!challenge) return;
+  const tokens = await getAllTokens();
+  await sendToTokens(tokens,
+    '⚡ New Challenge Posted',
+    `${challenge.title} — ${challenge.xp || 0} XP`
+  );
+});
+
 // ── TRIGGER: New feed post → notify everyone ──
 exports.onNewFeedPost = onDocumentCreated('feed/{postId}', async event => {
   const post = event.data.data();
