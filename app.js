@@ -1719,30 +1719,6 @@ function timeAgo(ts) {
   return `${d}d ago`;
 }
 
-// Announcement modal wiring
-const announcementModal = document.getElementById('announcementModal');
-document.getElementById('announcementModalClose').addEventListener('click', () => closeModal(announcementModal));
-document.getElementById('announcementCancelBtn').addEventListener('click',  () => closeModal(announcementModal));
-announcementModal.addEventListener('click', e => { if (e.target === announcementModal) closeModal(announcementModal); });
-document.getElementById('announcementForm').addEventListener('submit', async e => {
-  e.preventDefault();
-  const text  = document.getElementById('announcementText').value.trim();
-  const photo = document.getElementById('announcementPhoto').value.trim();
-  if (!text) return;
-  await addDoc(collection(db, 'feed'), {
-    type:      'announcement',
-    text,
-    photoUrl:  photo || null,
-    comments:  [],
-    createdAt: Date.now(),
-  });
-  document.getElementById('announcementText').value  = '';
-  document.getElementById('announcementPhoto').value = '';
-  closeModal(announcementModal);
-  switchTab('socialfeed');
-  showToast('Posted to feed!', 'success');
-});
-
 // ── ROSTER (member view of all brothers) ──────
 function renderRoster() {
   const container = document.getElementById('rosterContainer');
@@ -2016,6 +1992,30 @@ exportBtn.addEventListener('click', () => {
 // ── MODAL HELPERS ─────────────────────────────
 function openModal(el)  { el.classList.add('open');    document.body.style.overflow = 'hidden'; }
 function closeModal(el) { el.classList.remove('open'); document.body.style.overflow = '';       }
+
+// ── ANNOUNCEMENT MODAL WIRING ─────────────────
+const announcementModal = document.getElementById('announcementModal');
+document.getElementById('announcementModalClose').addEventListener('click', () => closeModal(announcementModal));
+document.getElementById('announcementCancelBtn').addEventListener('click',  () => closeModal(announcementModal));
+announcementModal.addEventListener('click', e => { if (e.target === announcementModal) closeModal(announcementModal); });
+document.getElementById('announcementForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const text  = document.getElementById('announcementText').value.trim();
+  const photo = document.getElementById('announcementPhoto').value.trim();
+  if (!text) return;
+  await addDoc(collection(db, 'feed'), {
+    type:      'announcement',
+    text,
+    photoUrl:  photo || null,
+    comments:  [],
+    createdAt: Date.now(),
+  });
+  document.getElementById('announcementText').value  = '';
+  document.getElementById('announcementPhoto').value = '';
+  closeModal(announcementModal);
+  switchTab('socialfeed');
+  showToast('Posted to feed!', 'success');
+});
 
 addBrotherBtn.addEventListener('click', openAddModal);
 document.getElementById('modalClose').addEventListener('click',   () => closeModal(brotherModal));
