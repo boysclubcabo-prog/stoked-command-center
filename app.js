@@ -457,6 +457,13 @@ function renderCard(brother) {
           <div class="goal-text">${escHtml(brother.goal)}</div>
         </div>` : ''}
 
+      ${(brother.weeklyWin || brother.weeklyChallenge || brother.weeklyCommitment) ? `
+        <div class="card-reflection">
+          ${brother.weeklyWin ? `<div class="cr-item"><span class="cr-label">💪 Win</span><span class="cr-text">${escHtml(brother.weeklyWin)}</span></div>` : ''}
+          ${brother.weeklyChallenge ? `<div class="cr-item"><span class="cr-label">⚡ Challenge</span><span class="cr-text">${escHtml(brother.weeklyChallenge)}</span></div>` : ''}
+          ${brother.weeklyCommitment ? `<div class="cr-item"><span class="cr-label">🎯 Commitment</span><span class="cr-text">${escHtml(brother.weeklyCommitment)}</span></div>` : ''}
+        </div>` : ''}
+
       ${brother.coachNote ? `
         <div class="coach-note-display">
           <div class="coach-note-label">Coach Note</div>

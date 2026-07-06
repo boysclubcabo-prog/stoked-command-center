@@ -1566,6 +1566,35 @@ body {
   transform: translateY(-1px);
 }
 
+/* ── CARD REFLECTION BLOCK ── */
+.card-reflection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 4px;
+}
+.cr-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cr-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.cr-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 /* ── VIEW CHECK-IN MODAL ── */
 .btn-view-checkin {
   background: rgba(75,114,170,0.15);
