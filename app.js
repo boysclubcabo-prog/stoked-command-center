@@ -116,6 +116,7 @@ let isAdmin     = false;
 let editingId   = null;
 let deletingId  = null;
 let unsubBrothers = null;
+let streakUpdatedThisSession = false;
 
 // ── DOM ───────────────────────────────────────
 const loginScreen   = document.getElementById('loginScreen');
@@ -192,6 +193,7 @@ function friendlyAuthError(code) {
 // ── SHOW / HIDE SCREENS ───────────────────────
 function showLogin() {
   if (unsubBrothers) { unsubBrothers(); unsubBrothers = null; }
+  streakUpdatedThisSession = false;
   loginScreen.classList.remove('hidden');
   appScreen.classList.add('hidden');
   loginForm.reset();
@@ -303,6 +305,9 @@ function renderMemberView() {
     return;
   }
 
+  // Update streak on login
+  updateStreak(profile);
+
   // Show a full hero profile for the member
   const xp    = profile.xp || 0;
   const lvl   = getLevelInfo(xp);
@@ -358,6 +363,14 @@ function renderMemberView() {
           <div class="score-cat" style="color:var(--text-muted)">No Check-In</div>
         </div>`}
       </div>
+
+      ${(profile.currentStreak > 0) ? `
+        <div class="streak-member">
+          <span class="streak-flame">🔥</span>
+          <span class="streak-count">${profile.currentStreak}</span>
+          <span class="streak-label">day streak</span>
+          ${profile.longestStreak > 1 ? `<span class="streak-best">Best: ${profile.longestStreak}</span>` : ''}
+        </div>` : ''}
 
       ${profile.goal ? `
         <div class="card-goal">
@@ -450,6 +463,14 @@ function renderCard(brother) {
           <div class="score-cat" style="color:var(--text-muted)">No Check-In</div>
         </div>`}
       </div>
+
+      ${(brother.currentStreak > 0) ? `
+        <div class="streak-card">
+          <span class="streak-flame">🔥</span>
+          <span class="streak-count">${brother.currentStreak}</span>
+          <span class="streak-label">day streak</span>
+          ${brother.longestStreak > 1 ? `<span class="streak-best">Best: ${brother.longestStreak}</span>` : ''}
+        </div>` : ''}
 
       ${brother.goal ? `
         <div class="card-goal">
@@ -630,6 +651,40 @@ document.getElementById('coachNoteForm').addEventListener('submit', async e => {
 document.getElementById('coachNoteModalClose').addEventListener('click', () => closeModal(coachNoteModal));
 document.getElementById('coachNoteCancelBtn').addEventListener('click',  () => closeModal(coachNoteModal));
 coachNoteModal.addEventListener('click', e => { if (e.target === coachNoteModal) closeModal(coachNoteModal); });
+
+// ── STREAK ────────────────────────────────────
+async function updateStreak(profile) {
+  if (streakUpdatedThisSession) return;
+  streakUpdatedThisSession = true;
+
+  const now      = new Date();
+  const todayStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
+  const last     = profile.lastLoginDate ? profile.lastLoginDate.slice(0, 10) : null;
+
+  if (last === todayStr) return; // already logged in today, no update needed
+
+  let streak = profile.currentStreak || 0;
+
+  if (last) {
+    const lastDate  = new Date(last + 'T00:00:00');
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().slice(0, 10);
+    streak = (last === yesterdayStr) ? streak + 1 : 1;
+  } else {
+    streak = 1;
+  }
+
+  const longest = Math.max(streak, profile.longestStreak || 0);
+
+  try {
+    await updateDoc(doc(db, 'brothers', profile.id), {
+      currentStreak: streak,
+      longestStreak: longest,
+      lastLoginDate: now.toISOString(),
+    });
+  } catch (_) {}
+}
 
 // ── VIEW CHECK-IN (admin read-only) ──────────
 function openViewCheckInModal(id) {
