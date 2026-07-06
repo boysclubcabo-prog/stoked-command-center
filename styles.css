@@ -2724,9 +2724,9 @@ body {
   --blue-dim:      #C0D8E4;
   --blue-glow:     rgba(46,95,120,0.10);
 
-  --terra:         #9A4020;
-  --terra-dim:     rgba(154,64,32,0.10);
-  --terra-glow:    rgba(154,64,32,0.18);
+  --terra:         #C4693A;
+  --terra-dim:     rgba(196,105,58,0.10);
+  --terra-glow:    rgba(196,105,58,0.18);
 
   --cream:         #1C1710;
   --yellow:        #A06818;
@@ -2767,21 +2767,21 @@ body {
 }
 
 [data-theme="light"] .btn-primary {
-  background: #9A4020;
+  background: #C4693A;
   color: #FDF8F0;
 }
 [data-theme="light"] .btn-primary:hover {
-  background: #7e3318;
+  background: #b05a2e;
 }
 
 [data-theme="light"] .btn-add-xp {
-  background: rgba(154,64,32,0.08);
-  border-color: rgba(154,64,32,0.25);
-  color: #9A4020;
+  background: rgba(196,105,58,0.08);
+  border-color: rgba(196,105,58,0.25);
+  color: #C4693A;
 }
 [data-theme="light"] .btn-add-xp:hover {
-  background: rgba(154,64,32,0.16);
-  border-color: #9A4020;
+  background: rgba(196,105,58,0.16);
+  border-color: #C4693A;
 }
 
 [data-theme="light"] .btn-checkin {
@@ -2814,11 +2814,11 @@ body {
 }
 
 [data-theme="light"] .btn-checkin-submit {
-  background: #9A4020;
+  background: #C4693A;
   color: #FDF8F0;
 }
 [data-theme="light"] .btn-checkin-submit:hover {
-  background: #7e3318;
+  background: #b05a2e;
 }
 
 [data-theme="light"] .login-left {
