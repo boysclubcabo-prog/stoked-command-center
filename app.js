@@ -221,11 +221,12 @@ function renderStats() {
     document.getElementById('statTopBrother').textContent  = '—';
     return;
   }
-  const avgDaily    = brothers.reduce((s,b) => s+(b.dailyScore||0), 0) / count;
-  const avgMomentum = brothers.reduce((s,b) => s+(b.momentum||0),   0) / count;
-  const totalXP     = brothers.reduce((s,b) => s+(b.xp||0),         0);
+  const checkedIn   = brothers.filter(b => b.brotherhoodScore != null);
+  const avgBS       = checkedIn.length ? Math.round(checkedIn.reduce((s,b) => s+(b.brotherhoodScore||0), 0) / checkedIn.length) : null;
+  const avgMomentum = brothers.reduce((s,b) => s+(b.momentum||0), 0) / count;
+  const totalXP     = brothers.reduce((s,b) => s+(b.xp||0),       0);
   const top         = brothers.reduce((best,b) => (!best||(b.xp||0)>(best.xp||0)) ? b : best, null);
-  document.getElementById('statGroupDaily').textContent  = avgDaily.toFixed(1);
+  document.getElementById('statGroupDaily').textContent  = avgBS != null ? avgBS : '—';
   document.getElementById('statAvgMomentum').textContent = avgMomentum.toFixed(1);
   document.getElementById('statTotalXP').textContent     = totalXP.toLocaleString();
   document.getElementById('statTopBrother').textContent  = top ? top.name : '—';
@@ -307,10 +308,18 @@ function renderMemberView() {
           <div class="score-num">${(profile.momentum??0).toFixed(1)}</div>
           <div class="score-lbl">Momentum</div>
         </div>
-        <div class="score-chip daily">
-          <div class="score-num">${(profile.dailyScore??0).toFixed(1)}</div>
-          <div class="score-lbl">Daily Score</div>
-        </div>
+        ${profile.brotherhoodScore != null ? (() => {
+          const cat = getBSCategory(profile.brotherhoodScore);
+          return `<div class="score-chip weekly" style="--bs-color:${cat.color}">
+            <div class="score-num" style="color:${cat.color}">${profile.brotherhoodScore}</div>
+            <div class="score-lbl">Weekly Score</div>
+            <div class="score-cat" style="color:${cat.color}">${cat.label}</div>
+          </div>`;
+        })() : `<div class="score-chip weekly empty">
+          <div class="score-num" style="color:var(--text-muted)">—</div>
+          <div class="score-lbl">Weekly Score</div>
+          <div class="score-cat" style="color:var(--text-muted)">No Check-In</div>
+        </div>`}
       </div>
 
       ${profile.goal ? `
@@ -324,21 +333,6 @@ function renderMemberView() {
           <div class="goal-label">Weekly Commitment</div>
           <div class="goal-text">${escHtml(profile.commitment)}</div>
         </div>` : ''}
-
-      ${profile.brotherhoodScore != null ? (() => {
-        const cat = getBSCategory(profile.brotherhoodScore);
-        const dateStr = profile.lastCheckInDate ? new Date(profile.lastCheckInDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
-        return `
-        <div class="bs-member-badge" style="--bs-color:${cat.color}">
-          <div class="bs-member-score">
-            <span class="bs-member-num">${profile.brotherhoodScore}</span>
-            <span class="bs-member-denom">/ 100</span>
-          </div>
-          <div class="bs-member-label">Brotherhood Score</div>
-          <div class="bs-member-cat" style="color:${cat.color}">${cat.label}</div>
-          ${dateStr ? `<div class="bs-member-date">Last check-in: ${dateStr}</div>` : ''}
-        </div>`;
-      })() : ''}
 
       <button class="btn-checkin-member" data-checkin="${profile.id}">Weekly Check-In</button>
     </div>`;
@@ -399,10 +393,18 @@ function renderCard(brother) {
           <div class="score-num">${(brother.momentum??0).toFixed(1)}</div>
           <div class="score-lbl">Momentum</div>
         </div>
-        <div class="score-chip daily">
-          <div class="score-num">${(brother.dailyScore??0).toFixed(1)}</div>
-          <div class="score-lbl">Daily Score</div>
-        </div>
+        ${brother.brotherhoodScore != null ? (() => {
+          const cat = getBSCategory(brother.brotherhoodScore);
+          return `<div class="score-chip weekly" style="--bs-color:${cat.color}">
+            <div class="score-num" style="color:${cat.color}">${brother.brotherhoodScore}</div>
+            <div class="score-lbl">Weekly Score</div>
+            <div class="score-cat" style="color:${cat.color}">${cat.label}</div>
+          </div>`;
+        })() : `<div class="score-chip weekly empty">
+          <div class="score-num" style="color:var(--text-muted)">—</div>
+          <div class="score-lbl">Weekly Score</div>
+          <div class="score-cat" style="color:var(--text-muted)">No Check-In</div>
+        </div>`}
       </div>
 
       ${brother.goal ? `
@@ -410,20 +412,6 @@ function renderCard(brother) {
           <div class="goal-label">Main Goal</div>
           <div class="goal-text">${escHtml(brother.goal)}</div>
         </div>` : ''}
-
-      ${brother.brotherhoodScore != null ? (() => {
-        const cat = getBSCategory(brother.brotherhoodScore);
-        const dateStr = brother.lastCheckInDate ? new Date(brother.lastCheckInDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
-        return `
-        <div class="bs-card-badge" style="--bs-color:${cat.color}">
-          <div class="bs-card-row">
-            <span class="bs-card-num">${brother.brotherhoodScore}</span>
-            <span class="bs-card-slash">/ 100</span>
-            <span class="bs-card-cat" style="color:${cat.color}">${cat.label}</span>
-          </div>
-          <div class="bs-card-meta">Brotherhood Score${dateStr ? ` · ${dateStr}` : ''}</div>
-        </div>`;
-      })() : ''}
 
       <div class="card-btn-row">
         <button class="btn-add-xp" data-addxp="${brother.id}">⚡ Add XP</button>
@@ -451,7 +439,6 @@ function openEditModal(id) {
   document.getElementById('fieldArchetype').value  = b.archetype  || '';
   document.getElementById('fieldXP').value         = b.xp         || 0;
   document.getElementById('fieldMomentum').value   = b.momentum   ?? '';
-  document.getElementById('fieldDaily').value      = b.dailyScore ?? '';
   document.getElementById('fieldGoal').value       = b.goal       || '';
   document.getElementById('fieldCommitment').value = b.commitment || '';
   document.getElementById('fieldNotes').value      = b.notes      || '';
@@ -467,7 +454,6 @@ brotherForm.addEventListener('submit', async e => {
     archetype:  document.getElementById('fieldArchetype').value,
     xp:         Math.min(10000, Math.max(0, parseInt(document.getElementById('fieldXP').value)       || 0)),
     momentum:   Math.min(10,    Math.max(0, parseFloat(document.getElementById('fieldMomentum').value) || 0)),
-    dailyScore: Math.min(10,    Math.max(0, parseFloat(document.getElementById('fieldDaily').value)    || 0)),
     goal:       document.getElementById('fieldGoal').value.trim(),
     commitment: document.getElementById('fieldCommitment').value.trim(),
     notes:      document.getElementById('fieldNotes').value.trim(),

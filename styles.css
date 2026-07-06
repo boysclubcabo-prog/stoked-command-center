@@ -466,7 +466,22 @@ body {
 }
 
 .score-chip.momentum .score-num { color: #4B72AA; }
-.score-chip.daily .score-num    { color: #F5D97A; }
+
+.score-chip.weekly {
+  border-color: rgba(255,255,255,0.08);
+}
+
+.score-chip.weekly.empty {
+  opacity: 0.5;
+}
+
+.score-cat {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
 
 /* Goal */
 .card-goal {
