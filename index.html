@@ -227,6 +227,28 @@
     </div>
   </div>
 
+  <!-- COACH NOTES MODAL -->
+  <div class="modal-overlay" id="coachNoteModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Coach Note</h2>
+        <button class="modal-close" id="coachNoteModalClose">✕</button>
+      </div>
+      <div id="coachNoteBrotherName" class="checkin-brother-name"></div>
+      <form class="modal-form" id="coachNoteForm">
+        <input type="hidden" id="coachNoteBrotherId" />
+        <div class="form-group">
+          <label>Note to Brother</label>
+          <textarea id="coachNoteText" placeholder="Write your note, feedback, or direction here…" rows="5"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="coachNoteCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Note</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- WEEKLY CHECK-IN MODAL -->
   <div class="modal-overlay" id="checkInModal">
     <div class="modal modal-checkin">

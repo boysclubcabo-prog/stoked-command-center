@@ -1238,6 +1238,91 @@ body {
   border-color: #F5D97A;
 }
 
+/* ── COACH NOTE BUTTON (card) ── */
+.btn-coach-note {
+  padding: 10px 12px;
+  background: rgba(245,217,122,0.08);
+  border: 1px solid rgba(245,217,122,0.2);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-coach-note:hover {
+  background: rgba(245,217,122,0.16);
+  border-color: #F5D97A;
+  color: #F5D97A;
+}
+
+/* Coach Note on admin card */
+.coach-note-display {
+  background: rgba(75,114,170,0.07);
+  border: 1px solid rgba(75,114,170,0.25);
+  border-left: 3px solid #4B72AA;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.coach-note-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #4B72AA;
+  margin-bottom: 5px;
+}
+
+.coach-note-text {
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.coach-note-date {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Coach Note on member hero */
+.coach-note-member {
+  background: rgba(75,114,170,0.08);
+  border: 1px solid rgba(75,114,170,0.3);
+  border-left: 3px solid #4B72AA;
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.coach-note-member-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4B72AA;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.coach-note-member-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.coach-note-member-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
 /* ── CHECK-IN MODAL ── */
 .modal-checkin {
   max-width: 580px;

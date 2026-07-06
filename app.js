@@ -100,10 +100,11 @@ const brothersGrid  = document.getElementById('brothersGrid');
 const emptyState    = document.getElementById('emptyState');
 const addBrotherBtn = document.getElementById('addBrotherBtn');
 const exportBtn     = document.getElementById('exportBtn');
-const brotherModal  = document.getElementById('brotherModal');
-const xpModal       = document.getElementById('xpModal');
-const deleteModal   = document.getElementById('deleteModal');
-const checkInModal  = document.getElementById('checkInModal');
+const brotherModal   = document.getElementById('brotherModal');
+const xpModal        = document.getElementById('xpModal');
+const deleteModal    = document.getElementById('deleteModal');
+const checkInModal   = document.getElementById('checkInModal');
+const coachNoteModal = document.getElementById('coachNoteModal');
 const modalTitle    = document.getElementById('modalTitle');
 const brotherForm   = document.getElementById('brotherForm');
 
@@ -248,6 +249,8 @@ function renderGrid() {
     btn.addEventListener('click', () => openXPModal(btn.dataset.addxp)));
   document.querySelectorAll('[data-checkin]').forEach(btn =>
     btn.addEventListener('click', () => openCheckInModal(btn.dataset.checkin)));
+  document.querySelectorAll('[data-coachnote]').forEach(btn =>
+    btn.addEventListener('click', () => openCoachNoteModal(btn.dataset.coachnote)));
 }
 
 function renderMemberView() {
@@ -334,6 +337,13 @@ function renderMemberView() {
           <div class="goal-text">${escHtml(profile.commitment)}</div>
         </div>` : ''}
 
+      ${profile.coachNote ? `
+        <div class="coach-note-member">
+          <div class="coach-note-member-label">— Coach Note —</div>
+          <div class="coach-note-member-text">${escHtml(profile.coachNote)}</div>
+          ${profile.coachNoteDate ? `<div class="coach-note-member-date">${new Date(profile.coachNoteDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>` : ''}
+        </div>` : ''}
+
       <button class="btn-checkin-member" data-checkin="${profile.id}">Weekly Check-In</button>
     </div>`;
 
@@ -413,9 +423,17 @@ function renderCard(brother) {
           <div class="goal-text">${escHtml(brother.goal)}</div>
         </div>` : ''}
 
+      ${brother.coachNote ? `
+        <div class="coach-note-display">
+          <div class="coach-note-label">Coach Note</div>
+          <div class="coach-note-text">${escHtml(brother.coachNote)}</div>
+          ${brother.coachNoteDate ? `<div class="coach-note-date">${new Date(brother.coachNoteDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}
+        </div>` : ''}
+
       <div class="card-btn-row">
         <button class="btn-add-xp" data-addxp="${brother.id}">⚡ Add XP</button>
         <button class="btn-checkin" data-checkin="${brother.id}" title="Weekly Check-In">Check-In</button>
+        <button class="btn-coach-note" data-coachnote="${brother.id}" title="Coach Note">📋</button>
       </div>
     </div>`;
 }
@@ -535,6 +553,41 @@ document.getElementById('deleteCancelBtn').addEventListener('click', () => {
   deletingId = null;
   closeModal(deleteModal);
 });
+
+// ── COACH NOTES ───────────────────────────────
+function openCoachNoteModal(id) {
+  const b = brothers.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('coachNoteBrotherId').value = id;
+  document.getElementById('coachNoteBrotherName').textContent = b.name;
+  document.getElementById('coachNoteText').value = b.coachNote || '';
+  openModal(coachNoteModal);
+  setTimeout(() => document.getElementById('coachNoteText').focus(), 120);
+}
+
+document.getElementById('coachNoteForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id   = document.getElementById('coachNoteBrotherId').value;
+  const note = document.getElementById('coachNoteText').value.trim();
+  const b    = brothers.find(x => x.id === id);
+  if (!b) return;
+
+  try {
+    await updateDoc(doc(db, 'brothers', id), {
+      coachNote:     note,
+      coachNoteDate: new Date().toISOString(),
+      updatedAt:     new Date().toISOString(),
+    });
+    closeModal(coachNoteModal);
+    showToast(`Note sent to ${b.name}`, 'success');
+  } catch (err) {
+    showToast('Error saving note: ' + err.message, 'info');
+  }
+});
+
+document.getElementById('coachNoteModalClose').addEventListener('click', () => closeModal(coachNoteModal));
+document.getElementById('coachNoteCancelBtn').addEventListener('click',  () => closeModal(coachNoteModal));
+coachNoteModal.addEventListener('click', e => { if (e.target === coachNoteModal) closeModal(coachNoteModal); });
 
 // ── WEEKLY CHECK-IN ───────────────────────────
 const SLIDER_IDS = ['focus','movement','discipline','composure','stoke'];
@@ -657,7 +710,7 @@ document.getElementById('xpCancelBtn').addEventListener('click',  () => closeMod
   el.addEventListener('click', e => { if (e.target === el) closeModal(el); }));
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal].forEach(closeModal);
+  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal].forEach(closeModal);
 });
 
 // ── TOAST ─────────────────────────────────────
