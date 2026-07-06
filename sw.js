@@ -1,4 +1,4 @@
-const CACHE = 'stoked-v17';
+const CACHE = 'stoked-v18';
 
 // Only cache static assets — never app.js or index.html
 // so code updates are always picked up immediately
@@ -42,10 +42,10 @@ self.addEventListener('fetch', e => {
 
   const path = url.pathname;
 
-  // Core app files — network first, fall back to cache
+  // Core app files — network first (bypassing HTTP cache), fall back to cache
   if (ALWAYS_NETWORK.includes(path)) {
     e.respondWith(
-      fetch(e.request).then(res => {
+      fetch(e.request, { cache: 'no-store' }).then(res => {
         const clone = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, clone));
         return res;
