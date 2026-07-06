@@ -1570,6 +1570,12 @@ body {
   text-align: center;
 }
 
+.assess-result-card .arch-icon {
+  display: flex;
+  justify-content: center;
+  margin: 4px auto;
+}
+
 .assess-result-tag {
   font-size: 10px;
   font-weight: 700;

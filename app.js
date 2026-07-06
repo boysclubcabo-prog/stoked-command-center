@@ -1049,16 +1049,20 @@ function renderAssessResults(primaryArchetype, growthArchetype, dominantElement)
   const pClr = ARCHETYPE_COLORS[primaryArchetype];
   const gClr = ARCHETYPE_COLORS[growthArchetype];
   const elColor = ELEMENT_COLORS[dominantElement];
+  const pIcon = archetypeElementIcon(primaryArchetype, dominantElement);
+  const gIcon = archetypeElementIcon(growthArchetype, dominantElement);
 
   assessContent.innerHTML = `
     <div class="assess-results">
       <div class="assess-result-card" style="--arch-border:${pClr.border};--arch-glow:${pClr.glow};--arch-icon:${pClr.icon}">
         <div class="assess-result-tag">Primary Archetype</div>
+        <span class="arch-icon">${pIcon}</span>
         <div class="assess-result-name">${primaryArchetype}</div>
         <div class="assess-result-desc">${ARCHETYPE_DESC[primaryArchetype].primary}</div>
       </div>
       <div class="assess-result-card" style="--arch-border:${gClr.border};--arch-glow:${gClr.glow};--arch-icon:${gClr.icon}">
         <div class="assess-result-tag">Growth Archetype</div>
+        <span class="arch-icon">${gIcon}</span>
         <div class="assess-result-name">${growthArchetype}</div>
         <div class="assess-result-desc">${ARCHETYPE_DESC[growthArchetype].growth}</div>
       </div>
