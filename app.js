@@ -29,17 +29,20 @@ const db          = getFirestore(firebaseApp);
 const ADMIN_EMAIL = 'boysclubcabo@gmail.com';
 
 // ── LEVEL SYSTEM ──────────────────────────────
+// xpRequired = XP threshold to ENTER this level
 const LEVELS = [
-  { level: 1,  name: 'Recruit',    xpRequired: 1000  },
-  { level: 2,  name: 'Apprentice', xpRequired: 2000  },
-  { level: 3,  name: 'Initiate',   xpRequired: 3000  },
-  { level: 4,  name: 'Pathfinder', xpRequired: 4000  },
-  { level: 5,  name: 'Warrior',    xpRequired: 5000  },
-  { level: 6,  name: 'Builder',    xpRequired: 6000  },
-  { level: 7,  name: 'Guardian',   xpRequired: 7000  },
-  { level: 8,  name: 'Leader',     xpRequired: 8000  },
-  { level: 9,  name: 'Mentor',     xpRequired: 9000  },
-  { level: 10, name: 'Stoked Man', xpRequired: 10000 },
+  { level: 1,  name: 'Recruit',    xpRequired: 0     },
+  { level: 2,  name: 'Initiate',   xpRequired: 1000  },
+  { level: 3,  name: 'Apprentice', xpRequired: 2000  },
+  { level: 4,  name: 'Challenger', xpRequired: 3000  },
+  { level: 5,  name: 'Pathfinder', xpRequired: 4000  },
+  { level: 6,  name: 'Ascender',   xpRequired: 5000  },
+  { level: 7,  name: 'Vanguard',   xpRequired: 6000  },
+  { level: 8,  name: 'Captain',    xpRequired: 7000  },
+  { level: 9,  name: 'Commander',  xpRequired: 8500  },
+  { level: 10, name: 'King',       xpRequired: 10000 },
+  { level: 11, name: 'Mentor',     xpRequired: 12500 },
+  { level: 12, name: 'Legend',     xpRequired: 15000 },
 ];
 
 const CHALLENGE_TAGS = {
@@ -410,19 +413,21 @@ function updateChallengesBadge() {
 }
 
 // ── LEVEL LOGIC ───────────────────────────────
-function getLevelInfo(xp) {
-  const clamped = Math.min(Math.max(0, xp), 10000);
-  if (clamped >= 10000) return { current: LEVELS[9], next: null, progress: 100, xpNeededForNext: 0 };
+const MAX_XP = 15000;
 
-  let currentLevel = LEVELS[0];
+function getLevelInfo(xp) {
+  const clamped = Math.min(Math.max(0, xp), MAX_XP);
+  // Find current level: highest level whose entry threshold is <= xp
+  let idx = 0;
   for (let i = LEVELS.length - 1; i >= 0; i--) {
-    if (clamped >= LEVELS[i].xpRequired - 1000) { currentLevel = LEVELS[i]; break; }
+    if (clamped >= LEVELS[i].xpRequired) { idx = i; break; }
   }
-  const startXP = (currentLevel.level - 1) * 1000;
-  const nextXP  = currentLevel.xpRequired;
-  const progress = Math.round(((clamped - startXP) / (nextXP - startXP)) * 100);
-  const next = currentLevel.level < 10 ? LEVELS[currentLevel.level] : null;
-  return { current: currentLevel, next, progress: Math.min(100, Math.max(0, progress)), xpNeededForNext: next ? nextXP - clamped : 0 };
+  const current = LEVELS[idx];
+  const next    = idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
+  const startXP = current.xpRequired;
+  const endXP   = next ? next.xpRequired : MAX_XP;
+  const progress = next ? Math.round(((clamped - startXP) / (endXP - startXP)) * 100) : 100;
+  return { current, next, progress: Math.min(100, Math.max(0, progress)), xpNeededForNext: next ? endXP - clamped : 0 };
 }
 
 // ── RENDER ────────────────────────────────────
@@ -502,7 +507,7 @@ function renderMemberView() {
   // Show a full hero profile for the member
   const xp    = profile.xp || 0;
   const lvl   = getLevelInfo(xp);
-  const maxed = xp >= 10000;
+  const maxed = xp >= MAX_XP;
   const displayArchetype = profile.primaryArchetype || profile.archetype;
   const clr   = ARCHETYPE_COLORS[displayArchetype] || ARCHETYPE_COLORS.Warrior;
   const icon  = archetypeElementIcon(displayArchetype, profile.dominantElement);
@@ -613,7 +618,7 @@ function renderCard(brother) {
   const archIcon = archetypeElementIcon(displayArchetype, brother.dominantElement);
   const archClr  = ARCHETYPE_COLORS[displayArchetype] || { border:'var(--border)', glow:'transparent', icon:'var(--orange)' };
   const archElColor = ELEMENT_COLORS[brother.dominantElement];
-  const maxed   = xp >= 10000;
+  const maxed   = xp >= MAX_XP;
   const nextText = lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to ${lvl.next.name}` : 'MAX LEVEL ACHIEVED';
 
   return `
@@ -742,7 +747,7 @@ brotherForm.addEventListener('submit', async e => {
     age:        parseInt(document.getElementById('fieldAge').value)        || null,
     email:      document.getElementById('fieldEmail').value.trim().toLowerCase(),
     archetype:  document.getElementById('fieldArchetype').value,
-    xp:         Math.min(10000, Math.max(0, parseInt(document.getElementById('fieldXP').value)       || 0)),
+    xp:         Math.min(MAX_XP, Math.max(0, parseInt(document.getElementById('fieldXP').value)       || 0)),
     momentum:   Math.min(10,    Math.max(0, parseFloat(document.getElementById('fieldMomentum').value) || 0)),
     goal:       document.getElementById('fieldGoal').value.trim(),
     commitment: document.getElementById('fieldCommitment').value.trim(),
@@ -789,7 +794,7 @@ xpForm.addEventListener('submit', async e => {
   if (amount <= 0) return;
 
   const b     = brothers.find(x => x.id === id);
-  const newXP = Math.min(10000, (b.xp || 0) + amount);
+  const newXP = Math.min(MAX_XP, (b.xp || 0) + amount);
 
   try {
     await updateDoc(doc(db, 'brothers', id), { xp: newXP, updatedAt: new Date().toISOString() });
@@ -1740,7 +1745,7 @@ async function approveSubmission(subId) {
   try {
     await updateDoc(doc(db, 'submissions', subId), { status: 'approved', reviewedAt: new Date().toISOString() });
     if (brother) {
-      const newXP = Math.min(10000, (brother.xp || 0) + (s.xpReward || 0));
+      const newXP = Math.min(MAX_XP, (brother.xp || 0) + (s.xpReward || 0));
       await updateDoc(doc(db, 'brothers', brother.id), { xp: newXP, updatedAt: new Date().toISOString() });
     }
     showToast(`✅ Approved! +${s.xpReward} XP → ${s.brotherName}`, 'success');
