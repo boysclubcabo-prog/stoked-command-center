@@ -231,12 +231,8 @@ body {
   text-align: center;
 }
 
-/* Keep top row name left-aligned, actions right */
+/* Keep only the top name/actions row left-aligned */
 .brother-card .card-identity { text-align: left; }
-/* Keep reflection text left-aligned for readability */
-.brother-card .card-reflection,
-.brother-card .card-goal,
-.brother-card .coach-note-display { text-align: left; }
 
 .brother-card::before {
   content: '';
