@@ -62,13 +62,68 @@ function challengeTagPill(tag) {
 }
 
 const ARCHETYPE_COLORS = {
-  Warrior:  { border: 'rgba(196,105,58,0.5)',  glow: 'rgba(196,105,58,0.06)',  icon: '#C4693A' }, // terracotta
-  Monk:     { border: 'rgba(158,141,114,0.45)', glow: 'rgba(158,141,114,0.06)', icon: '#9e8d72' }, // warm sand
-  Creator:  { border: 'rgba(91,138,160,0.45)', glow: 'rgba(91,138,160,0.07)',  icon: '#5B8AA0' }, // ocean blue
-  Explorer: { border: 'rgba(90,140,90,0.45)',  glow: 'rgba(90,140,90,0.06)',   icon: '#5a8c5a' }, // sage green
-  Leader:   { border: 'rgba(212,168,83,0.5)',  glow: 'rgba(212,168,83,0.07)',  icon: '#D4A853' }, // amber gold
-  Builder:  { border: 'rgba(130,110,90,0.45)', glow: 'rgba(130,110,90,0.06)',  icon: '#826e5a' }, // warm brown
+  Warrior:      { border: 'rgba(196,105,58,0.5)',  glow: 'rgba(196,105,58,0.06)',  icon: '#C4693A' }, // terracotta
+  Monk:         { border: 'rgba(158,141,114,0.45)', glow: 'rgba(158,141,114,0.06)', icon: '#9e8d72' }, // warm sand
+  Creator:      { border: 'rgba(91,138,160,0.45)', glow: 'rgba(91,138,160,0.07)',  icon: '#5B8AA0' }, // ocean blue
+  Explorer:     { border: 'rgba(90,140,90,0.45)',  glow: 'rgba(90,140,90,0.06)',   icon: '#5a8c5a' }, // sage green
+  Leader:       { border: 'rgba(212,168,83,0.5)',  glow: 'rgba(212,168,83,0.07)',  icon: '#D4A853' }, // amber gold
+  Builder:      { border: 'rgba(130,110,90,0.45)', glow: 'rgba(130,110,90,0.06)',  icon: '#826e5a' }, // warm brown
+  Protector:    { border: 'rgba(156,90,66,0.5)',   glow: 'rgba(156,90,66,0.06)',   icon: '#9c5a42' }, // rust
+  Strategist:   { border: 'rgba(93,122,138,0.5)',  glow: 'rgba(93,122,138,0.06)',  icon: '#5d7a8a' }, // slate blue
+  Visionary:    { border: 'rgba(122,138,82,0.5)',  glow: 'rgba(122,138,82,0.06)',  icon: '#7a8a52' }, // olive
+  Communicator: { border: 'rgba(176,122,74,0.5)',  glow: 'rgba(176,122,74,0.06)',  icon: '#b07a4a' }, // copper
+  Guardian:     { border: 'rgba(122,116,104,0.5)', glow: 'rgba(122,116,104,0.06)', icon: '#7a7468' }, // stone
+  Sovereign:    { border: 'rgba(138,112,48,0.5)',  glow: 'rgba(138,112,48,0.06)',  icon: '#8a7030' }, // deep gold
 };
+
+const ELEMENT_COLORS = {
+  Fire:  '#C4502E',
+  Water: '#4A7A94',
+  Air:   '#8A9AB0',
+  Earth: '#7A8C52',
+};
+
+const ELEMENT_DESC = {
+  Fire:  'Your strongest energy is passion, courage, action, and intensity.',
+  Water: 'Your strongest energy is emotion, adaptability, connection, and intuition.',
+  Air:   'Your strongest energy is ideas, creativity, awareness, and clarity of mind.',
+  Earth: 'Your strongest energy is discipline, structure, and steady strength.',
+};
+
+const ARCHETYPE_DESC = {
+  Warrior:      { primary: 'You grow through challenge, courage, discipline, and action.',          growth: 'Your next evolution is taking on hard challenges with discipline and courage.' },
+  Monk:         { primary: 'You grow through calm, awareness, and inner control.',                  growth: 'Your next evolution is developing calm, awareness, and inner control.' },
+  Creator:      { primary: 'You grow through expression, imagination, and making things real.',     growth: 'Your next evolution is creating boldly and trusting your imagination.' },
+  Explorer:     { primary: 'You grow through curiosity, freedom, and new experience.',               growth: 'Your next evolution is stepping into the unknown and staying curious.' },
+  Leader:       { primary: 'You grow through influence, energy, and lifting others up.',             growth: 'Your next evolution is stepping up and leading with purpose.' },
+  Builder:      { primary: 'You grow through discipline, structure, and getting things done.',       growth: 'Your next evolution is building consistent habits and following through.' },
+  Protector:    { primary: 'You grow through loyalty, responsibility, and standing for others.',     growth: 'Your next evolution is showing up for the people who depend on you.' },
+  Strategist:   { primary: 'You grow through thinking, planning, and understanding how things work.',growth: 'Your next evolution is slowing down to think before you act.' },
+  Visionary:    { primary: 'You grow through purpose, big ideas, and seeing what\'s possible.',       growth: 'Your next evolution is dreaming bigger and trusting your vision.' },
+  Communicator: { primary: 'You grow through connection, voice, and being understood.',               growth: 'Your next evolution is speaking up and connecting honestly.' },
+  Guardian:     { primary: 'You grow through stability, integrity, and consistency.',                 growth: 'Your next evolution is becoming the steady one others can count on.' },
+  Sovereign:    { primary: 'You grow through presence, ownership, and self-respect.',                 growth: 'Your next evolution is owning your presence and standing on your own.' },
+};
+
+// ── ARCHETYPE ASSESSMENT ──────────────────────
+const ASSESS_QUESTIONS = [
+  { left: 'Competition & Challenge', right: 'Creativity & Expression', leftScore: { arch: 'Warrior', el: 'Fire' },    rightScore: { arch: 'Creator',    el: 'Air' } },
+  { left: 'Action First',            right: 'Think First',             leftScore: { arch: 'Warrior', el: 'Fire' },    rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: 'Adventure & Freedom',     right: 'Structure & Stability',    leftScore: { arch: 'Explorer', el: 'Air' },    rightScore: { arch: 'Builder',    el: 'Earth' } },
+  { left: 'Leading the energy',      right: 'Observing quietly',        leftScore: { arch: 'Leader',   el: 'Fire' },    rightScore: { arch: 'Monk',       el: 'Water' } },
+  { left: 'Slow down and sit still', right: 'Speak up and take action', leftScore: { arch: 'Monk',     el: 'Water' },   rightScore: { arch: 'Leader',     el: 'Fire' } },
+  { left: 'Physical Strength',       right: 'Mental Sharpness',         leftScore: { arch: 'Warrior',  el: 'Earth' },   rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: 'Winning',                 right: 'Understanding',            leftScore: { arch: 'Warrior',  el: 'Fire' },    rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: 'Being Respected',         right: 'Being Authentic',          leftScore: { arch: 'Sovereign',el: 'Fire' },    rightScore: { arch: 'Creator',    el: 'Water' } },
+  { left: 'Protecting others',       right: 'Exploring new things',     leftScore: { arch: 'Protector',el: 'Earth' },   rightScore: { arch: 'Explorer',   el: 'Air' } },
+  { left: 'Discipline & Routine',    right: 'Flow & Flexibility',       leftScore: { arch: 'Builder',  el: 'Earth' },   rightScore: { arch: 'Explorer',   el: 'Water' } },
+  { left: 'Building something real', right: 'Imagining something new',  leftScore: { arch: 'Builder',  el: 'Earth' },   rightScore: { arch: 'Visionary',  el: 'Air' } },
+  { left: 'To become stronger',      right: 'To become wiser',          leftScore: { arch: 'Warrior',  el: 'Fire' },    rightScore: { arch: 'Monk',       el: 'Water' } },
+];
+
+let assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
+let assessIndex     = 0;
+let assessBrotherId = null;
 
 const ARCHETYPE_ICONS = {
   // Shield with sword through center
@@ -112,6 +167,43 @@ const ARCHETYPE_ICONS = {
     <path d="M14 9.5l1-1 1.5 1.5-1 1z"/>
     <line x1="14" y1="9.5" x2="9.5" y2="14"/>
     <line x1="9.5" y1="14" x2="8" y2="15.5"/>
+  </svg>`,
+
+  // Shield with checkmark
+  Protector: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2L4 5.5v6c0 5.5 4.5 9 8 10.5 3.5-1.5 8-5 8-10.5v-6L12 2z"/>
+    <polyline points="9 12 11 14 15 9.5"/>
+  </svg>`,
+
+  // Circle with grid
+  Strategist: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/>
+    <rect x="8.5" y="8.5" width="3" height="3"/>
+    <rect x="12.5" y="8.5" width="3" height="3"/>
+    <rect x="8.5" y="12.5" width="3" height="3"/>
+    <rect x="12.5" y="12.5" width="3" height="3"/>
+  </svg>`,
+
+  // Eye
+  Visionary: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>`,
+
+  // Speech bubble
+  Communicator: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>
+  </svg>`,
+
+  // Closed shield
+  Guardian: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2L4 5.5v6c0 5.5 4.5 9 8 10.5 3.5-1.5 8-5 8-10.5v-6L12 2z"/>
+  </svg>`,
+
+  // Crown
+  Sovereign: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="4" y1="18" x2="20" y2="18"/>
+    <path d="M5 18l-1.5-8L8 13l4-7 4 7 4.5-3L19 18"/>
   </svg>`,
 };
 
@@ -447,8 +539,10 @@ function renderMemberView() {
   const xp    = profile.xp || 0;
   const lvl   = getLevelInfo(xp);
   const maxed = xp >= 10000;
-  const clr   = ARCHETYPE_COLORS[profile.archetype] || ARCHETYPE_COLORS.Warrior;
-  const icon  = ARCHETYPE_ICONS[profile.archetype]  || '';
+  const displayArchetype = profile.primaryArchetype || profile.archetype;
+  const clr   = ARCHETYPE_COLORS[displayArchetype] || ARCHETYPE_COLORS.Warrior;
+  const icon  = ARCHETYPE_ICONS[displayArchetype]  || '';
+  const elColor = ELEMENT_COLORS[profile.dominantElement];
 
   memberHero.innerHTML = `
     <div class="member-card" style="--arch-border:${clr.border};--arch-glow:${clr.glow};--arch-icon:${clr.icon}">
@@ -457,12 +551,22 @@ function renderMemberView() {
           <div class="member-name">${escHtml(profile.name)}${profile.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : ''}</div>
           ${profile.age ? `<div class="card-age">Age ${profile.age}</div>` : ''}
         </div>
-        ${profile.archetype ? `
-          <div class="archetype-pill">
-            <span class="arch-icon">${icon}</span>
-            <span class="arch-label">${escHtml(profile.archetype)}</span>
+        ${displayArchetype ? `
+          <div>
+            <div class="archetype-pill">
+              <span class="arch-icon">${icon}</span>
+              <span class="arch-label">${escHtml(displayArchetype)}</span>
+            </div>
+            ${profile.dominantElement ? `<span class="element-pill" style="--el-color:${elColor};--el-border:${elColor}55;--el-bg:${elColor}15">${profile.dominantElement}</span>` : ''}
           </div>` : ''}
       </div>
+
+      ${!profile.primaryArchetype ? `
+        <div class="assess-cta">
+          <div class="assess-cta-title">Discover Your Archetype</div>
+          <div class="assess-cta-text">Take the 2-minute assessment to find your primary archetype, growth archetype, and dominant element.</div>
+          <button class="btn-assess-cta" data-take-assessment="${profile.id}">Take Assessment</button>
+        </div>` : ''}
 
       <div class="xp-hero">
         <div class="xp-hero-num ${maxed ? 'maxed' : ''}">${xp.toLocaleString()}</div>
@@ -540,8 +644,10 @@ function renderMemberView() {
 function renderCard(brother) {
   const xp      = brother.xp || 0;
   const lvl     = getLevelInfo(xp);
-  const archIcon = ARCHETYPE_ICONS[brother.archetype] || '';
-  const archClr  = ARCHETYPE_COLORS[brother.archetype] || { border:'var(--border)', glow:'transparent', icon:'var(--orange)' };
+  const displayArchetype = brother.primaryArchetype || brother.archetype;
+  const archIcon = ARCHETYPE_ICONS[displayArchetype] || '';
+  const archClr  = ARCHETYPE_COLORS[displayArchetype] || { border:'var(--border)', glow:'transparent', icon:'var(--orange)' };
+  const archElColor = ELEMENT_COLORS[brother.dominantElement];
   const maxed   = xp >= 10000;
   const nextText = lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to ${lvl.next.name}` : 'MAX LEVEL ACHIEVED';
 
@@ -558,11 +664,12 @@ function renderCard(brother) {
         </div>
       </div>
 
-      ${brother.archetype ? `
+      ${displayArchetype ? `
         <div class="archetype-pill">
           <span class="arch-icon">${archIcon}</span>
-          <span class="arch-label">${escHtml(brother.archetype)}</span>
-        </div>` : ''}
+          <span class="arch-label">${escHtml(displayArchetype)}</span>
+        </div>
+        ${brother.dominantElement ? `<span class="element-pill" style="--el-color:${archElColor};--el-border:${archElColor}55;--el-bg:${archElColor}15">${brother.dominantElement}</span>` : ''}` : ''}
 
       <div class="xp-hero">
         <div class="xp-hero-num ${maxed ? 'maxed' : ''}">${xp.toLocaleString()}</div>
@@ -878,6 +985,136 @@ function openViewCheckInModal(id) {
 
 document.getElementById('viewCheckInModalClose').addEventListener('click', () => closeModal(viewCheckInModal));
 viewCheckInModal.addEventListener('click', e => { if (e.target === viewCheckInModal) closeModal(viewCheckInModal); });
+
+// ── ARCHETYPE ASSESSMENT ──────────────────────
+const assessModal   = document.getElementById('assessModal');
+const assessContent = document.getElementById('assessContent');
+
+function openAssessment(brotherId) {
+  assessBrotherId = brotherId;
+  assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
+  assessIndex     = 0;
+  renderAssessIntro();
+  openModal(assessModal);
+}
+
+function renderAssessIntro() {
+  assessContent.innerHTML = `
+    <div class="assess-intro">
+      <div class="assess-intro-icon">${IC.target}</div>
+      <div class="assess-intro-title">Find Your Archetype</div>
+      <p class="assess-intro-text">12 quick questions. Pick where you naturally lean — there's no right answer, just the honest one. Takes about 2 minutes.</p>
+      <button class="btn btn-primary assess-done-btn" id="assessStartBtn">Start Assessment</button>
+    </div>`;
+  document.getElementById('assessStartBtn').addEventListener('click', () => renderAssessQuestion());
+}
+
+function renderAssessQuestion() {
+  const q   = ASSESS_QUESTIONS[assessIndex];
+  const val = assessAnswers[assessIndex];
+  const labels = ['Strongly', 'Slightly', 'Neutral', 'Slightly', 'Strongly'];
+
+  assessContent.innerHTML = `
+    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${((assessIndex)/ASSESS_QUESTIONS.length)*100}%"></div></div>
+    <div class="assess-step-label">Question ${assessIndex + 1} of ${ASSESS_QUESTIONS.length}</div>
+    <div class="assess-sides">
+      <div class="assess-side left">${escHtml(q.left)}</div>
+      <div class="assess-side right">${escHtml(q.right)}</div>
+    </div>
+    <div class="assess-spectrum">
+      ${[1,2,3,4,5].map(v => `<button class="spectrum-btn ${val === v ? 'selected' : ''}" data-val="${v}"></button>`).join('')}
+    </div>
+    <div class="assess-spectrum-labels">${labels.map(l => `<span>${l}</span>`).join('')}</div>
+    <div class="assess-nav">
+      <button class="btn btn-ghost" id="assessBackBtn" ${assessIndex === 0 ? 'disabled' : ''}>Back</button>
+      <div class="assess-nav-spacer"></div>
+      <button class="btn btn-primary" id="assessNextBtn" ${val == null ? 'disabled' : ''}>${assessIndex === ASSESS_QUESTIONS.length - 1 ? 'See Results' : 'Next'}</button>
+    </div>`;
+
+  assessContent.querySelectorAll('.spectrum-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      assessAnswers[assessIndex] = parseInt(btn.dataset.val, 10);
+      renderAssessQuestion();
+    });
+  });
+  document.getElementById('assessBackBtn').addEventListener('click', () => {
+    if (assessIndex > 0) { assessIndex--; renderAssessQuestion(); }
+  });
+  document.getElementById('assessNextBtn').addEventListener('click', () => {
+    if (assessAnswers[assessIndex] == null) return;
+    if (assessIndex < ASSESS_QUESTIONS.length - 1) { assessIndex++; renderAssessQuestion(); }
+    else finishAssessment();
+  });
+}
+
+async function finishAssessment() {
+  const archetypeScores = {};
+  Object.keys(ARCHETYPE_DESC).forEach(a => archetypeScores[a] = 0);
+  const elementScores = { Fire: 0, Water: 0, Air: 0, Earth: 0 };
+
+  ASSESS_QUESTIONS.forEach((q, i) => {
+    const v = assessAnswers[i];
+    if (v == null) return;
+    if (v === 1) { archetypeScores[q.leftScore.arch] += 5; elementScores[q.leftScore.el] += 5; }
+    else if (v === 2) { archetypeScores[q.leftScore.arch] += 3; elementScores[q.leftScore.el] += 3; }
+    else if (v === 3) { archetypeScores[q.leftScore.arch] += 1; elementScores[q.leftScore.el] += 1; archetypeScores[q.rightScore.arch] += 1; elementScores[q.rightScore.el] += 1; }
+    else if (v === 4) { archetypeScores[q.rightScore.arch] += 3; elementScores[q.rightScore.el] += 3; }
+    else if (v === 5) { archetypeScores[q.rightScore.arch] += 5; elementScores[q.rightScore.el] += 5; }
+  });
+
+  const archSorted = Object.entries(archetypeScores).sort((a, b) => b[1] - a[1]);
+  const primaryArchetype = archSorted[0][0];
+  const growthArchetype  = archSorted[1][0];
+  const dominantElement  = Object.entries(elementScores).sort((a, b) => b[1] - a[1])[0][0];
+
+  if (assessBrotherId) {
+    try {
+      await updateDoc(doc(db, 'brothers', assessBrotherId), {
+        primaryArchetype, growthArchetype, dominantElement, archetypeScores, elementScores,
+        assessmentCompletedAt: new Date().toISOString(),
+      });
+    } catch (_) {}
+  }
+
+  renderAssessResults(primaryArchetype, growthArchetype, dominantElement);
+}
+
+function renderAssessResults(primaryArchetype, growthArchetype, dominantElement) {
+  const pClr = ARCHETYPE_COLORS[primaryArchetype];
+  const gClr = ARCHETYPE_COLORS[growthArchetype];
+  const elColor = ELEMENT_COLORS[dominantElement];
+
+  assessContent.innerHTML = `
+    <div class="assess-results">
+      <div class="assess-result-card" style="--arch-border:${pClr.border};--arch-glow:${pClr.glow};--arch-icon:${pClr.icon}">
+        <div class="assess-result-tag">Primary Archetype</div>
+        <div class="assess-result-name">${primaryArchetype}</div>
+        <div class="assess-result-desc">${ARCHETYPE_DESC[primaryArchetype].primary}</div>
+      </div>
+      <div class="assess-result-card" style="--arch-border:${gClr.border};--arch-glow:${gClr.glow};--arch-icon:${gClr.icon}">
+        <div class="assess-result-tag">Growth Archetype</div>
+        <div class="assess-result-name">${growthArchetype}</div>
+        <div class="assess-result-desc">${ARCHETYPE_DESC[growthArchetype].growth}</div>
+      </div>
+      <div class="assess-result-card" style="--arch-border:${elColor}66;--arch-glow:${elColor}11;--arch-icon:${elColor}">
+        <div class="assess-result-tag">Dominant Element</div>
+        <div class="assess-result-name">${dominantElement}</div>
+        <div class="assess-result-desc">${ELEMENT_DESC[dominantElement]}</div>
+      </div>
+      <p class="assess-mirror">"Your archetype is not a box. It shows your strongest natural energy right now and where you can grow next."</p>
+      <button class="btn btn-primary assess-done-btn" id="assessCloseBtn">Done</button>
+    </div>`;
+
+  document.getElementById('assessCloseBtn').addEventListener('click', () => closeModal(assessModal));
+}
+
+document.getElementById('assessModalClose').addEventListener('click', () => closeModal(assessModal));
+assessModal.addEventListener('click', e => { if (e.target === assessModal) closeModal(assessModal); });
+
+memberHero.addEventListener('click', e => {
+  const btn = e.target.closest('[data-take-assessment]');
+  if (btn) openAssessment(btn.dataset.takeAssessment);
+});
 
 // ── WEEKLY CHECK-IN ───────────────────────────
 const SLIDER_IDS = ['focus','movement','discipline','composure','stoke'];
