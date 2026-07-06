@@ -1,29 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-
-  <!-- Black circle -->
-  <circle cx="50" cy="50" r="46" fill="#111111"/>
-
-  <!-- Figure: head (centered, slightly right) -->
-  <circle cx="51" cy="31" r="5.5" fill="white"/>
-
-  <!-- Figure: body (inverted triangle tapering down) -->
-  <path d="M47 37 L44 65 L58 65 L55 37 Z" fill="white"/>
-
-  <!-- Figure: left arm — near horizontal with slight downward angle -->
-  <path d="M47 43 Q33 43 17 48" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
-
-  <!-- Figure: right arm — sweeping upward toward the star -->
-  <path d="M55 43 Q66 37 77 28" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
-
-  <!-- Ground arc at bottom -->
-  <path d="M16 70 Q50 59 84 70" stroke="white" stroke-width="5" stroke-linecap="round" fill="none"/>
-
-  <!-- 8-point nautical star upper right -->
-  <g transform="translate(75,23)">
-    <line x1="0" y1="-13" x2="0" y2="13"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="-13" y1="0" x2="13" y2="0"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
-    <line x1="-9" y1="-9" x2="9" y2="9"   stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-    <line x1="9" y1="-9"  x2="-9" y2="9"  stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-  </g>
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="100" fill="#F5D97A"/>
+  <text x="52%" y="58%" font-family="Georgia,'Times New Roman',serif" font-size="130" font-weight="900" font-style="italic" fill="#4B72AA" text-anchor="middle" dominant-baseline="middle">S.</text>
 </svg>
