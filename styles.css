@@ -1655,13 +1655,22 @@ body {
 /* Challenge cards */
 .challenge-list    { display: flex; flex-direction: column; gap: 12px; }
 .challenge-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--ch-bg, var(--bg-card));
+  border: 1px solid var(--ch-border, var(--border));
   border-radius: var(--radius-md);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+.challenge-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--ch-border, var(--border));
 }
 .ch-top {
   display: flex;

@@ -43,16 +43,22 @@ const LEVELS = [
 ];
 
 const CHALLENGE_TAGS = {
-  Physical:   { bg: 'rgba(232,121,58,0.18)',  color: '#E8793A', border: 'rgba(232,121,58,0.4)'  },
-  Creator:    { bg: 'rgba(75,114,170,0.18)',  color: '#6B9FD4', border: 'rgba(75,114,170,0.4)'  },
-  Regulation: { bg: 'rgba(160,160,176,0.18)', color: '#b0b0c0', border: 'rgba(160,160,176,0.4)' },
-  Special:    { bg: 'rgba(180,120,220,0.18)', color: '#c47ee8', border: 'rgba(180,120,220,0.4)' },
+  Physical:   { cardBg: 'rgba(232,121,58,0.08)',  cardBorder: 'rgba(232,121,58,0.45)',  pillBg: 'rgba(232,121,58,0.18)',  color: '#E8793A' },
+  Creator:    { cardBg: 'rgba(75,114,170,0.08)',  cardBorder: 'rgba(75,114,170,0.45)',  pillBg: 'rgba(75,114,170,0.18)',  color: '#6B9FD4' },
+  Regulation: { cardBg: 'rgba(160,160,176,0.08)', cardBorder: 'rgba(160,160,176,0.45)', pillBg: 'rgba(160,160,176,0.18)', color: '#b0b0c0' },
+  Special:    { cardBg: 'rgba(180,120,220,0.08)', cardBorder: 'rgba(180,120,220,0.45)', pillBg: 'rgba(180,120,220,0.18)', color: '#c47ee8' },
 };
+
+function challengeCardStyle(tag) {
+  if (!tag || !CHALLENGE_TAGS[tag]) return '';
+  const t = CHALLENGE_TAGS[tag];
+  return `style="--ch-bg:${t.cardBg};--ch-border:${t.cardBorder}"`;
+}
 
 function challengeTagPill(tag) {
   if (!tag || !CHALLENGE_TAGS[tag]) return '';
   const t = CHALLENGE_TAGS[tag];
-  return `<span class="ch-tag" style="background:${t.bg};color:${t.color};border-color:${t.border}">${tag}</span>`;
+  return `<span class="ch-tag" style="background:${t.pillBg};color:${t.color};border-color:${t.cardBorder}">${tag}</span>`;
 }
 
 const ARCHETYPE_COLORS = {
@@ -986,7 +992,7 @@ function renderFeedAdmin(el) {
         ${challenges.map(ch => {
           const chSubs  = submissions.filter(s => s.challengeId === ch.id);
           const approved = chSubs.filter(s => s.status === 'approved').length;
-          return `<div class="challenge-card">
+          return `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
             <div class="ch-top">
               <div>
                 ${challengeTagPill(ch.tag)}
@@ -1042,7 +1048,7 @@ function renderFeedMember(el) {
     challenges.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
-      html += `<div class="challenge-card member">
+      html += `<div class="challenge-card member" ${challengeCardStyle(ch.tag)}>
         <div class="ch-top">
           <div>
             ${challengeTagPill(ch.tag)}
