@@ -519,7 +519,7 @@ async function registerFCMToken() {
   try {
     const swReg = await navigator.serviceWorker.ready;
     const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
-    if (!token) return;
+    if (!token) { showToast('FCM: no token returned', 'info'); return; }
     const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
     await setDoc(doc(db, 'fcmTokens', token), {
       token,
@@ -528,9 +528,10 @@ async function registerFCMToken() {
       updatedAt: new Date().toISOString(),
     });
     fcmSetupDone = true;
-    console.log('FCM token registered');
+    showToast('Notifications enabled ✓', 'success');
   } catch (e) {
-    console.warn('FCM token error:', e.message);
+    showToast('FCM error: ' + e.message, 'info');
+    console.error('FCM token error:', e);
   }
 }
 
