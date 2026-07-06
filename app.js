@@ -463,6 +463,8 @@ function renderGrid() {
     btn.addEventListener('click', () => openEditModal(btn.dataset.edit)));
   document.querySelectorAll('[data-delete]').forEach(btn =>
     btn.addEventListener('click', () => openDeleteModal(btn.dataset.delete)));
+  document.querySelectorAll('[data-assign-challenge]').forEach(btn =>
+    btn.addEventListener('click', () => openCreateChallengeModal(btn.dataset.assignChallenge)));
   document.querySelectorAll('[data-addxp]').forEach(btn =>
     btn.addEventListener('click', () => openXPModal(btn.dataset.addxp)));
   document.querySelectorAll('[data-checkin]').forEach(btn =>
@@ -617,6 +619,7 @@ function renderCard(brother) {
           ${brother.age ? `<div class="card-age">Age ${brother.age}</div>` : ''}
         </div>
         <div class="card-actions">
+          <button class="btn-icon" data-assign-challenge="${brother.id}" title="Assign Personal Challenge">🎯</button>
           <button class="btn-icon" data-edit="${brother.id}" title="Edit">${IC.edit}</button>
           <button class="btn-icon danger" data-delete="${brother.id}" title="Remove">${IC.trash}</button>
         </div>
@@ -1223,16 +1226,53 @@ function renderFeedAdmin(el) {
     </div>`;
   }
 
-  if (!challenges.length) {
-    html += `<div class="feed-empty">No challenges yet. Create one above.</div>`;
+  const publicChallenges   = challenges.filter(ch => !ch.assignedTo);
+  const personalChallenges = challenges.filter(ch => ch.assignedTo);
+
+  if (!publicChallenges.length) {
+    html += `<div class="feed-empty">No public challenges yet. Create one above.</div>`;
   } else {
     html += `<div class="feed-section">
       <div class="feed-section-title">${IC.trophy} Active Challenges</div>
       <div class="challenge-list">
-        ${challenges.map(ch => {
+        ${publicChallenges.map(ch => {
           const chSubs  = submissions.filter(s => s.challengeId === ch.id);
           const approved = chSubs.filter(s => s.status === 'approved').length;
           return `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
+            <div class="ch-top">
+              <div>
+                ${challengeTagPill(ch.tag)}
+                <div class="ch-title">${escHtml(ch.title)}</div>
+                ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
+              </div>
+              <div class="ch-xp-pill">+${ch.xpReward} XP</div>
+            </div>
+            <div class="ch-meta">
+              ${ch.deadline ? `<span>${IC.calendar} ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+              ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+              <span>${IC.check} ${approved} completed</span>
+              <span>${IC.clock} ${chSubs.filter(s=>s.status==='pending').length} pending</span>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
+              <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  if (personalChallenges.length) {
+    html += `<div class="feed-section">
+      <div class="feed-section-title">🎯 Personal Challenges (Coach-Assigned)</div>
+      <div class="challenge-list">
+        ${personalChallenges.map(ch => {
+          const assigneeName = brothers.find(b => b.id === ch.assignedTo)?.name || 'Unknown';
+          const chSubs  = submissions.filter(s => s.challengeId === ch.id);
+          const approved = chSubs.filter(s => s.status === 'approved').length;
+          return `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
+            <div class="coach-challenge-assignee">🎯 For ${escHtml(assigneeName)}</div>
             <div class="ch-top">
               <div>
                 ${challengeTagPill(ch.tag)}
@@ -1279,12 +1319,42 @@ function renderFeedMentor(el) {
     <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
   </div>`;
 
-  // Active challenges (same as member view)
-  if (!challenges.length) {
+  const myPersonalM = challenges.filter(ch => ch.assignedTo === profile?.id);
+  const publicChsM  = challenges.filter(ch => !ch.assignedTo);
+
+  if (myPersonalM.length) {
+    html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
+    myPersonalM.forEach(ch => {
+      const mySub = mySubs.find(s => s.challengeId === ch.id);
+      html += `<div class="challenge-card coach-challenge" ${challengeCardStyle(ch.tag)}>
+        <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
+        <div class="ch-top">
+          <div>
+            ${challengeTagPill(ch.tag)}
+            <div class="ch-title">${escHtml(ch.title)}</div>
+            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
+          </div>
+          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
+        </div>
+        <div class="ch-meta">
+          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+        </div>
+        ${mySub ? `<div class="sub-status-badge status-${mySub.status}">
+          ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
+          ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP!` : ''}
+          ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
+        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (!publicChsM.length) {
     html += `<div class="feed-empty">No active challenges yet.</div>`;
   } else {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
-    challenges.forEach(ch => {
+    publicChsM.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
       html += `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
@@ -1346,13 +1416,47 @@ function renderFeedMember(el) {
 
   const mySubs = submissions.filter(s => s.brotherId === profile.id);
 
-  let html = `<div class="feed-header"><h2 class="feed-title">Challenges Challenges</h2></div>`;
+  const myPersonal   = challenges.filter(ch => ch.assignedTo === profile.id);
+  const publicChs    = challenges.filter(ch => !ch.assignedTo);
 
-  if (!challenges.length) {
+  let html = `<div class="feed-header"><h2 class="feed-title">Challenges</h2></div>`;
+
+  if (myPersonal.length) {
+    html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
+    myPersonal.forEach(ch => {
+      const mySub = mySubs.find(s => s.challengeId === ch.id);
+      html += `<div class="challenge-card member coach-challenge" ${challengeCardStyle(ch.tag)}>
+        <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
+        <div class="ch-top">
+          <div>
+            ${challengeTagPill(ch.tag)}
+            <div class="ch-title">${escHtml(ch.title)}</div>
+            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
+          </div>
+          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
+        </div>
+        <div class="ch-meta">
+          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+        </div>
+        ${mySub ? `
+          <div class="sub-status-badge status-${mySub.status}">
+            ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
+            ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP awarded!` : ''}
+            ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
+          </div>
+          ${mySub.status === 'rejected' ? `<button class="btn btn-primary btn-sm" data-submit="${ch.id}">Resubmit</button>` : ''}
+        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (!publicChs.length) {
     html += `<div class="feed-empty">No active challenges right now. Check back soon! 🏆</div>`;
   } else {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
-    challenges.forEach(ch => {
+    publicChs.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
       html += `<div class="challenge-card member" ${challengeCardStyle(ch.tag)}>
@@ -1410,11 +1514,31 @@ function renderFeedMember(el) {
 const challengeModal = document.getElementById('challengeModal');
 let editingChallengeId = null;
 
-function openCreateChallengeModal() {
+function populateAssignSelect(preAssignId) {
+  const sel = document.getElementById('challengeAssignTo');
+  sel.innerHTML = '<option value="">Everyone (public challenge)</option>';
+  brothers.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id;
+    opt.textContent = b.name;
+    if (b.id === preAssignId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  const hint = document.getElementById('challengeAssignHint');
+  hint.style.display = preAssignId ? '' : 'none';
+  sel.addEventListener('change', () => {
+    hint.style.display = sel.value ? '' : 'none';
+  });
+}
+
+function openCreateChallengeModal(preAssignId) {
   editingChallengeId = null;
   document.getElementById('challengeForm').reset();
-  document.querySelector('#challengeModal .modal-title').textContent = 'New Challenge';
+  document.querySelector('#challengeModal .modal-title').textContent = preAssignId
+    ? `Personal Challenge — ${brothers.find(b => b.id === preAssignId)?.name || ''}`
+    : 'New Challenge';
   document.querySelector('#challengeForm [type="submit"]').textContent = 'Post Challenge';
+  populateAssignSelect(preAssignId || null);
   openModal(challengeModal);
 }
 
@@ -1422,12 +1546,13 @@ function openEditChallengeModal(id) {
   const ch = challenges.find(c => c.id === id);
   if (!ch) return;
   editingChallengeId = id;
-  document.getElementById('challengeTitle').value         = ch.title        || '';
-  document.getElementById('challengeDesc').value          = ch.description  || '';
-  document.getElementById('challengeXP').value            = ch.xpReward     || '';
-  document.getElementById('challengeTag').value           = ch.tag          || '';
-  document.getElementById('challengeDeadline').value      = ch.deadline     || '';
+  document.getElementById('challengeTitle').value           = ch.title        || '';
+  document.getElementById('challengeDesc').value            = ch.description  || '';
+  document.getElementById('challengeXP').value              = ch.xpReward     || '';
+  document.getElementById('challengeTag').value             = ch.tag          || '';
+  document.getElementById('challengeDeadline').value        = ch.deadline     || '';
   document.getElementById('challengePhotoRequired').checked = ch.photoRequired !== false;
+  populateAssignSelect(ch.assignedTo || null);
   document.querySelector('#challengeModal .modal-title').textContent = 'Edit Challenge';
   document.querySelector('#challengeForm [type="submit"]').textContent = 'Save Changes';
   openModal(challengeModal);
@@ -1443,6 +1568,7 @@ document.getElementById('challengeForm').addEventListener('submit', async e => {
   btn.disabled    = true;
   btn.textContent = editingChallengeId ? 'Saving…' : 'Posting…';
 
+  const assignedTo = document.getElementById('challengeAssignTo').value || null;
   const data = {
     title,
     description:   document.getElementById('challengeDesc').value.trim(),
@@ -1450,6 +1576,7 @@ document.getElementById('challengeForm').addEventListener('submit', async e => {
     tag:           document.getElementById('challengeTag').value || null,
     deadline:      document.getElementById('challengeDeadline').value || null,
     photoRequired: document.getElementById('challengePhotoRequired').checked,
+    assignedTo,
   };
 
   try {

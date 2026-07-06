@@ -2051,6 +2051,36 @@ body {
   height: 2px;
   background: var(--ch-border, var(--border));
 }
+
+.coach-challenge {
+  border-color: var(--orange);
+}
+.coach-challenge::before {
+  background: var(--orange);
+}
+
+.coach-challenge-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange);
+}
+
+.coach-challenge-assignee {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 2px;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
 .ch-top {
   display: flex;
   align-items: flex-start;
