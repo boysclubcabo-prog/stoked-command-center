@@ -555,10 +555,23 @@
   <!-- Service Worker registration -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/stoked-command-center/sw.js', { scope: '/stoked-command-center/' })
-          .catch(() => {});
+      window.addEventListener('load', async () => {
+        try {
+          const reg = await navigator.serviceWorker.register('/stoked-command-center/sw.js', { scope: '/stoked-command-center/' });
+          // Check for updates immediately and every 60s
+          reg.update();
+          setInterval(() => reg.update(), 60000);
+          // When a new SW installs, reload as soon as it takes over
+          reg.addEventListener('updatefound', () => {
+            const newSW = reg.installing;
+            newSW.addEventListener('statechange', () => {
+              if (newSW.state === 'activated') window.location.reload();
+            });
+          });
+        } catch(e) {}
       });
+      // If the controller changes (new SW took over), reload
+      navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
     }
   </script>
 </body>
