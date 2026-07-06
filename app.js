@@ -119,6 +119,18 @@ const ASSESS_QUESTIONS = [
   { left: 'Discipline & Routine',    right: 'Flow & Flexibility',       leftScore: { arch: 'Builder',  el: 'Earth' },   rightScore: { arch: 'Explorer',   el: 'Water' } },
   { left: 'Building something real', right: 'Imagining something new',  leftScore: { arch: 'Builder',  el: 'Earth' },   rightScore: { arch: 'Visionary',  el: 'Air' } },
   { left: 'To become stronger',      right: 'To become wiser',          leftScore: { arch: 'Warrior',  el: 'Fire' },    rightScore: { arch: 'Monk',       el: 'Water' } },
+  { left: 'Process it out loud with someone', right: 'Work it out in your own head', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: 'Hold the line, no matter what',    right: 'Chase what\'s over the horizon', leftScore: { arch: 'Guardian',     el: 'Earth' }, rightScore: { arch: 'Explorer',  el: 'Water' } },
+  { left: 'See the future before it happens', right: 'Build it brick by brick',        leftScore: { arch: 'Visionary',    el: 'Air' },   rightScore: { arch: 'Builder',    el: 'Earth' } },
+  { left: 'Defend what\'s yours',             right: 'Command your own space',         leftScore: { arch: 'Protector',    el: 'Earth' }, rightScore: { arch: 'Sovereign',  el: 'Fire' } },
+  { left: 'Break the mold',                   right: 'Hold the standard',              leftScore: { arch: 'Creator',      el: 'Water' }, rightScore: { arch: 'Guardian',   el: 'Earth' } },
+  { left: 'Win people over with words',       right: 'Win the room with presence',     leftScore: { arch: 'Communicator', el: 'Air' },   rightScore: { arch: 'Leader',     el: 'Fire' } },
+  { left: 'Dream up what\'s next',            right: 'Master what\'s now',             leftScore: { arch: 'Visionary',    el: 'Air' },   rightScore: { arch: 'Monk',       el: 'Water' } },
+  { left: 'Stand alone if you have to',       right: 'Stand for your people',          leftScore: { arch: 'Sovereign',    el: 'Earth' }, rightScore: { arch: 'Protector',  el: 'Earth' } },
+  { left: 'Say what needs to be said',        right: 'Stay steady and say nothing',    leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Guardian',   el: 'Earth' } },
+  { left: 'Make something no one\'s seen',    right: 'Rally people around a cause',    leftScore: { arch: 'Creator',      el: 'Air' },   rightScore: { arch: 'Leader',     el: 'Fire' } },
+  { left: 'Chase a bigger purpose',           right: 'Master your own kingdom first',  leftScore: { arch: 'Visionary',    el: 'Air' },   rightScore: { arch: 'Sovereign',  el: 'Fire' } },
+  { left: 'Be the rock everyone leans on',    right: 'Be the voice everyone hears',    leftScore: { arch: 'Guardian',     el: 'Earth' }, rightScore: { arch: 'Communicator', el: 'Air' } },
 ];
 
 let assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
@@ -1003,7 +1015,7 @@ function renderAssessIntro() {
     <div class="assess-intro">
       <div class="assess-intro-icon">${IC.target}</div>
       <div class="assess-intro-title">Find Your Archetype</div>
-      <p class="assess-intro-text">12 quick questions. Pick where you naturally lean — there's no right answer, just the honest one. Takes about 2 minutes.</p>
+      <p class="assess-intro-text">24 quick questions. Pick where you naturally lean — there's no right answer, just the honest one. Takes about 4 minutes.</p>
       <button class="btn btn-primary assess-done-btn" id="assessStartBtn">Start Assessment</button>
     </div>`;
   document.getElementById('assessStartBtn').addEventListener('click', () => renderAssessQuestion());
