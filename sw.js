@@ -1,4 +1,4 @@
-const CACHE = 'stoked-v37';
+const CACHE = 'stoked-v38';
 
 // Only cache static assets — never app.js or index.html
 // so code updates are always picked up immediately
@@ -58,6 +58,33 @@ self.addEventListener('fetch', e => {
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
+});
+
+// ── FIREBASE MESSAGING (background push) ──────
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey:            'AIzaSyBIfsac4gqRxCEoU8655AnrajxmRQOSDo4',
+  authDomain:        'stoked-brotherhood-app.firebaseapp.com',
+  projectId:         'stoked-brotherhood-app',
+  storageBucket:     'stoked-brotherhood-app.firebasestorage.app',
+  messagingSenderId: '243670203554',
+  appId:             '1:243670203554:web:adfed8e3bcb431368f6bfb',
+});
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage(payload => {
+  const { title, body } = payload.notification || {};
+  if (!title) return;
+  self.registration.showNotification(title, {
+    body,
+    icon:  '/stoked-command-center/icon-192.png',
+    badge: '/stoked-command-center/icon-192.png',
+    vibrate: [200, 100, 200],
+    data: { url: 'https://boysclubcabo-prog.github.io/stoked-command-center/' },
+  });
 });
 
 // Tapping a notification opens/focuses the app

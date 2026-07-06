@@ -11,6 +11,7 @@ import { getFirestore, collection, doc,
          deleteDoc, getDoc, getDocs }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef,
          uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
+import { getMessaging, getToken, onMessage }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
 
 // ── FIREBASE CONFIG ───────────────────────────
 const firebaseConfig = {
@@ -26,6 +27,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth        = getAuth(firebaseApp);
 const db          = getFirestore(firebaseApp);
 const storage     = getStorage(firebaseApp);
+const messaging   = getMessaging(firebaseApp);
 
 // ── ADMIN EMAIL ───────────────────────────────
 // Only this email gets full admin access
@@ -484,17 +486,43 @@ function updateChallengesBadge() {
 }
 
 // ── NOTIFICATIONS ─────────────────────────────
+const VAPID_KEY = 'REPLACE_WITH_YOUR_VAPID_KEY';
+
 async function setupNotifications() {
   if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') {
-    // Delay the ask slightly so it doesn't pop up the instant they log in
-    setTimeout(() => Notification.requestPermission(), 3000);
+  let permission = Notification.permission;
+  if (permission === 'default') {
+    await new Promise(r => setTimeout(r, 3000));
+    permission = await Notification.requestPermission();
   }
+  if (permission !== 'granted') return;
+
+  // Get FCM token and store in Firestore so Cloud Functions can reach this device
+  try {
+    const swReg = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+    if (token && currentUser) {
+      const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+      await setDoc(doc(db, 'fcmTokens', token), {
+        token,
+        brotherId: brother?.id || null,
+        email:     currentUser.email,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+  } catch (e) {
+    console.warn('FCM token error:', e);
+  }
+
+  // Handle foreground messages (app is open)
+  onMessage(messaging, payload => {
+    const { title, body } = payload.notification || {};
+    if (title) showNotif(title, body);
+  });
 }
 
 function showNotif(title, body) {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  // Use the SW to show the notification so it works even in background tabs
   if (navigator.serviceWorker?.controller) {
     navigator.serviceWorker.ready.then(reg => {
       reg.showNotification(title, {
