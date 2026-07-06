@@ -2357,3 +2357,56 @@ body {
   background: #F4EFE6;
   color: #1C1710;
 }
+
+/* ── Light theme: remaining hardcoded-color overrides ── */
+[data-theme="light"] .btn-approve {
+  background: rgba(46,95,120,0.12);
+  color: #2E5F78;
+  border-color: rgba(46,95,120,0.3);
+}
+[data-theme="light"] .btn-reject {
+  background: rgba(154,46,36,0.1);
+  color: #9A2E24;
+  border-color: rgba(154,46,36,0.25);
+}
+[data-theme="light"] .sub-status-badge.status-approved { background: rgba(46,95,120,0.1); color: #2E5F78; }
+[data-theme="light"] .sub-status-badge.status-rejected { background: rgba(154,46,36,0.08); color: #9A2E24; }
+[data-theme="light"] .sub-status-pill.status-approved  { background: rgba(46,95,120,0.12); color: #2E5F78; }
+[data-theme="light"] .sub-status-pill.status-rejected  { background: rgba(154,46,36,0.1);  color: #9A2E24; }
+
+[data-theme="light"] .checkin-slider::-webkit-slider-thumb,
+[data-theme="light"] .checkin-slider::-moz-range-thumb {
+  background: #A06818;
+  border-color: #2E5F78;
+}
+
+[data-theme="light"] .xp-hero-label { color: #6B5E4A; }
+
+[data-theme="light"] .btn-login {
+  background: #9A4020 !important;
+  color: #FDF8F0 !important;
+}
+[data-theme="light"] .btn-login:hover { background: #7e3318 !important; }
+
+[data-theme="light"] .score-chip.momentum .score-num { color: #2E5F78; }
+
+[data-theme="light"] .level-badge {
+  background: rgba(154,64,32,0.10);
+  border-color: rgba(154,64,32,0.25);
+  color: #9A4020;
+}
+
+[data-theme="light"] .ch-xp-pill {
+  background: rgba(154,64,32,0.10);
+  color: #9A4020;
+  border-color: rgba(154,64,32,0.2);
+}
+
+[data-theme="light"] .modal-close {
+  background: var(--bg-elevated);
+  border-color: var(--border);
+  color: var(--text-secondary);
+}
+
+[data-theme="light"] .delete-msg { color: var(--text-secondary); }
+[data-theme="light"] .login-error { background: rgba(154,46,36,0.08); border-color: rgba(154,46,36,0.25); color: #9A2E24; }
