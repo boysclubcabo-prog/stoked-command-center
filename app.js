@@ -253,14 +253,14 @@ function showApp() {
   unsubChallenges = onSnapshot(collection(db, 'challenges'), snap => {
     challenges = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.active !== false);
     if (currentTab === 'community') renderFeed();
-    updateCommunityBadge();
+    updateChallengesBadge();
   });
 
   // Subscribe to submissions
   unsubSubmissions = onSnapshot(collection(db, 'submissions'), snap => {
     submissions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     if (currentTab === 'community') renderFeed();
-    updateCommunityBadge();
+    updateChallengesBadge();
   });
 
   // Tab bar
@@ -271,26 +271,26 @@ function showApp() {
 
 function switchTab(tab) {
   currentTab = tab;
-  const isCommunity = tab === 'community';
+  const isChallenges = tab === 'community';
 
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
 
   // Hide everything that belongs to the brothers view
-  document.querySelector('.main').classList.toggle('hidden', isCommunity);
-  statsBar.classList.toggle('hidden', isCommunity || !isAdmin);
-  memberHero.classList.toggle('hidden', isCommunity || isAdmin);
+  document.querySelector('.main').classList.toggle('hidden', isChallenges);
+  statsBar.classList.toggle('hidden', isChallenges || !isAdmin);
+  memberHero.classList.toggle('hidden', isChallenges || isAdmin);
 
   // Show/hide community section
-  document.getElementById('communitySection').classList.toggle('hidden', !isCommunity);
+  document.getElementById('communitySection').classList.toggle('hidden', !isChallenges);
 
-  if (isCommunity) {
+  if (isChallenges) {
     renderFeed();
     localStorage.setItem(`lastFeedVisit_${currentUser.uid}`, new Date().toISOString());
     document.getElementById('communityBadge').classList.add('hidden');
   }
 }
 
-function updateCommunityBadge() {
+function updateChallengesBadge() {
   if (!currentUser) return;
   const badge = document.getElementById('communityBadge');
   if (!badge) return;
@@ -932,7 +932,7 @@ function renderFeedAdmin(el) {
   const pending = submissions.filter(s => s.status === 'pending');
 
   let html = `<div class="feed-header">
-    <h2 class="feed-title">Community Challenges</h2>
+    <h2 class="feed-title">Challenges Challenges</h2>
     <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
   </div>`;
 
@@ -1010,7 +1010,7 @@ function renderFeedMember(el) {
 
   const mySubs = submissions.filter(s => s.brotherId === profile.id);
 
-  let html = `<div class="feed-header"><h2 class="feed-title">Community Challenges</h2></div>`;
+  let html = `<div class="feed-header"><h2 class="feed-title">Challenges Challenges</h2></div>`;
 
   if (!challenges.length) {
     html += `<div class="feed-empty">No active challenges right now. Check back soon! 🏆</div>`;
