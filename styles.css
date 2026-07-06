@@ -20,13 +20,15 @@
   --text-secondary:#9090a0;
   --text-muted:    #5a5a6a;
 
-  --orange:        #f97316;
-  --orange-dim:    #7a3a0a;
-  --orange-glow:   rgba(249,115,22,0.15);
+  --orange:        #F5D97A;
+  --orange-dim:    #5a4a1a;
+  --orange-glow:   rgba(245,217,122,0.12);
 
-  --blue:          #3b82f6;
+  --blue:          #4B72AA;
   --blue-dim:      #1e3a6e;
-  --blue-glow:     rgba(59,130,246,0.12);
+  --blue-glow:     rgba(75,114,170,0.14);
+
+  --cream:         #E8E0D0;
 
   --green:         #4ade80;
   --green-dim:     #1a4a2e;
@@ -496,9 +498,9 @@ body {
 .btn-add-xp {
   width: 100%;
   padding: 10px;
-  background: var(--orange-glow);
-  border: 1px solid var(--orange-dim);
-  color: var(--orange);
+  background: rgba(75,114,170,0.12);
+  border: 1px solid rgba(75,114,170,0.35);
+  color: #F5D97A;
   border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 700;
@@ -509,8 +511,8 @@ body {
 }
 
 .btn-add-xp:hover {
-  background: rgba(249,115,22,0.25);
-  border-color: var(--orange);
+  background: rgba(75,114,170,0.25);
+  border-color: #4B72AA;
 }
 
 /* ── BUTTONS ── */
@@ -531,19 +533,19 @@ body {
 }
 
 .btn-primary {
-  background: var(--orange);
-  color: #fff;
+  background: #4B72AA;
+  color: #F5D97A;
 }
 
 .btn-primary:hover {
-  background: #ea6b0e;
+  background: #3a5d94;
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(249,115,22,0.35);
+  box-shadow: 0 4px 16px rgba(75,114,170,0.4);
 }
 
 .btn-orange {
-  background: var(--orange);
-  color: #fff;
+  background: #4B72AA;
+  color: #F5D97A;
   border: none;
   width: 100%;
   padding: 12px;
@@ -555,7 +557,7 @@ body {
 }
 
 .btn-orange:hover {
-  background: #ea6b0e;
+  background: #3a5d94;
   transform: translateY(-1px);
 }
 
