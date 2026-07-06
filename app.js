@@ -43,10 +43,10 @@ const LEVELS = [
 ];
 
 const CHALLENGE_TAGS = {
-  Physical:   { cardBg: 'rgba(232,121,58,0.08)',  cardBorder: 'rgba(232,121,58,0.45)',  pillBg: 'rgba(232,121,58,0.18)',  color: '#E8793A' },
-  Creator:    { cardBg: 'rgba(75,114,170,0.08)',  cardBorder: 'rgba(75,114,170,0.45)',  pillBg: 'rgba(75,114,170,0.18)',  color: '#6B9FD4' },
-  Regulation: { cardBg: 'rgba(74,154,74,0.08)',   cardBorder: 'rgba(74,154,74,0.45)',   pillBg: 'rgba(74,154,74,0.18)',   color: '#4a9a4a' },
-  Special:    { cardBg: 'rgba(180,120,220,0.08)', cardBorder: 'rgba(180,120,220,0.45)', pillBg: 'rgba(180,120,220,0.18)', color: '#c47ee8' },
+  Physical:   { cardBg: 'rgba(196,105,58,0.07)',  cardBorder: 'rgba(196,105,58,0.4)',  pillBg: 'rgba(196,105,58,0.15)',  color: '#C4693A' }, // terracotta
+  Creator:    { cardBg: 'rgba(91,138,160,0.07)',  cardBorder: 'rgba(91,138,160,0.4)',  pillBg: 'rgba(91,138,160,0.15)',  color: '#5B8AA0' }, // ocean
+  Regulation: { cardBg: 'rgba(90,140,90,0.07)',   cardBorder: 'rgba(90,140,90,0.4)',   pillBg: 'rgba(90,140,90,0.15)',   color: '#5a8c5a' }, // sage
+  Special:    { cardBg: 'rgba(212,168,83,0.07)',  cardBorder: 'rgba(212,168,83,0.4)',  pillBg: 'rgba(212,168,83,0.15)',  color: '#D4A853' }, // gold
 };
 
 function challengeCardStyle(tag) {
@@ -62,12 +62,12 @@ function challengeTagPill(tag) {
 }
 
 const ARCHETYPE_COLORS = {
-  Warrior:  { border: 'rgba(232,121,58,0.45)',  glow: 'rgba(232,121,58,0.08)',  icon: '#E8793A' },
-  Monk:     { border: 'rgba(160,160,176,0.4)',  glow: 'rgba(160,160,176,0.07)', icon: '#b0b0c0' },
-  Creator:  { border: 'rgba(75,114,170,0.45)',  glow: 'rgba(75,114,170,0.09)',  icon: '#4B72AA' },
-  Explorer: { border: 'rgba(74,154,74,0.45)',   glow: 'rgba(74,154,74,0.08)',   icon: '#4a9a4a' },
-  Leader:   { border: 'rgba(245,217,122,0.45)', glow: 'rgba(245,217,122,0.08)', icon: '#F5D97A' },
-  Builder:  { border: 'rgba(130,148,166,0.4)',  glow: 'rgba(130,148,166,0.07)', icon: '#8294a6' },
+  Warrior:  { border: 'rgba(196,105,58,0.5)',  glow: 'rgba(196,105,58,0.06)',  icon: '#C4693A' }, // terracotta
+  Monk:     { border: 'rgba(158,141,114,0.45)', glow: 'rgba(158,141,114,0.06)', icon: '#9e8d72' }, // warm sand
+  Creator:  { border: 'rgba(91,138,160,0.45)', glow: 'rgba(91,138,160,0.07)',  icon: '#5B8AA0' }, // ocean blue
+  Explorer: { border: 'rgba(90,140,90,0.45)',  glow: 'rgba(90,140,90,0.06)',   icon: '#5a8c5a' }, // sage green
+  Leader:   { border: 'rgba(212,168,83,0.5)',  glow: 'rgba(212,168,83,0.07)',  icon: '#D4A853' }, // amber gold
+  Builder:  { border: 'rgba(130,110,90,0.45)', glow: 'rgba(130,110,90,0.06)',  icon: '#826e5a' }, // warm brown
 };
 
 const ARCHETYPE_ICONS = {
