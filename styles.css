@@ -225,7 +225,15 @@ body {
   position: relative;
   overflow: hidden;
   background-image: radial-gradient(ellipse at 100% 0%, var(--arch-glow, transparent) 0%, transparent 60%);
+  text-align: center;
 }
+
+/* Keep top row name left-aligned, actions right */
+.brother-card .card-identity { text-align: left; }
+/* Keep reflection text left-aligned for readability */
+.brother-card .card-reflection,
+.brother-card .card-goal,
+.brother-card .coach-note-display { text-align: left; }
 
 .brother-card::before {
   content: '';
@@ -301,7 +309,7 @@ body {
 .archetype-pill {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: 3px;
   margin-bottom: 12px;
 }
