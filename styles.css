@@ -427,13 +427,13 @@ body {
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #C4693A, #D4A853);
+  background: #D4AF37;
   transition: width 0.5s ease;
   min-width: 4px;
 }
 
 .progress-fill.maxed {
-  background: linear-gradient(90deg, #D4A853, #e0c070);
+  background: #D4AF37;
 }
 
 .progress-next {
@@ -2270,7 +2270,7 @@ body {
 }
 
 [data-theme="light"] .progress-fill {
-  background: linear-gradient(90deg, #9A4020, #C8963C);
+  background: #D4AF37;
 }
 
 [data-theme="light"] .btn-checkin-submit {
