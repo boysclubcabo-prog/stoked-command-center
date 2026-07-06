@@ -113,6 +113,20 @@
     <!-- MEMBER HERO (member only, hidden for admin) -->
     <div id="memberHero" class="member-hero hidden"></div>
 
+    <!-- TAB BAR -->
+    <nav class="tab-bar" id="tabBar">
+      <button class="tab-btn tab-active" data-tab="brothers">⚔️ Brothers</button>
+      <button class="tab-btn" data-tab="community">
+        🏆 Community
+        <span class="tab-badge hidden" id="communityBadge"></span>
+      </button>
+    </nav>
+
+    <!-- COMMUNITY SECTION -->
+    <div class="community-section hidden" id="communitySection">
+      <div class="community-inner" id="feedContainer"></div>
+    </div>
+
     <!-- MAIN CONTENT -->
     <main class="main">
       <div class="empty-state hidden" id="emptyState">
@@ -357,6 +371,76 @@
         </div>
 
         <button type="submit" class="btn btn-checkin-submit">Submit Check-In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE CHALLENGE MODAL -->
+  <div class="modal-overlay" id="challengeModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">New Challenge</h2>
+        <button class="modal-close" id="challengeModalClose">✕</button>
+      </div>
+      <form class="modal-form" id="challengeForm">
+        <div class="form-group">
+          <label>Challenge Title *</label>
+          <input type="text" id="challengeTitle" placeholder="e.g. 15 Push-Up Challenge" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="challengeDesc" placeholder="What do they need to do? Be specific." rows="3"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>XP Reward *</label>
+            <input type="number" id="challengeXP" placeholder="100" min="10" max="2000" required />
+          </div>
+          <div class="form-group">
+            <label>Deadline (optional)</label>
+            <input type="date" id="challengeDeadline" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="challengePhotoRequired" checked />
+            <span>Photo proof required</span>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="challengeCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Post Challenge</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SUBMIT PROOF MODAL -->
+  <div class="modal-overlay" id="submitProofModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Submit Proof</h2>
+        <button class="modal-close" id="submitProofModalClose">✕</button>
+      </div>
+      <div class="submit-challenge-title" id="submitChallengeTitle"></div>
+      <form class="modal-form" id="submitProofForm">
+        <input type="hidden" id="submitChallengeId" />
+        <div class="form-group">
+          <label>Photo Proof</label>
+          <label class="photo-upload-area" for="proofPhoto">
+            <input type="file" id="proofPhoto" accept="image/*" style="display:none" />
+            <div id="photoPlaceholder" class="photo-upload-placeholder">📷 Tap to add photo</div>
+            <img id="proofPhotoPreview" class="photo-preview hidden" alt="Proof" />
+          </label>
+        </div>
+        <div class="form-group">
+          <label>Caption (optional)</label>
+          <input type="text" id="proofCaption" placeholder="Tell us about it…" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="submitProofCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitProofBtn">Submit</button>
+        </div>
       </form>
     </div>
   </div>

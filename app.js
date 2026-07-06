@@ -9,6 +9,8 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc,
          deleteDoc, getDoc }                      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref as sRef,
+         uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 // ── FIREBASE CONFIG ───────────────────────────
 const firebaseConfig = {
@@ -23,6 +25,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth        = getAuth(firebaseApp);
 const db          = getFirestore(firebaseApp);
+const storage     = getStorage(firebaseApp);
 
 // ── ADMIN EMAIL ───────────────────────────────
 // Only this email gets full admin access
@@ -111,12 +114,18 @@ function getBSCategory(score) {
 
 // ── STATE ─────────────────────────────────────
 let brothers    = [];
+let challenges  = [];
+let submissions = [];
 let currentUser = null;
 let isAdmin     = false;
 let editingId   = null;
 let deletingId  = null;
-let unsubBrothers = null;
+let currentTab  = 'brothers';
+let unsubBrothers   = null;
+let unsubChallenges = null;
+let unsubSubmissions = null;
 let streakUpdatedThisSession = false;
+let reviewingSubId = null;
 
 // ── DOM ───────────────────────────────────────
 const loginScreen   = document.getElementById('loginScreen');
@@ -192,8 +201,11 @@ function friendlyAuthError(code) {
 
 // ── SHOW / HIDE SCREENS ───────────────────────
 function showLogin() {
-  if (unsubBrothers) { unsubBrothers(); unsubBrothers = null; }
+  if (unsubBrothers)    { unsubBrothers();    unsubBrothers    = null; }
+  if (unsubChallenges)  { unsubChallenges();  unsubChallenges  = null; }
+  if (unsubSubmissions) { unsubSubmissions(); unsubSubmissions = null; }
   streakUpdatedThisSession = false;
+  currentTab = 'brothers';
   loginScreen.classList.remove('hidden');
   appScreen.classList.add('hidden');
   loginForm.reset();
@@ -218,6 +230,55 @@ function showApp() {
     brothers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     render();
   });
+
+  // Subscribe to challenges
+  unsubChallenges = onSnapshot(collection(db, 'challenges'), snap => {
+    challenges = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(c => c.active !== false);
+    if (currentTab === 'community') renderFeed();
+    updateCommunityBadge();
+  });
+
+  // Subscribe to submissions
+  unsubSubmissions = onSnapshot(collection(db, 'submissions'), snap => {
+    submissions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (currentTab === 'community') renderFeed();
+    updateCommunityBadge();
+  });
+
+  // Tab bar
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
+  document.querySelector('.main').classList.toggle('hidden', tab !== 'brothers');
+  document.getElementById('communitySection').classList.toggle('hidden', tab !== 'community');
+  if (tab === 'community') {
+    renderFeed();
+    localStorage.setItem(`lastFeedVisit_${currentUser.uid}`, new Date().toISOString());
+    document.getElementById('communityBadge').classList.add('hidden');
+  }
+}
+
+function updateCommunityBadge() {
+  if (!currentUser) return;
+  const badge = document.getElementById('communityBadge');
+  if (!badge) return;
+  if (isAdmin) {
+    const pending = submissions.filter(s => s.status === 'pending').length;
+    badge.textContent = pending;
+    badge.classList.toggle('hidden', pending === 0);
+  } else {
+    const lastVisit = localStorage.getItem(`lastFeedVisit_${currentUser.uid}`);
+    const newCount  = lastVisit
+      ? challenges.filter(c => c.createdAt > lastVisit).length
+      : challenges.length;
+    badge.textContent = newCount;
+    badge.classList.toggle('hidden', newCount === 0 || currentTab === 'community');
+  }
 }
 
 // ── LEVEL LOGIC ───────────────────────────────
@@ -832,6 +893,295 @@ document.getElementById('checkInForm').addEventListener('submit', async e => {
 document.getElementById('checkInModalClose').addEventListener('click', () => closeModal(checkInModal));
 checkInModal.addEventListener('click', e => { if (e.target === checkInModal) closeModal(checkInModal); });
 
+// ── COMMUNITY FEED ────────────────────────────
+function renderFeed() {
+  const el = document.getElementById('feedContainer');
+  if (!el) return;
+  if (isAdmin) renderFeedAdmin(el);
+  else renderFeedMember(el);
+}
+
+function renderFeedAdmin(el) {
+  const pending = submissions.filter(s => s.status === 'pending');
+
+  let html = `<div class="feed-header">
+    <h2 class="feed-title">Community Challenges</h2>
+    <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
+  </div>`;
+
+  if (pending.length) {
+    html += `<div class="feed-section">
+      <div class="feed-section-title">⏳ Pending Review (${pending.length})</div>
+      <div class="sub-list">
+        ${pending.map(s => {
+          const ch = challenges.find(c => c.id === s.challengeId);
+          return `<div class="sub-card pending">
+            ${s.photoUrl ? `<img src="${s.photoUrl}" class="sub-photo" alt="proof" />` : '<div class="sub-no-photo">No photo</div>'}
+            <div class="sub-info">
+              <div class="sub-brother">${escHtml(s.brotherName)}</div>
+              <div class="sub-challenge">${escHtml(ch?.title || 'Challenge')}</div>
+              ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
+              <div class="sub-xp-badge">+${ch?.xpReward || 0} XP on approve</div>
+            </div>
+            <div class="sub-actions">
+              <button class="btn-approve" data-subid="${s.id}">✓ Approve</button>
+              <button class="btn-reject"  data-subid="${s.id}">✕ Reject</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  if (!challenges.length) {
+    html += `<div class="feed-empty">No challenges yet. Create one above.</div>`;
+  } else {
+    html += `<div class="feed-section">
+      <div class="feed-section-title">🏆 Active Challenges</div>
+      <div class="challenge-list">
+        ${challenges.map(ch => {
+          const chSubs  = submissions.filter(s => s.challengeId === ch.id);
+          const approved = chSubs.filter(s => s.status === 'approved').length;
+          return `<div class="challenge-card">
+            <div class="ch-top">
+              <div>
+                <div class="ch-title">${escHtml(ch.title)}</div>
+                ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
+              </div>
+              <div class="ch-xp-pill">+${ch.xpReward} XP</div>
+            </div>
+            <div class="ch-meta">
+              ${ch.deadline ? `<span>📅 ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+              ${ch.photoRequired ? `<span>📷 Photo required</span>` : ''}
+              <span>✅ ${approved} completed</span>
+              <span>⏳ ${chSubs.filter(s=>s.status==='pending').length} pending</span>
+            </div>
+            <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+
+  document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
+  el.querySelectorAll('.btn-approve').forEach(btn =>
+    btn.addEventListener('click', () => approveSubmission(btn.dataset.subid)));
+  el.querySelectorAll('.btn-reject').forEach(btn =>
+    btn.addEventListener('click', () => rejectSubmission(btn.dataset.subid)));
+  el.querySelectorAll('.btn-close-challenge').forEach(btn =>
+    btn.addEventListener('click', () => archiveChallenge(btn.dataset.closech)));
+}
+
+function renderFeedMember(el) {
+  const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+  if (!profile) {
+    el.innerHTML = `<div class="feed-empty">Your profile isn't set up yet. Check back soon.</div>`;
+    return;
+  }
+
+  const mySubs = submissions.filter(s => s.brotherId === profile.id);
+
+  let html = `<div class="feed-header"><h2 class="feed-title">Community Challenges</h2></div>`;
+
+  if (!challenges.length) {
+    html += `<div class="feed-empty">No active challenges right now. Check back soon! 🏆</div>`;
+  } else {
+    html += `<div class="feed-section"><div class="feed-section-title">🏆 Active Challenges</div><div class="challenge-list">`;
+    challenges.forEach(ch => {
+      const mySub = mySubs.find(s => s.challengeId === ch.id);
+      const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
+      html += `<div class="challenge-card member">
+        <div class="ch-top">
+          <div>
+            <div class="ch-title">${escHtml(ch.title)}</div>
+            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
+          </div>
+          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
+        </div>
+        <div class="ch-meta">
+          ${ch.deadline ? `<span>📅 Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+          ${ch.photoRequired ? `<span>📷 Photo required</span>` : ''}
+          <span>✅ ${totalApproved} brothers completed</span>
+        </div>
+        ${mySub ? `
+          <div class="sub-status-badge status-${mySub.status}">
+            ${mySub.status === 'pending' ? '⏳ Submitted — awaiting review' : ''}
+            ${mySub.status === 'approved' ? '✅ Approved — +${ch.xpReward} XP awarded!' : ''}
+            ${mySub.status === 'rejected' ? '✕ Submission rejected — try again' : ''}
+          </div>
+          ${mySub.status === 'rejected' ? `<button class="btn btn-primary btn-sm" data-submit="${ch.id}">Resubmit</button>` : ''}
+        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (mySubs.length) {
+    html += `<div class="feed-section"><div class="feed-section-title">📋 My Submissions</div><div class="sub-list">`;
+    mySubs.slice().reverse().forEach(s => {
+      const ch = challenges.find(c => c.id === s.challengeId) || { title: 'Challenge', xpReward: 0 };
+      html += `<div class="sub-card status-${s.status}">
+        ${s.photoUrl ? `<img src="${s.photoUrl}" class="sub-photo" alt="proof" />` : ''}
+        <div class="sub-info">
+          <div class="sub-challenge">${escHtml(ch.title)}</div>
+          ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
+          <div class="sub-status-pill status-${s.status}">
+            ${s.status === 'pending' ? '⏳ Pending' : s.status === 'approved' ? `✅ Approved +${ch.xpReward} XP` : '✕ Rejected'}
+          </div>
+          <div class="sub-date">${new Date(s.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  el.innerHTML = html;
+  el.querySelectorAll('[data-submit]').forEach(btn =>
+    btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
+}
+
+// ── CREATE CHALLENGE ──────────────────────────
+const challengeModal = document.getElementById('challengeModal');
+
+function openCreateChallengeModal() {
+  document.getElementById('challengeForm').reset();
+  openModal(challengeModal);
+}
+
+document.getElementById('challengeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const title    = document.getElementById('challengeTitle').value.trim();
+  const xpReward = parseInt(document.getElementById('challengeXP').value) || 0;
+  if (!title || !xpReward) return;
+
+  const id = 'ch_' + Date.now().toString(36);
+  await setDoc(doc(db, 'challenges', id), {
+    title,
+    description:   document.getElementById('challengeDesc').value.trim(),
+    xpReward,
+    deadline:      document.getElementById('challengeDeadline').value || null,
+    photoRequired: document.getElementById('challengePhotoRequired').checked,
+    active:        true,
+    createdAt:     new Date().toISOString(),
+    createdBy:     currentUser.email,
+  });
+  closeModal(challengeModal);
+  showToast(`Challenge "${title}" posted!`, 'success');
+});
+
+document.getElementById('challengeModalClose').addEventListener('click', () => closeModal(challengeModal));
+document.getElementById('challengeCancelBtn').addEventListener('click',  () => closeModal(challengeModal));
+challengeModal.addEventListener('click', e => { if (e.target === challengeModal) closeModal(challengeModal); });
+
+async function archiveChallenge(id) {
+  await updateDoc(doc(db, 'challenges', id), { active: false });
+  showToast('Challenge archived', 'info');
+}
+
+// ── SUBMIT PROOF ──────────────────────────────
+const submitProofModal = document.getElementById('submitProofModal');
+let submittingProfile  = null;
+
+function openSubmitProofModal(challengeId, profile) {
+  submittingProfile = profile;
+  const ch = challenges.find(c => c.id === challengeId);
+  if (!ch) return;
+  document.getElementById('submitChallengeId').value       = challengeId;
+  document.getElementById('submitChallengeTitle').textContent = ch.title;
+  document.getElementById('proofPhoto').value              = '';
+  document.getElementById('proofPhotoPreview').src         = '';
+  document.getElementById('proofPhotoPreview').classList.add('hidden');
+  document.getElementById('photoPlaceholder').classList.remove('hidden');
+  document.getElementById('proofCaption').value            = '';
+  document.getElementById('submitProofBtn').disabled       = false;
+  openModal(submitProofModal);
+}
+
+document.getElementById('proofPhoto').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById('proofPhotoPreview');
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove('hidden');
+  document.getElementById('photoPlaceholder').classList.add('hidden');
+});
+
+document.getElementById('submitProofForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const challengeId = document.getElementById('submitChallengeId').value;
+  const ch          = challenges.find(c => c.id === challengeId);
+  const file        = document.getElementById('proofPhoto').files[0];
+  const caption     = document.getElementById('proofCaption').value.trim();
+  const btn         = document.getElementById('submitProofBtn');
+
+  if (!submittingProfile || !ch) return;
+  if (ch.photoRequired && !file) { showToast('Please add a photo', 'info'); return; }
+
+  btn.disabled     = true;
+  btn.textContent  = 'Uploading…';
+
+  try {
+    let photoUrl = null;
+    if (file) {
+      const path  = `submissions/${submittingProfile.id}_${challengeId}_${Date.now()}`;
+      const snap  = await uploadBytes(sRef(storage, path), file);
+      photoUrl    = await getDownloadURL(snap.ref);
+    }
+
+    const id = 'sub_' + Date.now().toString(36);
+    await setDoc(doc(db, 'submissions', id), {
+      challengeId,
+      brotherId:   submittingProfile.id,
+      brotherName: submittingProfile.name,
+      photoUrl,
+      caption,
+      status:      'pending',
+      submittedAt: new Date().toISOString(),
+      xpReward:    ch.xpReward,
+    });
+
+    closeModal(submitProofModal);
+    showToast('Proof submitted! Waiting for coach approval 🔥', 'success');
+  } catch (err) {
+    showToast('Upload failed: ' + err.message, 'info');
+    btn.disabled    = false;
+    btn.textContent = 'Submit';
+  }
+});
+
+document.getElementById('submitProofModalClose').addEventListener('click', () => closeModal(submitProofModal));
+document.getElementById('submitProofCancelBtn').addEventListener('click',  () => closeModal(submitProofModal));
+submitProofModal.addEventListener('click', e => { if (e.target === submitProofModal) closeModal(submitProofModal); });
+
+// ── APPROVE / REJECT ──────────────────────────
+async function approveSubmission(subId) {
+  const s  = submissions.find(x => x.id === subId);
+  if (!s) return;
+  const brother = brothers.find(b => b.id === s.brotherId);
+
+  try {
+    await updateDoc(doc(db, 'submissions', subId), { status: 'approved', reviewedAt: new Date().toISOString() });
+    if (brother) {
+      const newXP = Math.min(10000, (brother.xp || 0) + (s.xpReward || 0));
+      await updateDoc(doc(db, 'brothers', brother.id), { xp: newXP, updatedAt: new Date().toISOString() });
+    }
+    showToast(`✅ Approved! +${s.xpReward} XP → ${s.brotherName}`, 'success');
+  } catch (err) {
+    showToast('Error: ' + err.message, 'info');
+  }
+}
+
+async function rejectSubmission(subId) {
+  try {
+    await updateDoc(doc(db, 'submissions', subId), { status: 'rejected', reviewedAt: new Date().toISOString() });
+    showToast('Submission rejected', 'info');
+  } catch (err) {
+    showToast('Error: ' + err.message, 'info');
+  }
+}
+
 // ── EXPORT ────────────────────────────────────
 exportBtn.addEventListener('click', () => {
   const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), brothers }, null, 2)], { type: 'application/json' });
@@ -858,7 +1208,7 @@ document.getElementById('xpCancelBtn').addEventListener('click',  () => closeMod
   el.addEventListener('click', e => { if (e.target === el) closeModal(el); }));
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal, viewCheckInModal].forEach(closeModal);
+  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal, viewCheckInModal, challengeModal, submitProofModal].forEach(closeModal);
 });
 
 // ── TOAST ─────────────────────────────────────
