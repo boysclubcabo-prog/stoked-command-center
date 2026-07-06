@@ -118,30 +118,30 @@ const ARCHETYPE_DESC = {
 
 // ── ARCHETYPE ASSESSMENT ──────────────────────
 const ASSESS_QUESTIONS = [
-  { left: 'Competition & Challenge', right: 'Creativity & Expression', leftScore: { arch: 'Warrior', el: 'Fire' },    rightScore: { arch: 'Creator',    el: 'Air' } },
-  { left: 'Action First',            right: 'Think First',             leftScore: { arch: 'Warrior', el: 'Fire' },    rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: 'Adventure & Freedom',     right: 'Structure & Stability',    leftScore: { arch: 'Explorer', el: 'Air' },    rightScore: { arch: 'Builder',    el: 'Earth' } },
-  { left: 'Leading the energy',      right: 'Observing quietly',        leftScore: { arch: 'Leader',   el: 'Fire' },    rightScore: { arch: 'Monk',       el: 'Water' } },
-  { left: 'Slow down and sit still', right: 'Speak up and take action', leftScore: { arch: 'Monk',     el: 'Water' },   rightScore: { arch: 'Leader',     el: 'Fire' } },
-  { left: 'Physical Strength',       right: 'Mental Sharpness',         leftScore: { arch: 'Warrior',  el: 'Earth' },   rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: 'Winning',                 right: 'Understanding',            leftScore: { arch: 'Warrior',  el: 'Fire' },    rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: 'Being Respected',         right: 'Being Authentic',          leftScore: { arch: 'Sovereign',el: 'Fire' },    rightScore: { arch: 'Creator',    el: 'Water' } },
-  { left: 'Protecting others',       right: 'Exploring new things',     leftScore: { arch: 'Protector',el: 'Earth' },   rightScore: { arch: 'Explorer',   el: 'Air' } },
-  { left: 'Discipline & Routine',    right: 'Flow & Flexibility',       leftScore: { arch: 'Builder',  el: 'Earth' },   rightScore: { arch: 'Explorer',   el: 'Water' } },
-  { left: 'Building something real', right: 'Imagining something new',  leftScore: { arch: 'Builder',  el: 'Earth' },   rightScore: { arch: 'Visionary',  el: 'Air' } },
-  { left: 'To become stronger',      right: 'To become wiser',          leftScore: { arch: 'Warrior',  el: 'Fire' },    rightScore: { arch: 'Monk',       el: 'Water' } },
-  { left: 'Process it out loud with someone', right: 'Work it out in your own head', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: 'Hold the line, no matter what',    right: 'Chase what\'s over the horizon', leftScore: { arch: 'Guardian',     el: 'Earth' }, rightScore: { arch: 'Explorer',  el: 'Water' } },
-  { left: 'See the future before it happens', right: 'Build it brick by brick',        leftScore: { arch: 'Visionary',    el: 'Air' },   rightScore: { arch: 'Builder',    el: 'Earth' } },
-  { left: 'Defend what\'s yours',             right: 'Command your own space',         leftScore: { arch: 'Protector',    el: 'Earth' }, rightScore: { arch: 'Sovereign',  el: 'Fire' } },
-  { left: 'Break the mold',                   right: 'Hold the standard',              leftScore: { arch: 'Creator',      el: 'Water' }, rightScore: { arch: 'Guardian',   el: 'Earth' } },
-  { left: 'Win people over with words',       right: 'Win the room with presence',     leftScore: { arch: 'Communicator', el: 'Air' },   rightScore: { arch: 'Leader',     el: 'Fire' } },
-  { left: 'Dream up what\'s next',            right: 'Master what\'s now',             leftScore: { arch: 'Visionary',    el: 'Air' },   rightScore: { arch: 'Monk',       el: 'Water' } },
-  { left: 'Stand alone if you have to',       right: 'Stand for your people',          leftScore: { arch: 'Sovereign',    el: 'Earth' }, rightScore: { arch: 'Protector',  el: 'Earth' } },
-  { left: 'Say what needs to be said',        right: 'Stay steady and say nothing',    leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Guardian',   el: 'Earth' } },
-  { left: 'Make something no one\'s seen',    right: 'Rally people around a cause',    leftScore: { arch: 'Creator',      el: 'Air' },   rightScore: { arch: 'Leader',     el: 'Fire' } },
-  { left: 'Chase a bigger purpose',           right: 'Master your own kingdom first',  leftScore: { arch: 'Visionary',    el: 'Air' },   rightScore: { arch: 'Sovereign',  el: 'Fire' } },
-  { left: 'Be the rock everyone leans on',    right: 'Be the voice everyone hears',    leftScore: { arch: 'Guardian',     el: 'Earth' }, rightScore: { arch: 'Communicator', el: 'Air' } },
+  { left: '⚔️ Gladiator — compete, fight, dominate', right: '🎨 Artist — create, express, make your mark', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Creator', el: 'Air' } },
+  { left: '🔥 Just go for it — figure it out as you move', right: '🧠 Think it through — then make your move', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: '🌍 Explorer — new places, new challenges, no limits', right: '🏗️ Builder — plant roots, put in the work, stack it up', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
+  { left: '👑 The one hyping everyone up in the room', right: '🧘 The one quietly watching from the side', leftScore: { arch: 'Leader', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: '🧘 Magician — go deep, get still, master yourself', right: '🚀 Captain — step up, get loud, lead the charge', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Leader', el: 'Fire' } },
+  { left: '💪 Beast mode — train hard, get physically strong', right: '🧩 Galaxy brain — out-think, out-plan, outsmart', leftScore: { arch: 'Warrior', el: 'Earth' }, rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: '🏆 Win — whatever it takes', right: '💡 Understand — why things happen the way they do', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: '😤 Earn respect — make people look up to you', right: '🎭 Stay real — be exactly who you are, no mask', leftScore: { arch: 'Sovereign', el: 'Fire' }, rightScore: { arch: 'Creator', el: 'Water' } },
+  { left: '🛡️ Guardian — keep your people safe no matter what', right: '🗺️ Scout — go discover what\'s out there', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Air' } },
+  { left: '📅 Same routine every day — locked in and consistent', right: '🌊 Go with the flow — adapt as life comes at you', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Water' } },
+  { left: '🔨 Build something real you can touch and be proud of', right: '🔭 Dream up something the world hasn\'t seen yet', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
+  { left: '💪 Level up physically — be harder, faster, stronger', right: '📖 Level up mentally — wisdom, clarity, discipline of mind', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: '🗣️ Talk it out with someone you trust', right: '🤫 Sit with it alone until you figure it out', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Strategist', el: 'Air' } },
+  { left: '⚓ Hold it down — steady, reliable, never moves', right: '🌅 Chase what\'s next — always moving toward something bigger', leftScore: { arch: 'Guardian', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Water' } },
+  { left: '🔭 Prophet — see it before everyone else does', right: '🧱 Architect — lay the bricks one by one until it\'s done', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
+  { left: '🛡️ Protector — nobody gets through you to your crew', right: '👑 Sovereign — own your lane, run your world', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Sovereign', el: 'Fire' } },
+  { left: '🎤 Break the rules — do it your way', right: '📏 Keep the standard — hold the line everyone else drops', leftScore: { arch: 'Creator', el: 'Water' }, rightScore: { arch: 'Guardian', el: 'Earth' } },
+  { left: '🎙️ Speaker — move people with your words', right: '🔥 Presence — walk in and the whole energy shifts', leftScore: { arch: 'Communicator', el: 'Air' }, rightScore: { arch: 'Leader', el: 'Fire' } },
+  { left: '🌌 Visionary — obsessed with what\'s coming next', right: '🧘 Monk — master what\'s right in front of you first', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: '🦁 Stand alone if you have to — you answer to yourself', right: '🐺 Stand for your pack — your people come first', leftScore: { arch: 'Sovereign', el: 'Earth' }, rightScore: { arch: 'Protector', el: 'Earth' } },
+  { left: '📢 Say the hard thing — even if the room goes quiet', right: '🪨 Stay silent and steady — let your actions talk', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Guardian', el: 'Earth' } },
+  { left: '🎨 Create something nobody\'s ever seen before', right: '🔥 Ignite a movement — rally people around something real', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Leader', el: 'Fire' } },
+  { left: '🌍 Change the world — go after the big picture', right: '👑 Rule your world first — master your own house', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Sovereign', el: 'Fire' } },
+  { left: '🪨 The rock — people come to you when things fall apart', right: '📣 The voice — people listen when you speak up', leftScore: { arch: 'Guardian', el: 'Earth' }, rightScore: { arch: 'Communicator', el: 'Air' } },
 ];
 
 let assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
@@ -975,6 +975,7 @@ function renderAssessQuestion() {
   assessContent.innerHTML = `
     <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${((assessIndex)/ASSESS_QUESTIONS.length)*100}%"></div></div>
     <div class="assess-step-label">Question ${assessIndex + 1} of ${ASSESS_QUESTIONS.length}</div>
+    <div class="assess-lean-heading">What do you lean towards more?</div>
     <div class="assess-sides">
       <div class="assess-side left">${escHtml(q.left)}</div>
       <div class="assess-side right">${escHtml(q.right)}</div>
