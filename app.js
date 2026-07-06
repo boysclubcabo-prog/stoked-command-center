@@ -172,6 +172,18 @@ const loginForm     = document.getElementById('loginForm');
 const loginError    = document.getElementById('loginError');
 const loginBtn      = document.getElementById('loginBtn');
 const logoutBtn     = document.getElementById('logoutBtn');
+
+// ── THEME TOGGLE ──────────────────────────
+(function() {
+  const saved = localStorage.getItem('stoked-theme') || 'dark';
+  if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+})();
+document.getElementById('themeToggleBtn').addEventListener('click', () => {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const next = isLight ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('stoked-theme', next);
+});
 const userBadge     = document.getElementById('userBadge');
 const statsBar      = document.getElementById('statsBar');
 const memberHero    = document.getElementById('memberHero');
