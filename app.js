@@ -243,6 +243,10 @@ function showApp() {
   statsBar.classList.toggle('hidden', !isAdmin);
   memberHero.classList.toggle('hidden', isAdmin);
 
+  // Tab label: "Brothers" for admin, "My Card" for members
+  const brothersTabLabel = document.getElementById('brothersTabLabel');
+  if (brothersTabLabel) brothersTabLabel.textContent = isAdmin ? 'Brothers' : 'My Card';
+
   // Subscribe to brothers collection
   unsubBrothers = onSnapshot(collection(db, 'brothers'), snap => {
     brothers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
