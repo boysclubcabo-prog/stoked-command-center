@@ -9,8 +9,6 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc,
          deleteDoc, getDoc }                      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import { getStorage, ref as sRef,
-         uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 // ── FIREBASE CONFIG ───────────────────────────
 const firebaseConfig = {
@@ -25,7 +23,6 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth        = getAuth(firebaseApp);
 const db          = getFirestore(firebaseApp);
-const storage     = getStorage(firebaseApp);
 
 // ── ADMIN EMAIL ───────────────────────────────
 // Only this email gets full admin access
@@ -1119,16 +1116,12 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
   if (!submittingProfile || !ch) return;
   if (ch.photoRequired && !file) { showToast('Please add a photo', 'info'); return; }
 
-  btn.disabled     = true;
-  btn.textContent  = 'Uploading…';
+  btn.disabled    = true;
+  btn.textContent = 'Submitting…';
 
   try {
     let photoUrl = null;
-    if (file) {
-      const path  = `submissions/${submittingProfile.id}_${challengeId}_${Date.now()}`;
-      const snap  = await uploadBytes(sRef(storage, path), file);
-      photoUrl    = await getDownloadURL(snap.ref);
-    }
+    if (file) photoUrl = await compressImage(file, 900, 0.72);
 
     const id = 'sub_' + Date.now().toString(36);
     await setDoc(doc(db, 'submissions', id), {
@@ -1145,7 +1138,7 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
     closeModal(submitProofModal);
     showToast('Proof submitted! Waiting for coach approval 🔥', 'success');
   } catch (err) {
-    showToast('Upload failed: ' + err.message, 'info');
+    showToast('Error: ' + err.message, 'info');
     btn.disabled    = false;
     btn.textContent = 'Submit';
   }
@@ -1225,6 +1218,24 @@ function showToast(msg, type = 'info') {
 }
 
 // ── UTILITY ───────────────────────────────────
+function compressImage(file, maxPx = 900, quality = 0.72) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale  = Math.min(1, maxPx / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width  = Math.round(img.width  * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
 function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
