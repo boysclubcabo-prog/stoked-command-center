@@ -442,7 +442,7 @@ function renderMemberView() {
     <div class="member-card" style="--arch-border:${clr.border};--arch-glow:${clr.glow};--arch-icon:${clr.icon}">
       <div class="member-card-top">
         <div>
-          <div class="member-name">${escHtml(profile.name)}</div>
+          <div class="member-name">${escHtml(profile.name)}${profile.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : ''}</div>
           ${profile.age ? `<div class="card-age">Age ${profile.age}</div>` : ''}
         </div>
         ${profile.archetype ? `
