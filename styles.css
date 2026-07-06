@@ -331,21 +331,21 @@ body {
 .arch-icon {
   display: inline-flex;
   align-items: center;
-  width: 58px;
-  height: 58px;
+  width: 81px;
+  height: 81px;
   flex-shrink: 0;
   color: var(--arch-icon, var(--orange));
 }
 
 .arch-icon svg {
-  width: 58px;
-  height: 58px;
+  width: 81px;
+  height: 81px;
   stroke-width: 1.5;
 }
 
 .arch-icon-img {
-  width: 58px;
-  height: 58px;
+  width: 81px;
+  height: 81px;
   object-fit: contain;
   filter: var(--arch-icon-filter, none);
 }
