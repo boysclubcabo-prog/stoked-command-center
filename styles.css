@@ -154,10 +154,10 @@ body {
 }
 
 .stat-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -502,12 +502,13 @@ body {
   border-radius: var(--radius-md);
   padding: 8px 12px;
   margin-bottom: 12px;
+  text-align: center;
 }
 
 .goal-label {
   font-size: 10px;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 700;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 4px;
@@ -1281,6 +1282,7 @@ body {
   border-radius: var(--radius-md);
   padding: 10px 12px;
   margin-bottom: 12px;
+  text-align: center;
 }
 
 .coach-note-label {
@@ -1951,10 +1953,12 @@ body {
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   margin-top: 4px;
+  text-align: center;
 }
 .cr-item {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
 }
 .cr-label {
@@ -1962,11 +1966,11 @@ body {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 .cr-text {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
