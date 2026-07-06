@@ -293,36 +293,36 @@ body {
   border-color: rgba(239,68,68,0.3);
 }
 
-/* Archetype pill */
+/* Archetype display */
 .archetype-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 14px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-light);
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 16px;
 }
 
-/* Archetype SVG icon */
 .arch-icon {
   display: inline-flex;
   align-items: center;
-  width: 18px;
-  height: 18px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
   color: var(--orange);
 }
 
 .arch-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.5;
+}
+
+.arch-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 /* XP Hero Block */

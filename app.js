@@ -259,7 +259,7 @@ function renderCard(brother) {
       </div>
 
       ${brother.archetype ? `
-        <div class="archetype-pill"><span class="arch-icon">${archIcon}</span>${escHtml(brother.archetype)}</div>
+        <div class="archetype-pill"><span class="arch-icon">${archIcon}</span><span class="arch-label">${escHtml(brother.archetype)}</span></div>
       ` : ''}
 
       <div class="xp-hero">
