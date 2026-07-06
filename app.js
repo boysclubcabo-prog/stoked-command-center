@@ -1349,7 +1349,7 @@ function renderFeedAdmin(el) {
         ${pending.map(s => {
           const ch = challenges.find(c => c.id === s.challengeId);
           return `<div class="sub-card pending">
-            ${s.photoUrl ? `<img src="${s.photoUrl}" class="sub-photo" alt="proof" />` : '<div class="sub-no-photo">No photo</div>'}
+            ${s.photoUrl ? `<img src="${s.photoUrl}" class="sub-photo sub-photo-tap" alt="proof" data-lightbox="${s.photoUrl}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />` : '<div class="sub-no-photo">No photo</div>'}
             <div class="sub-info">
               <div class="sub-brother">${escHtml(s.brotherName)}</div>
               <div class="sub-challenge">${escHtml(ch?.title || 'Challenge')}</div>
@@ -1451,6 +1451,14 @@ function renderFeedAdmin(el) {
     btn.addEventListener('click', () => archiveChallenge(btn.dataset.closech)));
   el.querySelectorAll('.btn-edit-challenge').forEach(btn =>
     btn.addEventListener('click', () => openEditChallengeModal(btn.dataset.editch)));
+
+  // Tap photo to open lightbox
+  el.querySelectorAll('.sub-photo-tap').forEach(img => {
+    img.addEventListener('click', () => openPhotoLightbox(
+      img.dataset.lightbox, img.dataset.subid,
+      img.dataset.brother, img.dataset.challenge, parseInt(img.dataset.xp)
+    ));
+  });
 }
 
 function renderFeedMentor(el) {
@@ -2076,6 +2084,35 @@ async function uploadPhoto(file, path) {
   await uploadBytes(r, file);
   return getDownloadURL(r);
 }
+
+// ── PHOTO LIGHTBOX ────────────────────────────
+function openPhotoLightbox(photoUrl, subId, brotherName, challengeTitle, xp) {
+  const lb = document.getElementById('photoLightbox');
+  document.getElementById('lbImg').src = photoUrl;
+  document.getElementById('lbBrother').textContent = brotherName;
+  document.getElementById('lbChallenge').textContent = challengeTitle;
+  document.getElementById('lbXp').textContent = `+${xp} XP`;
+  document.getElementById('lbApprove').dataset.subid = subId;
+  document.getElementById('lbReject').dataset.subid  = subId;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePhotoLightbox() {
+  document.getElementById('photoLightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('photoLightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('photoLightbox')) closePhotoLightbox();
+});
+document.getElementById('lbClose').addEventListener('click', closePhotoLightbox);
+document.getElementById('lbApprove').addEventListener('click', async function() {
+  await approveSubmission(this.dataset.subid);
+  closePhotoLightbox();
+});
+document.getElementById('lbReject').addEventListener('click', async function() {
+  await rejectSubmission(this.dataset.subid);
+  closePhotoLightbox();
+});
 
 // ── ANNOUNCEMENT MODAL WIRING ─────────────────
 const announcementModal = document.getElementById('announcementModal');
