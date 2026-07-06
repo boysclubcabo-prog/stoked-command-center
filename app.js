@@ -339,6 +339,10 @@ function showApp() {
   const brothersTabLabel = document.getElementById('brothersTabLabel');
   if (brothersTabLabel) brothersTabLabel.textContent = isAdmin ? 'Brothers' : 'My Card';
 
+  // Show the Brothers roster tab only for non-admin members
+  const rosterTabBtn = document.getElementById('rosterTabBtn');
+  if (rosterTabBtn) rosterTabBtn.classList.toggle('hidden', isAdmin);
+
   // Subscribe to brothers collection
   unsubBrothers = onSnapshot(collection(db, 'brothers'), snap => {
     brothers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -368,22 +372,23 @@ function showApp() {
 function switchTab(tab) {
   currentTab = tab;
   const isChallenges = tab === 'community';
+  const isRoster     = tab === 'roster';
+  const isMain       = !isChallenges && !isRoster;
 
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
 
-  // Hide everything that belongs to the brothers view
-  document.querySelector('.main').classList.toggle('hidden', isChallenges);
-  statsBar.classList.toggle('hidden', isChallenges || !isAdmin);
-  memberHero.classList.toggle('hidden', isChallenges || isAdmin);
-
-  // Show/hide community section
+  document.querySelector('.main').classList.toggle('hidden', !isMain);
+  statsBar.classList.toggle('hidden', !isMain || !isAdmin);
+  memberHero.classList.toggle('hidden', !isMain || isAdmin);
   document.getElementById('communitySection').classList.toggle('hidden', !isChallenges);
+  document.getElementById('rosterSection').classList.toggle('hidden', !isRoster);
 
   if (isChallenges) {
     renderFeed();
     localStorage.setItem(`lastFeedVisit_${currentUser.uid}`, new Date().toISOString());
     document.getElementById('communityBadge').classList.add('hidden');
   }
+  if (isRoster) renderRoster();
 }
 
 function updateChallengesBadge() {
@@ -1508,6 +1513,53 @@ function renderFeedMember(el) {
   el.innerHTML = html;
   el.querySelectorAll('[data-submit]').forEach(btn =>
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
+}
+
+// ── ROSTER (member view of all brothers) ──────
+function renderRoster() {
+  const container = document.getElementById('rosterContainer');
+  if (!container) return;
+  const me = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+  const sorted = brothers.slice().sort((a, b) => (b.xp || 0) - (a.xp || 0));
+
+  if (!sorted.length) {
+    container.innerHTML = `<div class="feed-empty">No brothers yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="feed-header"><h2 class="feed-title">The Brotherhood</h2></div>
+    <div class="roster-list">
+      ${sorted.map((b, i) => {
+        const xp  = b.xp || 0;
+        const lvl = getLevelInfo(xp);
+        const displayArchetype = b.primaryArchetype || b.archetype;
+        const icon = archetypeElementIcon(displayArchetype, b.dominantElement);
+        const archClr = ARCHETYPE_COLORS[displayArchetype] || { border: 'var(--border)', glow: 'transparent', icon: 'var(--orange)' };
+        const elColor = ELEMENT_COLORS[b.dominantElement];
+        const isMe = b.id === me?.id;
+        const bsCat = b.brotherhoodScore != null ? getBSCategory(b.brotherhoodScore) : null;
+        return `
+          <div class="roster-card ${isMe ? 'roster-card-me' : ''}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
+            <div class="roster-rank">#${i + 1}</div>
+            <span class="arch-icon roster-icon">${icon}</span>
+            <div class="roster-info">
+              <div class="roster-name">${escHtml(b.name)}${isMe ? ' <span class="roster-you">you</span>' : ''}</div>
+              <div class="roster-meta">
+                ${displayArchetype ? `<span class="roster-arch" style="color:${archClr.icon}">${escHtml(displayArchetype)}</span>` : ''}
+                ${b.dominantElement ? `<span class="roster-el" style="color:${elColor}">${escHtml(b.dominantElement)}</span>` : ''}
+              </div>
+              <div class="roster-xp-row">
+                <div class="roster-progress-track">
+                  <div class="roster-progress-fill" style="width:${lvl.progress}%;background:${archClr.icon}"></div>
+                </div>
+                <span class="roster-xp-num">${xp.toLocaleString()} XP</span>
+              </div>
+            </div>
+            ${bsCat ? `<div class="roster-score" style="color:${bsCat.color}">${b.brotherhoodScore}<span class="roster-score-lbl">WK</span></div>` : ''}
+          </div>`;
+      }).join('')}
+    </div>`;
 }
 
 // ── CREATE / EDIT CHALLENGE ───────────────────
