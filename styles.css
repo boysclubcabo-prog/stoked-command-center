@@ -859,7 +859,7 @@ body {
 
 /* Left panel */
 .login-left {
-  background: #2a1a0f;
+  background: linear-gradient(160deg, #1a3045 0%, #0f2233 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -878,7 +878,7 @@ body {
   font-size: 360px;
   font-weight: 900;
   font-style: italic;
-  color: rgba(0,0,0,0.08);
+  color: rgba(75,114,170,0.15);
   line-height: 1;
   pointer-events: none;
 }

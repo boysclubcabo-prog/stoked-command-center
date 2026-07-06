@@ -1,9 +1,8 @@
-const CACHE = 'stoked-v25';
+const CACHE = 'stoked-v26';
 
 // Only cache static assets — never app.js or index.html
 // so code updates are always picked up immediately
 const STATIC = [
-  '/stoked-command-center/logo-mark.svg',
   '/stoked-command-center/logo.svg',
   '/stoked-command-center/icon-192.png',
   '/stoked-command-center/icon-512.png',
@@ -16,6 +15,7 @@ const ALWAYS_NETWORK = [
   '/stoked-command-center/app.js',
   '/stoked-command-center/styles.css',
   '/stoked-command-center/manifest.json',
+  '/stoked-command-center/logo-mark.svg',
 ];
 
 self.addEventListener('install', e => {
