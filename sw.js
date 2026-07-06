@@ -1,19 +1,26 @@
 const CACHE = 'stoked-v3';
-const CORE = [
-  '/stoked-command-center/',
-  '/stoked-command-center/index.html',
-  '/stoked-command-center/styles.css',
-  '/stoked-command-center/app.js',
+
+// Only cache static assets — never app.js or index.html
+// so code updates are always picked up immediately
+const STATIC = [
   '/stoked-command-center/logo-mark.svg',
   '/stoked-command-center/logo.svg',
-  '/stoked-command-center/manifest.json',
   '/stoked-command-center/icon-192.png',
   '/stoked-command-center/icon-512.png',
 ];
 
+// These always go network-first so updates land instantly
+const ALWAYS_NETWORK = [
+  '/stoked-command-center/',
+  '/stoked-command-center/index.html',
+  '/stoked-command-center/app.js',
+  '/stoked-command-center/styles.css',
+  '/stoked-command-center/manifest.json',
+];
+
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())
+    caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting())
   );
 });
 
@@ -28,21 +35,27 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Always go network-first for Firebase
+  // Pass through Firebase / Google / font requests
   if (url.hostname.includes('firebase') || url.hostname.includes('google') || url.hostname.includes('gstatic')) {
     return;
   }
 
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      const networkFetch = fetch(e.request).then(res => {
-        if (res && res.status === 200 && e.request.method === 'GET') {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
+  const path = url.pathname;
+
+  // Core app files — network first, fall back to cache
+  if (ALWAYS_NETWORK.includes(path)) {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
         return res;
-      });
-      return cached || networkFetch;
-    })
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Static assets — cache first
+  e.respondWith(
+    caches.match(e.request).then(cached => cached || fetch(e.request))
   );
 });
