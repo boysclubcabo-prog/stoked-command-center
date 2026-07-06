@@ -1053,19 +1053,30 @@ document.getElementById('challengeForm').addEventListener('submit', async e => {
   const xpReward = parseInt(document.getElementById('challengeXP').value) || 0;
   if (!title || !xpReward) return;
 
-  const id = 'ch_' + Date.now().toString(36);
-  await setDoc(doc(db, 'challenges', id), {
-    title,
-    description:   document.getElementById('challengeDesc').value.trim(),
-    xpReward,
-    deadline:      document.getElementById('challengeDeadline').value || null,
-    photoRequired: document.getElementById('challengePhotoRequired').checked,
-    active:        true,
-    createdAt:     new Date().toISOString(),
-    createdBy:     currentUser.email,
-  });
-  closeModal(challengeModal);
-  showToast(`Challenge "${title}" posted!`, 'success');
+  const btn = e.submitter;
+  btn.disabled    = true;
+  btn.textContent = 'Posting…';
+
+  try {
+    const id = 'ch_' + Date.now().toString(36);
+    await setDoc(doc(db, 'challenges', id), {
+      title,
+      description:   document.getElementById('challengeDesc').value.trim(),
+      xpReward,
+      deadline:      document.getElementById('challengeDeadline').value || null,
+      photoRequired: document.getElementById('challengePhotoRequired').checked,
+      active:        true,
+      createdAt:     new Date().toISOString(),
+      createdBy:     currentUser.email,
+    });
+    closeModal(challengeModal);
+    showToast(`Challenge "${title}" posted!`, 'success');
+  } catch (err) {
+    showToast('Error: ' + err.message, 'info');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Post Challenge';
+  }
 });
 
 document.getElementById('challengeModalClose').addEventListener('click', () => closeModal(challengeModal));
