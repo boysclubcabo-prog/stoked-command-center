@@ -310,6 +310,20 @@ body {
   margin-bottom: 16px;
 }
 
+/* Archetype SVG icon */
+.arch-icon {
+  display: inline-flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.arch-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* Level section */
 .level-section {
   margin-bottom: 16px;

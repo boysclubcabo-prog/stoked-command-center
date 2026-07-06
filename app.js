@@ -31,14 +31,35 @@ const LEVELS = [
 ];
 
 const ARCHETYPE_ICONS = {
-  Warrior:    '⚔️',
-  Monk:       '🧘',
-  Creator:    '🎨',
-  Explorer:   '🧭',
-  Leader:     '👑',
-  Builder:    '🔨',
-  Guardian:   '🛡️',
-  Pathfinder: '🗺️',
+  Warrior: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="21" x2="15" y2="9"/><line x1="9.5" y1="14.5" x2="14" y2="19"/>
+    <path d="M14 4l6 6-2 2-6-6z"/><line x1="19" y1="5" x2="21" y2="3"/>
+  </svg>`,
+  Monk: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+    <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>
+  </svg>`,
+  Creator: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+  </svg>`,
+  Explorer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+  </svg>`,
+  Leader: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="5 9 2 12 5 15"/><polyline points="19 9 22 12 19 15"/>
+    <line x1="2" y1="12" x2="22" y2="12"/>
+    <path d="M12 2l3 5h4l-3.5 4 1.5 5L12 13.5 7 16l1.5-5L5 7h4z"/>
+  </svg>`,
+  Builder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.77 3.77z"/>
+  </svg>`,
+  Guardian: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+  </svg>`,
+  Pathfinder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12"/>
+    <polyline points="12 5 19 12 12 19"/>
+  </svg>`,
 };
 
 const XP_REASONS = [
@@ -215,7 +236,7 @@ function renderGrid() {
 function renderCard(brother) {
   const xp       = brother.xp || 0;
   const lvl      = getLevelInfo(xp);
-  const archIcon = ARCHETYPE_ICONS[brother.archetype] || '🔥';
+  const archIcon = ARCHETYPE_ICONS[brother.archetype] || '';
   const momentum = (brother.momentum ?? 0).toFixed(1);
   const daily    = (brother.dailyScore ?? 0).toFixed(1);
   const maxed    = xp >= 10000;
@@ -238,7 +259,7 @@ function renderCard(brother) {
       </div>
 
       ${brother.archetype ? `
-        <div class="archetype-pill">${archIcon} ${escHtml(brother.archetype)}</div>
+        <div class="archetype-pill"><span class="arch-icon">${archIcon}</span>${escHtml(brother.archetype)}</div>
       ` : ''}
 
       <div class="level-section">
