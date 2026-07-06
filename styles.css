@@ -259,6 +259,21 @@ body {
 
 .card-identity {}
 
+.mentor-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(180,120,220,0.18);
+  color: #c47ee8;
+  border: 1px solid rgba(180,120,220,0.4);
+  border-radius: 20px;
+  padding: 1px 7px;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
 .card-name {
   font-size: 18px;
   font-weight: 800;

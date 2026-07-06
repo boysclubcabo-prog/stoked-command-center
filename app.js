@@ -8,7 +8,7 @@ import { getAuth, signInWithEmailAndPassword,
          signOut, onAuthStateChanged }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc,
-         deleteDoc, getDoc }                      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         deleteDoc, getDoc, getDocs }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── FIREBASE CONFIG ───────────────────────────
 const firebaseConfig = {
@@ -155,6 +155,7 @@ let challenges  = [];
 let submissions = [];
 let currentUser = null;
 let isAdmin     = false;
+let isMentor    = false;
 let editingId   = null;
 let deletingId  = null;
 let currentTab  = 'brothers';
@@ -192,10 +193,21 @@ onAuthStateChanged(auth, async user => {
   if (user) {
     currentUser = user;
     isAdmin     = user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    isMentor    = false;
+    if (!isAdmin) {
+      // Check if this user has mentor role in their brother profile
+      try {
+        const snap = await getDocs(collection(db, 'brothers'));
+        const profile = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .find(b => b.email && b.email.toLowerCase() === user.email.toLowerCase());
+        if (profile?.role === 'mentor') isMentor = true;
+      } catch (_) {}
+    }
     showApp();
   } else {
     currentUser = null;
     isAdmin     = false;
+    isMentor    = false;
     showLogin();
   }
 });
@@ -497,7 +509,7 @@ function renderMemberView() {
 
       ${profile.coachNote ? `
         <div class="coach-note-member">
-          <div class="coach-note-member-label">— Coach Note —</div>
+          <div class="coach-note-member-label">— Note from ${escHtml(profile.coachNoteAuthor || 'Coach')} —</div>
           <div class="coach-note-member-text">${escHtml(profile.coachNote)}</div>
           ${profile.coachNoteDate ? `<div class="coach-note-member-date">${new Date(profile.coachNoteDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>` : ''}
         </div>` : ''}
@@ -525,7 +537,7 @@ function renderCard(brother) {
     <div class="brother-card" id="card-${brother.id}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
       <div class="card-top">
         <div class="card-identity">
-          <div class="card-name">${escHtml(brother.name)}</div>
+          <div class="card-name">${escHtml(brother.name)}${brother.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : ''}</div>
           ${brother.age ? `<div class="card-age">Age ${brother.age}</div>` : ''}
         </div>
         <div class="card-actions">
@@ -598,7 +610,7 @@ function renderCard(brother) {
 
       ${brother.coachNote ? `
         <div class="coach-note-display">
-          <div class="coach-note-label">Coach Note</div>
+          <div class="coach-note-label">Note from ${escHtml(brother.coachNoteAuthor || 'Coach')}</div>
           <div class="coach-note-text">${escHtml(brother.coachNote)}</div>
           ${brother.coachNoteDate ? `<div class="coach-note-date">${new Date(brother.coachNoteDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}
         </div>` : ''}
@@ -634,6 +646,7 @@ function openEditModal(id) {
   document.getElementById('fieldGoal').value       = b.goal       || '';
   document.getElementById('fieldCommitment').value = b.commitment || '';
   document.getElementById('fieldNotes').value      = b.notes      || '';
+  document.getElementById('fieldRole').value       = b.role       || 'member';
   openModal(brotherModal);
 }
 
@@ -649,6 +662,7 @@ brotherForm.addEventListener('submit', async e => {
     goal:       document.getElementById('fieldGoal').value.trim(),
     commitment: document.getElementById('fieldCommitment').value.trim(),
     notes:      document.getElementById('fieldNotes').value.trim(),
+    role:       document.getElementById('fieldRole').value || 'member',
     updatedAt:  new Date().toISOString(),
   };
   if (!data.name) return;
@@ -746,11 +760,16 @@ document.getElementById('coachNoteForm').addEventListener('submit', async e => {
   const b    = brothers.find(x => x.id === id);
   if (!b) return;
 
+  // Determine author name from current user's brother profile
+  const authorProfile = brothers.find(x => x.email && x.email.toLowerCase() === currentUser.email.toLowerCase());
+  const authorName = authorProfile?.name || (isAdmin ? 'Coach' : currentUser.email);
+
   try {
     await updateDoc(doc(db, 'brothers', id), {
-      coachNote:     note,
-      coachNoteDate: new Date().toISOString(),
-      updatedAt:     new Date().toISOString(),
+      coachNote:       note,
+      coachNoteDate:   new Date().toISOString(),
+      coachNoteAuthor: authorName,
+      updatedAt:       new Date().toISOString(),
     });
     closeModal(coachNoteModal);
     showToast(`Note sent to ${b.name}`, 'success');
@@ -948,6 +967,7 @@ function renderFeed() {
   const el = document.getElementById('feedContainer');
   if (!el) return;
   if (isAdmin) renderFeedAdmin(el);
+  else if (isMentor) renderFeedMentor(el);
   else renderFeedMember(el);
 }
 
@@ -1028,6 +1048,73 @@ function renderFeedAdmin(el) {
     btn.addEventListener('click', () => archiveChallenge(btn.dataset.closech)));
   el.querySelectorAll('.btn-edit-challenge').forEach(btn =>
     btn.addEventListener('click', () => openEditChallengeModal(btn.dataset.editch)));
+}
+
+function renderFeedMentor(el) {
+  const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+  const mySubs  = submissions.filter(s => s.brotherId === profile?.id);
+
+  let html = `<div class="feed-header">
+    <h2 class="feed-title">Challenges</h2>
+    <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
+  </div>`;
+
+  // Active challenges (same as member view)
+  if (!challenges.length) {
+    html += `<div class="feed-empty">No active challenges yet.</div>`;
+  } else {
+    html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
+    challenges.forEach(ch => {
+      const mySub = mySubs.find(s => s.challengeId === ch.id);
+      const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
+      html += `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
+        <div class="ch-top">
+          <div>
+            ${challengeTagPill(ch.tag)}
+            <div class="ch-title">${escHtml(ch.title)}</div>
+            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
+          </div>
+          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
+        </div>
+        <div class="ch-meta">
+          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          <span>${IC.check} ${totalApproved} completed</span>
+        </div>
+        ${mySub ? `<div class="sub-status-badge status-${mySub.status}">
+          ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
+          ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP!` : ''}
+          ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
+        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  // Mentor-only: coach notes section
+  const otherBrothers = brothers.filter(b => b.id !== profile?.id);
+  if (otherBrothers.length) {
+    html += `<div class="feed-section">
+      <div class="feed-section-title">${IC.clipboard} Coach Notes</div>
+      <div class="challenge-list">
+        ${otherBrothers.map(b => `
+          <div class="challenge-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div>
+              <div style="font-weight:700;color:var(--text-primary)">${escHtml(b.name)}</div>
+              ${b.coachNote ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">"${escHtml(b.coachNote.slice(0,60))}${b.coachNote.length>60?'…':''}"</div>` : `<div style="font-size:12px;color:var(--text-muted)">No note yet</div>`}
+            </div>
+            <button class="btn-coach-note btn btn-ghost" style="white-space:nowrap" data-coachnote="${b.id}">${IC.edit} Note</button>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+  document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
+  el.querySelectorAll('[data-submit]').forEach(btn =>
+    btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
+  el.querySelectorAll('.btn-coach-note').forEach(btn =>
+    btn.addEventListener('click', () => openCoachNoteModal(btn.dataset.coachnote)));
 }
 
 function renderFeedMember(el) {
