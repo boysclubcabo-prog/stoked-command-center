@@ -104,7 +104,8 @@ const brotherModal   = document.getElementById('brotherModal');
 const xpModal        = document.getElementById('xpModal');
 const deleteModal    = document.getElementById('deleteModal');
 const checkInModal   = document.getElementById('checkInModal');
-const coachNoteModal = document.getElementById('coachNoteModal');
+const coachNoteModal    = document.getElementById('coachNoteModal');
+const viewCheckInModal  = document.getElementById('viewCheckInModal');
 const modalTitle    = document.getElementById('modalTitle');
 const brotherForm   = document.getElementById('brotherForm');
 
@@ -251,6 +252,8 @@ function renderGrid() {
     btn.addEventListener('click', () => openCheckInModal(btn.dataset.checkin)));
   document.querySelectorAll('[data-coachnote]').forEach(btn =>
     btn.addEventListener('click', () => openCoachNoteModal(btn.dataset.coachnote)));
+  document.querySelectorAll('[data-viewcheckin]').forEach(btn =>
+    btn.addEventListener('click', () => openViewCheckInModal(btn.dataset.viewcheckin)));
 }
 
 function renderMemberView() {
@@ -433,6 +436,7 @@ function renderCard(brother) {
       <div class="card-btn-row">
         <button class="btn-add-xp" data-addxp="${brother.id}">⚡ Add XP</button>
         <button class="btn-checkin" data-checkin="${brother.id}" title="Weekly Check-In">Check-In</button>
+        ${brother.brotherhoodScore != null ? `<button class="btn-view-checkin" data-viewcheckin="${brother.id}" title="View Check-In">📊</button>` : ''}
         <button class="btn-coach-note" data-coachnote="${brother.id}" title="Coach Note">📋</button>
       </div>
     </div>`;
@@ -589,6 +593,57 @@ document.getElementById('coachNoteModalClose').addEventListener('click', () => c
 document.getElementById('coachNoteCancelBtn').addEventListener('click',  () => closeModal(coachNoteModal));
 coachNoteModal.addEventListener('click', e => { if (e.target === coachNoteModal) closeModal(coachNoteModal); });
 
+// ── VIEW CHECK-IN (admin read-only) ──────────
+function openViewCheckInModal(id) {
+  const b = brothers.find(x => x.id === id);
+  if (!b || b.brotherhoodScore == null) return;
+
+  const cat    = getBSCategory(b.brotherhoodScore);
+  const date   = b.lastCheckInDate ? new Date(b.lastCheckInDate).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}) : null;
+  const scores = [
+    { label: 'Focus',       val: b.focusScore },
+    { label: 'Movement',    val: b.movementScore },
+    { label: 'Discipline',  val: b.disciplineScore },
+    { label: 'Composure',   val: b.composureScore },
+    { label: 'Stoke',       val: b.stokeScore },
+  ];
+
+  document.getElementById('viewCheckInContent').innerHTML = `
+    <div class="vci-name">${escHtml(b.name)}</div>
+    ${date ? `<div class="vci-date">${date}</div>` : ''}
+
+    <div class="vci-score-block" style="--bs-color:${cat.color}">
+      <div class="vci-score-num" style="color:${cat.color}">${b.brotherhoodScore}<span class="vci-score-denom">/100</span></div>
+      <div class="vci-score-cat" style="color:${cat.color}">${cat.label}</div>
+      <div class="vci-score-label">Brotherhood Score</div>
+    </div>
+
+    <div class="vci-sliders">
+      ${scores.map(s => {
+        const pct = ((s.val - 1) / 9) * 100;
+        const barColor = s.val >= 8 ? '#F5D97A' : s.val >= 6 ? '#4B72AA' : s.val >= 4 ? '#6b8fc4' : '#5a5a6a';
+        return `<div class="vci-slider-row">
+          <span class="vci-slider-label">${s.label}</span>
+          <div class="vci-bar-track"><div class="vci-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+          <span class="vci-slider-val">${s.val}</span>
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${(b.weeklyWin || b.weeklyChallenge || b.weeklyCommitment) ? `
+    <div class="vci-reflection">
+      ${b.weeklyWin ? `<div class="vci-r-item"><div class="vci-r-label">💪 Win</div><div class="vci-r-text">${escHtml(b.weeklyWin)}</div></div>` : ''}
+      ${b.weeklyChallenge ? `<div class="vci-r-item"><div class="vci-r-label">⚡ Challenge</div><div class="vci-r-text">${escHtml(b.weeklyChallenge)}</div></div>` : ''}
+      ${b.weeklyCommitment ? `<div class="vci-r-item"><div class="vci-r-label">🎯 Commitment</div><div class="vci-r-text">${escHtml(b.weeklyCommitment)}</div></div>` : ''}
+    </div>` : ''}
+  `;
+
+  openModal(viewCheckInModal);
+}
+
+document.getElementById('viewCheckInModalClose').addEventListener('click', () => closeModal(viewCheckInModal));
+viewCheckInModal.addEventListener('click', e => { if (e.target === viewCheckInModal) closeModal(viewCheckInModal); });
+
 // ── WEEKLY CHECK-IN ───────────────────────────
 const SLIDER_IDS = ['focus','movement','discipline','composure','stoke'];
 
@@ -710,7 +765,7 @@ document.getElementById('xpCancelBtn').addEventListener('click',  () => closeMod
   el.addEventListener('click', e => { if (e.target === el) closeModal(el); }));
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal].forEach(closeModal);
+  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal, viewCheckInModal].forEach(closeModal);
 });
 
 // ── TOAST ─────────────────────────────────────

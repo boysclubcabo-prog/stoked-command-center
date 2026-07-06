@@ -1566,6 +1566,95 @@ body {
   transform: translateY(-1px);
 }
 
+/* ── VIEW CHECK-IN MODAL ── */
+.btn-view-checkin {
+  background: rgba(75,114,170,0.15);
+  border: 1px solid rgba(75,114,170,0.3);
+  color: #6b8fc4;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-view-checkin:hover { background: rgba(75,114,170,0.28); }
+
+.vci-name {
+  font-family: 'Faunces', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+.vci-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.vci-score-block {
+  background: var(--bg-elevated);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.vci-score-num {
+  font-family: 'Faunces', serif;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1;
+}
+.vci-score-denom {
+  font-size: 20px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+}
+.vci-score-cat {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.vci-score-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 2px;
+}
+
+.vci-sliders { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.vci-slider-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 28px;
+  align-items: center;
+  gap: 10px;
+}
+.vci-slider-label { font-size: 13px; color: var(--text-secondary); }
+.vci-slider-val   { font-size: 14px; font-weight: 700; color: var(--text-primary); text-align: right; }
+.vci-bar-track {
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.vci-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s;
+}
+
+.vci-reflection { display: flex; flex-direction: column; gap: 12px; }
+.vci-r-item {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+.vci-r-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.vci-r-text  { font-size: 14px; color: var(--text-primary); line-height: 1.4; }
+
 /* ── UTILITY ── */
 .hidden { display: none !important; }
 
