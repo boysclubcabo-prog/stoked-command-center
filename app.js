@@ -83,6 +83,22 @@ const ELEMENT_COLORS = {
   Earth: '#7A8C52',
 };
 
+// Small badge glyphs layered onto an archetype icon to show dominant element
+const ELEMENT_GLYPHS = {
+  Fire:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9 8 6 10 6 14a6 6 0 0012 0c0-4-3-6-6-12z"/></svg>`,
+  Water: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c4 5.5 7 9.3 7 13a7 7 0 01-14 0c0-3.7 3-7.5 7-13z"/></svg>`,
+  Air:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 8h13a3 3 0 100-3"/><path d="M3 16h16a3 3 0 11-3 3"/></svg>`,
+  Earth: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 20h20L12 2z"/></svg>`,
+};
+
+function archetypeElementIcon(archetype, element) {
+  const base  = ARCHETYPE_ICONS[archetype] || '';
+  const glyph = ELEMENT_GLYPHS[element];
+  if (!glyph) return base;
+  const elClr = ELEMENT_COLORS[element];
+  return `<span class="arch-icon-wrap">${base}<span class="arch-icon-badge" style="background:${elClr}">${glyph}</span></span>`;
+}
+
 const ELEMENT_DESC = {
   Fire:  'Your strongest energy is passion, courage, action, and intensity.',
   Water: 'Your strongest energy is emotion, adaptability, connection, and intuition.',
@@ -553,7 +569,7 @@ function renderMemberView() {
   const maxed = xp >= 10000;
   const displayArchetype = profile.primaryArchetype || profile.archetype;
   const clr   = ARCHETYPE_COLORS[displayArchetype] || ARCHETYPE_COLORS.Warrior;
-  const icon  = ARCHETYPE_ICONS[displayArchetype]  || '';
+  const icon  = archetypeElementIcon(displayArchetype, profile.dominantElement);
   const elColor = ELEMENT_COLORS[profile.dominantElement];
 
   memberHero.innerHTML = `
@@ -658,7 +674,7 @@ function renderCard(brother) {
   const xp      = brother.xp || 0;
   const lvl     = getLevelInfo(xp);
   const displayArchetype = brother.primaryArchetype || brother.archetype;
-  const archIcon = ARCHETYPE_ICONS[displayArchetype] || '';
+  const archIcon = archetypeElementIcon(displayArchetype, brother.dominantElement);
   const archClr  = ARCHETYPE_COLORS[displayArchetype] || { border:'var(--border)', glow:'transparent', icon:'var(--orange)' };
   const archElColor = ELEMENT_COLORS[brother.dominantElement];
   const maxed   = xp >= 10000;
