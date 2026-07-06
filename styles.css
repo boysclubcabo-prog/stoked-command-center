@@ -2962,3 +2962,193 @@ body {
 [data-theme="light"] .assess-cta-title { color: #A06818; }
 [data-theme="light"] .btn-assess-cta { background: #A06818; color: #fff; }
 [data-theme="light"] .btn-assess-cta:hover { background: #8a5814; }
+
+/* ── SOCIAL FEED ── */
+.sf-post {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.sf-announcement {
+  border-color: var(--accent, #C4693A);
+  border-top: 3px solid var(--accent, #C4693A);
+}
+.sf-post-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 10px;
+}
+.sf-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.sf-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.sf-avatar-coach {
+  background: rgba(196,105,58,0.12);
+  border-color: rgba(196,105,58,0.3);
+}
+.sf-post-meta {
+  flex: 1;
+  min-width: 0;
+}
+.sf-post-author {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+.sf-post-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.sf-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.sf-delete-btn:hover { opacity: 1; color: var(--red); }
+
+.sf-win-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: rgba(91,160,120,0.08);
+  border-top: 1px solid rgba(91,160,120,0.15);
+  border-bottom: 1px solid rgba(91,160,120,0.15);
+}
+.sf-win-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5ba078;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.sf-tag-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.sf-challenge-title {
+  padding: 10px 16px 2px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.sf-announcement-text {
+  padding: 10px 16px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+}
+.sf-caption {
+  padding: 4px 16px 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+.sf-photo {
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  display: block;
+  margin-top: 4px;
+}
+.sf-xp-row {
+  padding: 10px 16px 4px;
+}
+.sf-xp-badge {
+  display: inline-block;
+  background: rgba(196,105,58,0.15);
+  color: #C4693A;
+  border: 1px solid rgba(196,105,58,0.3);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 12px;
+}
+
+/* Comments */
+.sf-comments {
+  padding: 8px 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sf-comment {
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+.sf-comment-author {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-right: 5px;
+}
+.sf-comment-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 16px 14px;
+  margin-top: 4px;
+}
+.sf-comment-input {
+  flex: 1;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.sf-comment-input:focus { border-color: var(--accent, #C4693A); }
+.sf-comment-send {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent, #C4693A);
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.sf-comment-send:hover { background: #b05a2e; }
+
+[data-theme="light"] .sf-post { box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+[data-theme="light"] .sf-comment-input { background: #F8F4EC; }

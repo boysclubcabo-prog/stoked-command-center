@@ -7,7 +7,7 @@ import { initializeApp }                          from 'https://www.gstatic.com/
 import { getAuth, signInWithEmailAndPassword,
          signOut, onAuthStateChanged }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
-         onSnapshot, setDoc, updateDoc,
+         onSnapshot, setDoc, updateDoc, addDoc,
          deleteDoc, getDoc, getDocs }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── FIREBASE CONFIG ───────────────────────────
@@ -205,18 +205,21 @@ function getBSCategory(score) {
 let brothers    = [];
 let challenges  = [];
 let submissions = [];
+let feedPosts   = [];
 let currentUser = null;
 let isAdmin     = false;
 let isMentor    = false;
 let editingId   = null;
 let deletingId  = null;
 let currentTab  = 'brothers';
-let unsubBrothers   = null;
-let unsubChallenges = null;
+let unsubBrothers    = null;
+let unsubChallenges  = null;
 let unsubSubmissions = null;
+let unsubFeed        = null;
 let streakUpdatedThisSession = false;
 let reviewingSubId = null;
 let challengeFilter = 'All';
+let lastFeedSeen = 0;
 
 // ── DOM ───────────────────────────────────────
 const loginScreen   = document.getElementById('loginScreen');
@@ -367,6 +370,15 @@ function showApp() {
     updateChallengesBadge();
   });
 
+  // Subscribe to social feed
+  lastFeedSeen = parseInt(localStorage.getItem(`feedSeen_${currentUser.uid}`) || '0', 10);
+  unsubFeed = onSnapshot(collection(db, 'feed'), snap => {
+    feedPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    if (currentTab === 'socialfeed') renderSocialFeed();
+    updateFeedBadge();
+  });
+
   // Tab bar
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -375,18 +387,26 @@ function showApp() {
 
 function switchTab(tab) {
   currentTab = tab;
+  const isSocialFeed = tab === 'socialfeed';
   const isChallenges = tab === 'community';
   const isRoster     = tab === 'roster';
-  const isMain       = !isChallenges && !isRoster;
+  const isMain       = !isSocialFeed && !isChallenges && !isRoster;
 
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
 
   document.querySelector('.main').classList.toggle('hidden', !isMain);
   statsBar.classList.toggle('hidden', !isMain || !isAdmin);
   memberHero.classList.toggle('hidden', !isMain || isAdmin);
+  document.getElementById('socialFeedSection').classList.toggle('hidden', !isSocialFeed);
   document.getElementById('communitySection').classList.toggle('hidden', !isChallenges);
   document.getElementById('rosterSection').classList.toggle('hidden', !isRoster);
 
+  if (isSocialFeed) {
+    renderSocialFeed();
+    lastFeedSeen = Date.now();
+    localStorage.setItem(`feedSeen_${currentUser.uid}`, lastFeedSeen);
+    document.getElementById('feedBadge').classList.add('hidden');
+  }
   if (isChallenges) {
     renderFeed();
     localStorage.setItem(`lastFeedVisit_${currentUser.uid}`, new Date().toISOString());
@@ -411,6 +431,15 @@ function updateChallengesBadge() {
     badge.textContent = newCount;
     badge.classList.toggle('hidden', newCount === 0 || currentTab === 'community');
   }
+}
+
+function updateFeedBadge() {
+  if (!currentUser) return;
+  const badge = document.getElementById('feedBadge');
+  if (!badge) return;
+  const newCount = feedPosts.filter(p => (p.createdAt || 0) > lastFeedSeen).length;
+  badge.textContent = newCount;
+  badge.classList.toggle('hidden', newCount === 0 || currentTab === 'socialfeed');
 }
 
 // ── LEVEL LOGIC ───────────────────────────────
@@ -1555,6 +1584,165 @@ function renderFeedMember(el) {
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
 }
 
+// ── SOCIAL FEED ───────────────────────────────
+function renderSocialFeed() {
+  const el = document.getElementById('socialFeedContainer');
+  if (!el) return;
+
+  const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser?.email?.toLowerCase());
+
+  let html = `<div class="feed-header">
+    <h2 class="feed-title">Brotherhood Feed</h2>
+    ${isAdmin ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">📣 Post</button>` : ''}
+  </div>`;
+
+  if (!feedPosts.length) {
+    html += `<div class="feed-empty">No posts yet — wins will appear here when challenges are approved! 🏆</div>`;
+    el.innerHTML = html;
+    if (isAdmin) bindAnnouncementBtn(el);
+    return;
+  }
+
+  feedPosts.forEach(post => {
+    const ago = timeAgo(post.createdAt);
+    const brother = brothers.find(b => b.id === post.brotherId);
+    const icon = brother ? archetypeElementIcon(brother.primaryArchetype || brother.archetype, brother.dominantElement) : '';
+
+    if (post.type === 'announcement') {
+      html += `<div class="sf-post sf-announcement">
+        <div class="sf-post-header">
+          <div class="sf-avatar sf-avatar-coach">🏆</div>
+          <div class="sf-post-meta">
+            <div class="sf-post-author">Coach</div>
+            <div class="sf-post-time">${ago}</div>
+          </div>
+          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">✕</button>` : ''}
+        </div>
+        <div class="sf-announcement-text">${escHtml(post.text || '')}</div>
+        ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="" />` : ''}
+        <div class="sf-comments" data-post-id="${post.id}">
+          ${renderComments(post.comments || [], profile)}
+        </div>
+        <div class="sf-comment-form">
+          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Say something…" maxlength="300" />
+          <button class="sf-comment-send" data-comment-send="${post.id}">↑</button>
+        </div>
+      </div>`;
+    } else {
+      const tagColor = post.challengeTag && CHALLENGE_TAGS[post.challengeTag] ? CHALLENGE_TAGS[post.challengeTag].color : '#888';
+      html += `<div class="sf-post">
+        <div class="sf-post-header">
+          <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
+          <div class="sf-post-meta">
+            <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}</div>
+            <div class="sf-post-time">${ago}</div>
+          </div>
+          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">✕</button>` : ''}
+        </div>
+        <div class="sf-win-banner">
+          <span class="sf-win-label">✅ Challenge Complete</span>
+          ${post.challengeTag ? `<span class="sf-tag-pill" style="background:${tagColor}22;color:${tagColor};border-color:${tagColor}44">${post.challengeTag}</span>` : ''}
+        </div>
+        <div class="sf-challenge-title">${escHtml(post.challengeTitle || '')}</div>
+        ${post.caption ? `<div class="sf-caption">"${escHtml(post.caption)}"</div>` : ''}
+        ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="proof" />` : ''}
+        <div class="sf-xp-row"><span class="sf-xp-badge">+${post.xpAwarded} XP</span></div>
+        <div class="sf-comments" data-post-id="${post.id}">
+          ${renderComments(post.comments || [], profile)}
+        </div>
+        <div class="sf-comment-form">
+          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Say something…" maxlength="300" />
+          <button class="sf-comment-send" data-comment-send="${post.id}">↑</button>
+        </div>
+      </div>`;
+    }
+  });
+
+  el.innerHTML = html;
+  if (isAdmin) bindAnnouncementBtn(el);
+
+  // Delete post buttons
+  el.querySelectorAll('[data-delete-post]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Delete this post?')) return;
+      await deleteDoc(doc(db, 'feed', btn.dataset.deletePost));
+    });
+  });
+
+  // Comment send buttons
+  el.querySelectorAll('[data-comment-send]').forEach(btn => {
+    btn.addEventListener('click', () => postComment(btn.dataset.commentSend, el, profile));
+  });
+  el.querySelectorAll('[data-comment-post]').forEach(input => {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') postComment(input.dataset.commentPost, el, profile);
+    });
+  });
+}
+
+function renderComments(comments, profile) {
+  if (!comments || !comments.length) return '';
+  return comments.map(c => `
+    <div class="sf-comment">
+      <span class="sf-comment-author">${escHtml(c.authorName || 'Brother')}</span>
+      <span class="sf-comment-text">${escHtml(c.text || '')}</span>
+    </div>`).join('');
+}
+
+async function postComment(postId, el, profile) {
+  const input = el.querySelector(`[data-comment-post="${postId}"]`);
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  const post = feedPosts.find(p => p.id === postId);
+  if (!post) return;
+  const authorName = isAdmin ? 'Coach' : (profile?.name || 'Brother');
+  const updated = [...(post.comments || []), { authorName, text, createdAt: Date.now() }];
+  input.value = '';
+  await updateDoc(doc(db, 'feed', postId), { comments: updated });
+}
+
+function bindAnnouncementBtn(el) {
+  const btn = el.querySelector('#openAnnouncementBtn');
+  if (btn) btn.addEventListener('click', () => openModal(document.getElementById('announcementModal')));
+}
+
+function timeAgo(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - ts;
+  const m = Math.floor(diff / 60000);
+  if (m < 1)  return 'just now';
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+
+// Announcement modal wiring
+const announcementModal = document.getElementById('announcementModal');
+document.getElementById('announcementModalClose').addEventListener('click', () => closeModal(announcementModal));
+document.getElementById('announcementCancelBtn').addEventListener('click',  () => closeModal(announcementModal));
+announcementModal.addEventListener('click', e => { if (e.target === announcementModal) closeModal(announcementModal); });
+document.getElementById('announcementForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const text  = document.getElementById('announcementText').value.trim();
+  const photo = document.getElementById('announcementPhoto').value.trim();
+  if (!text) return;
+  await addDoc(collection(db, 'feed'), {
+    type:      'announcement',
+    text,
+    photoUrl:  photo || null,
+    comments:  [],
+    createdAt: Date.now(),
+  });
+  document.getElementById('announcementText').value  = '';
+  document.getElementById('announcementPhoto').value = '';
+  closeModal(announcementModal);
+  switchTab('socialfeed');
+  showToast('Posted to feed!', 'success');
+});
+
 // ── ROSTER (member view of all brothers) ──────
 function renderRoster() {
   const container = document.getElementById('rosterContainer');
@@ -1783,6 +1971,21 @@ async function approveSubmission(subId) {
       const newXP = Math.min(MAX_XP, (brother.xp || 0) + (s.xpReward || 0));
       await updateDoc(doc(db, 'brothers', brother.id), { xp: newXP, updatedAt: new Date().toISOString() });
     }
+    // Auto-post win to the community feed
+    const ch = challenges.find(c => c.id === s.challengeId);
+    await addDoc(collection(db, 'feed'), {
+      type:           'win',
+      brotherId:      s.brotherId,
+      brotherName:    s.brotherName,
+      challengeId:    s.challengeId,
+      challengeTitle: ch?.title || 'Challenge',
+      challengeTag:   ch?.tag   || null,
+      xpAwarded:      s.xpReward || 0,
+      photoUrl:       s.photoUrl  || null,
+      caption:        s.caption   || null,
+      comments:       [],
+      createdAt:      Date.now(),
+    });
     showToast(`✅ Approved! +${s.xpReward} XP → ${s.brotherName}`, 'success');
   } catch (err) {
     showToast('Error: ' + err.message, 'info');
