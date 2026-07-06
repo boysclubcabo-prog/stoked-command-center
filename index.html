@@ -82,6 +82,15 @@
       </div>
     </header>
 
+    <!-- TAB BAR -->
+    <nav class="tab-bar" id="tabBar">
+      <button class="tab-btn tab-active" data-tab="brothers">⚔️ Brothers</button>
+      <button class="tab-btn" data-tab="community">
+        🏆 Community
+        <span class="tab-badge hidden" id="communityBadge"></span>
+      </button>
+    </nav>
+
     <!-- GROUP STATS BAR (admin only) -->
     <section class="stats-bar" id="statsBar">
       <div class="stat-item">
@@ -112,15 +121,6 @@
 
     <!-- MEMBER HERO (member only, hidden for admin) -->
     <div id="memberHero" class="member-hero hidden"></div>
-
-    <!-- TAB BAR -->
-    <nav class="tab-bar" id="tabBar">
-      <button class="tab-btn tab-active" data-tab="brothers">⚔️ Brothers</button>
-      <button class="tab-btn" data-tab="community">
-        🏆 Community
-        <span class="tab-badge hidden" id="communityBadge"></span>
-      </button>
-    </nav>
 
     <!-- COMMUNITY SECTION -->
     <div class="community-section hidden" id="communitySection">
