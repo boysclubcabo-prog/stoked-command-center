@@ -45,7 +45,7 @@ const LEVELS = [
 const CHALLENGE_TAGS = {
   Physical:   { cardBg: 'rgba(232,121,58,0.08)',  cardBorder: 'rgba(232,121,58,0.45)',  pillBg: 'rgba(232,121,58,0.18)',  color: '#E8793A' },
   Creator:    { cardBg: 'rgba(75,114,170,0.08)',  cardBorder: 'rgba(75,114,170,0.45)',  pillBg: 'rgba(75,114,170,0.18)',  color: '#6B9FD4' },
-  Regulation: { cardBg: 'rgba(160,160,176,0.08)', cardBorder: 'rgba(160,160,176,0.45)', pillBg: 'rgba(160,160,176,0.18)', color: '#b0b0c0' },
+  Regulation: { cardBg: 'rgba(74,154,74,0.08)',   cardBorder: 'rgba(74,154,74,0.45)',   pillBg: 'rgba(74,154,74,0.18)',   color: '#4a9a4a' },
   Special:    { cardBg: 'rgba(180,120,220,0.08)', cardBorder: 'rgba(180,120,220,0.45)', pillBg: 'rgba(180,120,220,0.18)', color: '#c47ee8' },
 };
 
