@@ -1012,7 +1012,7 @@ function renderAssessIntro() {
 function renderAssessQuestion() {
   const q   = ASSESS_QUESTIONS[assessIndex];
   const val = assessAnswers[assessIndex];
-  const labels = ['Strongly', 'Slightly', 'Neutral', 'Slightly', 'Strongly'];
+  const labels = ['Strongly Agree', 'Slightly Agree', 'Neutral', 'Slightly Agree', 'Strongly Agree'];
 
   assessContent.innerHTML = `
     <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${((assessIndex)/ASSESS_QUESTIONS.length)*100}%"></div></div>

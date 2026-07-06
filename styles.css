@@ -1347,8 +1347,38 @@ body {
 }
 
 /* ── ARCHETYPE ASSESSMENT ── */
-.modal-assess {
+#assessModal {
+  padding: 0;
+  background: var(--bg-base);
+  backdrop-filter: none;
+}
+
+#assessModal .modal-assess {
+  max-width: none;
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  box-shadow: none;
+}
+
+#assessModal .modal-header {
+  flex-shrink: 0;
+}
+
+#assessModal #assessContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .assess-intro {
