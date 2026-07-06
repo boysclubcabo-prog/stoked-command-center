@@ -2215,15 +2215,15 @@ body {
 }
 
 [data-theme="light"] .xp-hero-num {
-  color: #A06818;
+  color: #D4AF37;
 }
 
 [data-theme="light"] .xp-hero-num.maxed {
-  color: #7A5010;
+  color: #D4AF37;
 }
 
 [data-theme="light"] .level-name {
-  color: #A06818;
+  color: #D4AF37;
 }
 
 [data-theme="light"] .btn-primary {
@@ -2395,9 +2395,9 @@ body {
 [data-theme="light"] .score-chip.momentum .score-num { color: #2E5F78; }
 
 [data-theme="light"] .level-badge {
-  background: rgba(154,64,32,0.10);
-  border-color: rgba(154,64,32,0.25);
-  color: #9A4020;
+  background: rgba(212,175,55,0.12);
+  border-color: rgba(212,175,55,0.35);
+  color: #D4AF37;
 }
 
 [data-theme="light"] .ch-xp-pill {
