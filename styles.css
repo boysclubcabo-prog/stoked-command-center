@@ -1564,6 +1564,64 @@ body {
 
 .assess-nav-spacer { flex: 1; }
 
+/* Profile questions */
+.assess-profile-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: -8px 0 14px;
+  line-height: 1.5;
+}
+
+.assess-profile-input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 15px;
+  padding: 12px 14px;
+  resize: none;
+  margin-bottom: 24px;
+  font-family: inherit;
+  line-height: 1.5;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.assess-profile-input:focus {
+  outline: none;
+  border-color: var(--terra);
+}
+
+.assess-interests-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.interest-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.interest-chip:hover { border-color: var(--terra); }
+.interest-chip.selected {
+  border-color: var(--terra);
+  background: color-mix(in srgb, var(--terra) 12%, transparent);
+  color: var(--terra);
+  font-weight: 600;
+}
+.interest-emoji { font-size: 16px; }
+
 /* Results */
 .assess-results {
   display: flex;
@@ -1620,6 +1678,55 @@ body {
 .assess-done-btn {
   width: 100%;
   margin-top: 8px;
+}
+
+/* Profile snapshot on brother card */
+.profile-snapshot {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.profile-one-word {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  color: var(--terra);
+  letter-spacing: 0.03em;
+  text-align: center;
+  margin-bottom: 2px;
+}
+.profile-goal {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+.profile-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.profile-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+.profile-interest-tag {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--terra) 10%, transparent);
+  color: var(--terra);
+  border: 1px solid color-mix(in srgb, var(--terra) 25%, transparent);
 }
 
 /* CTA banner on member card when assessment not taken */

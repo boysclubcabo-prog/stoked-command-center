@@ -156,6 +156,71 @@ let assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
 let assessIndex     = 0;
 let assessBrotherId = null;
 
+// ── PROFILE QUESTIONS (after archetype questions) ──
+const INTERESTS_LIST = [
+  { emoji: '🏋️', label: 'Training' },
+  { emoji: '⚽', label: 'Sports' },
+  { emoji: '🌊', label: 'Surfing' },
+  { emoji: '🥋', label: 'Martial Arts' },
+  { emoji: '🎵', label: 'Music' },
+  { emoji: '🎨', label: 'Art' },
+  { emoji: '🔨', label: 'Building' },
+  { emoji: '💻', label: 'Technology' },
+  { emoji: '📚', label: 'Learning' },
+  { emoji: '🧩', label: 'Solving Problems' },
+  { emoji: '🍳', label: 'Cooking' },
+  { emoji: '🌲', label: 'Nature' },
+  { emoji: '🐶', label: 'Animals' },
+  { emoji: '🎥', label: 'Creating Videos' },
+  { emoji: '📸', label: 'Photography' },
+  { emoji: '💼', label: 'Business' },
+  { emoji: '🤝', label: 'Helping People' },
+  { emoji: '🧘', label: 'Mindfulness' },
+  { emoji: '🎤', label: 'Speaking' },
+  { emoji: '✈️', label: 'Adventure' },
+];
+
+const PROFILE_QUESTIONS = [
+  {
+    id: 'yearlyGoal',
+    type: 'text',
+    title: 'What is your #1 goal for this year?',
+    placeholder: 'e.g. Get my black belt, Start my own business, Become a better surfer, Learn to produce music...',
+    hint: 'Think big — what would make this year one you never forget?',
+  },
+  {
+    id: 'strengths',
+    type: 'text',
+    title: 'What are you naturally good at?',
+    placeholder: 'e.g. I\'m good at staying calm under pressure, I pick up new skills fast, I\'m a great listener...',
+    hint: 'Think about what comes easy to you that\'s hard for others.',
+  },
+  {
+    id: 'struggles',
+    type: 'text',
+    title: 'What is something you find challenging?',
+    placeholder: 'e.g. Staying consistent, Managing my anger, Believing in myself, Finishing what I start...',
+    hint: 'Be honest — your struggles are where your growth lives.',
+  },
+  {
+    id: 'interests',
+    type: 'multiselect',
+    title: 'What are you into? Pick everything that fits.',
+    hint: 'Select as many as you want.',
+  },
+  {
+    id: 'oneWord',
+    type: 'text',
+    title: 'One word that describes you right now.',
+    placeholder: 'e.g. Hungry, Focused, Lost, Rising, Raw, Determined, Searching...',
+    hint: 'Don\'t overthink it — first word that comes to mind.',
+  },
+];
+
+let profileAnswers = {};  // { yearlyGoal, strengths, struggles, interests: [], oneWord }
+let profileIndex   = 0;
+let selectedInterests = [];
+
 // Core symbols only — the ring + element motif (above) form the rest of the icon
 const ARCHETYPE_ICONS = {
   Warrior:      `<line x1="12" y1="4" x2="12" y2="18"/><path d="M12 4l-1.3 2.2h2.6L12 4z"/><line x1="9" y1="8" x2="15" y2="8"/>`,
@@ -687,8 +752,20 @@ function renderMemberView() {
       ${!profile.primaryArchetype ? `
         <div class="assess-cta">
           <div class="assess-cta-title">Discover Your Archetype</div>
-          <div class="assess-cta-text">Take the 2-minute assessment to find your primary archetype, growth archetype, and dominant element.</div>
+          <div class="assess-cta-text">29 questions to discover your archetype, element, and build your personal profile. Takes about 6 minutes.</div>
           <button class="btn-assess-cta" data-take-assessment="${profile.id}">Take Assessment</button>
+        </div>` : ''}
+
+      ${profile.yearlyGoal || profile.oneWord || (profile.interests && profile.interests.length) ? `
+        <div class="profile-snapshot">
+          ${profile.oneWord ? `<div class="profile-one-word">"${escHtml(profile.oneWord)}"</div>` : ''}
+          ${profile.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(profile.yearlyGoal)}</span></div>` : ''}
+          ${profile.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong</span><span>${escHtml(profile.strengths)}</span></div>` : ''}
+          ${profile.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(profile.struggles)}</span></div>` : ''}
+          ${profile.interests && profile.interests.length ? `<div class="profile-interests">${profile.interests.map(i => {
+            const found = INTERESTS_LIST.find(x => x.label === i);
+            return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
+          }).join('')}</div>` : ''}
         </div>` : ''}
 
       <div class="xp-hero">
@@ -1115,9 +1192,12 @@ const assessModal   = document.getElementById('assessModal');
 const assessContent = document.getElementById('assessContent');
 
 function openAssessment(brotherId) {
-  assessBrotherId = brotherId;
-  assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
-  assessIndex     = 0;
+  assessBrotherId   = brotherId;
+  assessAnswers     = new Array(ASSESS_QUESTIONS.length).fill(null);
+  assessIndex       = 0;
+  profileAnswers    = {};
+  profileIndex      = 0;
+  selectedInterests = [];
   renderAssessIntro();
   openModal(assessModal);
 }
@@ -1126,9 +1206,10 @@ function renderAssessIntro() {
   assessContent.innerHTML = `
     <div class="assess-intro">
       <div class="assess-intro-icon">${IC.target}</div>
-      <div class="assess-intro-title">Find Your Archetype</div>
-      <p class="assess-intro-text">24 quick questions. Pick where you naturally lean — there's no right answer, just the honest one. Takes about 4 minutes.</p>
-      <button class="btn btn-primary assess-done-btn" id="assessStartBtn">Start Assessment</button>
+      <div class="assess-intro-title">Brotherhood Assessment</div>
+      <p class="assess-intro-text">Two parts. First, 24 quick questions to discover your archetype and element. Then 5 questions to build your personal profile. Takes about 6 minutes.</p>
+      <p class="assess-intro-text" style="opacity:0.6;font-size:0.85rem;margin-top:-8px">No right answers — just the honest ones.</p>
+      <button class="btn btn-primary assess-done-btn" id="assessStartBtn">Let's Go</button>
     </div>`;
   document.getElementById('assessStartBtn').addEventListener('click', () => renderAssessQuestion());
 }
@@ -1138,9 +1219,10 @@ function renderAssessQuestion() {
   const val = assessAnswers[assessIndex];
   const labels = ['Strongly Agree', 'Slightly Agree', 'Neutral', 'Slightly Agree', 'Strongly Agree'];
 
+  const totalQ = ASSESS_QUESTIONS.length + PROFILE_QUESTIONS.length;
   assessContent.innerHTML = `
-    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${((assessIndex)/ASSESS_QUESTIONS.length)*100}%"></div></div>
-    <div class="assess-step-label">Question ${assessIndex + 1} of ${ASSESS_QUESTIONS.length}</div>
+    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${((assessIndex)/totalQ)*100}%"></div></div>
+    <div class="assess-step-label">Question ${assessIndex + 1} of ${totalQ}</div>
     <div class="assess-lean-heading">What do you lean towards more?</div>
     <div class="assess-sides">
       <div class="assess-side left">${escHtml(q.left)}</div>
@@ -1193,7 +1275,6 @@ async function finishAssessment() {
   const dominantElement  = Object.entries(elementScores).sort((a, b) => b[1] - a[1])[0][0];
 
   if (assessBrotherId) {
-    // Update local state immediately so the card reflects results without waiting on the snapshot round-trip
     const local = brothers.find(b => b.id === assessBrotherId);
     if (local) Object.assign(local, { primaryArchetype, growthArchetype, dominantElement, archetypeScores, elementScores });
     render();
@@ -1206,6 +1287,115 @@ async function finishAssessment() {
     } catch (err) {
       console.error('Failed to save assessment results:', err);
       showToast('Results shown but failed to save — check your connection and retake.', 'info');
+    }
+  }
+
+  // Store archetype results for final display, then go to profile questions
+  profileAnswers._archetype = { primaryArchetype, growthArchetype, dominantElement };
+  profileIndex = 0;
+  renderProfileQuestion();
+}
+
+function renderProfileQuestion() {
+  const q = PROFILE_QUESTIONS[profileIndex];
+  const totalQ = ASSESS_QUESTIONS.length + PROFILE_QUESTIONS.length;
+  const qNum   = ASSESS_QUESTIONS.length + profileIndex + 1;
+  const progressPct = (qNum / totalQ) * 100;
+
+  if (q.type === 'text') {
+    const saved = profileAnswers[q.id] || '';
+    assessContent.innerHTML = `
+      <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${progressPct}%"></div></div>
+      <div class="assess-step-label">Question ${qNum} of ${totalQ} — Know Yourself</div>
+      <div class="assess-lean-heading">${escHtml(q.title)}</div>
+      <p class="assess-profile-hint">${escHtml(q.hint)}</p>
+      <textarea class="assess-profile-input" id="profileInput" placeholder="${escHtml(q.placeholder)}" rows="4">${escHtml(saved)}</textarea>
+      <div class="assess-nav">
+        <button class="btn btn-ghost" id="profileBackBtn">Back</button>
+        <div class="assess-nav-spacer"></div>
+        <button class="btn btn-primary" id="profileNextBtn">${profileIndex === PROFILE_QUESTIONS.length - 1 ? 'See Results' : 'Next'}</button>
+      </div>`;
+
+    document.getElementById('profileBackBtn').addEventListener('click', () => {
+      profileAnswers[q.id] = document.getElementById('profileInput').value.trim();
+      if (profileIndex > 0) { profileIndex--; renderProfileQuestion(); }
+      else { assessIndex = ASSESS_QUESTIONS.length - 1; renderAssessQuestion(); }
+    });
+    document.getElementById('profileNextBtn').addEventListener('click', () => {
+      const val = document.getElementById('profileInput').value.trim();
+      profileAnswers[q.id] = val;
+      if (profileIndex < PROFILE_QUESTIONS.length - 1) { profileIndex++; renderProfileQuestion(); }
+      else finishProfile();
+    });
+
+  } else if (q.type === 'multiselect') {
+    assessContent.innerHTML = `
+      <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${progressPct}%"></div></div>
+      <div class="assess-step-label">Question ${qNum} of ${totalQ} — Know Yourself</div>
+      <div class="assess-lean-heading">${escHtml(q.title)}</div>
+      <p class="assess-profile-hint">${escHtml(q.hint)}</p>
+      <div class="assess-interests-grid" id="interestsGrid">
+        ${INTERESTS_LIST.map(i => `
+          <button class="interest-chip ${selectedInterests.includes(i.label) ? 'selected' : ''}" data-interest="${escHtml(i.label)}">
+            <span class="interest-emoji">${i.emoji}</span>
+            <span class="interest-label">${escHtml(i.label)}</span>
+          </button>`).join('')}
+      </div>
+      <div class="assess-nav">
+        <button class="btn btn-ghost" id="profileBackBtn">Back</button>
+        <div class="assess-nav-spacer"></div>
+        <button class="btn btn-primary" id="profileNextBtn">${profileIndex === PROFILE_QUESTIONS.length - 1 ? 'See Results' : 'Next'}</button>
+      </div>`;
+
+    document.getElementById('interestsGrid').addEventListener('click', e => {
+      const chip = e.target.closest('.interest-chip');
+      if (!chip) return;
+      const label = chip.dataset.interest;
+      if (selectedInterests.includes(label)) {
+        selectedInterests = selectedInterests.filter(x => x !== label);
+        chip.classList.remove('selected');
+      } else {
+        selectedInterests.push(label);
+        chip.classList.add('selected');
+      }
+    });
+    document.getElementById('profileBackBtn').addEventListener('click', () => {
+      profileAnswers.interests = [...selectedInterests];
+      if (profileIndex > 0) { profileIndex--; renderProfileQuestion(); }
+      else { assessIndex = ASSESS_QUESTIONS.length - 1; renderAssessQuestion(); }
+    });
+    document.getElementById('profileNextBtn').addEventListener('click', () => {
+      profileAnswers.interests = [...selectedInterests];
+      if (profileIndex < PROFILE_QUESTIONS.length - 1) { profileIndex++; renderProfileQuestion(); }
+      else finishProfile();
+    });
+  }
+}
+
+async function finishProfile() {
+  const { primaryArchetype, growthArchetype, dominantElement } = profileAnswers._archetype || {};
+
+  if (assessBrotherId) {
+    try {
+      await updateDoc(doc(db, 'brothers', assessBrotherId), {
+        yearlyGoal:  profileAnswers.yearlyGoal  || '',
+        strengths:   profileAnswers.strengths   || '',
+        struggles:   profileAnswers.struggles   || '',
+        interests:   profileAnswers.interests   || [],
+        oneWord:     profileAnswers.oneWord      || '',
+        profileCompletedAt: new Date().toISOString(),
+      });
+      const local = brothers.find(b => b.id === assessBrotherId);
+      if (local) Object.assign(local, {
+        yearlyGoal:  profileAnswers.yearlyGoal  || '',
+        strengths:   profileAnswers.strengths   || '',
+        struggles:   profileAnswers.struggles   || '',
+        interests:   profileAnswers.interests   || [],
+        oneWord:     profileAnswers.oneWord      || '',
+      });
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      showToast('Profile shown but failed to save — check connection.', 'info');
     }
   }
 
