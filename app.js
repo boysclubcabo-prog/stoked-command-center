@@ -250,10 +250,19 @@ function showApp() {
 
 function switchTab(tab) {
   currentTab = tab;
+  const isCommunity = tab === 'community';
+
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
-  document.querySelector('.main').classList.toggle('hidden', tab !== 'brothers');
-  document.getElementById('communitySection').classList.toggle('hidden', tab !== 'community');
-  if (tab === 'community') {
+
+  // Hide everything that belongs to the brothers view
+  document.querySelector('.main').classList.toggle('hidden', isCommunity);
+  statsBar.classList.toggle('hidden', isCommunity || !isAdmin);
+  memberHero.classList.toggle('hidden', isCommunity || isAdmin);
+
+  // Show/hide community section
+  document.getElementById('communitySection').classList.toggle('hidden', !isCommunity);
+
+  if (isCommunity) {
     renderFeed();
     localStorage.setItem(`lastFeedVisit_${currentUser.uid}`, new Date().toISOString());
     document.getElementById('communityBadge').classList.add('hidden');
