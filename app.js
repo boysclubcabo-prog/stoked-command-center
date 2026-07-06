@@ -65,6 +65,19 @@ const ARCHETYPE_ICONS = {
   Pathfinder:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
 };
 
+// ── BROTHERHOOD SCORE ─────────────────────────
+function calcBrotherhoodScore(f, m, d, c, s) {
+  return (f + m + d + c + s) * 2;
+}
+
+function getBSCategory(score) {
+  if (score >= 90) return { label: 'Elite',        color: '#F5D97A' };
+  if (score >= 80) return { label: 'Strong',       color: '#4B72AA' };
+  if (score >= 70) return { label: 'Solid',        color: '#6b8fc4' };
+  if (score >= 60) return { label: 'Needs Work',   color: '#9090a0' };
+  return               { label: 'Reset Needed',    color: '#5a5a6a' };
+}
+
 // ── STATE ─────────────────────────────────────
 let brothers    = [];
 let currentUser = null;
@@ -90,6 +103,7 @@ const exportBtn     = document.getElementById('exportBtn');
 const brotherModal  = document.getElementById('brotherModal');
 const xpModal       = document.getElementById('xpModal');
 const deleteModal   = document.getElementById('deleteModal');
+const checkInModal  = document.getElementById('checkInModal');
 const modalTitle    = document.getElementById('modalTitle');
 const brotherForm   = document.getElementById('brotherForm');
 
@@ -231,6 +245,8 @@ function renderGrid() {
     btn.addEventListener('click', () => openDeleteModal(btn.dataset.delete)));
   document.querySelectorAll('[data-addxp]').forEach(btn =>
     btn.addEventListener('click', () => openXPModal(btn.dataset.addxp)));
+  document.querySelectorAll('[data-checkin]').forEach(btn =>
+    btn.addEventListener('click', () => openCheckInModal(btn.dataset.checkin)));
 }
 
 function renderMemberView() {
@@ -308,7 +324,28 @@ function renderMemberView() {
           <div class="goal-label">Weekly Commitment</div>
           <div class="goal-text">${escHtml(profile.commitment)}</div>
         </div>` : ''}
+
+      ${profile.brotherhoodScore != null ? (() => {
+        const cat = getBSCategory(profile.brotherhoodScore);
+        const dateStr = profile.lastCheckInDate ? new Date(profile.lastCheckInDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+        return `
+        <div class="bs-member-badge" style="--bs-color:${cat.color}">
+          <div class="bs-member-score">
+            <span class="bs-member-num">${profile.brotherhoodScore}</span>
+            <span class="bs-member-denom">/ 100</span>
+          </div>
+          <div class="bs-member-label">Brotherhood Score</div>
+          <div class="bs-member-cat" style="color:${cat.color}">${cat.label}</div>
+          ${dateStr ? `<div class="bs-member-date">Last check-in: ${dateStr}</div>` : ''}
+        </div>`;
+      })() : ''}
+
+      <button class="btn-checkin-member" data-checkin="${profile.id}">Weekly Check-In</button>
     </div>`;
+
+  // Wire member check-in button
+  const ciBtn = memberHero.querySelector('[data-checkin]');
+  if (ciBtn) ciBtn.addEventListener('click', () => openCheckInModal(ciBtn.dataset.checkin));
 
   brothersGrid.innerHTML = '';
   emptyState.classList.add('hidden');
@@ -374,7 +411,24 @@ function renderCard(brother) {
           <div class="goal-text">${escHtml(brother.goal)}</div>
         </div>` : ''}
 
-      <button class="btn-add-xp" data-addxp="${brother.id}">⚡ Add XP</button>
+      ${brother.brotherhoodScore != null ? (() => {
+        const cat = getBSCategory(brother.brotherhoodScore);
+        const dateStr = brother.lastCheckInDate ? new Date(brother.lastCheckInDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
+        return `
+        <div class="bs-card-badge" style="--bs-color:${cat.color}">
+          <div class="bs-card-row">
+            <span class="bs-card-num">${brother.brotherhoodScore}</span>
+            <span class="bs-card-slash">/ 100</span>
+            <span class="bs-card-cat" style="color:${cat.color}">${cat.label}</span>
+          </div>
+          <div class="bs-card-meta">Brotherhood Score${dateStr ? ` · ${dateStr}` : ''}</div>
+        </div>`;
+      })() : ''}
+
+      <div class="card-btn-row">
+        <button class="btn-add-xp" data-addxp="${brother.id}">⚡ Add XP</button>
+        <button class="btn-checkin" data-checkin="${brother.id}" title="Weekly Check-In">Check-In</button>
+      </div>
     </div>`;
 }
 
@@ -496,6 +550,101 @@ document.getElementById('deleteCancelBtn').addEventListener('click', () => {
   closeModal(deleteModal);
 });
 
+// ── WEEKLY CHECK-IN ───────────────────────────
+const SLIDER_IDS = ['focus','movement','discipline','composure','stoke'];
+
+function openCheckInModal(id) {
+  const b = brothers.find(x => x.id === id);
+  if (!b) return;
+  document.getElementById('checkInBrotherId').value = id;
+  document.getElementById('checkInBrotherName').textContent = b.name;
+
+  // Pre-fill sliders from last check-in if available
+  SLIDER_IDS.forEach(key => {
+    const slider = document.getElementById(`slider-${key}`);
+    const saved = b[`${key}Score`];
+    slider.value = saved != null ? saved : 5;
+    document.getElementById(`val-${key}`).textContent = slider.value;
+    updateSliderFill(slider);
+  });
+
+  // Pre-fill reflection fields
+  document.getElementById('fieldWin').value       = b.weeklyWin        || '';
+  document.getElementById('fieldChallenge').value = b.weeklyChallenge  || '';
+  document.getElementById('fieldCommit').value    = b.weeklyCommitment || '';
+
+  updateBSPreview();
+  openModal(checkInModal);
+}
+
+function updateSliderFill(slider) {
+  const pct = ((slider.value - 1) / 9) * 100;
+  slider.style.setProperty('--fill-pct', pct + '%');
+}
+
+function updateBSPreview() {
+  const vals = SLIDER_IDS.map(k => parseInt(document.getElementById(`slider-${k}`).value) || 5);
+  const score = calcBrotherhoodScore(...vals);
+  const cat   = getBSCategory(score);
+
+  document.getElementById('bsScoreNum').textContent = score;
+  document.getElementById('bsScoreNum').style.color = cat.color;
+  const catEl = document.getElementById('bsCategory');
+  catEl.textContent  = cat.label;
+  catEl.style.color  = cat.color;
+
+  const labels = ['Focus','Movement','Discipline','Composure','Stoke'];
+  document.getElementById('bsBreakdown').innerHTML = vals.map((v,i) =>
+    `<div class="bs-row"><span class="bs-row-label">${labels[i]}</span><span class="bs-row-val">${v}</span></div>`
+  ).join('');
+}
+
+// Wire slider live updates
+SLIDER_IDS.forEach(key => {
+  const slider = document.getElementById(`slider-${key}`);
+  slider.addEventListener('input', () => {
+    document.getElementById(`val-${key}`).textContent = slider.value;
+    updateSliderFill(slider);
+    updateBSPreview();
+  });
+});
+
+document.getElementById('checkInForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = document.getElementById('checkInBrotherId').value;
+  const b  = brothers.find(x => x.id === id);
+  if (!b) return;
+
+  const focusScore      = parseInt(document.getElementById('slider-focus').value);
+  const movementScore   = parseInt(document.getElementById('slider-movement').value);
+  const disciplineScore = parseInt(document.getElementById('slider-discipline').value);
+  const composureScore  = parseInt(document.getElementById('slider-composure').value);
+  const stokeScore      = parseInt(document.getElementById('slider-stoke').value);
+  const brotherhoodScore = calcBrotherhoodScore(focusScore, movementScore, disciplineScore, composureScore, stokeScore);
+
+  const data = {
+    focusScore, movementScore, disciplineScore, composureScore, stokeScore,
+    brotherhoodScore,
+    weeklyWin:        document.getElementById('fieldWin').value.trim(),
+    weeklyChallenge:  document.getElementById('fieldChallenge').value.trim(),
+    weeklyCommitment: document.getElementById('fieldCommit').value.trim(),
+    lastCheckInDate:  new Date().toISOString(),
+    updatedAt:        new Date().toISOString(),
+  };
+
+  try {
+    await updateDoc(doc(db, 'brothers', id), data);
+    closeModal(checkInModal);
+    const cat = getBSCategory(brotherhoodScore);
+    showToast(`Check-in complete · Brotherhood Score: ${brotherhoodScore}/100 — ${cat.label}`, 'success');
+  } catch (err) {
+    showToast('Error saving check-in: ' + err.message, 'info');
+  }
+});
+
+document.getElementById('checkInModalClose').addEventListener('click', () => closeModal(checkInModal));
+checkInModal.addEventListener('click', e => { if (e.target === checkInModal) closeModal(checkInModal); });
+
 // ── EXPORT ────────────────────────────────────
 exportBtn.addEventListener('click', () => {
   const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), brothers }, null, 2)], { type: 'application/json' });
@@ -522,7 +671,7 @@ document.getElementById('xpCancelBtn').addEventListener('click',  () => closeMod
   el.addEventListener('click', e => { if (e.target === el) closeModal(el); }));
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal].forEach(closeModal);
+  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal].forEach(closeModal);
 });
 
 // ── TOAST ─────────────────────────────────────

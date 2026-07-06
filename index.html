@@ -233,6 +233,105 @@
     </div>
   </div>
 
+  <!-- WEEKLY CHECK-IN MODAL -->
+  <div class="modal-overlay" id="checkInModal">
+    <div class="modal modal-checkin">
+      <div class="modal-header">
+        <div>
+          <h2 class="modal-title">Weekly Brotherhood Check-In</h2>
+          <p class="checkin-subtitle">Check in honestly. This is about awareness, growth, and getting stronger.</p>
+        </div>
+        <button class="modal-close" id="checkInModalClose">✕</button>
+      </div>
+
+      <div id="checkInBrotherName" class="checkin-brother-name"></div>
+
+      <form class="modal-form" id="checkInForm">
+        <input type="hidden" id="checkInBrotherId" />
+
+        <div class="checkin-question">
+          <div class="cq-header">
+            <div class="cq-label">Focus</div>
+            <div class="cq-value" id="val-focus">5</div>
+          </div>
+          <div class="cq-text">How focused and present have you been this week?</div>
+          <input type="range" class="checkin-slider" id="slider-focus" min="1" max="10" value="5" />
+          <div class="cq-scale-hints"><span>1 — distracted / scattered</span><span>10 — sharp / locked in</span></div>
+        </div>
+
+        <div class="checkin-question">
+          <div class="cq-header">
+            <div class="cq-label">Movement</div>
+            <div class="cq-value" id="val-movement">5</div>
+          </div>
+          <div class="cq-text">How well have you moved your body this week?</div>
+          <div class="cq-examples">training · sports · surfing · boxing · yoga · mobility</div>
+          <input type="range" class="checkin-slider" id="slider-movement" min="1" max="10" value="5" />
+          <div class="cq-scale-hints"><span>1 — barely moved</span><span>10 — strong and consistent</span></div>
+        </div>
+
+        <div class="checkin-question">
+          <div class="cq-header">
+            <div class="cq-label">Discipline</div>
+            <div class="cq-value" id="val-discipline">5</div>
+          </div>
+          <div class="cq-text">How disciplined have you been with your habits this week?</div>
+          <input type="range" class="checkin-slider" id="slider-discipline" min="1" max="10" value="5" />
+          <div class="cq-scale-hints"><span>1 — inconsistent / lazy</span><span>10 — disciplined / locked in</span></div>
+        </div>
+
+        <div class="checkin-question">
+          <div class="cq-header">
+            <div class="cq-label">Composure</div>
+            <div class="cq-value" id="val-composure">5</div>
+          </div>
+          <div class="cq-text">How well have you handled stress, emotions, and pressure this week?</div>
+          <input type="range" class="checkin-slider" id="slider-composure" min="1" max="10" value="5" />
+          <div class="cq-scale-hints"><span>1 — reactive / overwhelmed</span><span>10 — calm / grounded</span></div>
+        </div>
+
+        <div class="checkin-question">
+          <div class="cq-header">
+            <div class="cq-label">Stoke</div>
+            <div class="cq-value" id="val-stoke">5</div>
+          </div>
+          <div class="cq-text">What is your current Stoke level?</div>
+          <input type="range" class="checkin-slider" id="slider-stoke" min="1" max="10" value="5" />
+          <div class="cq-scale-hints"><span>1 — low energy / disconnected</span><span>10 — fired up / fully engaged</span></div>
+        </div>
+
+        <!-- Live Brotherhood Score -->
+        <div class="bs-preview-card">
+          <div class="bs-score-display">
+            <span class="bs-score-num" id="bsScoreNum">50</span>
+            <span class="bs-score-denom">/ 100</span>
+          </div>
+          <div class="bs-score-label">Brotherhood Score</div>
+          <div class="bs-category" id="bsCategory">Solid</div>
+          <div class="bs-breakdown" id="bsBreakdown"></div>
+        </div>
+
+        <!-- Reflection -->
+        <div class="checkin-section-title">Reflection</div>
+
+        <div class="form-group">
+          <label>Biggest win this week?</label>
+          <input type="text" id="fieldWin" placeholder="What went well?" />
+        </div>
+        <div class="form-group">
+          <label>Biggest challenge this week?</label>
+          <input type="text" id="fieldChallenge" placeholder="What did you struggle with?" />
+        </div>
+        <div class="form-group">
+          <label>What are you committing to before next week?</label>
+          <input type="text" id="fieldCommit" placeholder="One thing you'll do differently…" />
+        </div>
+
+        <button type="submit" class="btn btn-checkin-submit">Submit Check-In</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Firebase SDK -->
   <script type="module" src="app.js"></script>
 </body>
