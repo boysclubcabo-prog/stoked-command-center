@@ -343,6 +343,17 @@ body {
   stroke-width: 1.5;
 }
 
+.arch-icon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: var(--arch-icon-filter, none);
+}
+
+:root:not([data-theme="light"]) .arch-icon-img {
+  --arch-icon-filter: invert(1) brightness(1.15);
+}
+
 .arch-icon-badge svg {
   width: 100%;
   height: 100%;

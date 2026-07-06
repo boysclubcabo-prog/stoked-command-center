@@ -83,31 +83,15 @@ const ELEMENT_COLORS = {
   Earth: '#7A8C52',
 };
 
-// Ring + element motif woven around each archetype's core symbol —
-// e.g. Warrior+Fire gets flames at the base, Warrior+Water gets waves.
-const RING = `<circle cx="12" cy="12" r="9" stroke-dasharray="51 8" stroke-dashoffset="-4"/>`;
-
-const ELEMENT_DECOR = {
-  Water: `<path d="M2.5 17c2-1.2 3-0.3 4.5 0.3 1.8 0.7 3-0.3 4.5-1 1.8-0.8 3 0.2 4.5 0.7" stroke-width="1.3"/>
-          <path d="M4 20c1.8-0.8 3 0 4.5 0.5 1.6 0.5 2.8-0.3 4-0.8" stroke-width="1.1" opacity="0.6"/>
-          <circle cx="18.5" cy="6.5" r="0.7" fill="currentColor" stroke="none"/>
-          <circle cx="20.5" cy="9.5" r="0.5" fill="currentColor" stroke="none"/>`,
-  Earth: `<path d="M2.5 20.5l3-5 2.3 2.3 2.7-4 2.7 4 2.3-2.3 3 5" stroke-width="1.4"/>
-          <line x1="2" y1="21" x2="22" y2="21" stroke-width="1.1" opacity="0.55"/>`,
-  Air:   `<path d="M2.5 9.5c2.5-1.2 3.5 1 2 2-1.2 0.7-2-0.3-1.3-1" stroke-width="1.1"/>
-          <path d="M3 14.5c4-0.6 7 0.6 9.5-0.4" stroke-width="1.2"/>
-          <path d="M13.5 18c2.5 0 4 0.8 5.5 1.8" stroke-width="1.1"/>`,
-  Fire:  `<path d="M5 21c-1.3-1.6-1.2-3.4 0.2-5.2-0.4 1.8 0.5 2.2 1 0.9-0.4-1.8 0.6-3.1 2-4-0.5 2.2 0.8 2.7 1.3 0.9-0.3-1.8 0.9-2.8 1.9-3.4-0.4 1.9 0.9 2.3 1.4 0.5 0.4-1.6 1.7-2.2 2.7-3.7 0.2 1.9-0.9 2.8-1.7 3.7 1.1-0.3 1.8-0.9 2.3-1.8-0.2 2.2-1.8 3.6-3.6 4 0.9 0.3 1.8-0.1 2.3-0.9-0.3 2.2-2.3 4-5 4.5z" fill="currentColor" stroke="none"/>`,
-};
-
+// Hand-drawn archetype+element icon set, one PNG per combo in /icons
+// (e.g. icons/warrior-fire.png), supplied directly by the client.
 function archetypeElementIcon(archetype, element) {
-  const core  = ARCHETYPE_ICONS[archetype] || '';
-  const decor = ELEMENT_DECOR[element] || '';
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-    <g stroke-width="1.3" opacity="0.85">${RING}</g>
-    <g>${decor}</g>
-    <g stroke-width="1.6">${core}</g>
-  </svg>`;
+  if (archetype && element) {
+    const key = `${archetype.toLowerCase()}-${element.toLowerCase()}`;
+    return `<img src="icons/${key}.png" alt="${escHtml(archetype)} ${escHtml(element)}" class="arch-icon-img">`;
+  }
+  const core = ARCHETYPE_ICONS[archetype] || '';
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${core}</svg>`;
 }
 
 const ELEMENT_DESC = {
