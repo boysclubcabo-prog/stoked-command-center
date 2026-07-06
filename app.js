@@ -1081,12 +1081,20 @@ async function finishAssessment() {
   const dominantElement  = Object.entries(elementScores).sort((a, b) => b[1] - a[1])[0][0];
 
   if (assessBrotherId) {
+    // Update local state immediately so the card reflects results without waiting on the snapshot round-trip
+    const local = brothers.find(b => b.id === assessBrotherId);
+    if (local) Object.assign(local, { primaryArchetype, growthArchetype, dominantElement, archetypeScores, elementScores });
+    render();
+
     try {
       await updateDoc(doc(db, 'brothers', assessBrotherId), {
         primaryArchetype, growthArchetype, dominantElement, archetypeScores, elementScores,
         assessmentCompletedAt: new Date().toISOString(),
       });
-    } catch (_) {}
+    } catch (err) {
+      console.error('Failed to save assessment results:', err);
+      showToast('Results shown but failed to save — check your connection and retake.', 'info');
+    }
   }
 
   renderAssessResults(primaryArchetype, growthArchetype, dominantElement);
