@@ -380,6 +380,8 @@ function showApp() {
     }
 
     render();
+    // Re-register FCM token now that brothers are loaded (gets correct brotherId)
+    if (Notification.permission === 'granted') registerFCMToken();
   });
 
   // Subscribe to challenges
@@ -487,31 +489,22 @@ function updateChallengesBadge() {
 
 // ── NOTIFICATIONS ─────────────────────────────
 const VAPID_KEY = 'BM-mZg5-MULah6xcJgmfFbtVkGSJ59IhKO-bkVYTkbd9nMbt-vxCP-frE1zp672JTcss8mv8cx5RqYK5J_A296s';
+let fcmSetupDone = false;
 
 async function setupNotifications() {
   if (!('Notification' in window)) return;
-  let permission = Notification.permission;
-  if (permission === 'default') {
-    await new Promise(r => setTimeout(r, 3000));
-    permission = await Notification.requestPermission();
-  }
-  if (permission !== 'granted') return;
+  if (Notification.permission === 'denied') return;
 
-  // Get FCM token and store in Firestore so Cloud Functions can reach this device
-  try {
-    const swReg = await navigator.serviceWorker.ready;
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
-    if (token && currentUser) {
-      const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
-      await setDoc(doc(db, 'fcmTokens', token), {
-        token,
-        brotherId: brother?.id || null,
-        email:     currentUser.email,
-        updatedAt: new Date().toISOString(),
-      });
-    }
-  } catch (e) {
-    console.warn('FCM token error:', e);
+  // Ask on first user interaction (required by browsers, especially Safari PWA)
+  if (Notification.permission === 'default') {
+    const askOnTap = async () => {
+      document.removeEventListener('click', askOnTap);
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') await registerFCMToken();
+    };
+    document.addEventListener('click', askOnTap);
+  } else if (Notification.permission === 'granted') {
+    await registerFCMToken();
   }
 
   // Handle foreground messages (app is open)
@@ -519,6 +512,26 @@ async function setupNotifications() {
     const { title, body } = payload.notification || {};
     if (title) showNotif(title, body);
   });
+}
+
+async function registerFCMToken() {
+  if (fcmSetupDone || !currentUser) return;
+  try {
+    const swReg = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+    if (!token) return;
+    const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+    await setDoc(doc(db, 'fcmTokens', token), {
+      token,
+      brotherId: brother?.id || null,
+      email:     currentUser.email,
+      updatedAt: new Date().toISOString(),
+    });
+    fcmSetupDone = true;
+    console.log('FCM token registered');
+  } catch (e) {
+    console.warn('FCM token error:', e.message);
+  }
 }
 
 function showNotif(title, body) {
