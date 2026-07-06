@@ -1669,6 +1669,18 @@ body {
   justify-content: space-between;
   gap: 12px;
 }
+.ch-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid;
+  margin-bottom: 5px;
+}
+
 .ch-title {
   font-size: 16px;
   font-weight: 700;

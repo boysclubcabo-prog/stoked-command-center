@@ -42,6 +42,19 @@ const LEVELS = [
   { level: 10, name: 'Stoked Man', xpRequired: 10000 },
 ];
 
+const CHALLENGE_TAGS = {
+  Physical:   { bg: 'rgba(232,121,58,0.18)',  color: '#E8793A', border: 'rgba(232,121,58,0.4)'  },
+  Creator:    { bg: 'rgba(75,114,170,0.18)',  color: '#6B9FD4', border: 'rgba(75,114,170,0.4)'  },
+  Regulation: { bg: 'rgba(160,160,176,0.18)', color: '#b0b0c0', border: 'rgba(160,160,176,0.4)' },
+  Special:    { bg: 'rgba(180,120,220,0.18)', color: '#c47ee8', border: 'rgba(180,120,220,0.4)' },
+};
+
+function challengeTagPill(tag) {
+  if (!tag || !CHALLENGE_TAGS[tag]) return '';
+  const t = CHALLENGE_TAGS[tag];
+  return `<span class="ch-tag" style="background:${t.bg};color:${t.color};border-color:${t.border}">${tag}</span>`;
+}
+
 const ARCHETYPE_COLORS = {
   Warrior:  { border: 'rgba(232,121,58,0.45)',  glow: 'rgba(232,121,58,0.08)',  icon: '#E8793A' },
   Monk:     { border: 'rgba(160,160,176,0.4)',  glow: 'rgba(160,160,176,0.07)', icon: '#b0b0c0' },
@@ -976,6 +989,7 @@ function renderFeedAdmin(el) {
           return `<div class="challenge-card">
             <div class="ch-top">
               <div>
+                ${challengeTagPill(ch.tag)}
                 <div class="ch-title">${escHtml(ch.title)}</div>
                 ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
               </div>
@@ -1026,6 +1040,7 @@ function renderFeedMember(el) {
       html += `<div class="challenge-card member">
         <div class="ch-top">
           <div>
+            ${challengeTagPill(ch.tag)}
             <div class="ch-title">${escHtml(ch.title)}</div>
             ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
           </div>
@@ -1097,6 +1112,7 @@ document.getElementById('challengeForm').addEventListener('submit', async e => {
       title,
       description:   document.getElementById('challengeDesc').value.trim(),
       xpReward,
+      tag:           document.getElementById('challengeTag').value || null,
       deadline:      document.getElementById('challengeDeadline').value || null,
       photoRequired: document.getElementById('challengePhotoRequired').checked,
       active:        true,
