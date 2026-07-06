@@ -343,29 +343,6 @@ body {
   stroke-width: 1.5;
 }
 
-.arch-icon-wrap {
-  position: relative;
-  display: inline-flex;
-  width: 32px;
-  height: 32px;
-}
-
-.arch-icon-badge {
-  position: absolute;
-  bottom: -3px;
-  right: -3px;
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3px;
-  color: #fff;
-  border: 2px solid var(--bg-card);
-  box-sizing: content-box;
-}
-
 .arch-icon-badge svg {
   width: 100%;
   height: 100%;
