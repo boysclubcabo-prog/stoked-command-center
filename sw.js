@@ -1,4 +1,4 @@
-const CACHE = 'stoked-v34';
+const CACHE = 'stoked-v35';
 
 // Only cache static assets — never app.js or index.html
 // so code updates are always picked up immediately
@@ -57,5 +57,18 @@ self.addEventListener('fetch', e => {
   // Static assets — cache first
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
+  );
+});
+
+// Tapping a notification opens/focuses the app
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const target = e.notification.data?.url || '/stoked-command-center/';
+  e.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const existing = list.find(c => c.url.includes('stoked-command-center'));
+      if (existing) return existing.focus();
+      return clients.openWindow(target);
+    })
   );
 });

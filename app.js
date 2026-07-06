@@ -353,9 +353,30 @@ function showApp() {
   const rosterTabBtn = document.getElementById('rosterTabBtn');
   if (rosterTabBtn) rosterTabBtn.classList.toggle('hidden', isAdmin);
 
+  // Set up notifications (ask permission)
+  setupNotifications();
+
+  // Track member's own XP to detect approval notifications
+  let prevMyXP = null;
+  let firstBrothersSnap = true;
+
   // Subscribe to brothers collection
   unsubBrothers = onSnapshot(collection(db, 'brothers'), snap => {
     brothers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Notify member when their XP goes up (submission approved)
+    if (!isAdmin) {
+      const me = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+      if (me) {
+        if (prevMyXP !== null && me.xp > prevMyXP) {
+          const gained = me.xp - prevMyXP;
+          showNotif('✅ Submission Approved!', `You earned +${gained} XP — keep going brother! 🔥`);
+        }
+        if (!firstBrothersSnap) prevMyXP = me.xp;
+        else { prevMyXP = me.xp; firstBrothersSnap = false; }
+      }
+    }
+
     render();
   });
 
@@ -367,17 +388,43 @@ function showApp() {
   });
 
   // Subscribe to submissions
+  let firstSubsSnap = true;
   unsubSubmissions = onSnapshot(collection(db, 'submissions'), snap => {
+    const prev = submissions.map(s => s.id);
     submissions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Notify admin of new pending submissions
+    if (isAdmin && !firstSubsSnap) {
+      const newPending = submissions.filter(s => s.status === 'pending' && !prev.includes(s.id));
+      newPending.forEach(s => showNotif('📬 New Submission', `${s.brotherName} submitted proof for a challenge`));
+    }
+    firstSubsSnap = false;
+
     if (currentTab === 'community') renderFeed();
     updateChallengesBadge();
   });
 
   // Subscribe to social feed
   lastFeedSeen = parseInt(localStorage.getItem(`feedSeen_${currentUser.uid}`) || '0', 10);
+  let firstFeedSnap = true;
   unsubFeed = onSnapshot(collection(db, 'feed'), snap => {
+    const prevIds = feedPosts.map(p => p.id);
     feedPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    // Notify members of new feed posts (not on first load)
+    if (!firstFeedSnap && currentTab !== 'socialfeed') {
+      const newPosts = feedPosts.filter(p => !prevIds.includes(p.id));
+      newPosts.forEach(p => {
+        if (p.type === 'announcement') {
+          showNotif('📣 Coach Posted', p.text?.slice(0, 80) || 'New message on the feed');
+        } else if (!isAdmin) {
+          showNotif('🏆 Brotherhood Win!', `${p.brotherName} completed ${p.challengeTitle}`);
+        }
+      });
+    }
+    firstFeedSnap = false;
+
     if (currentTab === 'socialfeed') renderSocialFeed();
     updateFeedBadge();
   });
@@ -433,6 +480,33 @@ function updateChallengesBadge() {
       : challenges.length;
     badge.textContent = newCount;
     badge.classList.toggle('hidden', newCount === 0 || currentTab === 'community');
+  }
+}
+
+// ── NOTIFICATIONS ─────────────────────────────
+async function setupNotifications() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    // Delay the ask slightly so it doesn't pop up the instant they log in
+    setTimeout(() => Notification.requestPermission(), 3000);
+  }
+}
+
+function showNotif(title, body) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  // Use the SW to show the notification so it works even in background tabs
+  if (navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(title, {
+        body,
+        icon:  '/stoked-command-center/icon-192.png',
+        badge: '/stoked-command-center/icon-192.png',
+        vibrate: [200, 100, 200],
+        data: { url: window.location.href },
+      });
+    });
+  } else {
+    new Notification(title, { body, icon: '/stoked-command-center/icon-192.png' });
   }
 }
 
