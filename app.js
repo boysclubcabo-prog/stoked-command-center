@@ -1695,7 +1695,7 @@ function renderSocialFeed() {
           </div>
           ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">✕</button>` : ''}
         </div>
-        <div class="sf-announcement-text">${escHtml(post.text || '')}</div>
+        <div class="sf-announcement-text">${linkify(post.text || '')}</div>
         ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="" />` : ''}
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
@@ -2179,4 +2179,12 @@ function compressImage(file, maxPx = 900, quality = 0.72) {
 function escHtml(str) {
   if (!str) return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function linkify(str) {
+  if (!str) return '';
+  const escaped = escHtml(str);
+  return escaped.replace(/(https?:\/\/[^\s<]+)/g, url =>
+    `<a href="${url}" target="_blank" rel="noopener noreferrer" class="sf-link">${url}</a>`
+  );
 }

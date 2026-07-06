@@ -3174,3 +3174,10 @@ body {
   border-color: var(--accent, #C4693A);
   color: var(--accent, #C4693A);
 }
+
+.sf-link {
+  color: var(--accent, #C4693A);
+  text-decoration: underline;
+  word-break: break-all;
+}
+.sf-link:hover { opacity: 0.8; }
