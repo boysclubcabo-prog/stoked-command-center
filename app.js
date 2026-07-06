@@ -1001,7 +1001,10 @@ function renderFeedAdmin(el) {
               <span>${IC.check} ${approved} completed</span>
               <span>${IC.clock} ${chSubs.filter(s=>s.status==='pending').length} pending</span>
             </div>
-            <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>
+            <div style="display:flex;gap:8px;margin-top:10px">
+              <button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
+              <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>
+            </div>
           </div>`;
         }).join('')}
       </div>
@@ -1017,6 +1020,8 @@ function renderFeedAdmin(el) {
     btn.addEventListener('click', () => rejectSubmission(btn.dataset.subid)));
   el.querySelectorAll('.btn-close-challenge').forEach(btn =>
     btn.addEventListener('click', () => archiveChallenge(btn.dataset.closech)));
+  el.querySelectorAll('.btn-edit-challenge').forEach(btn =>
+    btn.addEventListener('click', () => openEditChallengeModal(btn.dataset.editch)));
 }
 
 function renderFeedMember(el) {
@@ -1088,11 +1093,30 @@ function renderFeedMember(el) {
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
 }
 
-// ── CREATE CHALLENGE ──────────────────────────
+// ── CREATE / EDIT CHALLENGE ───────────────────
 const challengeModal = document.getElementById('challengeModal');
+let editingChallengeId = null;
 
 function openCreateChallengeModal() {
+  editingChallengeId = null;
   document.getElementById('challengeForm').reset();
+  document.querySelector('#challengeModal .modal-title').textContent = 'New Challenge';
+  document.querySelector('#challengeForm [type="submit"]').textContent = 'Post Challenge';
+  openModal(challengeModal);
+}
+
+function openEditChallengeModal(id) {
+  const ch = challenges.find(c => c.id === id);
+  if (!ch) return;
+  editingChallengeId = id;
+  document.getElementById('challengeTitle').value         = ch.title        || '';
+  document.getElementById('challengeDesc').value          = ch.description  || '';
+  document.getElementById('challengeXP').value            = ch.xpReward     || '';
+  document.getElementById('challengeTag').value           = ch.tag          || '';
+  document.getElementById('challengeDeadline').value      = ch.deadline     || '';
+  document.getElementById('challengePhotoRequired').checked = ch.photoRequired !== false;
+  document.querySelector('#challengeModal .modal-title').textContent = 'Edit Challenge';
+  document.querySelector('#challengeForm [type="submit"]').textContent = 'Save Changes';
   openModal(challengeModal);
 }
 
@@ -1104,28 +1128,34 @@ document.getElementById('challengeForm').addEventListener('submit', async e => {
 
   const btn = e.submitter;
   btn.disabled    = true;
-  btn.textContent = 'Posting…';
+  btn.textContent = editingChallengeId ? 'Saving…' : 'Posting…';
+
+  const data = {
+    title,
+    description:   document.getElementById('challengeDesc').value.trim(),
+    xpReward,
+    tag:           document.getElementById('challengeTag').value || null,
+    deadline:      document.getElementById('challengeDeadline').value || null,
+    photoRequired: document.getElementById('challengePhotoRequired').checked,
+  };
 
   try {
-    const id = 'ch_' + Date.now().toString(36);
-    await setDoc(doc(db, 'challenges', id), {
-      title,
-      description:   document.getElementById('challengeDesc').value.trim(),
-      xpReward,
-      tag:           document.getElementById('challengeTag').value || null,
-      deadline:      document.getElementById('challengeDeadline').value || null,
-      photoRequired: document.getElementById('challengePhotoRequired').checked,
-      active:        true,
-      createdAt:     new Date().toISOString(),
-      createdBy:     currentUser.email,
-    });
+    if (editingChallengeId) {
+      await updateDoc(doc(db, 'challenges', editingChallengeId), data);
+      showToast(`Challenge updated!`, 'success');
+    } else {
+      const id = 'ch_' + Date.now().toString(36);
+      await setDoc(doc(db, 'challenges', id), {
+        ...data, active: true, createdAt: new Date().toISOString(), createdBy: currentUser.email,
+      });
+      showToast(`Challenge "${title}" posted!`, 'success');
+    }
     closeModal(challengeModal);
-    showToast(`Challenge "${title}" posted!`, 'success');
   } catch (err) {
     showToast('Error: ' + err.message, 'info');
   } finally {
     btn.disabled    = false;
-    btn.textContent = 'Post Challenge';
+    btn.textContent = editingChallengeId ? 'Save Changes' : 'Post Challenge';
   }
 });
 
