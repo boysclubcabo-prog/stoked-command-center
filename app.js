@@ -30,6 +30,17 @@ const LEVELS = [
   { level: 10, name: 'Stoked Man', xpRequired: 10000 },
 ];
 
+const ARCHETYPE_COLORS = {
+  Warrior:    { border: 'rgba(239,68,68,0.35)',   glow: 'rgba(239,68,68,0.07)',   icon: '#ef4444' },
+  Monk:       { border: 'rgba(168,85,247,0.35)',  glow: 'rgba(168,85,247,0.07)',  icon: '#a855f7' },
+  Creator:    { border: 'rgba(251,191,36,0.35)',  glow: 'rgba(251,191,36,0.07)',  icon: '#fbbf24' },
+  Explorer:   { border: 'rgba(20,184,166,0.35)',  glow: 'rgba(20,184,166,0.07)',  icon: '#14b8a6' },
+  Leader:     { border: 'rgba(249,115,22,0.45)',  glow: 'rgba(249,115,22,0.08)',  icon: '#f97316' },
+  Builder:    { border: 'rgba(251,146,60,0.35)',  glow: 'rgba(180,83,9,0.10)',    icon: '#fb923c' },
+  Guardian:   { border: 'rgba(59,130,246,0.40)',  glow: 'rgba(59,130,246,0.08)',  icon: '#3b82f6' },
+  Pathfinder: { border: 'rgba(74,222,128,0.35)',  glow: 'rgba(74,222,128,0.07)',  icon: '#4ade80' },
+};
+
 const ARCHETYPE_ICONS = {
   Warrior: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
     <line x1="3" y1="21" x2="15" y2="9"/><line x1="9.5" y1="14.5" x2="14" y2="19"/>
@@ -237,6 +248,7 @@ function renderCard(brother) {
   const xp       = brother.xp || 0;
   const lvl      = getLevelInfo(xp);
   const archIcon = ARCHETYPE_ICONS[brother.archetype] || '';
+  const archClr  = ARCHETYPE_COLORS[brother.archetype] || { border: 'var(--border)', glow: 'transparent', icon: 'var(--orange)' };
   const momentum = (brother.momentum ?? 0).toFixed(1);
   const daily    = (brother.dailyScore ?? 0).toFixed(1);
   const maxed    = xp >= 10000;
@@ -246,7 +258,7 @@ function renderCard(brother) {
     : 'MAX LEVEL ACHIEVED';
 
   return `
-    <div class="brother-card" id="card-${brother.id}">
+    <div class="brother-card" id="card-${brother.id}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
       <div class="card-top">
         <div class="card-identity">
           <div class="card-name">${escHtml(brother.name)}</div>
