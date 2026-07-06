@@ -1632,6 +1632,25 @@ body {
 
 .btn-assess-cta:hover { background: #e0bd47; }
 
+.archetype-retake {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  opacity: 0.5;
+  cursor: pointer;
+  vertical-align: middle;
+  transition: opacity 0.15s;
+}
+
+.archetype-retake:hover { opacity: 1; }
+
 /* Element pill alongside archetype pill */
 .element-pill {
   display: inline-flex;

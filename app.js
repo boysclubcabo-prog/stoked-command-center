@@ -570,6 +570,7 @@ function renderMemberView() {
               <span class="arch-label">${escHtml(displayArchetype)}</span>
             </div>
             ${profile.dominantElement ? `<span class="element-pill" style="--el-color:${elColor};--el-border:${elColor}55;--el-bg:${elColor}15">${profile.dominantElement}</span>` : ''}
+            ${profile.primaryArchetype ? `<button class="archetype-retake" data-take-assessment="${profile.id}" title="Retake Assessment">${IC.clock}</button>` : ''}
           </div>` : ''}
       </div>
 
