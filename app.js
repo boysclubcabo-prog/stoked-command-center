@@ -9,6 +9,8 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc, addDoc,
          deleteDoc, getDoc, getDocs }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getStorage, ref as storageRef,
+         uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 
 // ── FIREBASE CONFIG ───────────────────────────
 const firebaseConfig = {
@@ -23,6 +25,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth        = getAuth(firebaseApp);
 const db          = getFirestore(firebaseApp);
+const storage     = getStorage(firebaseApp);
 
 // ── ADMIN EMAIL ───────────────────────────────
 // Only this email gets full admin access
@@ -1993,6 +1996,13 @@ exportBtn.addEventListener('click', () => {
 function openModal(el)  { el.classList.add('open');    document.body.style.overflow = 'hidden'; }
 function closeModal(el) { el.classList.remove('open'); document.body.style.overflow = '';       }
 
+// ── STORAGE UPLOAD HELPER ─────────────────────
+async function uploadPhoto(file, path) {
+  const r = storageRef(storage, path);
+  await uploadBytes(r, file);
+  return getDownloadURL(r);
+}
+
 // ── ANNOUNCEMENT MODAL WIRING ─────────────────
 const announcementModal = document.getElementById('announcementModal');
 document.getElementById('announcementModalClose').addEventListener('click', () => closeModal(announcementModal));
@@ -2000,21 +2010,51 @@ document.getElementById('announcementCancelBtn').addEventListener('click',  () =
 announcementModal.addEventListener('click', e => { if (e.target === announcementModal) closeModal(announcementModal); });
 document.getElementById('announcementForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const text  = document.getElementById('announcementText').value.trim();
-  const photo = document.getElementById('announcementPhoto').value.trim();
+  const text     = document.getElementById('announcementText').value.trim();
+  const fileInput = document.getElementById('announcementPhoto');
+  const file     = fileInput.files[0];
   if (!text) return;
-  await addDoc(collection(db, 'feed'), {
-    type:      'announcement',
-    text,
-    photoUrl:  photo || null,
-    comments:  [],
-    createdAt: Date.now(),
-  });
-  document.getElementById('announcementText').value  = '';
-  document.getElementById('announcementPhoto').value = '';
-  closeModal(announcementModal);
-  switchTab('socialfeed');
-  showToast('Posted to feed!', 'success');
+
+  const submitBtn = e.target.querySelector('[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Posting…';
+
+  try {
+    let photoUrl = null;
+    if (file) {
+      photoUrl = await uploadPhoto(file, `feed/${Date.now()}_${file.name}`);
+    }
+    await addDoc(collection(db, 'feed'), {
+      type:      'announcement',
+      text,
+      photoUrl:  photoUrl || null,
+      comments:  [],
+      createdAt: Date.now(),
+    });
+    document.getElementById('announcementText').value = '';
+    fileInput.value = '';
+    document.getElementById('announcementPhotoPreview').innerHTML = '';
+    closeModal(announcementModal);
+    switchTab('socialfeed');
+    showToast('Posted to feed!', 'success');
+  } catch (err) {
+    showToast('Error posting: ' + err.message, 'info');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Post';
+  }
+});
+
+// Photo preview for announcement
+document.getElementById('announcementPhoto').addEventListener('change', function() {
+  const preview = document.getElementById('announcementPhotoPreview');
+  const file = this.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    preview.innerHTML = `<img src="${url}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;" />`;
+  } else {
+    preview.innerHTML = '';
+  }
 });
 
 addBrotherBtn.addEventListener('click', openAddModal);

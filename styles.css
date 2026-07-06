@@ -3152,3 +3152,25 @@ body {
 
 [data-theme="light"] .sf-post { box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
 [data-theme="light"] .sf-comment-input { background: #F8F4EC; }
+
+/* ── FILE UPLOAD BUTTON ── */
+.file-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1.5px dashed var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  justify-content: center;
+}
+.file-upload-label:hover {
+  border-color: var(--accent, #C4693A);
+  color: var(--accent, #C4693A);
+}
