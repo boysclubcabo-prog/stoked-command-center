@@ -1,4 +1,4 @@
-const CACHE = 'stoked-v1';
+const CACHE = 'stoked-v2';
 const CORE = [
   '/stoked-command-center/',
   '/stoked-command-center/index.html',
