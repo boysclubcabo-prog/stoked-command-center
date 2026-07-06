@@ -80,9 +80,14 @@ body {
 }
 
 .logo-mark {
-  font-size: 28px;
-  line-height: 1;
-  filter: drop-shadow(0 0 10px var(--orange));
+  display: flex;
+  align-items: center;
+}
+
+.header-logo-svg {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
 }
 
 .header-title {
