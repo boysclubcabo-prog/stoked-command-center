@@ -262,10 +262,15 @@ function renderCard(brother) {
         <div class="archetype-pill"><span class="arch-icon">${archIcon}</span>${escHtml(brother.archetype)}</div>
       ` : ''}
 
+      <div class="xp-hero">
+        <div class="xp-hero-num ${maxed ? 'maxed' : ''}">${xp.toLocaleString()}</div>
+        <div class="xp-hero-label">TOTAL XP</div>
+      </div>
+
       <div class="level-section">
         <div class="level-row">
           <span class="level-name">Lvl ${lvl.current.level} — ${lvl.current.name}</span>
-          <span class="level-xp">${xp.toLocaleString()} XP</span>
+          <span class="level-pct">${lvl.progress}%</span>
         </div>
         <div class="progress-track">
           <div class="progress-fill ${maxed ? 'maxed' : ''}" style="width: ${lvl.progress}%"></div>

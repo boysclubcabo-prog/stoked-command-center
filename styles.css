@@ -325,6 +325,55 @@ body {
   height: 18px;
 }
 
+/* XP Hero Block */
+.xp-hero {
+  background: var(--bg-elevated);
+  border: 1px solid var(--orange-dim);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.xp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.xp-hero-num {
+  font-size: 42px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #fbbf24 0%, #f97316 50%, #fb923c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 12px rgba(249,115,22,0.45));
+  margin-bottom: 4px;
+}
+
+.xp-hero-num.maxed {
+  background: linear-gradient(135deg, #86efac 0%, #4ade80 50%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 12px rgba(74,222,128,0.45));
+}
+
+.xp-hero-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--orange);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
 /* Level section */
 .level-section {
   margin-bottom: 16px;
@@ -345,10 +394,10 @@ body {
   letter-spacing: 0.08em;
 }
 
-.level-xp {
-  font-size: 15px;
-  color: var(--text-secondary);
-  font-weight: 700;
+.level-pct {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
