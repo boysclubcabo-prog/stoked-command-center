@@ -841,9 +841,7 @@ body {
 .login-logo-img {
   width: 80px;
   height: 80px;
-  border-radius: 50%;
   margin-bottom: 28px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
 }
 
 .login-brand-title {
