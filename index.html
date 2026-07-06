@@ -9,65 +9,96 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-left">
-      <div class="logo-mark">⚡</div>
-      <div>
-        <h1 class="header-title">STOKED BROTHERHOOD</h1>
-        <p class="header-sub">Command Center</p>
+
+  <!-- ── LOGIN SCREEN ── -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-box">
+      <div class="login-logo">⚡</div>
+      <h1 class="login-title">STOKED BROTHERHOOD</h1>
+      <p class="login-sub">Command Center</p>
+
+      <div id="loginError" class="login-error hidden"></div>
+
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="your@email.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Sign In</button>
+      </form>
+
+      <p class="login-footer">Stoked Brotherhood — Admin &amp; Member Portal</p>
+    </div>
+  </div>
+
+  <!-- ── MAIN APP ── -->
+  <div id="appScreen" class="hidden">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-mark">⚡</div>
+        <div>
+          <h1 class="header-title">STOKED BROTHERHOOD</h1>
+          <p class="header-sub">Command Center</p>
+        </div>
       </div>
-    </div>
-    <div class="header-right">
-      <button class="btn btn-ghost btn-sm" id="importBtn" title="Load a saved backup">📂 Load Save</button>
-      <button class="btn btn-ghost btn-sm" id="exportBtn" title="Download a backup file">💾 Save Backup</button>
-      <button class="btn btn-primary" id="addBrotherBtn">+ Add Brother</button>
-    </div>
-    <!-- hidden file input for import -->
-    <input type="file" id="importFile" accept=".json" style="display:none" />
-  </header>
+      <div class="header-right">
+        <span class="user-badge" id="userBadge"></span>
+        <!-- Admin only -->
+        <button class="btn btn-ghost btn-sm" id="exportBtn" title="Download backup">💾 Backup</button>
+        <button class="btn btn-primary" id="addBrotherBtn">+ Add Brother</button>
+        <!-- end admin only -->
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
+      </div>
+    </header>
 
-  <!-- GROUP STATS BAR -->
-  <section class="stats-bar">
-    <div class="stat-item">
-      <span class="stat-value" id="statTotalBrothers">0</span>
-      <span class="stat-label">Brothers</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-value accent-orange" id="statGroupDaily">0.0</span>
-      <span class="stat-label">Group Daily Score</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-value accent-blue" id="statAvgMomentum">0.0</span>
-      <span class="stat-label">Avg Momentum</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-value accent-green" id="statTotalXP">0</span>
-      <span class="stat-label">Group Total XP</span>
-    </div>
-    <div class="stat-divider"></div>
-    <div class="stat-item">
-      <span class="stat-value" id="statTopBrother">—</span>
-      <span class="stat-label">Highest Level</span>
-    </div>
-  </section>
+    <!-- GROUP STATS BAR (admin only) -->
+    <section class="stats-bar" id="statsBar">
+      <div class="stat-item">
+        <span class="stat-value" id="statTotalBrothers">0</span>
+        <span class="stat-label">Brothers</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value accent-orange" id="statGroupDaily">—</span>
+        <span class="stat-label">Group Daily Score</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value accent-blue" id="statAvgMomentum">—</span>
+        <span class="stat-label">Avg Momentum</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value accent-green" id="statTotalXP">0</span>
+        <span class="stat-label">Group Total XP</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-value" id="statTopBrother">—</span>
+        <span class="stat-label">Highest Level</span>
+      </div>
+    </section>
 
-  <!-- MAIN CONTENT -->
-  <main class="main">
-    <!-- EMPTY STATE -->
-    <div class="empty-state" id="emptyState">
-      <div class="empty-icon">⚔️</div>
-      <h2>No Brothers Yet</h2>
-      <p>Add your first brother to begin tracking their journey.</p>
-      <button class="btn btn-primary" onclick="openAddModal()">+ Add First Brother</button>
-    </div>
+    <!-- MEMBER HERO (member only, hidden for admin) -->
+    <div id="memberHero" class="member-hero hidden"></div>
 
-    <!-- BROTHERS GRID -->
-    <div class="brothers-grid" id="brothersGrid"></div>
-  </main>
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">⚔️</div>
+        <h2>No Brothers Yet</h2>
+        <p>Add your first brother to begin tracking their journey.</p>
+        <button class="btn btn-primary" onclick="openAddModal()">+ Add First Brother</button>
+      </div>
+      <div class="brothers-grid" id="brothersGrid"></div>
+    </main>
+  </div>
 
   <!-- ADD / EDIT BROTHER MODAL -->
   <div class="modal-overlay" id="brotherModal">
@@ -77,8 +108,6 @@
         <button class="modal-close" id="modalClose">✕</button>
       </div>
       <form class="modal-form" id="brotherForm">
-        <input type="hidden" id="brotherId" />
-
         <div class="form-row">
           <div class="form-group">
             <label>Name *</label>
@@ -89,58 +118,57 @@
             <input type="number" id="fieldAge" placeholder="Age" min="8" max="25" />
           </div>
         </div>
-
-        <div class="form-group">
-          <label>Archetype</label>
-          <select id="fieldArchetype">
-            <option value="">— Select Archetype —</option>
-            <option value="Warrior">⚔️ Warrior</option>
-            <option value="Monk">🧘 Monk</option>
-            <option value="Creator">🎨 Creator</option>
-            <option value="Explorer">🧭 Explorer</option>
-            <option value="Leader">👑 Leader</option>
-            <option value="Builder">🔨 Builder</option>
-            <option value="Guardian">🛡️ Guardian</option>
-            <option value="Pathfinder">🗺️ Pathfinder</option>
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email (for login)</label>
+            <input type="email" id="fieldEmail" placeholder="brother@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Archetype</label>
+            <select id="fieldArchetype">
+              <option value="">— Select Archetype —</option>
+              <option value="Warrior">Warrior</option>
+              <option value="Monk">Monk</option>
+              <option value="Creator">Creator</option>
+              <option value="Explorer">Explorer</option>
+              <option value="Leader">Leader</option>
+              <option value="Builder">Builder</option>
+              <option value="Guardian">Guardian</option>
+              <option value="Pathfinder">Pathfinder</option>
+            </select>
+          </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
             <label>Total XP</label>
             <input type="number" id="fieldXP" placeholder="0" min="0" max="10000" />
           </div>
           <div class="form-group">
-            <label>Momentum Score (0–10)</label>
+            <label>Momentum (0–10)</label>
             <input type="number" id="fieldMomentum" placeholder="0" min="0" max="10" step="0.1" />
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
             <label>Daily Score (0–10)</label>
             <input type="number" id="fieldDaily" placeholder="0" min="0" max="10" step="0.1" />
           </div>
         </div>
-
         <div class="form-group">
           <label>Main Goal</label>
           <input type="text" id="fieldGoal" placeholder="e.g. Make the varsity team" />
         </div>
-
         <div class="form-group">
           <label>Weekly Commitment</label>
           <input type="text" id="fieldCommitment" placeholder="e.g. Train 4x per week" />
         </div>
-
         <div class="form-group">
           <label>Notes</label>
           <textarea id="fieldNotes" placeholder="Any notes about this brother..." rows="3"></textarea>
         </div>
-
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="saveBtn">Save Brother</button>
+          <button type="submit" class="btn btn-primary">Save Brother</button>
         </div>
       </form>
     </div>
@@ -156,12 +184,10 @@
       <div class="xp-brother-name" id="xpBrotherName"></div>
       <form class="modal-form" id="xpForm">
         <input type="hidden" id="xpBrotherId" />
-
         <div class="form-group">
           <label>XP Amount *</label>
           <input type="number" id="xpAmount" placeholder="e.g. 100" min="1" max="5000" required />
         </div>
-
         <div class="form-group">
           <label>Reason</label>
           <select id="xpReason">
@@ -175,7 +201,6 @@
             <option value="Other">Other</option>
           </select>
         </div>
-
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" id="xpCancelBtn">Cancel</button>
           <button type="submit" class="btn btn-orange">+ Add XP</button>
@@ -184,7 +209,7 @@
     </div>
   </div>
 
-  <!-- DELETE CONFIRM MODAL -->
+  <!-- DELETE MODAL -->
   <div class="modal-overlay" id="deleteModal">
     <div class="modal modal-sm">
       <div class="modal-header">
@@ -198,6 +223,7 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Firebase SDK -->
+  <script type="module" src="app.js"></script>
 </body>
 </html>
