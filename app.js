@@ -486,7 +486,7 @@ function updateChallengesBadge() {
 }
 
 // ── NOTIFICATIONS ─────────────────────────────
-const VAPID_KEY = 'REPLACE_WITH_YOUR_VAPID_KEY';
+const VAPID_KEY = 'BM-mZg5-MULah6xcJgmfFbtVkGSJ59IhKO-bkVYTkbd9nMbt-vxCP-frE1zp672JTcss8mv8cx5RqYK5J_A296s';
 
 async function setupNotifications() {
   if (!('Notification' in window)) return;
