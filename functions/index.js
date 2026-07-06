@@ -12,12 +12,14 @@ const ADMIN_EMAIL = 'boysclubcabo@gmail.com';
 
 async function getAllTokens() {
   const snap = await db.collection('fcmTokens').get();
-  return snap.docs.map(d => d.data().token).filter(Boolean);
+  const tokens = snap.docs.map(d => d.data().token).filter(Boolean);
+  return [...new Set(tokens)];
 }
 
 async function getTokensForBrother(brotherId) {
   const snap = await db.collection('fcmTokens').where('brotherId', '==', brotherId).get();
-  return snap.docs.map(d => d.data().token).filter(Boolean);
+  const tokens = snap.docs.map(d => d.data().token).filter(Boolean);
+  return [...new Set(tokens)];
 }
 
 async function getAdminTokens() {
