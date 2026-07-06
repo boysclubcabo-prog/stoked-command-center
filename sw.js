@@ -1,4 +1,4 @@
-const CACHE = 'stoked-v28';
+const CACHE = 'stoked-v29';
 
 // Only cache static assets — never app.js or index.html
 // so code updates are always picked up immediately

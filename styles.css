@@ -2009,6 +2009,39 @@ body {
   margin-bottom: 24px;
 }
 
+/* ── CHALLENGE FILTER BAR ── */
+.ch-filter-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0 10px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.ch-filter-bar::-webkit-scrollbar { display: none; }
+.ch-filter-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.ch-filter-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.ch-filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
 /* ── ROSTER ── */
 .roster-list {
   display: flex;

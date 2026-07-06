@@ -216,6 +216,7 @@ let unsubChallenges = null;
 let unsubSubmissions = null;
 let streakUpdatedThisSession = false;
 let reviewingSubId = null;
+let challengeFilter = 'All';
 
 // ── DOM ───────────────────────────────────────
 const loginScreen   = document.getElementById('loginScreen');
@@ -1196,6 +1197,28 @@ document.getElementById('checkInModalClose').addEventListener('click', () => clo
 checkInModal.addEventListener('click', e => { if (e.target === checkInModal) closeModal(checkInModal); });
 
 // ── COMMUNITY FEED ────────────────────────────
+function challengeFilterBar(extraFilters = []) {
+  const tags = ['All', ...Object.keys(CHALLENGE_TAGS), ...extraFilters];
+  return `<div class="ch-filter-bar">
+    ${tags.map(t => `<button class="ch-filter-btn ${challengeFilter === t ? 'active' : ''}" data-filter="${t}">${t}</button>`).join('')}
+  </div>`;
+}
+
+function bindChallengeFilterBar(el) {
+  el.querySelectorAll('.ch-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      challengeFilter = btn.dataset.filter;
+      renderFeed();
+    });
+  });
+}
+
+function applyFilter(list) {
+  if (challengeFilter === 'All') return list;
+  if (challengeFilter === 'From Coach') return list; // personal list handled separately
+  return list.filter(ch => ch.tag === challengeFilter);
+}
+
 function renderFeed() {
   const el = document.getElementById('feedContainer');
   if (!el) return;
@@ -1208,9 +1231,10 @@ function renderFeedAdmin(el) {
   const pending = submissions.filter(s => s.status === 'pending');
 
   let html = `<div class="feed-header">
-    <h2 class="feed-title">Challenges Challenges</h2>
+    <h2 class="feed-title">Challenges</h2>
     <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
-  </div>`;
+  </div>
+  ${challengeFilterBar(['Personal'])}`;
 
   if (pending.length) {
     html += `<div class="feed-section">
@@ -1236,12 +1260,14 @@ function renderFeedAdmin(el) {
     </div>`;
   }
 
-  const publicChallenges   = challenges.filter(ch => !ch.assignedTo);
+  const publicChallenges   = applyFilter(challenges.filter(ch => !ch.assignedTo));
   const personalChallenges = challenges.filter(ch => ch.assignedTo);
+  const showPersonal = challengeFilter === 'All' || challengeFilter === 'Personal';
+  const showPublic   = challengeFilter !== 'Personal';
 
-  if (!publicChallenges.length) {
-    html += `<div class="feed-empty">No public challenges yet. Create one above.</div>`;
-  } else {
+  if (showPublic && !publicChallenges.length) {
+    html += `<div class="feed-empty">No challenges in this category yet.</div>`;
+  } else if (showPublic) {
     html += `<div class="feed-section">
       <div class="feed-section-title">${IC.trophy} Active Challenges</div>
       <div class="challenge-list">
@@ -1273,7 +1299,7 @@ function renderFeedAdmin(el) {
     </div>`;
   }
 
-  if (personalChallenges.length) {
+  if (showPersonal && personalChallenges.length) {
     html += `<div class="feed-section">
       <div class="feed-section-title">🎯 Personal Challenges (Coach-Assigned)</div>
       <div class="challenge-list">
@@ -1309,6 +1335,7 @@ function renderFeedAdmin(el) {
 
   el.innerHTML = html;
 
+  bindChallengeFilterBar(el);
   document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
   el.querySelectorAll('.btn-approve').forEach(btn =>
     btn.addEventListener('click', () => approveSubmission(btn.dataset.subid)));
@@ -1327,12 +1354,15 @@ function renderFeedMentor(el) {
   let html = `<div class="feed-header">
     <h2 class="feed-title">Challenges</h2>
     <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
-  </div>`;
+  </div>
+  ${challengeFilterBar(['From Coach'])}`;
 
   const myPersonalM = challenges.filter(ch => ch.assignedTo === profile?.id);
-  const publicChsM  = challenges.filter(ch => !ch.assignedTo);
+  const publicChsM  = applyFilter(challenges.filter(ch => !ch.assignedTo));
+  const showCoach   = challengeFilter === 'All' || challengeFilter === 'From Coach';
+  const showPubM    = challengeFilter !== 'From Coach';
 
-  if (myPersonalM.length) {
+  if (showCoach && myPersonalM.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonalM.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
@@ -1360,9 +1390,9 @@ function renderFeedMentor(el) {
     html += `</div></div>`;
   }
 
-  if (!publicChsM.length) {
-    html += `<div class="feed-empty">No active challenges yet.</div>`;
-  } else {
+  if (showPubM && !publicChsM.length) {
+    html += `<div class="feed-empty">No challenges in this category yet.</div>`;
+  } else if (showPubM) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChsM.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
@@ -1410,6 +1440,7 @@ function renderFeedMentor(el) {
   }
 
   el.innerHTML = html;
+  bindChallengeFilterBar(el);
   document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
   el.querySelectorAll('[data-submit]').forEach(btn =>
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
@@ -1426,12 +1457,15 @@ function renderFeedMember(el) {
 
   const mySubs = submissions.filter(s => s.brotherId === profile.id);
 
-  const myPersonal   = challenges.filter(ch => ch.assignedTo === profile.id);
-  const publicChs    = challenges.filter(ch => !ch.assignedTo);
+  const myPersonal = challenges.filter(ch => ch.assignedTo === profile.id);
+  const publicChs  = applyFilter(challenges.filter(ch => !ch.assignedTo));
+  const showCoachM = challengeFilter === 'All' || challengeFilter === 'From Coach';
+  const showPubCh  = challengeFilter !== 'From Coach';
 
-  let html = `<div class="feed-header"><h2 class="feed-title">Challenges</h2></div>`;
+  let html = `<div class="feed-header"><h2 class="feed-title">Challenges</h2></div>
+  ${challengeFilterBar(myPersonal.length ? ['From Coach'] : [])}`;
 
-  if (myPersonal.length) {
+  if (showCoachM && myPersonal.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonal.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
@@ -1462,9 +1496,9 @@ function renderFeedMember(el) {
     html += `</div></div>`;
   }
 
-  if (!publicChs.length) {
-    html += `<div class="feed-empty">No active challenges right now. Check back soon! 🏆</div>`;
-  } else {
+  if (showPubCh && !publicChs.length) {
+    html += `<div class="feed-empty">No challenges in this category right now. 🏆</div>`;
+  } else if (showPubCh) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChs.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
@@ -1516,6 +1550,7 @@ function renderFeedMember(el) {
   }
 
   el.innerHTML = html;
+  bindChallengeFilterBar(el);
   el.querySelectorAll('[data-submit]').forEach(btn =>
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
 }
