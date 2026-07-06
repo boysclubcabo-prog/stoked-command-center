@@ -2086,7 +2086,21 @@ body {
   .stat-value { font-size: 20px; }
 
   .main { padding: 16px; }
-  .brothers-grid { grid-template-columns: 1fr; gap: 16px; }
+  .brothers-grid {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 16px;
+    padding-bottom: 12px;
+  }
+  .brothers-grid::-webkit-scrollbar { display: none; }
+  .brothers-grid .brother-card {
+    flex: 0 0 85vw;
+    max-width: 360px;
+    scroll-snap-align: center;
+  }
 
   /* Cards */
   .brother-card { padding: 18px; }
