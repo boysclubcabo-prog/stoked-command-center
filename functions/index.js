@@ -82,7 +82,7 @@ exports.onNewChallenge = onDocumentCreated('challenges/{challengeId}', async eve
   const tokens = await getAllTokens();
   await sendToTokens(tokens,
     '⚡ New Challenge Posted',
-    `${challenge.title} — ${challenge.xp || 0} XP`
+    `${challenge.title} — ${challenge.xpReward || 0} XP`
   );
 });
 
