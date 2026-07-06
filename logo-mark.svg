@@ -1,29 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
   <!-- Black circle -->
-  <circle cx="50" cy="52" r="46" fill="#111111"/>
+  <circle cx="50" cy="50" r="46" fill="#111111"/>
 
-  <!-- Figure: head -->
-  <circle cx="55" cy="36" r="5.5" fill="white"/>
+  <!-- Figure: head (centered, slightly right) -->
+  <circle cx="51" cy="31" r="5.5" fill="white"/>
 
-  <!-- Figure: body (tapered torso) -->
-  <path d="M52 41 L48 68 L62 68 L58 41 Z" fill="white"/>
+  <!-- Figure: body (inverted triangle tapering down) -->
+  <path d="M47 37 L44 65 L58 65 L55 37 Z" fill="white"/>
 
-  <!-- Figure: left arm sweeping down-left -->
-  <path d="M52 47 Q38 48 22 58" stroke="white" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <!-- Figure: left arm — near horizontal with slight downward angle -->
+  <path d="M47 43 Q33 43 17 48" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
 
-  <!-- Figure: right arm sweeping down-right -->
-  <path d="M58 47 Q68 48 80 56" stroke="white" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <!-- Figure: right arm — sweeping upward toward the star -->
+  <path d="M55 43 Q66 37 77 28" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
 
-  <!-- Ground/hill the figure stands on (white arc at bottom) -->
-  <path d="M20 74 Q50 62 82 74" stroke="white" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Ground arc at bottom -->
+  <path d="M16 70 Q50 59 84 70" stroke="white" stroke-width="5" stroke-linecap="round" fill="none"/>
 
-  <!-- 8-point star top right -->
-  <g transform="translate(74,26)">
-    <!-- Long cardinal rays -->
-    <line x1="0" y1="-10" x2="0" y2="10"  stroke="white" stroke-width="2"   stroke-linecap="round"/>
-    <line x1="-10" y1="0" x2="10" y2="0"  stroke="white" stroke-width="2"   stroke-linecap="round"/>
-    <!-- Short diagonal rays -->
-    <line x1="-7" y1="-7" x2="7" y2="7"   stroke="white" stroke-width="1.4" stroke-linecap="round"/>
-    <line x1="7" y1="-7"  x2="-7" y2="7"  stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+  <!-- 8-point nautical star upper right -->
+  <g transform="translate(75,23)">
+    <line x1="0" y1="-13" x2="0" y2="13"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="-13" y1="0" x2="13" y2="0"  stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="-9" y1="-9" x2="9" y2="9"   stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="9" y1="-9"  x2="-9" y2="9"  stroke="white" stroke-width="1.5" stroke-linecap="round"/>
   </g>
+
 </svg>
