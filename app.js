@@ -227,7 +227,7 @@ const logoutBtn     = document.getElementById('logoutBtn');
 
 // ── THEME TOGGLE ──────────────────────────
 (function() {
-  const saved = localStorage.getItem('stoked-theme') || 'dark';
+  const saved = localStorage.getItem('stoked-theme') || 'light';
   if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
 })();
 document.getElementById('themeToggleBtn').addEventListener('click', () => {
