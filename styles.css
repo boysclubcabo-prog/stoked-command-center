@@ -30,9 +30,8 @@
 
   --cream:         #E8E0D0;
 
-  --green:         #4ade80;
-  --green-dim:     #1a4a2e;
-  --green-glow:    rgba(74,222,128,0.12);
+  --cream:         #E8E0D0;
+  --yellow:        #F5D97A;
 
   --red:           #ef4444;
 
@@ -166,9 +165,9 @@ body {
   flex-shrink: 0;
 }
 
-.accent-orange { color: var(--orange) !important; }
+.accent-orange { color: var(--yellow) !important; }
 .accent-blue   { color: var(--blue)   !important; }
-.accent-green  { color: var(--green)  !important; }
+.accent-green  { color: var(--yellow) !important; }
 
 /* ── MAIN ── */
 .main {
@@ -365,16 +364,16 @@ body {
 }
 
 .xp-hero-num.maxed {
-  background: linear-gradient(135deg, #86efac 0%, #4ade80 50%, #22d3ee 100%);
+  background: linear-gradient(135deg, #F5D97A 0%, #e8c85a 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  filter: drop-shadow(0 0 12px rgba(74,222,128,0.45));
+  filter: drop-shadow(0 0 12px rgba(245,217,122,0.5));
 }
 
 .xp-hero-label {
   font-size: 10px;
   font-weight: 700;
-  color: var(--orange);
+  color: #E8E0D0;
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
@@ -417,13 +416,13 @@ body {
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--orange), #fb923c);
+  background: linear-gradient(90deg, #4B72AA, #6b8fc4);
   transition: width 0.5s ease;
   min-width: 4px;
 }
 
 .progress-fill.maxed {
-  background: linear-gradient(90deg, var(--green), #86efac);
+  background: linear-gradient(90deg, #F5D97A, #e8c85a);
 }
 
 .progress-next {
@@ -466,8 +465,8 @@ body {
   text-transform: uppercase;
 }
 
-.score-chip.momentum .score-num { color: var(--blue); }
-.score-chip.daily .score-num    { color: var(--green); }
+.score-chip.momentum .score-num { color: #4B72AA; }
+.score-chip.daily .score-num    { color: #F5D97A; }
 
 /* Goal */
 .card-goal {
