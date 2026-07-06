@@ -426,6 +426,66 @@ document.addEventListener('keydown', e => {
 // Header "Add Brother" button
 document.getElementById('addBrotherBtn').addEventListener('click', openAddModal);
 
+// ── EXPORT / IMPORT ───────────────────────────
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const data = {
+    exportedAt: new Date().toISOString(),
+    version: 1,
+    brothers,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10);
+  a.href     = url;
+  a.download = `stoked-brotherhood-${date}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Backup saved to your Downloads folder', 'success');
+});
+
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+
+document.getElementById('importFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = evt => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      const imported = Array.isArray(data) ? data : (data.brothers || []);
+
+      if (!Array.isArray(imported) || imported.length === 0) {
+        showToast('Invalid backup file', 'info');
+        return;
+      }
+
+      // Merge: keep existing brothers, add any new ones by ID
+      const existingIds = new Set(brothers.map(b => b.id));
+      const newOnes     = imported.filter(b => !existingIds.has(b.id));
+      // For existing IDs, imported data wins (overwrite)
+      const updated     = brothers.map(b => {
+        const match = imported.find(i => i.id === b.id);
+        return match ? { ...b, ...match } : b;
+      });
+
+      brothers = [...updated, ...newOnes];
+      saveBrothers(brothers);
+      render();
+      showToast(`Loaded ${imported.length} brother${imported.length !== 1 ? 's' : ''} from backup`, 'success');
+    } catch {
+      showToast('Could not read file — make sure it\'s a valid backup', 'info');
+    }
+    // Reset so same file can be re-imported if needed
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
 // ── TOAST ─────────────────────────────────────
 
 let toastTimer = null;

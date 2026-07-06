@@ -19,8 +19,12 @@
       </div>
     </div>
     <div class="header-right">
+      <button class="btn btn-ghost btn-sm" id="importBtn" title="Load a saved backup">📂 Load Save</button>
+      <button class="btn btn-ghost btn-sm" id="exportBtn" title="Download a backup file">💾 Save Backup</button>
       <button class="btn btn-primary" id="addBrotherBtn">+ Add Brother</button>
     </div>
+    <!-- hidden file input for import -->
+    <input type="file" id="importFile" accept=".json" style="display:none" />
   </header>
 
   <!-- GROUP STATS BAR -->
