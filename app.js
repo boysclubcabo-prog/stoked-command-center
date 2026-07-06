@@ -42,27 +42,58 @@ const LEVELS = [
   { level: 10, name: 'Stoked Man', xpRequired: 10000 },
 ];
 
-// All archetypes use the same brand palette — no rainbow
 const ARCHETYPE_COLORS = {
-  Warrior:    { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
-  Monk:       { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
-  Creator:    { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
-  Explorer:   { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
-  Leader:     { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
-  Builder:    { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
-  Guardian:   { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
-  Pathfinder: { border: 'rgba(75,114,170,0.4)', glow: 'rgba(75,114,170,0.07)', icon: '#F5D97A' },
+  Warrior:  { border: 'rgba(232,121,58,0.45)',  glow: 'rgba(232,121,58,0.08)',  icon: '#E8793A' },
+  Monk:     { border: 'rgba(160,160,176,0.4)',  glow: 'rgba(160,160,176,0.07)', icon: '#b0b0c0' },
+  Creator:  { border: 'rgba(75,114,170,0.45)',  glow: 'rgba(75,114,170,0.09)',  icon: '#4B72AA' },
+  Explorer: { border: 'rgba(74,154,74,0.45)',   glow: 'rgba(74,154,74,0.08)',   icon: '#4a9a4a' },
+  Leader:   { border: 'rgba(245,217,122,0.45)', glow: 'rgba(245,217,122,0.08)', icon: '#F5D97A' },
+  Builder:  { border: 'rgba(130,148,166,0.4)',  glow: 'rgba(130,148,166,0.07)', icon: '#8294a6' },
 };
 
 const ARCHETYPE_ICONS = {
-  Warrior: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="15" y2="9"/><line x1="9.5" y1="14.5" x2="14" y2="19"/><path d="M14 4l6 6-2 2-6-6z"/><line x1="19" y1="5" x2="21" y2="3"/></svg>`,
-  Monk:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>`,
-  Creator: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>`,
-  Explorer:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
-  Leader:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2l3 5h4l-3.5 4 1.5 5L12 13.5 7 16l1.5-5L5 7h4z"/></svg>`,
-  Builder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.77 3.77z"/></svg>`,
-  Guardian:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
-  Pathfinder:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`,
+  // Shield with sword through center
+  Warrior: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2L4 5.5v6c0 5.5 4.5 9 8 10.5 3.5-1.5 8-5 8-10.5v-6L12 2z"/>
+    <line x1="12" y1="5" x2="12" y2="18"/>
+    <line x1="9" y1="8.5" x2="15" y2="8.5"/>
+  </svg>`,
+
+  // Circle with seated meditating figure
+  Monk: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/>
+    <circle cx="12" cy="8.5" r="1.5"/>
+    <path d="M8.5 16.5c.5-2 1.8-3 3.5-3s3 1 3.5 3"/>
+    <path d="M7 15c1.5-.8 3-1.2 5-1.2s3.5.4 5 1.2"/>
+  </svg>`,
+
+  // Circle with pencil/pen
+  Creator: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/>
+    <path d="M15 8.5l1 1-6 6-1.5.5.5-1.5 6-6z"/>
+    <line x1="13.5" y1="10" x2="14.5" y2="11"/>
+  </svg>`,
+
+  // Circle with mountain peaks and winding path
+  Explorer: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="9"/>
+    <polyline points="5.5 16.5 9 10.5 12 14 15 10.5 18.5 16.5"/>
+    <path d="M7.5 16.5 Q10.5 15 13.5 15.5 Q16 16 16.5 16.5"/>
+  </svg>`,
+
+  // Crown with base line
+  Leader: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3.5" y1="19" x2="20.5" y2="19"/>
+    <path d="M5 19V12l3.5 3.5L12 7l3.5 8.5L19 12v7"/>
+  </svg>`,
+
+  // Hexagon with hammer
+  Builder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2.5l8.5 4.9v9.8L12 22.1l-8.5-4.9V7.4z"/>
+    <path d="M14 9.5l1-1 1.5 1.5-1 1z"/>
+    <line x1="14" y1="9.5" x2="9.5" y2="14"/>
+    <line x1="9.5" y1="14" x2="8" y2="15.5"/>
+  </svg>`,
 };
 
 // ── BROTHERHOOD SCORE ─────────────────────────
