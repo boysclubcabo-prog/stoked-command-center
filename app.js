@@ -517,8 +517,12 @@ async function setupNotifications() {
 async function registerFCMToken() {
   if (fcmSetupDone || !currentUser) return;
   try {
-    const swReg = await navigator.serviceWorker.ready;
-    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swReg });
+    // Register the Firebase messaging SW separately at the root scope
+    const msgSWReg = await navigator.serviceWorker.register(
+      '/stoked-command-center/firebase-messaging-sw.js',
+      { scope: '/stoked-command-center/' }
+    );
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: msgSWReg });
     if (!token) { showToast('FCM: no token returned', 'info'); return; }
     const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
     await setDoc(doc(db, 'fcmTokens', token), {
@@ -530,7 +534,7 @@ async function registerFCMToken() {
     fcmSetupDone = true;
     showToast('Notifications enabled ✓', 'success');
   } catch (e) {
-    showToast('FCM error: ' + e.message, 'info');
+    showToast('Notif error: ' + e.message, 'info');
     console.error('FCM token error:', e);
   }
 }
