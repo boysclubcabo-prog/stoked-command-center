@@ -75,7 +75,10 @@
       <div class="header-right">
         <span class="user-badge" id="userBadge"></span>
         <!-- Admin only -->
-        <button class="btn btn-ghost btn-sm" id="exportBtn" title="Download backup">💾 Backup</button>
+        <button class="btn btn-ghost btn-sm" id="exportBtn" title="Download backup">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Backup
+        </button>
         <button class="btn btn-primary" id="addBrotherBtn">+ Add Brother</button>
         <!-- end admin only -->
         <button class="btn btn-ghost btn-sm" id="logoutBtn">Sign Out</button>
@@ -84,9 +87,13 @@
 
     <!-- TAB BAR -->
     <nav class="tab-bar" id="tabBar">
-      <button class="tab-btn tab-active" data-tab="brothers">⚔️ Brothers</button>
+      <button class="tab-btn tab-active" data-tab="brothers">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 5.5v6c0 5.5 4.5 9 8 10.5 3.5-1.5 8-5 8-10.5v-6L12 2z"/></svg>
+        Brothers
+      </button>
       <button class="tab-btn" data-tab="community">
-        🏆 Community
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4a2 2 0 000 4h2"/><path d="M18 9h2a2 2 0 010 4h-2"/><path d="M6 3h12v10a6 6 0 01-12 0V3z"/><path d="M9 21h6M12 17v4"/></svg>
+        Community
         <span class="tab-badge hidden" id="communityBadge"></span>
       </button>
     </nav>
@@ -130,7 +137,7 @@
     <!-- MAIN CONTENT -->
     <main class="main">
       <div class="empty-state hidden" id="emptyState">
-        <div class="empty-icon">⚔️</div>
+        <div class="empty-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 5.5v6c0 5.5 4.5 9 8 10.5 3.5-1.5 8-5 8-10.5v-6L12 2z"/></svg></div>
         <h2>No Brothers Yet</h2>
         <p>Add your first brother to begin tracking their journey.</p>
         <button class="btn btn-primary" onclick="openAddModal()">+ Add First Brother</button>
@@ -429,7 +436,10 @@
           <label>Photo Proof</label>
           <label class="photo-upload-area" for="proofPhoto">
             <input type="file" id="proofPhoto" accept="image/*" style="display:none" />
-            <div id="photoPlaceholder" class="photo-upload-placeholder">📷 Tap to add photo</div>
+            <div id="photoPlaceholder" class="photo-upload-placeholder">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>Tap to add photo</span>
+            </div>
             <img id="proofPhotoPreview" class="photo-preview hidden" alt="Proof" />
           </label>
         </div>

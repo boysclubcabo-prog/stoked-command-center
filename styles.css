@@ -1576,6 +1576,9 @@ body {
 }
 .tab-btn {
   position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -1812,9 +1815,11 @@ body {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 15px;
+  gap: 8px;
+  font-size: 13px;
   color: var(--text-muted);
   pointer-events: none;
 }

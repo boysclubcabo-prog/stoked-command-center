@@ -96,6 +96,27 @@ const ARCHETYPE_ICONS = {
   </svg>`,
 };
 
+// ── ICONS ─────────────────────────────────────
+const IC = {
+  shield:    `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 5.5v6c0 5.5 4.5 9 8 10.5 3.5-1.5 8-5 8-10.5v-6L12 2z"/></svg>`,
+  trophy:    `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4a2 2 0 000 4h2"/><path d="M18 9h2a2 2 0 010 4h-2"/><path d="M6 3h12v10a6 6 0 01-12 0V3z"/><path d="M9 21h6M12 17v4"/></svg>`,
+  clock:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`,
+  check:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  xmark:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  calendar:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  camera:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  flame:     `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C9 8 6 10 6 14a6 6 0 0012 0c0-4-3-6-6-12z"/><path d="M12 12c0 2.5-1.5 3.5-1.5 5a1.5 1.5 0 003 0c0-1.5-1.5-2.5-1.5-5z"/></svg>`,
+  bolt:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  mountain:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20l5.5-11L12 14l3.5-7L21 20H3z"/></svg>`,
+  target:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+  download:  `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+  edit:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  trash:     `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>`,
+  clipboard: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>`,
+  photo:     `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  sword:     `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 21l4.5-4.5"/><path d="M19 5l2-2"/></svg>`,
+};
+
 // ── BROTHERHOOD SCORE ─────────────────────────
 function calcBrotherhoodScore(f, m, d, c, s) {
   return (f + m + d + c + s) * 2;
@@ -363,7 +384,7 @@ function renderMemberView() {
   if (!profile) {
     memberHero.innerHTML = `
       <div class="member-no-profile">
-        <div class="empty-icon">⚔️</div>
+        <div class="empty-icon">${IC.shield}</div>
         <h2>Profile Not Set Up Yet</h2>
         <p>Your mentor hasn't added your profile yet. Check back soon.</p>
       </div>`;
@@ -433,7 +454,7 @@ function renderMemberView() {
 
       ${(profile.currentStreak > 0) ? `
         <div class="streak-member">
-          <span class="streak-flame">🔥</span>
+          <span class="streak-flame">${IC.flame}</span>
           <span class="streak-count">${profile.currentStreak}</span>
           <span class="streak-label">day streak</span>
           ${profile.longestStreak > 1 ? `<span class="streak-best">Best: ${profile.longestStreak}</span>` : ''}
@@ -485,8 +506,8 @@ function renderCard(brother) {
           ${brother.age ? `<div class="card-age">Age ${brother.age}</div>` : ''}
         </div>
         <div class="card-actions">
-          <button class="btn-icon" data-edit="${brother.id}" title="Edit">✏️</button>
-          <button class="btn-icon danger" data-delete="${brother.id}" title="Remove">🗑</button>
+          <button class="btn-icon" data-edit="${brother.id}" title="Edit">${IC.edit}</button>
+          <button class="btn-icon danger" data-delete="${brother.id}" title="Remove">${IC.trash}</button>
         </div>
       </div>
 
@@ -533,7 +554,7 @@ function renderCard(brother) {
 
       ${(brother.currentStreak > 0) ? `
         <div class="streak-card">
-          <span class="streak-flame">🔥</span>
+          <span class="streak-flame">${IC.flame}</span>
           <span class="streak-count">${brother.currentStreak}</span>
           <span class="streak-label">day streak</span>
           ${brother.longestStreak > 1 ? `<span class="streak-best">Best: ${brother.longestStreak}</span>` : ''}
@@ -547,9 +568,9 @@ function renderCard(brother) {
 
       ${(brother.weeklyWin || brother.weeklyChallenge || brother.weeklyCommitment) ? `
         <div class="card-reflection">
-          ${brother.weeklyWin ? `<div class="cr-item"><span class="cr-label">💪 Win</span><span class="cr-text">${escHtml(brother.weeklyWin)}</span></div>` : ''}
-          ${brother.weeklyChallenge ? `<div class="cr-item"><span class="cr-label">⚡ Challenge</span><span class="cr-text">${escHtml(brother.weeklyChallenge)}</span></div>` : ''}
-          ${brother.weeklyCommitment ? `<div class="cr-item"><span class="cr-label">🎯 Commitment</span><span class="cr-text">${escHtml(brother.weeklyCommitment)}</span></div>` : ''}
+          ${brother.weeklyWin ? `<div class="cr-item"><span class="cr-label">${IC.bolt} Win</span><span class="cr-text">${escHtml(brother.weeklyWin)}</span></div>` : ''}
+          ${brother.weeklyChallenge ? `<div class="cr-item"><span class="cr-label">${IC.mountain} Challenge</span><span class="cr-text">${escHtml(brother.weeklyChallenge)}</span></div>` : ''}
+          ${brother.weeklyCommitment ? `<div class="cr-item"><span class="cr-label">${IC.target} Commitment</span><span class="cr-text">${escHtml(brother.weeklyCommitment)}</span></div>` : ''}
         </div>` : ''}
 
       ${brother.coachNote ? `
@@ -560,7 +581,7 @@ function renderCard(brother) {
         </div>` : ''}
 
       <div class="card-btn-row">
-        <button class="btn-add-xp" data-addxp="${brother.id}">⚡ Add XP</button>
+        <button class="btn-add-xp" data-addxp="${brother.id}">${IC.bolt} Add XP</button>
         <button class="btn-checkin" data-checkin="${brother.id}" title="Weekly Check-In">Check-In</button>
         ${brother.brotherhoodScore != null ? `<button class="btn-view-checkin" data-viewcheckin="${brother.id}" title="View Check-In">📊</button>` : ''}
         <button class="btn-coach-note" data-coachnote="${brother.id}" title="Coach Note">📋</button>
@@ -792,9 +813,9 @@ function openViewCheckInModal(id) {
 
     ${(b.weeklyWin || b.weeklyChallenge || b.weeklyCommitment) ? `
     <div class="vci-reflection">
-      ${b.weeklyWin ? `<div class="vci-r-item"><div class="vci-r-label">💪 Win</div><div class="vci-r-text">${escHtml(b.weeklyWin)}</div></div>` : ''}
-      ${b.weeklyChallenge ? `<div class="vci-r-item"><div class="vci-r-label">⚡ Challenge</div><div class="vci-r-text">${escHtml(b.weeklyChallenge)}</div></div>` : ''}
-      ${b.weeklyCommitment ? `<div class="vci-r-item"><div class="vci-r-label">🎯 Commitment</div><div class="vci-r-text">${escHtml(b.weeklyCommitment)}</div></div>` : ''}
+      ${b.weeklyWin ? `<div class="vci-r-item"><div class="vci-r-label">${IC.bolt} Win</div><div class="vci-r-text">${escHtml(b.weeklyWin)}</div></div>` : ''}
+      ${b.weeklyChallenge ? `<div class="vci-r-item"><div class="vci-r-label">${IC.mountain} Challenge</div><div class="vci-r-text">${escHtml(b.weeklyChallenge)}</div></div>` : ''}
+      ${b.weeklyCommitment ? `<div class="vci-r-item"><div class="vci-r-label">${IC.target} Commitment</div><div class="vci-r-text">${escHtml(b.weeklyCommitment)}</div></div>` : ''}
     </div>` : ''}
   `;
 
@@ -917,7 +938,7 @@ function renderFeedAdmin(el) {
 
   if (pending.length) {
     html += `<div class="feed-section">
-      <div class="feed-section-title">⏳ Pending Review (${pending.length})</div>
+      <div class="feed-section-title">${IC.clock} Pending Review (${pending.length})</div>
       <div class="sub-list">
         ${pending.map(s => {
           const ch = challenges.find(c => c.id === s.challengeId);
@@ -943,7 +964,7 @@ function renderFeedAdmin(el) {
     html += `<div class="feed-empty">No challenges yet. Create one above.</div>`;
   } else {
     html += `<div class="feed-section">
-      <div class="feed-section-title">🏆 Active Challenges</div>
+      <div class="feed-section-title">${IC.trophy} Active Challenges</div>
       <div class="challenge-list">
         ${challenges.map(ch => {
           const chSubs  = submissions.filter(s => s.challengeId === ch.id);
@@ -957,10 +978,10 @@ function renderFeedAdmin(el) {
               <div class="ch-xp-pill">+${ch.xpReward} XP</div>
             </div>
             <div class="ch-meta">
-              ${ch.deadline ? `<span>📅 ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-              ${ch.photoRequired ? `<span>📷 Photo required</span>` : ''}
-              <span>✅ ${approved} completed</span>
-              <span>⏳ ${chSubs.filter(s=>s.status==='pending').length} pending</span>
+              ${ch.deadline ? `<span>${IC.calendar} ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+              ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+              <span>${IC.check} ${approved} completed</span>
+              <span>${IC.clock} ${chSubs.filter(s=>s.status==='pending').length} pending</span>
             </div>
             <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>
           </div>`;
@@ -994,7 +1015,7 @@ function renderFeedMember(el) {
   if (!challenges.length) {
     html += `<div class="feed-empty">No active challenges right now. Check back soon! 🏆</div>`;
   } else {
-    html += `<div class="feed-section"><div class="feed-section-title">🏆 Active Challenges</div><div class="challenge-list">`;
+    html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     challenges.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
@@ -1007,15 +1028,15 @@ function renderFeedMember(el) {
           <div class="ch-xp-pill">+${ch.xpReward} XP</div>
         </div>
         <div class="ch-meta">
-          ${ch.deadline ? `<span>📅 Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-          ${ch.photoRequired ? `<span>📷 Photo required</span>` : ''}
-          <span>✅ ${totalApproved} brothers completed</span>
+          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          <span>${IC.check} ${totalApproved} completed</span>
         </div>
         ${mySub ? `
           <div class="sub-status-badge status-${mySub.status}">
-            ${mySub.status === 'pending' ? '⏳ Submitted — awaiting review' : ''}
-            ${mySub.status === 'approved' ? '✅ Approved — +${ch.xpReward} XP awarded!' : ''}
-            ${mySub.status === 'rejected' ? '✕ Submission rejected — try again' : ''}
+            ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
+            ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP awarded!` : ''}
+            ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
           </div>
           ${mySub.status === 'rejected' ? `<button class="btn btn-primary btn-sm" data-submit="${ch.id}">Resubmit</button>` : ''}
         ` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
@@ -1025,7 +1046,7 @@ function renderFeedMember(el) {
   }
 
   if (mySubs.length) {
-    html += `<div class="feed-section"><div class="feed-section-title">📋 My Submissions</div><div class="sub-list">`;
+    html += `<div class="feed-section"><div class="feed-section-title">${IC.clipboard} My Submissions</div><div class="sub-list">`;
     mySubs.slice().reverse().forEach(s => {
       const ch = challenges.find(c => c.id === s.challengeId) || { title: 'Challenge', xpReward: 0 };
       html += `<div class="sub-card status-${s.status}">
@@ -1034,7 +1055,7 @@ function renderFeedMember(el) {
           <div class="sub-challenge">${escHtml(ch.title)}</div>
           ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
           <div class="sub-status-pill status-${s.status}">
-            ${s.status === 'pending' ? '⏳ Pending' : s.status === 'approved' ? `✅ Approved +${ch.xpReward} XP` : '✕ Rejected'}
+            ${s.status === 'pending' ? `${IC.clock} Pending` : s.status === 'approved' ? `${IC.check} Approved +${ch.xpReward} XP` : `${IC.xmark} Rejected`}
           </div>
           <div class="sub-date">${new Date(s.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
