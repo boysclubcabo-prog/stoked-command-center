@@ -6,33 +6,40 @@
   <title>Stoked Brotherhood Command Center</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Faunces:ital,opsz,wght@0,6..72,300..900;1,6..72,300..900&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 </head>
 <body>
 
   <!-- ── LOGIN SCREEN ── -->
   <div id="loginScreen" class="login-screen">
-    <div class="login-bg-glow"></div>
-    <div class="login-box">
+    <div class="login-left">
       <img src="logo.svg" alt="Stoked Logo" class="login-logo-img" />
-      <h1 class="login-title">STOKED BROTHERHOOD</h1>
-      <p class="login-sub">Command Center</p>
+      <h1 class="login-brand-title">Stoked<br/>Brotherhood</h1>
+      <p class="login-brand-sub">Command Center</p>
+    </div>
+    <div class="login-right">
+      <div class="login-box">
+        <img src="logo.svg" alt="Stoked Logo" class="login-box-logo" />
+        <h2 class="login-box-title">Welcome Back</h2>
+        <p class="login-box-sub">Sign in to your account</p>
 
-      <div id="loginError" class="login-error hidden"></div>
+        <div id="loginError" class="login-error hidden"></div>
 
-      <form id="loginForm" class="login-form">
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="loginEmail" placeholder="your@email.com" required />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required />
-        </div>
-        <button type="submit" class="btn btn-primary btn-full" id="loginBtn">Sign In</button>
-      </form>
+        <form id="loginForm" class="login-form">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="loginEmail" placeholder="your@email.com" required />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn-login" id="loginBtn">Sign In</button>
+        </form>
 
-      <p class="login-footer">Stoked Brotherhood — Admin &amp; Member Portal</p>
+        <p class="login-footer">Stoked Mentorships · Member &amp; Admin Portal</p>
+      </div>
     </div>
   </div>
 
