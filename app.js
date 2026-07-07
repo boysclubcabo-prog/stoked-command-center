@@ -872,6 +872,18 @@ function renderCard(brother) {
         </div>
         ${brother.dominantElement ? `<span class="element-pill" style="--el-color:${archElColor};--el-border:${archElColor}55;--el-bg:${archElColor}15">${brother.dominantElement}</span>` : ''}` : ''}
 
+      ${brother.yearlyGoal || brother.oneWord || (brother.interests && brother.interests.length) ? `
+        <div class="profile-snapshot">
+          ${brother.oneWord ? `<div class="profile-one-word">"${escHtml(brother.oneWord)}"</div>` : ''}
+          ${brother.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(brother.yearlyGoal)}</span></div>` : ''}
+          ${brother.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong at</span><span>${escHtml(brother.strengths)}</span></div>` : ''}
+          ${brother.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(brother.struggles)}</span></div>` : ''}
+          ${brother.interests && brother.interests.length ? `<div class="profile-interests">${brother.interests.map(i => {
+            const found = INTERESTS_LIST.find(x => x.label === i);
+            return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
+          }).join('')}</div>` : ''}
+        </div>` : ''}
+
       <div class="xp-hero">
         <div class="xp-hero-num ${maxed ? 'maxed' : ''}">${xp.toLocaleString()}</div>
         <div class="xp-hero-label">TOTAL XP</div>
