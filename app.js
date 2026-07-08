@@ -326,6 +326,52 @@ const viewCheckInModal  = document.getElementById('viewCheckInModal');
 const modalTitle    = document.getElementById('modalTitle');
 const brotherForm   = document.getElementById('brotherForm');
 
+// ── PRESENCE ──────────────────────────────────
+let presenceInterval = null;
+
+async function pingPresence() {
+  if (!currentUser) return;
+  const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+  if (!brother) return;
+  try {
+    await updateDoc(doc(db, 'brothers', brother.id), { lastSeen: new Date().toISOString() });
+  } catch (_) {}
+}
+
+async function clearPresence() {
+  if (!currentUser) return;
+  const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+  if (!brother) return;
+  try {
+    await updateDoc(doc(db, 'brothers', brother.id), { lastSeen: null });
+  } catch (_) {}
+}
+
+function startPresence() {
+  stopPresence();
+  pingPresence();
+  presenceInterval = setInterval(pingPresence, 30000);
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  window.addEventListener('beforeunload', clearPresence);
+}
+
+function stopPresence() {
+  if (presenceInterval) { clearInterval(presenceInterval); presenceInterval = null; }
+  document.removeEventListener('visibilitychange', onVisibilityChange);
+  window.removeEventListener('beforeunload', clearPresence);
+  clearPresence();
+}
+
+function onVisibilityChange() {
+  if (document.hidden) clearPresence();
+  else pingPresence();
+}
+
+function isOnline(brother) {
+  if (!brother.lastSeen) return false;
+  return (Date.now() - new Date(brother.lastSeen).getTime()) < 90000; // 90 seconds
+}
+
 // ── AUTH ──────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   if (user) {
@@ -388,6 +434,7 @@ function friendlyAuthError(code) {
 
 // ── SHOW / HIDE SCREENS ───────────────────────
 function showLogin() {
+  stopPresence();
   if (unsubBrothers)    { unsubBrothers();    unsubBrothers    = null; }
   if (unsubChallenges)  { unsubChallenges();  unsubChallenges  = null; }
   if (unsubSubmissions) { unsubSubmissions(); unsubSubmissions = null; }
@@ -422,6 +469,9 @@ function showApp() {
 
   // Set up notifications (ask permission)
   setupNotifications();
+
+  // ── PRESENCE ──────────────────────────────────
+  startPresence();
 
   // Track member's own XP to detect approval notifications
   let prevMyXP = null;
@@ -855,7 +905,10 @@ function renderCard(brother) {
     <div class="brother-card" id="card-${brother.id}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
       <div class="card-top">
         <div class="card-identity">
-          <div class="card-name">${escHtml(brother.name)}${brother.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : ''}</div>
+          <div class="card-name">
+            ${isOnline(brother) ? '<span class="online-dot" title="Online now"></span>' : ''}
+            ${escHtml(brother.name)}${brother.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : ''}
+          </div>
           ${brother.age ? `<div class="card-age">Age ${brother.age}</div>` : ''}
         </div>
         <div class="card-actions">
@@ -2081,7 +2134,10 @@ function renderRoster() {
             <div class="roster-rank">#${i + 1}</div>
             <span class="arch-icon roster-icon">${icon}</span>
             <div class="roster-info">
-              <div class="roster-name">${escHtml(b.name)}${isMe ? ' <span class="roster-you">you</span>' : ''}</div>
+              <div class="roster-name">
+                ${isOnline(b) ? '<span class="online-dot"></span>' : ''}
+                ${escHtml(b.name)}${isMe ? ' <span class="roster-you">you</span>' : ''}
+              </div>
               <div class="roster-meta">
                 ${displayArchetype ? `<span class="roster-arch" style="color:${archClr.icon}">${escHtml(displayArchetype)}</span>` : ''}
                 ${b.dominantElement ? `<span class="roster-el" style="color:${elColor}">${escHtml(b.dominantElement)}</span>` : ''}
