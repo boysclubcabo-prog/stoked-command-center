@@ -2539,6 +2539,77 @@ body {
   object-fit: cover;
   display: block;
 }
+.proof-photos-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.proof-photo-slot {
+  min-height: 110px;
+}
+.proof-photo-slot .photo-preview { max-height: 160px; }
+
+.audio-upload-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border: 2px dashed var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color 0.15s;
+  font-size: 13px;
+  color: var(--text-muted);
+  box-sizing: border-box;
+}
+.audio-upload-area:hover { border-color: var(--blue); }
+#audioPlaceholder, #audioPreview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+#audioRemoveBtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+#audioFileName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+.sub-photos-wrap {
+  display: flex;
+  gap: 4px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+}
+.sub-photos-wrap .sub-photo { flex: 1; width: 0; }
+.sub-audio {
+  width: 100%;
+  margin-top: 6px;
+  height: 36px;
+}
+.lb-photos {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.lb-photos .lb-img { flex: 1; min-width: 0; max-width: 50%; }
+.lb-audio {
+  width: 100%;
+  margin: 10px 0 0;
+}
 .submit-challenge-title {
   font-size: 16px;
   font-weight: 700;

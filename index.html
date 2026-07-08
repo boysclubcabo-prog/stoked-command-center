@@ -479,14 +479,39 @@
       <form class="modal-form" id="submitProofForm">
         <input type="hidden" id="submitChallengeId" />
         <div class="form-group">
-          <label>Photo Proof</label>
-          <label class="photo-upload-area" for="proofPhoto">
-            <input type="file" id="proofPhoto" accept="image/*" style="display:none" />
-            <div id="photoPlaceholder" class="photo-upload-placeholder">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              <span>Tap to add photo</span>
+          <label>Photos (up to 2)</label>
+          <div class="proof-photos-row">
+            <label class="photo-upload-area proof-photo-slot" for="proofPhoto1">
+              <input type="file" id="proofPhoto1" accept="image/*" style="display:none" />
+              <div class="photo-upload-placeholder" id="photoPlaceholder1">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Photo 1</span>
+              </div>
+              <img id="proofPhotoPreview1" class="photo-preview hidden" alt="Photo 1" />
+            </label>
+            <label class="photo-upload-area proof-photo-slot" for="proofPhoto2">
+              <input type="file" id="proofPhoto2" accept="image/*" style="display:none" />
+              <div class="photo-upload-placeholder" id="photoPlaceholder2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Photo 2</span>
+              </div>
+              <img id="proofPhotoPreview2" class="photo-preview hidden" alt="Photo 2" />
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Voice Note or MP3 (optional)</label>
+          <label class="audio-upload-area" for="proofAudio">
+            <input type="file" id="proofAudio" accept="audio/*" style="display:none" />
+            <div id="audioPlaceholder">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              Tap to add voice note or MP3
             </div>
-            <img id="proofPhotoPreview" class="photo-preview hidden" alt="Proof" />
+            <div id="audioPreview" class="hidden">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span id="audioFileName"></span>
+              <button type="button" id="audioRemoveBtn">✕</button>
+            </div>
           </label>
         </div>
         <div class="form-group">
@@ -527,7 +552,11 @@
   <div class="photo-lightbox" id="photoLightbox">
     <div class="lb-inner">
       <button class="lb-close" id="lbClose">✕</button>
-      <img id="lbImg" src="" alt="submission proof" class="lb-img" />
+      <div class="lb-photos">
+        <img id="lbImg" src="" alt="submission proof" class="lb-img" />
+        <img id="lbImg2" src="" alt="submission proof 2" class="lb-img hidden" />
+      </div>
+      <audio id="lbAudio" controls class="lb-audio hidden"></audio>
       <div class="lb-info">
         <div class="lb-meta">
           <span class="lb-brother" id="lbBrother"></span>

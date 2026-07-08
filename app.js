@@ -1655,7 +1655,13 @@ function renderFeedAdmin(el) {
         ${pending.map(s => {
           const ch = challenges.find(c => c.id === s.challengeId);
           return `<div class="sub-card pending">
-            ${s.photoUrl ? `<img src="${s.photoUrl}" class="sub-photo sub-photo-tap" alt="proof" data-lightbox="${s.photoUrl}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />` : '<div class="sub-no-photo">No photo</div>'}
+            ${s.photoUrl
+              ? `<div class="sub-photos-wrap">
+                   <img src="${s.photoUrl}" class="sub-photo sub-photo-tap" alt="proof" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2 || ''}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />
+                   ${s.photoUrl2 ? `<img src="${s.photoUrl2}" class="sub-photo sub-photo-tap sub-photo-2" alt="proof 2" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />` : ''}
+                 </div>`
+              : '<div class="sub-no-photo">No photo</div>'}
+            ${s.audioUrl ? `<audio class="sub-audio" controls src="${s.audioUrl}"></audio>` : ''}
             <div class="sub-info">
               <div class="sub-brother">${escHtml(s.brotherName)}</div>
               <div class="sub-challenge">${escHtml(ch?.title || 'Challenge')}</div>
@@ -1762,7 +1768,8 @@ function renderFeedAdmin(el) {
   el.querySelectorAll('.sub-photo-tap').forEach(img => {
     img.addEventListener('click', () => openPhotoLightbox(
       img.dataset.lightbox, img.dataset.subid,
-      img.dataset.brother, img.dataset.challenge, parseInt(img.dataset.xp)
+      img.dataset.brother, img.dataset.challenge, parseInt(img.dataset.xp),
+      img.dataset.lightbox2 || null, img.dataset.audio || null
     ));
   });
 }
@@ -2262,47 +2269,86 @@ async function archiveChallenge(id) {
 const submitProofModal = document.getElementById('submitProofModal');
 let submittingProfile  = null;
 
+function resetPhotoSlot(n) {
+  document.getElementById(`proofPhoto${n}`).value = '';
+  document.getElementById(`proofPhotoPreview${n}`).src = '';
+  document.getElementById(`proofPhotoPreview${n}`).classList.add('hidden');
+  document.getElementById(`photoPlaceholder${n}`).classList.remove('hidden');
+}
+
+function resetAudioSlot() {
+  document.getElementById('proofAudio').value = '';
+  document.getElementById('audioPreview').classList.add('hidden');
+  document.getElementById('audioPlaceholder').classList.remove('hidden');
+  document.getElementById('audioFileName').textContent = '';
+}
+
 function openSubmitProofModal(challengeId, profile) {
   submittingProfile = profile;
   const ch = challenges.find(c => c.id === challengeId);
   if (!ch) return;
-  document.getElementById('submitChallengeId').value       = challengeId;
+  document.getElementById('submitChallengeId').value          = challengeId;
   document.getElementById('submitChallengeTitle').textContent = ch.title;
-  document.getElementById('proofPhoto').value              = '';
-  document.getElementById('proofPhotoPreview').src         = '';
-  document.getElementById('proofPhotoPreview').classList.add('hidden');
-  document.getElementById('photoPlaceholder').classList.remove('hidden');
-  document.getElementById('proofCaption').value            = '';
-  document.getElementById('submitProofBtn').disabled       = false;
+  resetPhotoSlot(1);
+  resetPhotoSlot(2);
+  resetAudioSlot();
+  document.getElementById('proofCaption').value  = '';
+  document.getElementById('submitProofBtn').disabled = false;
   openModal(submitProofModal);
 }
 
-document.getElementById('proofPhoto').addEventListener('change', e => {
+[1, 2].forEach(n => {
+  document.getElementById(`proofPhoto${n}`).addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById(`proofPhotoPreview${n}`);
+    preview.src = URL.createObjectURL(file);
+    preview.classList.remove('hidden');
+    document.getElementById(`photoPlaceholder${n}`).classList.add('hidden');
+  });
+});
+
+document.getElementById('proofAudio').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
-  const preview = document.getElementById('proofPhotoPreview');
-  preview.src = URL.createObjectURL(file);
-  preview.classList.remove('hidden');
-  document.getElementById('photoPlaceholder').classList.add('hidden');
+  document.getElementById('audioFileName').textContent = file.name;
+  document.getElementById('audioPreview').classList.remove('hidden');
+  document.getElementById('audioPlaceholder').classList.add('hidden');
+});
+
+document.getElementById('audioRemoveBtn').addEventListener('click', e => {
+  e.preventDefault();
+  resetAudioSlot();
 });
 
 document.getElementById('submitProofForm').addEventListener('submit', async e => {
   e.preventDefault();
   const challengeId = document.getElementById('submitChallengeId').value;
   const ch          = challenges.find(c => c.id === challengeId);
-  const file        = document.getElementById('proofPhoto').files[0];
+  const file1       = document.getElementById('proofPhoto1').files[0];
+  const file2       = document.getElementById('proofPhoto2').files[0];
+  const audioFile   = document.getElementById('proofAudio').files[0];
   const caption     = document.getElementById('proofCaption').value.trim();
   const btn         = document.getElementById('submitProofBtn');
 
   if (!submittingProfile || !ch) return;
-  if (ch.photoRequired && !file) { showToast('Please add a photo', 'info'); return; }
+  if (ch.photoRequired && !file1) { showToast('Please add at least one photo', 'info'); return; }
 
   btn.disabled    = true;
   btn.textContent = 'Submitting…';
 
   try {
-    let photoUrl = null;
-    if (file) photoUrl = await compressImage(file, 900, 0.72);
+    let photoUrl  = null;
+    let photoUrl2 = null;
+    let audioUrl  = null;
+
+    if (file1) photoUrl  = await compressImage(file1, 900, 0.72);
+    if (file2) photoUrl2 = await compressImage(file2, 900, 0.72);
+    if (audioFile) {
+      const aRef = storageRef(storage, `submissions/audio/${Date.now()}_${audioFile.name}`);
+      await uploadBytes(aRef, audioFile);
+      audioUrl = await getDownloadURL(aRef);
+    }
 
     const id = 'sub_' + Date.now().toString(36);
     await setDoc(doc(db, 'submissions', id), {
@@ -2310,6 +2356,8 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
       brotherId:   submittingProfile.id,
       brotherName: submittingProfile.name,
       photoUrl,
+      photoUrl2:   photoUrl2 || null,
+      audioUrl:    audioUrl  || null,
       caption,
       status:      'pending',
       submittedAt: new Date().toISOString(),
@@ -2395,9 +2443,15 @@ async function uploadPhoto(file, path) {
 }
 
 // ── PHOTO LIGHTBOX ────────────────────────────
-function openPhotoLightbox(photoUrl, subId, brotherName, challengeTitle, xp) {
+function openPhotoLightbox(photoUrl, subId, brotherName, challengeTitle, xp, photoUrl2, audioUrl) {
   const lb = document.getElementById('photoLightbox');
   document.getElementById('lbImg').src = photoUrl;
+  const lbImg2 = document.getElementById('lbImg2');
+  if (photoUrl2) { lbImg2.src = photoUrl2; lbImg2.classList.remove('hidden'); }
+  else           { lbImg2.src = ''; lbImg2.classList.add('hidden'); }
+  const lbAudio = document.getElementById('lbAudio');
+  if (audioUrl) { lbAudio.src = audioUrl; lbAudio.classList.remove('hidden'); }
+  else          { lbAudio.src = ''; lbAudio.classList.add('hidden'); }
   document.getElementById('lbBrother').textContent = brotherName;
   document.getElementById('lbChallenge').textContent = challengeTitle;
   document.getElementById('lbXp').textContent = `+${xp} XP`;
@@ -2409,6 +2463,9 @@ function openPhotoLightbox(photoUrl, subId, brotherName, challengeTitle, xp) {
 function closePhotoLightbox() {
   document.getElementById('photoLightbox').classList.remove('open');
   document.body.style.overflow = '';
+  const audio = document.getElementById('lbAudio');
+  audio.pause();
+  audio.currentTime = 0;
 }
 document.getElementById('photoLightbox').addEventListener('click', e => {
   if (e.target === document.getElementById('photoLightbox')) closePhotoLightbox();
