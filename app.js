@@ -480,6 +480,7 @@ function showApp() {
   // Subscribe to brothers collection
   unsubBrothers = onSnapshot(collection(db, 'brothers'), snap => {
     brothers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    pingPresence();
 
     // Notify member when their XP goes up (submission approved)
     if (!isAdmin) {
