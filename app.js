@@ -332,10 +332,13 @@ let presenceInterval = null;
 async function pingPresence() {
   if (!currentUser) return;
   const brother = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
-  if (!brother) return;
+  if (!brother) { console.log('[presence] no brother found for', currentUser.email); return; }
   try {
     await updateDoc(doc(db, 'brothers', brother.id), { lastSeen: new Date().toISOString() });
-  } catch (_) {}
+    console.log('[presence] pinged for', brother.name);
+  } catch (e) {
+    console.error('[presence] error:', e.message);
+  }
 }
 
 async function clearPresence() {
@@ -479,8 +482,9 @@ function showApp() {
 
   // Subscribe to brothers collection
   unsubBrothers = onSnapshot(collection(db, 'brothers'), snap => {
+    const firstLoad = brothers.length === 0;
     brothers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    pingPresence();
+    if (firstLoad) pingPresence();
 
     // Notify member when their XP goes up (submission approved)
     if (!isAdmin) {
