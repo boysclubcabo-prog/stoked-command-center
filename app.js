@@ -2332,7 +2332,7 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
   const btn         = document.getElementById('submitProofBtn');
 
   if (!submittingProfile || !ch) return;
-  if (ch.photoRequired && !file1) { showToast('Please add at least one photo', 'info'); return; }
+  if (ch.photoRequired && !file1 && !audioFile) { showToast('Please add a photo or voice note', 'info'); return; }
 
   btn.disabled    = true;
   btn.textContent = 'Submitting…';
