@@ -89,8 +89,10 @@ body {
 }
 
 .header-logo-svg {
-  width: 42px;
-  height: 42px;
+  width: auto;
+  height: 48px;
+  max-width: 64px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -2876,7 +2878,7 @@ body {
   }
   .header-title { font-size: 14px; letter-spacing: 0.08em; }
   .header-sub { font-size: 11px; }
-  .header-logo-svg { width: 32px; height: 32px; }
+  .header-logo-svg { height: 38px; width: auto; max-width: 52px; }
   .header-right { gap: 8px; }
   .header-right .btn-sm { font-size: 11px; padding: 6px 10px; }
   #addBrotherBtn { font-size: 12px; padding: 8px 12px; }
