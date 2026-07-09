@@ -255,11 +255,145 @@ const SCENARIO_QUESTIONS = [
   },
 ];
 
-let assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
-let scenarioAnswers = new Array(SCENARIO_QUESTIONS.length).fill(null);
-let assessIndex     = 0;
-let scenarioIndex   = 0;
-let assessBrotherId = null;
+const PI = {
+  mountain:  `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,36 20,7 38,36"/><polyline points="10,36 20,20 30,36"/><line x1="2" y1="36" x2="38" y2="36"/></svg>`,
+  forest:    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,4 28,16 24,16 30,26 22,26 22,36 18,36 18,26 10,26 16,16 12,16 20,4"/><line x1="6" y1="36" x2="34" y2="36"/></svg>`,
+  workshop:  `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,20 20,6 36,20"/><rect x="6" y="20" width="28" height="14"/><rect x="15" y="26" width="10" height="8"/></svg>`,
+  boxing:    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10,16 Q10,8 20,8 Q30,8 30,16 L30,24 Q30,30 24,30 L16,30 Q10,30 10,24 Z"/><line x1="10" y1="18" x2="30" y2="18"/><path d="M10,24 Q8,26 8,30 Q8,34 12,34 L28,34 Q32,34 32,28 L30,24"/></svg>`,
+  sword:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="20" y2="30"/><line x1="12" y1="22" x2="28" y2="22"/><polyline points="16,30 20,36 24,30"/></svg>`,
+  compass:   `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="20" cy="20" r="14"/><polygon points="20,10 23,20 20,30 17,20" fill="currentColor" stroke="none"/><line x1="6" y1="20" x2="11" y2="20"/><line x1="29" y1="20" x2="34" y2="20"/></svg>`,
+  brush:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="8" x2="26" y2="26"/><path d="M26,26 Q34,30 32,36 Q28,40 24,34 Q22,30 26,26"/></svg>`,
+  hammer:    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="28" x2="8" y2="36"/><line x1="12" y1="28" x2="26" y2="14"/><polyline points="22,8 34,20 26,28 14,16 22,8"/></svg>`,
+  wolf:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8,28 Q8,16 16,12 Q20,10 24,12 Q32,16 32,28"/><path d="M8,20 L4,10 L12,16"/><path d="M32,20 L36,10 L28,16"/><path d="M16,24 Q20,28 24,24"/><circle cx="15" cy="19" r="1.5" fill="currentColor" stroke="none"/><circle cx="25" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>`,
+  owl:       `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10,28 Q8,20 12,12 Q16,6 20,8 Q24,6 28,12 Q32,20 30,28 Q26,34 20,32 Q14,34 10,28 Z"/><circle cx="15" cy="18" r="4"/><circle cx="25" cy="18" r="4"/><path d="M17,28 Q20,30 23,28"/><polyline points="14,8 17,14"/><polyline points="26,8 23,14"/></svg>`,
+  eagle:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4,18 Q12,10 20,14 Q28,10 36,18"/><path d="M20,14 L20,30"/><path d="M14,30 Q20,28 26,30"/><circle cx="20" cy="12" r="3"/><path d="M20,15 Q22,12 24,14"/></svg>`,
+  bear:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="11" r="4"/><circle cx="27" cy="11" r="4"/><path d="M10,15 Q8,22 10,28 Q14,36 20,36 Q26,36 30,28 Q32,22 30,15 Q26,10 20,12 Q14,10 10,15 Z"/><circle cx="16" cy="22" r="1.5" fill="currentColor" stroke="none"/><circle cx="24" cy="22" r="1.5" fill="currentColor" stroke="none"/><path d="M16,28 Q20,31 24,28"/></svg>`,
+  waves:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2,14 Q8,8 14,14 Q20,20 26,14 Q32,8 38,14"/><path d="M2,22 Q8,16 14,22 Q20,28 26,22 Q32,16 38,22"/><path d="M2,30 Q8,24 14,30 Q20,36 26,30 Q32,24 38,30"/></svg>`,
+  campfire:  `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20,6 Q24,12 22,18 Q26,12 24,22 Q28,16 26,24 Q28,30 20,34 Q12,30 14,24 Q12,16 16,22 Q14,12 18,18 Q16,12 20,6"/><line x1="8" y1="34" x2="32" y2="34"/><line x1="12" y1="34" x2="20" y2="26"/><line x1="28" y1="34" x2="20" y2="26"/></svg>`,
+  temple:    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="36" x2="36" y2="36"/><line x1="4" y1="32" x2="36" y2="32"/><line x1="4" y1="14" x2="36" y2="14"/><polyline points="20,4 4,14 36,14 20,4"/><line x1="11" y1="14" x2="11" y2="32"/><line x1="20" y1="14" x2="20" y2="32"/><line x1="29" y1="14" x2="29" y2="32"/></svg>`,
+  stars:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="20,6 22.5,14 30,14 24,18.5 26.5,26 20,22 13.5,26 16,18.5 10,14 17.5,14"/><circle cx="6" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="34" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="26" r="1" fill="currentColor" stroke="none"/><circle cx="36" cy="26" r="1" fill="currentColor" stroke="none"/></svg>`,
+  trail:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,36 6,26 2,26 10,14 7,14 16,4 22,12 19,12 28,24 25,24 34,36"/><path d="M12,36 Q20,28 28,36"/></svg>`,
+  mtnpath:   `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,36 20,8 36,36"/><line x1="4" y1="36" x2="36" y2="36"/><polyline points="12,36 16,28 22,32 26,22 30,28 34,36"/></svg>`,
+  desert:    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2,28 Q10,16 20,20 Q30,24 38,28"/><line x1="2" y1="36" x2="38" y2="36"/><circle cx="30" cy="10" r="5"/><line x1="30" y1="2" x2="30" y2="4"/><line x1="36" y1="4" x2="38" y2="2"/><line x1="38" y1="10" x2="40" y2="10"/><line x1="36" y1="16" x2="38" y2="18"/></svg>`,
+  coastal:   `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2,26 Q10,20 18,26 Q26,32 34,26"/><line x1="2" y1="34" x2="38" y2="34"/><path d="M8,8 L8,22"/><path d="M8,8 L16,12 L8,16"/><path d="M4,26 Q10,20 16,26"/></svg>`,
+  music:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14,32 Q14,20 18,10 L32,6 L32,18 M18,10 L32,6"/><path d="M32,18 Q28,18 26,22 Q24,26 26,30 Q28,34 32,32 Q36,30 34,26 Q32,22 28,22 Q24,22 22,28 Q20,32 22,36 Q14,36 14,30"/><circle cx="11" cy="34" r="4"/></svg>`,
+  books:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="8" height="24" rx="1"/><rect x="15" y="8" width="10" height="26" rx="1"/><rect x="28" y="12" width="8" height="22" rx="1"/><line x1="4" y1="36" x2="36" y2="36"/></svg>`,
+  tent:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,34 20,6 38,34"/><polyline points="12,34 20,16 28,34"/><line x1="2" y1="34" x2="38" y2="34"/><line x1="20" y1="6" x2="20" y2="2"/></svg>`,
+  fire:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20,6 Q24,12 22,18 Q26,12 24,20 Q28,14 26,22 Q30,30 22,36 Q14,36 12,28 Q10,18 14,22 Q12,12 16,18 Q14,10 20,6"/></svg>`,
+  wave:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2,16 Q8,8 14,16 Q20,24 26,16 Q32,8 38,16"/><path d="M2,26 Q8,18 14,26 Q20,34 26,26 Q32,18 38,26"/></svg>`,
+  feather:   `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M30,6 Q18,8 12,18 Q8,26 12,34"/><line x1="12" y1="34" x2="30" y2="6"/><line x1="12" y1="18" x2="26" y2="14"/><line x1="10" y1="24" x2="22" y2="20"/></svg>`,
+  cabin:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4,20 20,6 36,20"/><rect x="6" y="20" width="28" height="16"/><rect x="14" y="28" width="12" height="8"/><rect x="8" y="22" width="8" height="8" rx="1"/><rect x="24" y="22" width="8" height="8" rx="1"/><line x1="22" y1="10" x2="22" y2="6"/><path d="M22,6 Q24,2 26,6"/></svg>`,
+  lake:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4,32 Q12,26 20,32 Q28,38 36,32"/><circle cx="20" cy="14" r="4"/><line x1="20" y1="18" x2="20" y2="24"/><line x1="14" y1="24" x2="26" y2="24"/><line x1="14" y1="30" x2="20" y2="24"/><line x1="26" y1="30" x2="20" y2="24"/></svg>`,
+  storm:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8,20 Q8,10 16,10 Q18,4 26,6 Q34,8 32,18 Q38,18 36,24 Q34,28 28,26 L12,26 Q6,26 8,20"/><polyline points="18,26 14,34 20,30 16,38"/></svg>`,
+  rain:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8,18 Q8,10 16,10 Q18,4 24,6 Q30,8 30,16 Q36,16 34,22 Q32,26 26,24 L12,24 Q6,24 8,18"/><line x1="12" y1="28" x2="10" y2="36"/><line x1="18" y1="28" x2="16" y2="36"/><line x1="24" y1="28" x2="22" y2="36"/><line x1="30" y1="28" x2="28" y2="36"/></svg>`,
+  wind:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2,14 Q14,14 18,10 Q22,6 20,2 Q16,0 14,4 Q12,8 18,10"/><path d="M2,20 Q20,20 26,16 Q32,12 30,8 Q26,4 22,8 Q20,12 26,16"/><path d="M2,26 Q16,26 20,30 Q22,34 20,38 Q16,40 14,36 Q12,32 20,30"/></svg>`,
+  leaf:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20,34 Q8,34 8,20 Q8,8 20,6 Q32,6 32,20 Q32,34 20,34 Z"/><line x1="20" y1="34" x2="20" y2="8"/><line x1="20" y1="16" x2="28" y2="10"/><line x1="20" y1="24" x2="12" y2="18"/></svg>`,
+  solo:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="20" cy="11" r="6"/><path d="M8,36 Q8,24 20,24 Q32,24 32,36"/></svg>`,
+  pair:      `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="11" r="5"/><path d="M2,36 Q2,26 13,26 Q24,26 24,36"/><circle cx="29" cy="13" r="4"/><path d="M21,36 Q21,28 29,28 Q37,28 37,36"/></svg>`,
+  group:     `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="20" cy="9" r="5"/><circle cx="7" cy="13" r="4"/><circle cx="33" cy="13" r="4"/><path d="M9,36 Q9,24 20,24 Q31,24 31,36"/><path d="M2,36 Q2,26 7,26"/><path d="M38,36 Q38,26 33,26"/></svg>`,
+  map:       `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="2,8 14,6 26,10 38,8 38,32 26,34 14,30 2,32"/><line x1="14" y1="6" x2="14" y2="30"/><line x1="26" y1="10" x2="26" y2="34"/><path d="M6,14 Q10,18 14,14 Q18,10 22,14 Q26,18 30,14 Q34,12 36,16"/></svg>`,
+};
+
+const PERCEPTION_QUESTIONS = [
+  {
+    question: "If you had an entire Saturday to yourself, where would you honestly want to spend it?",
+    answers: [
+      { icon: 'mountain',  label: 'Mountain Peak',     meaning: 'Pushing yourself, earning the view, doing something challenging.', scores: { Explorer: 2, Visionary: 1, Air: 1, Fire: 1 } },
+      { icon: 'forest',    label: 'Quiet Forest',      meaning: 'Slowing down, thinking, and enjoying the peace.',                   scores: { Monk: 2, Guardian: 1, Water: 2 } },
+      { icon: 'workshop',  label: 'Workshop / Garage', meaning: 'Building, fixing, or creating something with your hands.',          scores: { Builder: 2, Creator: 1, Earth: 2 } },
+      { icon: 'boxing',    label: 'Boxing Gym',        meaning: 'Training hard, getting stronger, and pushing your limits.',          scores: { Warrior: 2, Leader: 1, Fire: 2 } },
+    ]
+  },
+  {
+    question: "Which item would you want with you if life got really difficult?",
+    answers: [
+      { icon: 'sword',     label: 'Sword',             meaning: 'To remind yourself to face problems with courage.',                  scores: { Warrior: 2, Protector: 1, Fire: 2 } },
+      { icon: 'compass',   label: 'Compass',           meaning: 'To help you stay on the right path even when lost.',                 scores: { Explorer: 2, Visionary: 1, Air: 2 } },
+      { icon: 'brush',     label: 'Paintbrush',        meaning: 'To express yourself and create something meaningful.',               scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'hammer',    label: 'Hammer',            meaning: 'To remind yourself that anything worth having takes work.',          scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+    ]
+  },
+  {
+    question: "Which animal do you admire the most?",
+    answers: [
+      { icon: 'wolf',      label: 'Wolf',              meaning: 'Works with the pack, protects others, and leads when needed.',       scores: { Leader: 2, Protector: 1, Fire: 2 } },
+      { icon: 'owl',       label: 'Owl',               meaning: 'Quiet, observant, and always thinking before acting.',              scores: { Strategist: 2, Monk: 1, Air: 2 } },
+      { icon: 'eagle',     label: 'Eagle',             meaning: "Sees the big picture and isn't afraid to fly alone.",               scores: { Visionary: 2, Explorer: 1, Air: 2 } },
+      { icon: 'bear',      label: 'Bear',              meaning: 'Strong, calm, dependable, and protective of those it loves.',       scores: { Guardian: 2, Builder: 1, Earth: 2 } },
+    ]
+  },
+  {
+    question: "Which place feels like it has something to teach you?",
+    answers: [
+      { icon: 'waves',     label: 'Huge Ocean Waves',  meaning: 'Learning to adapt when life refuses to go as planned.',             scores: { Explorer: 2, Creator: 1, Water: 2 } },
+      { icon: 'campfire',  label: 'Campfire Circle',   meaning: 'Sharing stories, building trust, and finding brotherhood.',         scores: { Communicator: 2, Leader: 1, Fire: 2 } },
+      { icon: 'temple',    label: 'Ancient Temple',    meaning: 'Learning discipline, wisdom, and the patience to go deep.',         scores: { Monk: 2, Strategist: 1, Earth: 2 } },
+      { icon: 'stars',     label: 'Sky Full of Stars', meaning: 'Thinking about your future and how big what is possible is.',       scores: { Visionary: 2, Creator: 1, Air: 2 } },
+    ]
+  },
+  {
+    question: "Which path would you take?",
+    answers: [
+      { icon: 'trail',     label: 'Forest Trail',      meaning: 'You like exploring the unknown without knowing where it leads.',     scores: { Explorer: 2, Guardian: 1, Earth: 2 } },
+      { icon: 'mtnpath',   label: 'Mountain Path',     meaning: "You'd rather take the harder road if it helps you grow.",           scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
+      { icon: 'desert',    label: 'Desert Road',       meaning: 'You enjoy being alone and figuring things out on your own terms.',  scores: { Monk: 2, Visionary: 1, Earth: 2 } },
+      { icon: 'coastal',   label: 'Coastal Trail',     meaning: 'You enjoy beauty and the kind of freedom that comes with movement.', scores: { Creator: 2, Communicator: 1, Water: 2 } },
+    ]
+  },
+  {
+    question: "Which room would excite you to spend a full month in?",
+    answers: [
+      { icon: 'music',     label: 'Music Studio',      meaning: 'Making songs, creating from scratch, expressing what is inside.',   scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'workshop',  label: 'Workshop',          meaning: 'Building something real and lasting with your own hands.',          scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+      { icon: 'books',     label: 'Library',           meaning: 'Learning things that make you think differently.',                  scores: { Strategist: 2, Monk: 1, Air: 2 } },
+      { icon: 'tent',      label: 'Outdoor Camp',      meaning: 'Survival skills, open sky, and figuring out how to stay alive.',   scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
+    ]
+  },
+  {
+    question: "Which symbol feels like something you need more of right now?",
+    answers: [
+      { icon: 'mountain',  label: 'Mountain',          meaning: 'More discipline. More consistency. More follow-through.',           scores: { Builder: 2, Warrior: 1, Earth: 2 } },
+      { icon: 'fire',      label: 'Fire',              meaning: 'More courage. More action. More willingness to go for it.',         scores: { Warrior: 2, Leader: 1, Fire: 2 } },
+      { icon: 'wave',      label: 'Wave',              meaning: 'More calm. More patience. More trust in the process.',              scores: { Monk: 2, Explorer: 1, Water: 2 } },
+      { icon: 'feather',   label: 'Feather',           meaning: 'More freedom. More creativity. More permission to imagine.',        scores: { Visionary: 2, Creator: 1, Air: 2 } },
+    ]
+  },
+  {
+    question: "Which challenge sounds the most rewarding to you?",
+    answers: [
+      { icon: 'mountain',  label: 'Climb a Mountain',  meaning: 'Prove to yourself you can do something genuinely hard.',            scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
+      { icon: 'cabin',     label: 'Build a Cabin',     meaning: 'Create something that lasts long after you leave.',                 scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+      { icon: 'music',     label: 'Write a Song',      meaning: 'Turn your inner world into something other people can actually feel.', scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'lake',      label: 'Meditate by a Lake', meaning: 'Become genuinely comfortable with silence and your own thoughts.', scores: { Monk: 2, Visionary: 1, Water: 2 } },
+    ]
+  },
+  {
+    question: "Which weather feels the most like you lately?",
+    answers: [
+      { icon: 'storm',     label: 'Thunderstorm',      meaning: 'Full of energy, intensity, and ready to act.',                      scores: { Warrior: 2, Leader: 1, Fire: 2 } },
+      { icon: 'rain',      label: 'Gentle Rain',       meaning: 'Calm, thoughtful, and quiet in a way people underestimate.',        scores: { Monk: 2, Protector: 1, Water: 2 } },
+      { icon: 'wind',      label: 'Windy Day',         meaning: 'Always generating new ideas, always moving toward something.',      scores: { Creator: 2, Explorer: 1, Air: 2 } },
+      { icon: 'leaf',      label: 'Cool Autumn Morning', meaning: 'Focused, steady, and reliable when others are distracted.',       scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+    ]
+  },
+  {
+    question: "Imagine sitting around a campfire. Which sounds most like you?",
+    answers: [
+      { icon: 'solo',      label: 'Thinking Quietly',  meaning: 'You reflect before speaking. Silence is comfortable.',              scores: { Monk: 2, Visionary: 1, Water: 2 } },
+      { icon: 'pair',      label: 'Deep Conversation', meaning: 'One real conversation beats a hundred shallow ones.',               scores: { Protector: 2, Communicator: 1, Water: 2 } },
+      { icon: 'group',     label: 'Making Everyone Laugh', meaning: 'You naturally draw people in and make them feel at ease.',      scores: { Leader: 2, Communicator: 1, Fire: 2 } },
+      { icon: 'map',       label: "Planning Tomorrow's Adventure", meaning: "You're already thinking about what comes next.",        scores: { Explorer: 2, Strategist: 1, Air: 2 } },
+    ]
+  },
+];
+
+let assessAnswers    = new Array(ASSESS_QUESTIONS.length).fill(null);
+let scenarioAnswers  = new Array(SCENARIO_QUESTIONS.length).fill(null);
+let perceptionAnswers = new Array(PERCEPTION_QUESTIONS.length).fill(null);
+let assessIndex      = 0;
+let scenarioIndex    = 0;
+let perceptionIndex  = 0;
+let assessBrotherId  = null;
 
 // ── PROFILE QUESTIONS (after archetype questions) ──
 const INTERESTS_LIST = [
@@ -1391,8 +1525,10 @@ function openAssessment(brotherId) {
   assessBrotherId   = brotherId;
   assessAnswers     = new Array(ASSESS_QUESTIONS.length).fill(null);
   scenarioAnswers   = new Array(SCENARIO_QUESTIONS.length).fill(null);
+  perceptionAnswers = new Array(PERCEPTION_QUESTIONS.length).fill(null);
   assessIndex       = 0;
   scenarioIndex     = 0;
+  perceptionIndex   = 0;
   profileAnswers    = {};
   profileIndex      = 0;
   selectedInterests = [];
@@ -1426,8 +1562,8 @@ function renderAssessIntro() {
         <div class="stage-preview-item">
           <div class="stage-preview-num">III</div>
           <div>
-            <div class="stage-preview-label">Your Archetype</div>
-            <div class="stage-preview-sub">Result</div>
+            <div class="stage-preview-label">Perception</div>
+            <div class="stage-preview-sub">10 visuals</div>
           </div>
         </div>
       </div>
@@ -1438,7 +1574,7 @@ function renderAssessIntro() {
 }
 
 function assessStagePills(active) {
-  const stages = ['Instinct', 'Decisions', 'Result'];
+  const stages = ['Instinct', 'Decisions', 'Perception', 'Result'];
   return `<div class="assess-stage-pills">
     ${stages.map((s, i) => `<div class="assess-stage-pill ${i === active ? 'active' : i < active ? 'done' : ''}">${s}</div>`).join('<div class="assess-stage-connector"></div>')}
   </div>`;
@@ -1545,6 +1681,67 @@ function renderScenarioQuestion() {
   document.getElementById('scenNextBtn').addEventListener('click', () => {
     if (scenarioAnswers[scenarioIndex] == null) return;
     if (scenarioIndex < SCENARIO_QUESTIONS.length - 1) { scenarioIndex++; renderScenarioQuestion(); }
+    else renderPart2Bridge();
+  });
+}
+
+function renderPart2Bridge() {
+  assessContent.innerHTML = `
+    <div class="assess-bridge">
+      <div class="assess-bridge-badge">II</div>
+      <div class="assess-bridge-title">Part II Complete</div>
+      <p class="assess-bridge-text">Your decisions have been mapped. There is one final layer.</p>
+      <p class="assess-bridge-text">Part III goes beyond logic and language — it reads what you're drawn to instinctively.</p>
+      <div class="assess-bridge-next-label">FINAL PART</div>
+      <div class="assess-bridge-next-name">Part III — Perception</div>
+      <div class="assess-bridge-next-sub">10 Visual Questions</div>
+      <button class="btn btn-primary assess-done-btn" id="part3StartBtn">Enter Part III</button>
+    </div>`;
+  document.getElementById('part3StartBtn').addEventListener('click', () => {
+    perceptionIndex = 0;
+    renderPerceptionQuestion();
+  });
+}
+
+function renderPerceptionQuestion() {
+  const q   = PERCEPTION_QUESTIONS[perceptionIndex];
+  const sel = perceptionAnswers[perceptionIndex];
+  const pct = ((perceptionIndex + 1) / PERCEPTION_QUESTIONS.length) * 100;
+  const isLast = perceptionIndex === PERCEPTION_QUESTIONS.length - 1;
+
+  assessContent.innerHTML = `
+    ${assessStagePills(2)}
+    <div class="assess-part-label">Part III — Perception</div>
+    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${pct}%"></div></div>
+    <div class="assess-step-label">${perceptionIndex + 1} of ${PERCEPTION_QUESTIONS.length}</div>
+    <div class="assess-lean-heading">${escHtml(q.question)}</div>
+    <div class="percep-grid">
+      ${q.answers.map((a, i) => `
+        <button class="percep-card ${sel === i ? 'selected' : ''}" data-idx="${i}">
+          <div class="percep-icon">${PI[a.icon] || ''}</div>
+          <div class="percep-label">${escHtml(a.label)}</div>
+          <div class="percep-meaning">${escHtml(a.meaning)}</div>
+        </button>`).join('')}
+    </div>
+    <div class="assess-nav">
+      <button class="btn btn-ghost" id="percepBackBtn">${perceptionIndex === 0 ? 'Back to Part II' : 'Back'}</button>
+      <div class="assess-nav-spacer"></div>
+      <button class="btn btn-primary" id="percepNextBtn" ${sel == null ? 'disabled' : ''}>${isLast ? 'Reveal My Archetype' : 'Next'}</button>
+    </div>`;
+
+  assessContent.querySelectorAll('.percep-card').forEach(card => {
+    card.addEventListener('click', () => {
+      perceptionAnswers[perceptionIndex] = parseInt(card.dataset.idx, 10);
+      renderPerceptionQuestion();
+    });
+  });
+  document.getElementById('percepBackBtn').addEventListener('click', () => {
+    if (perceptionIndex > 0) { perceptionIndex--; renderPerceptionQuestion(); }
+    else renderPart2Bridge();
+  });
+  document.getElementById('percepNextBtn').addEventListener('click', () => {
+    if (perceptionAnswers[perceptionIndex] == null) return;
+    if (perceptionIndex < PERCEPTION_QUESTIONS.length - 1) { perceptionIndex++; renderPerceptionQuestion(); }
     else finishAssessment();
   });
 }
@@ -1567,6 +1764,17 @@ async function finishAssessment() {
   // Scenario answers — multi-point scoring
   SCENARIO_QUESTIONS.forEach((q, i) => {
     const choiceIdx = scenarioAnswers[i];
+    if (choiceIdx == null) return;
+    const chosen = q.answers[choiceIdx];
+    Object.entries(chosen.scores).forEach(([key, pts]) => {
+      if (key in archetypeScores) archetypeScores[key] += pts;
+      else if (key in elementScores) elementScores[key] += pts;
+    });
+  });
+
+  // Perception answers — visual/instinct scoring
+  PERCEPTION_QUESTIONS.forEach((q, i) => {
+    const choiceIdx = perceptionAnswers[i];
     if (choiceIdx == null) return;
     const chosen = q.answers[choiceIdx];
     Object.entries(chosen.scores).forEach(([key, pts]) => {

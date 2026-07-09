@@ -1670,6 +1670,66 @@ body {
   padding-top: 2px;
 }
 
+/* ── Perception grid ── */
+.percep-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+.percep-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  width: 100%;
+}
+.percep-card:hover {
+  border-color: rgba(212,175,55,0.45);
+  transform: translateY(-1px);
+}
+.percep-card.selected {
+  border-color: var(--accent);
+  background: rgba(212,175,55,0.07);
+}
+.percep-icon {
+  width: 44px;
+  height: 44px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+.percep-icon svg {
+  width: 44px;
+  height: 44px;
+}
+.percep-card.selected .percep-icon {
+  color: var(--accent);
+}
+.percep-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.percep-meaning {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
 /* ── Intro ── */
 .assess-intro {
   text-align: center;
