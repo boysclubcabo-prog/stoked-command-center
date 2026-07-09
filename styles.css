@@ -2420,6 +2420,11 @@ body {
   border-radius: var(--radius-md);
   padding: 14px 16px;
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sub-top-row {
+  display: flex;
   align-items: flex-start;
   gap: 14px;
 }
@@ -2448,6 +2453,9 @@ body {
   flex-shrink: 0;
 }
 .sub-info         { flex: 1; min-width: 0; }
+.sf-photos-wrap   { display: flex; gap: 6px; }
+.sf-photos-wrap .sf-photo { flex: 1; width: 0; }
+.sf-audio         { width: 100%; margin-top: 8px; height: 36px; }
 .sub-brother      { font-size: 15px; font-weight: 700; color: var(--text-primary); }
 .sub-challenge    { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 .sub-caption      { font-size: 13px; color: var(--text-secondary); margin-top: 4px; font-style: italic; }

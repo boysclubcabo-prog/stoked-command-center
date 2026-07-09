@@ -1655,23 +1655,23 @@ function renderFeedAdmin(el) {
         ${pending.map(s => {
           const ch = challenges.find(c => c.id === s.challengeId);
           return `<div class="sub-card pending">
-            ${s.photoUrl
-              ? `<div class="sub-photos-wrap">
-                   <img src="${s.photoUrl}" class="sub-photo sub-photo-tap" alt="proof" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2 || ''}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />
-                   ${s.photoUrl2 ? `<img src="${s.photoUrl2}" class="sub-photo sub-photo-tap sub-photo-2" alt="proof 2" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />` : ''}
-                 </div>`
-              : '<div class="sub-no-photo">No photo</div>'}
+            <div class="sub-top-row">
+              <div class="sub-info">
+                <div class="sub-brother">${escHtml(s.brotherName)}</div>
+                <div class="sub-challenge">${escHtml(ch?.title || 'Challenge')}</div>
+                ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
+                <div class="sub-xp-badge">+${ch?.xpReward || 0} XP on approve</div>
+              </div>
+              <div class="sub-actions">
+                <button class="btn-approve" data-subid="${s.id}">✓ Approve</button>
+                <button class="btn-reject"  data-subid="${s.id}">✕ Reject</button>
+              </div>
+            </div>
+            ${s.photoUrl ? `<div class="sub-photos-wrap">
+              <img src="${s.photoUrl}" class="sub-photo sub-photo-tap" alt="proof" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2 || ''}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />
+              ${s.photoUrl2 ? `<img src="${s.photoUrl2}" class="sub-photo sub-photo-tap" alt="proof 2" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />` : ''}
+            </div>` : ''}
             ${s.audioUrl ? `<audio class="sub-audio" controls src="${s.audioUrl}"></audio>` : ''}
-            <div class="sub-info">
-              <div class="sub-brother">${escHtml(s.brotherName)}</div>
-              <div class="sub-challenge">${escHtml(ch?.title || 'Challenge')}</div>
-              ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
-              <div class="sub-xp-badge">+${ch?.xpReward || 0} XP on approve</div>
-            </div>
-            <div class="sub-actions">
-              <button class="btn-approve" data-subid="${s.id}">✓ Approve</button>
-              <button class="btn-reject"  data-subid="${s.id}">✕ Reject</button>
-            </div>
           </div>`;
         }).join('')}
       </div>
@@ -2043,7 +2043,11 @@ function renderSocialFeed() {
         </div>
         <div class="sf-challenge-title">${escHtml(post.challengeTitle || '')}</div>
         ${post.caption ? `<div class="sf-caption">"${escHtml(post.caption)}"</div>` : ''}
-        ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="proof" />` : ''}
+        ${(post.photoUrl || post.photoUrl2) ? `<div class="sf-photos-wrap">
+          ${post.photoUrl  ? `<img src="${post.photoUrl}"  class="sf-photo" alt="proof" />` : ''}
+          ${post.photoUrl2 ? `<img src="${post.photoUrl2}" class="sf-photo" alt="proof 2" />` : ''}
+        </div>` : ''}
+        ${post.audioUrl ? `<audio class="sf-audio" controls src="${post.audioUrl}"></audio>` : ''}
         <div class="sf-xp-row"><span class="sf-xp-badge">+${post.xpAwarded} XP</span></div>
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
@@ -2399,8 +2403,10 @@ async function approveSubmission(subId) {
       challengeTitle: ch?.title || 'Challenge',
       challengeTag:   ch?.tag   || null,
       xpAwarded:      s.xpReward || 0,
-      photoUrl:       s.photoUrl  || null,
-      caption:        s.caption   || null,
+      photoUrl:       s.photoUrl   || null,
+      photoUrl2:      s.photoUrl2  || null,
+      audioUrl:       s.audioUrl   || null,
+      caption:        s.caption    || null,
       comments:       [],
       createdAt:      Date.now(),
     });
