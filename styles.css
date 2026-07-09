@@ -94,6 +94,22 @@ body {
   flex-shrink: 0;
 }
 
+/* Theme-aware logo switching */
+[data-theme="light"] .logo-dark,
+[data-theme="dark"]  .logo-light  { display: none; }
+[data-theme="light"] .logo-light,
+[data-theme="dark"]  .logo-dark   { display: block; }
+
+/* Fallback for system preference before JS sets data-theme */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .logo-dark  { display: none; }
+  :root:not([data-theme]) .logo-light { display: block; }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .logo-light { display: none; }
+  :root:not([data-theme]) .logo-dark  { display: block; }
+}
+
 .header-title {
   font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
   font-size: 22px;
