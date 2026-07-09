@@ -1693,15 +1693,48 @@ body {
 }
 
 /* Profile snapshot on brother card */
-.profile-snapshot {
+.profile-snapshot-wrap {
+  margin-bottom: 14px;
+}
+.profile-snapshot-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  padding: 9px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: border-color 0.15s;
+}
+.profile-snapshot-toggle:hover { border-color: var(--terra); color: var(--terra); }
+.snapshot-chevron { font-size: 14px; transition: transform 0.2s; }
+.profile-snapshot {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
   padding: 14px 16px;
-  margin-bottom: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow: hidden;
+  transition: max-height 0.25s ease, padding 0.25s ease, opacity 0.2s ease;
+  max-height: 600px;
+  opacity: 1;
+}
+.profile-snapshot.collapsed {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  border: none;
 }
 .profile-one-word {
   font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;

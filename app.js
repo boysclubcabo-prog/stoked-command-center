@@ -756,6 +756,12 @@ function renderGrid() {
     btn.addEventListener('click', () => openCoachNoteModal(btn.dataset.coachnote)));
   document.querySelectorAll('[data-viewcheckin]').forEach(btn =>
     btn.addEventListener('click', () => openViewCheckInModal(btn.dataset.viewcheckin)));
+  document.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const snap = btn.nextElementSibling;
+      const open = snap.classList.toggle('collapsed');
+      btn.querySelector('.snapshot-chevron').textContent = open ? '▾' : '▴';
+    }));
 }
 
 function renderMemberView() {
@@ -812,15 +818,18 @@ function renderMemberView() {
         </div>` : ''}
 
       ${profile.yearlyGoal || profile.oneWord || (profile.interests && profile.interests.length) ? `
-        <div class="profile-snapshot">
-          ${profile.oneWord ? `<div class="profile-one-word">"${escHtml(profile.oneWord)}"</div>` : ''}
-          ${profile.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(profile.yearlyGoal)}</span></div>` : ''}
-          ${profile.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong</span><span>${escHtml(profile.strengths)}</span></div>` : ''}
-          ${profile.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(profile.struggles)}</span></div>` : ''}
-          ${profile.interests && profile.interests.length ? `<div class="profile-interests">${profile.interests.map(i => {
-            const found = INTERESTS_LIST.find(x => x.label === i);
-            return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
-          }).join('')}</div>` : ''}
+        <div class="profile-snapshot-wrap">
+          <button class="profile-snapshot-toggle" type="button">Profile <span class="snapshot-chevron">▾</span></button>
+          <div class="profile-snapshot collapsed">
+            ${profile.oneWord ? `<div class="profile-one-word">"${escHtml(profile.oneWord)}"</div>` : ''}
+            ${profile.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(profile.yearlyGoal)}</span></div>` : ''}
+            ${profile.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong</span><span>${escHtml(profile.strengths)}</span></div>` : ''}
+            ${profile.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(profile.struggles)}</span></div>` : ''}
+            ${profile.interests && profile.interests.length ? `<div class="profile-interests">${profile.interests.map(i => {
+              const found = INTERESTS_LIST.find(x => x.label === i);
+              return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
+            }).join('')}</div>` : ''}
+          </div>
         </div>` : ''}
 
       <div class="xp-hero">
@@ -931,15 +940,18 @@ function renderCard(brother) {
         ${brother.dominantElement ? `<span class="element-pill" style="--el-color:${archElColor};--el-border:${archElColor}55;--el-bg:${archElColor}15">${brother.dominantElement}</span>` : ''}` : ''}
 
       ${brother.yearlyGoal || brother.oneWord || (brother.interests && brother.interests.length) ? `
-        <div class="profile-snapshot">
-          ${brother.oneWord ? `<div class="profile-one-word">"${escHtml(brother.oneWord)}"</div>` : ''}
-          ${brother.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(brother.yearlyGoal)}</span></div>` : ''}
-          ${brother.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong at</span><span>${escHtml(brother.strengths)}</span></div>` : ''}
-          ${brother.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(brother.struggles)}</span></div>` : ''}
-          ${brother.interests && brother.interests.length ? `<div class="profile-interests">${brother.interests.map(i => {
-            const found = INTERESTS_LIST.find(x => x.label === i);
-            return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
-          }).join('')}</div>` : ''}
+        <div class="profile-snapshot-wrap">
+          <button class="profile-snapshot-toggle" type="button">Profile <span class="snapshot-chevron">▾</span></button>
+          <div class="profile-snapshot collapsed">
+            ${brother.oneWord ? `<div class="profile-one-word">"${escHtml(brother.oneWord)}"</div>` : ''}
+            ${brother.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(brother.yearlyGoal)}</span></div>` : ''}
+            ${brother.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong at</span><span>${escHtml(brother.strengths)}</span></div>` : ''}
+            ${brother.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(brother.struggles)}</span></div>` : ''}
+            ${brother.interests && brother.interests.length ? `<div class="profile-interests">${brother.interests.map(i => {
+              const found = INTERESTS_LIST.find(x => x.label === i);
+              return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
+            }).join('')}</div>` : ''}
+          </div>
         </div>` : ''}
 
       <div class="xp-hero">
@@ -1981,6 +1993,12 @@ function renderFeedMember(el) {
   bindChallengeFilterBar(el);
   el.querySelectorAll('[data-submit]').forEach(btn =>
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
+  el.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const snap = btn.nextElementSibling;
+      const open = snap.classList.toggle('collapsed');
+      btn.querySelector('.snapshot-chevron').textContent = open ? '▾' : '▴';
+    }));
 }
 
 // ── SOCIAL FEED ───────────────────────────────
