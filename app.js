@@ -851,10 +851,10 @@ function showApp() {
     const prev = submissions.map(s => s.id);
     submissions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-    // Notify admin of new pending submissions
+    // Notify admin of new completions
     if (isAdmin && !firstSubsSnap) {
-      const newPending = submissions.filter(s => s.status === 'pending' && !prev.includes(s.id));
-      newPending.forEach(s => showNotif('📬 New Submission', `${s.brotherName} submitted proof for a challenge`));
+      const newCompleted = submissions.filter(s => s.status === 'completed' && !prev.includes(s.id));
+      newCompleted.forEach(s => showNotif('🔥 Challenge Complete', `${s.brotherName} completed a challenge`));
     }
     firstSubsSnap = false;
 
@@ -928,7 +928,7 @@ function updateChallengesBadge() {
   const badge = document.getElementById('communityBadge');
   if (!badge) return;
   if (isAdmin) {
-    const pending = submissions.filter(s => s.status === 'pending').length;
+    const pending = 0;
     badge.textContent = pending;
     badge.classList.toggle('hidden', pending === 0);
   } else {
@@ -2261,44 +2261,11 @@ function renderFeed() {
 }
 
 function renderFeedAdmin(el) {
-  const pending = submissions.filter(s => s.status === 'pending');
-
   let html = `<div class="feed-header">
     <h2 class="feed-title">Challenges</h2>
     <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
   </div>
   ${challengeFilterBar(['Personal'])}`;
-
-  if (pending.length) {
-    html += `<div class="feed-section">
-      <div class="feed-section-title">${IC.clock} Pending Review (${pending.length})</div>
-      <div class="sub-list">
-        ${pending.map(s => {
-          const ch = challenges.find(c => c.id === s.challengeId);
-          return `<div class="sub-card pending">
-            <div class="sub-top-row">
-              <div class="sub-info">
-                <div class="sub-brother">${escHtml(s.brotherName)}</div>
-                <div class="sub-challenge">${escHtml(ch?.title || 'Challenge')}</div>
-                ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
-                ${s.proofLink ? `<a class="sub-link" href="${escHtml(s.proofLink)}" target="_blank" rel="noopener">🔗 ${escHtml(s.proofLink)}</a>` : ''}
-                <div class="sub-xp-badge">+${ch?.xpReward || 0} XP on approve</div>
-              </div>
-              <div class="sub-actions">
-                <button class="btn-approve" data-subid="${s.id}">✓ Approve</button>
-                <button class="btn-reject"  data-subid="${s.id}">✕ Reject</button>
-              </div>
-            </div>
-            ${s.photoUrl ? `<div class="sub-photos-wrap">
-              <img src="${s.photoUrl}" class="sub-photo sub-photo-tap" alt="proof" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2 || ''}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />
-              ${s.photoUrl2 ? `<img src="${s.photoUrl2}" class="sub-photo sub-photo-tap" alt="proof 2" data-lightbox="${s.photoUrl}" data-lightbox2="${s.photoUrl2}" data-audio="${s.audioUrl || ''}" data-subid="${s.id}" data-brother="${escHtml(s.brotherName)}" data-challenge="${escHtml(ch?.title || 'Challenge')}" data-xp="${ch?.xpReward || 0}" />` : ''}
-            </div>` : ''}
-            ${s.audioUrl ? `<audio class="sub-audio" controls src="${s.audioUrl}"></audio>` : ''}
-          </div>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }
 
   const publicChallenges   = applyFilter(challenges.filter(ch => !ch.assignedTo));
   const personalChallenges = challenges.filter(ch => ch.assignedTo);
@@ -2313,7 +2280,7 @@ function renderFeedAdmin(el) {
       <div class="challenge-list">
         ${publicChallenges.map(ch => {
           const chSubs  = submissions.filter(s => s.challengeId === ch.id);
-          const approved = chSubs.filter(s => s.status === 'approved').length;
+          const completed = chSubs.filter(s => s.status === 'completed').length;
           return `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
             <div class="ch-top">
               <div>
@@ -2326,8 +2293,7 @@ function renderFeedAdmin(el) {
             <div class="ch-meta">
               ${ch.deadline ? `<span>${IC.calendar} ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
               ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-              <span>${IC.check} ${approved} completed</span>
-              <span>${IC.clock} ${chSubs.filter(s=>s.status==='pending').length} pending</span>
+              <span>${IC.check} ${completed} completed</span>
             </div>
             <div style="display:flex;gap:8px;margin-top:10px">
               <button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
@@ -2346,7 +2312,7 @@ function renderFeedAdmin(el) {
         ${personalChallenges.map(ch => {
           const assigneeName = brothers.find(b => b.id === ch.assignedTo)?.name || 'Unknown';
           const chSubs  = submissions.filter(s => s.challengeId === ch.id);
-          const approved = chSubs.filter(s => s.status === 'approved').length;
+          const completed = chSubs.filter(s => s.status === 'completed').length;
           return `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
             <div class="coach-challenge-assignee">🎯 For ${escHtml(assigneeName)}</div>
             <div class="ch-top">
@@ -2360,8 +2326,7 @@ function renderFeedAdmin(el) {
             <div class="ch-meta">
               ${ch.deadline ? `<span>${IC.calendar} ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
               ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-              <span>${IC.check} ${approved} completed</span>
-              <span>${IC.clock} ${chSubs.filter(s=>s.status==='pending').length} pending</span>
+              <span>${IC.check} ${completed} completed</span>
             </div>
             <div style="display:flex;gap:8px;margin-top:10px">
               <button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
@@ -2377,10 +2342,6 @@ function renderFeedAdmin(el) {
 
   bindChallengeFilterBar(el);
   document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
-  el.querySelectorAll('.btn-approve').forEach(btn =>
-    btn.addEventListener('click', () => approveSubmission(btn.dataset.subid)));
-  el.querySelectorAll('.btn-reject').forEach(btn =>
-    btn.addEventListener('click', () => rejectSubmission(btn.dataset.subid)));
   el.querySelectorAll('.btn-close-challenge').forEach(btn =>
     btn.addEventListener('click', () => archiveChallenge(btn.dataset.closech)));
   el.querySelectorAll('.btn-edit-challenge').forEach(btn =>
@@ -2429,11 +2390,9 @@ function renderFeedMentor(el) {
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
         </div>
-        ${mySub ? `<div class="sub-status-badge status-${mySub.status}">
-          ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
-          ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP!` : ''}
-          ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
-        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+        ${mySub ? `<div class="sub-status-badge status-completed">
+          ${IC.check} Challenge Complete — +${ch.xpReward} XP!
+        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
       </div>`;
     });
     html += `</div></div>`;
@@ -2445,7 +2404,7 @@ function renderFeedMentor(el) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChsM.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
-      const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
+      const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
       html += `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
         <div class="ch-top">
           <div>
@@ -2458,13 +2417,11 @@ function renderFeedMentor(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-          <span>${IC.check} ${totalApproved} completed</span>
+          <span>${IC.check} ${totalCompleted} completed</span>
         </div>
-        ${mySub ? `<div class="sub-status-badge status-${mySub.status}">
-          ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
-          ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP!` : ''}
-          ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
-        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+        ${mySub ? `<div class="sub-status-badge status-completed">
+          ${IC.check} Challenge Complete — +${ch.xpReward} XP!
+        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
       </div>`;
     });
     html += `</div></div>`;
@@ -2533,13 +2490,10 @@ function renderFeedMember(el) {
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
         </div>
         ${mySub ? `
-          <div class="sub-status-badge status-${mySub.status}">
-            ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
-            ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP awarded!` : ''}
-            ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
+          <div class="sub-status-badge status-completed">
+            ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
           </div>
-          ${mySub.status === 'rejected' ? `<button class="btn btn-primary btn-sm" data-submit="${ch.id}">Resubmit</button>` : ''}
-        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
       </div>`;
     });
     html += `</div></div>`;
@@ -2551,7 +2505,7 @@ function renderFeedMember(el) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChs.forEach(ch => {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
-      const totalApproved = submissions.filter(s => s.challengeId === ch.id && s.status === 'approved').length;
+      const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
       html += `<div class="challenge-card member" ${challengeCardStyle(ch.tag)}>
         <div class="ch-top">
           <div>
@@ -2564,16 +2518,13 @@ function renderFeedMember(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-          <span>${IC.check} ${totalApproved} completed</span>
+          <span>${IC.check} ${totalCompleted} completed</span>
         </div>
         ${mySub ? `
-          <div class="sub-status-badge status-${mySub.status}">
-            ${mySub.status === 'pending' ? `${IC.clock} Submitted — awaiting review` : ''}
-            ${mySub.status === 'approved' ? `${IC.check} Approved — +${ch.xpReward} XP awarded!` : ''}
-            ${mySub.status === 'rejected' ? `${IC.xmark} Rejected — try again` : ''}
+          <div class="sub-status-badge status-completed">
+            ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
           </div>
-          ${mySub.status === 'rejected' ? `<button class="btn btn-primary btn-sm" data-submit="${ch.id}">Resubmit</button>` : ''}
-        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Submit Proof</button>`}
+        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
       </div>`;
     });
     html += `</div></div>`;
@@ -2588,8 +2539,8 @@ function renderFeedMember(el) {
         <div class="sub-info">
           <div class="sub-challenge">${escHtml(ch.title)}</div>
           ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
-          <div class="sub-status-pill status-${s.status}">
-            ${s.status === 'pending' ? `${IC.clock} Pending` : s.status === 'approved' ? `${IC.check} Approved +${ch.xpReward} XP` : `${IC.xmark} Rejected`}
+          <div class="sub-status-pill status-completed">
+            ${IC.check} Complete +${ch.xpReward} XP
           </div>
           <div class="sub-date">${new Date(s.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
         </div>
@@ -2624,7 +2575,7 @@ function renderSocialFeed() {
   </div>`;
 
   if (!feedPosts.length) {
-    html += `<div class="feed-empty">No posts yet — wins will appear here when challenges are approved! 🏆</div>`;
+    html += `<div class="feed-empty">No posts yet — complete a challenge to post your first win! 🏆</div>`;
     el.innerHTML = html;
     if (isAdmin) bindAnnouncementBtn(el);
     return;
@@ -2971,7 +2922,7 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
   if (ch.photoRequired && !file1 && !audioFile && !proofLink) { showToast('Please add a photo, voice note, or link', 'info'); return; }
 
   btn.disabled    = true;
-  btn.textContent = 'Submitting…';
+  btn.textContent = 'Completing…';
 
   try {
     let photoUrl  = null;
@@ -2986,27 +2937,52 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
       audioUrl = await getDownloadURL(aRef);
     }
 
-    const id = 'sub_' + Date.now().toString(36);
+    const id    = 'sub_' + Date.now().toString(36);
+    const xpWon = ch.xpReward || 0;
+
+    // Save completion record
     await setDoc(doc(db, 'submissions', id), {
       challengeId,
       brotherId:   submittingProfile.id,
       brotherName: submittingProfile.name,
       photoUrl,
       photoUrl2:   photoUrl2 || null,
-      audioUrl:    audioUrl   || null,
-      proofLink:   proofLink  || null,
+      audioUrl:    audioUrl  || null,
+      proofLink:   proofLink || null,
       caption,
-      status:      'pending',
+      status:      'completed',
       submittedAt: new Date().toISOString(),
-      xpReward:    ch.xpReward,
+      xpReward:    xpWon,
+    });
+
+    // Award XP immediately
+    const newXP = Math.min(MAX_XP, (submittingProfile.xp || 0) + xpWon);
+    await updateDoc(doc(db, 'brothers', submittingProfile.id), { xp: newXP, updatedAt: new Date().toISOString() });
+
+    // Post to feed immediately
+    await addDoc(collection(db, 'feed'), {
+      type:           'win',
+      brotherId:      submittingProfile.id,
+      brotherName:    submittingProfile.name,
+      challengeId,
+      challengeTitle: ch.title,
+      challengeTag:   ch.tag   || null,
+      xpAwarded:      xpWon,
+      photoUrl:       photoUrl  || null,
+      photoUrl2:      photoUrl2 || null,
+      audioUrl:       audioUrl  || null,
+      proofLink:      proofLink || null,
+      caption:        caption   || null,
+      comments:       [],
+      createdAt:      Date.now(),
     });
 
     closeModal(submitProofModal);
-    showToast('Proof submitted! Waiting for coach approval 🔥', 'success');
+    showToast(`Challenge complete! +${xpWon} XP 🔥`, 'success');
   } catch (err) {
     showToast('Error: ' + err.message, 'info');
     btn.disabled    = false;
-    btn.textContent = 'Submit';
+    btn.textContent = 'Complete Challenge';
   }
 });
 
@@ -3014,50 +2990,6 @@ document.getElementById('submitProofModalClose').addEventListener('click', () =>
 document.getElementById('submitProofCancelBtn').addEventListener('click',  () => closeModal(submitProofModal));
 submitProofModal.addEventListener('click', e => { if (e.target === submitProofModal) closeModal(submitProofModal); });
 
-// ── APPROVE / REJECT ──────────────────────────
-async function approveSubmission(subId) {
-  const s  = submissions.find(x => x.id === subId);
-  if (!s) return;
-  const brother = brothers.find(b => b.id === s.brotherId);
-
-  try {
-    await updateDoc(doc(db, 'submissions', subId), { status: 'approved', reviewedAt: new Date().toISOString() });
-    if (brother) {
-      const newXP = Math.min(MAX_XP, (brother.xp || 0) + (s.xpReward || 0));
-      await updateDoc(doc(db, 'brothers', brother.id), { xp: newXP, updatedAt: new Date().toISOString() });
-    }
-    // Auto-post win to the community feed
-    const ch = challenges.find(c => c.id === s.challengeId);
-    await addDoc(collection(db, 'feed'), {
-      type:           'win',
-      brotherId:      s.brotherId,
-      brotherName:    s.brotherName,
-      challengeId:    s.challengeId,
-      challengeTitle: ch?.title || 'Challenge',
-      challengeTag:   ch?.tag   || null,
-      xpAwarded:      s.xpReward || 0,
-      photoUrl:       s.photoUrl   || null,
-      photoUrl2:      s.photoUrl2  || null,
-      audioUrl:       s.audioUrl   || null,
-      proofLink:      s.proofLink  || null,
-      caption:        s.caption    || null,
-      comments:       [],
-      createdAt:      Date.now(),
-    });
-    showToast(`✅ Approved! +${s.xpReward} XP → ${s.brotherName}`, 'success');
-  } catch (err) {
-    showToast('Error: ' + err.message, 'info');
-  }
-}
-
-async function rejectSubmission(subId) {
-  try {
-    await updateDoc(doc(db, 'submissions', subId), { status: 'rejected', reviewedAt: new Date().toISOString() });
-    showToast('Submission rejected', 'info');
-  } catch (err) {
-    showToast('Error: ' + err.message, 'info');
-  }
-}
 
 // ── EXPORT ────────────────────────────────────
 exportBtn.addEventListener('click', () => {
@@ -3095,8 +3027,6 @@ function openPhotoLightbox(photoUrl, subId, brotherName, challengeTitle, xp, pho
   document.getElementById('lbBrother').textContent = brotherName;
   document.getElementById('lbChallenge').textContent = challengeTitle;
   document.getElementById('lbXp').textContent = `+${xp} XP`;
-  document.getElementById('lbApprove').dataset.subid = subId;
-  document.getElementById('lbReject').dataset.subid  = subId;
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -3111,14 +3041,6 @@ document.getElementById('photoLightbox').addEventListener('click', e => {
   if (e.target === document.getElementById('photoLightbox')) closePhotoLightbox();
 });
 document.getElementById('lbClose').addEventListener('click', closePhotoLightbox);
-document.getElementById('lbApprove').addEventListener('click', async function() {
-  await approveSubmission(this.dataset.subid);
-  closePhotoLightbox();
-});
-document.getElementById('lbReject').addEventListener('click', async function() {
-  await rejectSubmission(this.dataset.subid);
-  closePhotoLightbox();
-});
 
 // ── ANNOUNCEMENT MODAL WIRING ─────────────────
 const announcementModal = document.getElementById('announcementModal');
