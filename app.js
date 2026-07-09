@@ -757,10 +757,11 @@ function renderGrid() {
   document.querySelectorAll('[data-viewcheckin]').forEach(btn =>
     btn.addEventListener('click', () => openViewCheckInModal(btn.dataset.viewcheckin)));
   document.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
       const snap = btn.nextElementSibling;
-      const open = snap.classList.toggle('collapsed');
-      btn.querySelector('.snapshot-chevron').textContent = open ? '▾' : '▴';
+      const nowCollapsed = snap.classList.toggle('collapsed');
+      btn.querySelector('.snapshot-chevron').textContent = nowCollapsed ? '▾' : '▴';
     }));
 }
 
@@ -900,6 +901,14 @@ function renderMemberView() {
   // Wire member check-in button
   const ciBtn = memberHero.querySelector('[data-checkin]');
   if (ciBtn) ciBtn.addEventListener('click', () => openCheckInModal(ciBtn.dataset.checkin));
+
+  // Wire profile snapshot toggles in hero
+  memberHero.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const snap = btn.nextElementSibling;
+      const nowCollapsed = snap.classList.toggle('collapsed');
+      btn.querySelector('.snapshot-chevron').textContent = nowCollapsed ? '▾' : '▴';
+    }));
 
   brothersGrid.innerHTML = '';
   emptyState.classList.add('hidden');
@@ -1994,10 +2003,11 @@ function renderFeedMember(el) {
   el.querySelectorAll('[data-submit]').forEach(btn =>
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
   el.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
       const snap = btn.nextElementSibling;
-      const open = snap.classList.toggle('collapsed');
-      btn.querySelector('.snapshot-chevron').textContent = open ? '▾' : '▴';
+      const nowCollapsed = snap.classList.toggle('collapsed');
+      btn.querySelector('.snapshot-chevron').textContent = nowCollapsed ? '▾' : '▴';
     }));
 }
 
