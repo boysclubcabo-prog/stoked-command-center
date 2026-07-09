@@ -387,13 +387,108 @@ const PERCEPTION_QUESTIONS = [
   },
 ];
 
-let assessAnswers    = new Array(ASSESS_QUESTIONS.length).fill(null);
-let scenarioAnswers  = new Array(SCENARIO_QUESTIONS.length).fill(null);
+const VALUES_QUESTIONS = [
+  {
+    question: "Which quality do you respect the most in another person?",
+    answers: [
+      { text: "Courage — Someone who faces difficult things instead of running away.",  scores: { Warrior: 2, Leader: 1, Fire: 1 } },
+      { text: "Wisdom — Someone who stays calm and thinks before acting.",               scores: { Monk: 2, Strategist: 1, Water: 1 } },
+      { text: "Creativity — Someone who sees the world differently and makes new things.", scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "Reliability — Someone who always keeps their word.",                      scores: { Builder: 2, Guardian: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "If people remembered you for one thing, what would you hope it is?",
+    answers: [
+      { text: "I gave people courage.",                 scores: { Warrior: 2, Protector: 1, Fire: 1 } },
+      { text: "I helped people feel understood.",       scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "I inspired people to dream bigger.",     scores: { Visionary: 2, Creator: 1, Air: 1 } },
+      { text: "I built something that lasted.",         scores: { Builder: 2, Guardian: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "When life gets hard, what do you believe matters most?",
+    answers: [
+      { text: "Keep moving forward.",    scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "Stay calm.",              scores: { Monk: 2, Guardian: 1, Water: 1 } },
+      { text: "Keep learning.",          scores: { Strategist: 2, Visionary: 1, Air: 1 } },
+      { text: "Stay disciplined.",       scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "Which of these feels the most true to you?",
+    answers: [
+      { text: "Courage grows when you face fear.",      scores: { Warrior: 2, Leader: 1, Fire: 1 } },
+      { text: "Peace begins within.",                   scores: { Monk: 2, Protector: 1, Water: 1 } },
+      { text: "Creativity changes the world.",          scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "Small actions build great lives.",       scores: { Builder: 2, Guardian: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "Imagine you're 30 years old. What would make you the proudest?",
+    answers: [
+      { text: "Becoming mentally and physically strong.",    scores: { Warrior: 2, Builder: 1, Fire: 1 } },
+      { text: "Having deep, real relationships.",            scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "Building something meaningful and original.", scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "Becoming someone others can truly depend on.", scores: { Guardian: 2, Builder: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "Which of these challenges sounds the hardest for you personally?",
+    answers: [
+      { text: "Facing your fears.",             scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "Being patient.",                 scores: { Monk: 2, Guardian: 1, Water: 1 } },
+      { text: "Finishing what you start.",      scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
+      { text: "Sharing your ideas with others.", scores: { Creator: 2, Communicator: 1, Air: 1 } },
+    ]
+  },
+  {
+    question: "Which type of person naturally earns your deepest respect?",
+    answers: [
+      { text: "Someone who protects others without being asked.", scores: { Protector: 2, Warrior: 1, Fire: 1 } },
+      { text: "Someone who stays humble even when they're great.", scores: { Monk: 2, Guardian: 1, Water: 1 } },
+      { text: "Someone who thinks in ways nobody else does.",      scores: { Visionary: 2, Strategist: 1, Air: 1 } },
+      { text: "Someone who always follows through on their word.", scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "If you could instantly master one ability, what would it be?",
+    answers: [
+      { text: "Staying calm and courageous under pressure.",   scores: { Warrior: 2, Leader: 1, Fire: 1 } },
+      { text: "Understanding what people truly need.",         scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "Solving problems others can't figure out.",     scores: { Strategist: 2, Visionary: 1, Air: 1 } },
+      { text: "Building anything you put your mind to.",       scores: { Builder: 2, Creator: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "What do you honestly think the world needs more of?",
+    answers: [
+      { text: "Brave people who act even when it's hard.",     scores: { Warrior: 2, Leader: 1, Fire: 1 } },
+      { text: "Kind people who genuinely look out for others.", scores: { Protector: 2, Monk: 1, Water: 1 } },
+      { text: "Curious people who question everything.",        scores: { Explorer: 2, Visionary: 1, Air: 1 } },
+      { text: "Responsible people who do what they say.",       scores: { Guardian: 2, Builder: 1, Earth: 1 } },
+    ]
+  },
+  {
+    question: "Many years from now, looking back on your life — which sentence would make you smile the most?",
+    answers: [
+      { text: "\"I never stopped challenging myself.\"",        scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "\"I helped people become better versions of themselves.\"", scores: { Protector: 2, Leader: 1, Water: 1 } },
+      { text: "\"I created things that inspired others.\"",     scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "\"I built a life I was genuinely proud of.\"",   scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
+    ]
+  },
+];
+
+let assessAnswers     = new Array(ASSESS_QUESTIONS.length).fill(null);
+let scenarioAnswers   = new Array(SCENARIO_QUESTIONS.length).fill(null);
 let perceptionAnswers = new Array(PERCEPTION_QUESTIONS.length).fill(null);
-let assessIndex      = 0;
-let scenarioIndex    = 0;
-let perceptionIndex  = 0;
-let assessBrotherId  = null;
+let valuesAnswers     = new Array(VALUES_QUESTIONS.length).fill(null);
+let assessIndex       = 0;
+let scenarioIndex     = 0;
+let perceptionIndex   = 0;
+let valuesIndex       = 0;
+let assessBrotherId   = null;
 
 // ── PROFILE QUESTIONS (after archetype questions) ──
 const INTERESTS_LIST = [
@@ -1526,9 +1621,11 @@ function openAssessment(brotherId) {
   assessAnswers     = new Array(ASSESS_QUESTIONS.length).fill(null);
   scenarioAnswers   = new Array(SCENARIO_QUESTIONS.length).fill(null);
   perceptionAnswers = new Array(PERCEPTION_QUESTIONS.length).fill(null);
+  valuesAnswers     = new Array(VALUES_QUESTIONS.length).fill(null);
   assessIndex       = 0;
   scenarioIndex     = 0;
   perceptionIndex   = 0;
+  valuesIndex       = 0;
   profileAnswers    = {};
   profileIndex      = 0;
   selectedInterests = [];
@@ -1566,6 +1663,14 @@ function renderAssessIntro() {
             <div class="stage-preview-sub">10 visuals</div>
           </div>
         </div>
+        <div class="stage-preview-divider"></div>
+        <div class="stage-preview-item">
+          <div class="stage-preview-num">IV</div>
+          <div>
+            <div class="stage-preview-label">Values</div>
+            <div class="stage-preview-sub">10 questions</div>
+          </div>
+        </div>
       </div>
       <p class="assess-intro-text" style="opacity:0.55;font-size:0.82rem;margin-top:4px">No right answers. No wrong ones. Just honest ones.</p>
       <button class="btn btn-primary assess-done-btn" id="assessStartBtn">Begin</button>
@@ -1574,7 +1679,7 @@ function renderAssessIntro() {
 }
 
 function assessStagePills(active) {
-  const stages = ['Instinct', 'Decisions', 'Perception', 'Result'];
+  const stages = ['Instinct', 'Decisions', 'Perception', 'Values', 'Result'];
   return `<div class="assess-stage-pills">
     ${stages.map((s, i) => `<div class="assess-stage-pill ${i === active ? 'active' : i < active ? 'done' : ''}">${s}</div>`).join('<div class="assess-stage-connector"></div>')}
   </div>`;
@@ -1742,6 +1847,67 @@ function renderPerceptionQuestion() {
   document.getElementById('percepNextBtn').addEventListener('click', () => {
     if (perceptionAnswers[perceptionIndex] == null) return;
     if (perceptionIndex < PERCEPTION_QUESTIONS.length - 1) { perceptionIndex++; renderPerceptionQuestion(); }
+    else renderPart3Bridge();
+  });
+}
+
+function renderPart3Bridge() {
+  assessContent.innerHTML = `
+    <div class="assess-bridge">
+      <div class="assess-bridge-badge">III</div>
+      <div class="assess-bridge-title">Part III Complete</div>
+      <p class="assess-bridge-text">Three layers down. One to go.</p>
+      <p class="assess-bridge-text">The final part doesn't ask what you do or what you see. It asks what you believe — and what kind of man you actually want to become.</p>
+      <div class="assess-bridge-next-label">FINAL SECTION</div>
+      <div class="assess-bridge-next-name">Part IV — Values</div>
+      <div class="assess-bridge-next-sub">10 Questions · No Right Answers</div>
+      <button class="btn btn-primary assess-done-btn" id="part4StartBtn">Enter Part IV</button>
+    </div>`;
+  document.getElementById('part4StartBtn').addEventListener('click', () => {
+    valuesIndex = 0;
+    renderValuesQuestion();
+  });
+}
+
+function renderValuesQuestion() {
+  const q   = VALUES_QUESTIONS[valuesIndex];
+  const sel = valuesAnswers[valuesIndex];
+  const pct = ((valuesIndex + 1) / VALUES_QUESTIONS.length) * 100;
+  const isLast = valuesIndex === VALUES_QUESTIONS.length - 1;
+  const letters = ['A', 'B', 'C', 'D'];
+
+  assessContent.innerHTML = `
+    ${assessStagePills(3)}
+    <div class="assess-part-label">Part IV — Values</div>
+    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${pct}%"></div></div>
+    <div class="assess-step-label">${valuesIndex + 1} of ${VALUES_QUESTIONS.length}</div>
+    <div class="assess-lean-heading">${escHtml(q.question)}</div>
+    <div class="scenario-choices">
+      ${q.answers.map((a, i) => `
+        <button class="scenario-choice values-choice ${sel === i ? 'selected' : ''}" data-idx="${i}">
+          <span class="scenario-choice-letter">${letters[i]}</span>
+          <span class="scenario-choice-text">${escHtml(a.text)}</span>
+        </button>`).join('')}
+    </div>
+    <div class="assess-nav">
+      <button class="btn btn-ghost" id="valBackBtn">${valuesIndex === 0 ? 'Back to Part III' : 'Back'}</button>
+      <div class="assess-nav-spacer"></div>
+      <button class="btn btn-primary" id="valNextBtn" ${sel == null ? 'disabled' : ''}>${isLast ? 'Reveal My Archetype' : 'Next'}</button>
+    </div>`;
+
+  assessContent.querySelectorAll('.scenario-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      valuesAnswers[valuesIndex] = parseInt(btn.dataset.idx, 10);
+      renderValuesQuestion();
+    });
+  });
+  document.getElementById('valBackBtn').addEventListener('click', () => {
+    if (valuesIndex > 0) { valuesIndex--; renderValuesQuestion(); }
+    else renderPart3Bridge();
+  });
+  document.getElementById('valNextBtn').addEventListener('click', () => {
+    if (valuesAnswers[valuesIndex] == null) return;
+    if (valuesIndex < VALUES_QUESTIONS.length - 1) { valuesIndex++; renderValuesQuestion(); }
     else finishAssessment();
   });
 }
@@ -1764,6 +1930,17 @@ async function finishAssessment() {
   // Scenario answers — multi-point scoring
   SCENARIO_QUESTIONS.forEach((q, i) => {
     const choiceIdx = scenarioAnswers[i];
+    if (choiceIdx == null) return;
+    const chosen = q.answers[choiceIdx];
+    Object.entries(chosen.scores).forEach(([key, pts]) => {
+      if (key in archetypeScores) archetypeScores[key] += pts;
+      else if (key in elementScores) elementScores[key] += pts;
+    });
+  });
+
+  // Values answers
+  VALUES_QUESTIONS.forEach((q, i) => {
+    const choiceIdx = valuesAnswers[i];
     if (choiceIdx == null) return;
     const chosen = q.answers[choiceIdx];
     Object.entries(chosen.scores).forEach(([key, pts]) => {

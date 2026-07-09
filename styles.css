@@ -1670,6 +1670,10 @@ body {
   padding-top: 2px;
 }
 
+/* Values choices — slightly more breathing room */
+.values-choice { padding: 15px 16px; }
+.values-choice .scenario-choice-text { font-size: 14.5px; }
+
 /* ── Perception grid ── */
 .percep-grid {
   display: grid;
