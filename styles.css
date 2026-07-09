@@ -918,8 +918,11 @@ body {
   height: 60px !important;
   max-width: 60px !important;
   max-height: 60px !important;
-  object-fit: contain;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  object-fit: contain !important;
   margin-bottom: 20px;
+  display: block;
 }
 
 .login-brand-title {
@@ -1059,10 +1062,13 @@ body {
   .login-left::after { display: none; }
 
   .login-logo-img {
-    width: auto;
-    height: 48px;
-    max-width: 48px;
-    object-fit: contain;
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    object-fit: contain !important;
     margin-bottom: 16px;
   }
 
@@ -2955,7 +2961,7 @@ body {
     gap: 16px;
     min-height: unset;
   }
-  .login-logo-img { width: 48px; height: 48px; }
+  .login-logo-img { width: 48px !important; height: 48px !important; max-width: 48px !important; max-height: 48px !important; min-width: 0 !important; min-height: 0 !important; }
   .login-brand-title { font-size: 24px; }
   .login-brand-sub { display: none; }
   .login-right { padding: 0 20px 40px; }
