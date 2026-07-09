@@ -884,7 +884,7 @@ body {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  background: var(--bg-base);
+  background: #0f2233;
 }
 
 /* Left panel */
@@ -914,8 +914,10 @@ body {
 }
 
 .login-logo-img {
-  width: 80px;
-  height: 80px;
+  width: auto;
+  height: 72px;
+  max-width: 120px;
+  object-fit: contain;
   margin-bottom: 28px;
 }
 
@@ -945,7 +947,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 48px 40px;
-  background: var(--bg-base);
+  background: #0f2233;
 }
 
 .login-box {
@@ -1056,8 +1058,10 @@ body {
   .login-left::after { display: none; }
 
   .login-logo-img {
-    width: 64px;
-    height: 64px;
+    width: auto;
+    height: 56px;
+    max-width: 100px;
+    object-fit: contain;
     margin-bottom: 16px;
   }
 
@@ -1076,9 +1080,10 @@ body {
 
   .login-box-logo {
     display: block;
-    width: 44px;
+    width: auto;
     height: 44px;
-    border-radius: 50%;
+    max-width: 80px;
+    object-fit: contain;
     margin-bottom: 16px;
   }
 
