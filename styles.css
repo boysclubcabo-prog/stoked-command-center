@@ -1452,6 +1452,225 @@ body {
   margin: 0 auto;
 }
 
+/* ── Stage pills ── */
+.assess-stage-pills {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 18px;
+  padding-top: 4px;
+}
+.assess-stage-pill {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+.assess-stage-pill.active {
+  color: var(--accent);
+  border-color: rgba(212,175,55,0.4);
+  background: rgba(212,175,55,0.08);
+}
+.assess-stage-pill.done {
+  color: var(--text-secondary);
+}
+.assess-stage-connector {
+  width: 20px;
+  height: 1px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+.assess-part-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+/* ── Intro stages preview ── */
+.assess-stages-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: 20px 0 16px;
+}
+.stage-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+.stage-preview-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,175,55,0.4);
+  background: rgba(212,175,55,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.stage-preview-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.stage-preview-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+.stage-preview-divider {
+  width: 24px;
+  height: 1px;
+  background: var(--border);
+  margin: 0 8px;
+  flex-shrink: 0;
+}
+
+/* ── Part bridge screen ── */
+.assess-bridge {
+  text-align: center;
+  padding: 16px 8px 8px;
+}
+.assess-bridge-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(212,175,55,0.5);
+  background: rgba(212,175,55,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, serif;
+  font-size: 22px;
+  font-style: italic;
+  color: var(--accent);
+  margin: 0 auto 16px;
+}
+.assess-bridge-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.assess-bridge-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin-bottom: 8px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.assess-bridge-next-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 24px 0 4px;
+}
+.assess-bridge-next-name {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.assess-bridge-next-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+/* ── Scenario questions ── */
+.scenario-setup {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 6px;
+  padding: 14px 16px;
+  background: var(--bg-elevated);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+}
+.scenario-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0 4px;
+}
+.scenario-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+}
+.scenario-choice:hover {
+  border-color: rgba(212,175,55,0.4);
+}
+.scenario-choice.selected {
+  border-color: var(--accent);
+  background: rgba(212,175,55,0.07);
+}
+.scenario-choice-letter {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0;
+  transition: all 0.15s;
+}
+.scenario-choice.selected .scenario-choice-letter {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+.scenario-choice-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  padding-top: 2px;
+}
+
+/* ── Intro ── */
 .assess-intro {
   text-align: center;
   padding: 8px 0 4px;

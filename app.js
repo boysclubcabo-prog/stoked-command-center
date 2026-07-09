@@ -152,8 +152,113 @@ const ASSESS_QUESTIONS = [
   { left: '🪨 The rock — people come to you when things fall apart', right: '📣 The voice — people listen when you speak up', leftScore: { arch: 'Guardian', el: 'Earth' }, rightScore: { arch: 'Communicator', el: 'Air' } },
 ];
 
+const SCENARIO_QUESTIONS = [
+  {
+    scenario: "Your group can't agree on what to do. No one is stepping up.",
+    question:  "What do you naturally do?",
+    answers: [
+      { text: "Take charge and make a call — someone has to.",                              scores: { Warrior: 1, Leader: 2, Fire: 2 } },
+      { text: "Suggest something creative that everyone might actually enjoy.",             scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { text: "Listen to what everyone wants before you say anything.",                     scores: { Communicator: 2, Guardian: 1, Water: 2 } },
+      { text: "Step back, read the room, then speak when you know what to say.",            scores: { Strategist: 2, Monk: 1, Air: 1, Earth: 1 } },
+    ]
+  },
+  {
+    scenario: "You hit a serious setback. Something you worked hard for didn't come through.",
+    question:  "What's your first instinct?",
+    answers: [
+      { text: "Push through. Failure is just the cost of going after something real.",       scores: { Warrior: 2, Leader: 1, Fire: 2 } },
+      { text: "Pull back and rethink your strategy before making another move.",             scores: { Strategist: 2, Builder: 1, Air: 1, Water: 1 } },
+      { text: "Talk to someone you trust. You don't carry things alone.",                   scores: { Communicator: 1, Guardian: 2, Water: 2 } },
+      { text: "Accept it, recalibrate, and adapt. That's how you move.",                    scores: { Explorer: 2, Monk: 1, Earth: 1, Water: 1 } },
+    ]
+  },
+  {
+    scenario: "You have an entire weekend with no obligations and nowhere to be.",
+    question:  "What do you actually do?",
+    answers: [
+      { text: "Start a project you've been putting off. Finally make progress on it.",      scores: { Builder: 2, Warrior: 1, Earth: 2 } },
+      { text: "Go somewhere you've never been. Explore something completely new.",          scores: { Explorer: 2, Creator: 1, Air: 2 } },
+      { text: "Go deep — solitude, prayer, journaling. Recharge from the inside.",         scores: { Monk: 2, Strategist: 1, Water: 2 } },
+      { text: "Invest in the people who matter. Real time, real conversations.",            scores: { Communicator: 1, Protector: 1, Guardian: 1, Water: 2 } },
+    ]
+  },
+  {
+    scenario: "A younger man comes to you and asks for honest life advice.",
+    question:  "How do you respond?",
+    answers: [
+      { text: "Share hard-earned lessons from your own failures. Keep it real.",            scores: { Sovereign: 2, Warrior: 1, Fire: 2 } },
+      { text: "Ask him questions until he discovers his own answer.",                       scores: { Monk: 2, Communicator: 1, Water: 2 } },
+      { text: "Give him a clear, practical plan he can actually follow.",                   scores: { Builder: 2, Strategist: 1, Earth: 2 } },
+      { text: "Paint a bigger picture of who he could become.",                             scores: { Visionary: 2, Leader: 1, Air: 2 } },
+    ]
+  },
+  {
+    scenario: "You're in a group and every role needs to be filled.",
+    question:  "Which one do you naturally drift toward?",
+    answers: [
+      { text: "Setting the direction. Making the final call when no one else will.",        scores: { Leader: 2, Sovereign: 1, Fire: 2 } },
+      { text: "Keeping everything running. Making sure the work actually gets done.",       scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+      { text: "Bringing the original ideas. Thinking in ways no one else is.",             scores: { Creator: 2, Visionary: 1, Air: 2 } },
+      { text: "Making sure every voice is heard. Holding the group together.",             scores: { Communicator: 2, Protector: 1, Water: 2 } },
+    ]
+  },
+  {
+    scenario: "There's a specific kind of moment where you feel completely alive.",
+    question:  "Which one is it for you?",
+    answers: [
+      { text: "Competing or conquering something physically demanding.",                    scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
+      { text: "Building or creating something that didn't exist before.",                   scores: { Creator: 2, Builder: 1, Air: 1, Earth: 1 } },
+      { text: "A real conversation — the kind where something actually shifts.",            scores: { Communicator: 2, Guardian: 1, Water: 2 } },
+      { text: "Total solitude — a mountain, a trail, a quiet room. Just you.",             scores: { Monk: 2, Explorer: 1, Earth: 1, Water: 1 } },
+    ]
+  },
+  {
+    scenario: "Someone you deeply respect makes a decision you believe is wrong.",
+    question:  "What do you do?",
+    answers: [
+      { text: "Say it directly. Even if the room goes quiet.",                             scores: { Warrior: 1, Sovereign: 2, Fire: 2 } },
+      { text: "Ask questions. Understand their thinking before you react.",                scores: { Strategist: 2, Communicator: 1, Air: 2 } },
+      { text: "Back them publicly. Address it privately when the time is right.",          scores: { Guardian: 2, Protector: 1, Earth: 2 } },
+      { text: "Trust the process. Watch what unfolds before stepping in.",                 scores: { Monk: 2, Builder: 1, Water: 1, Earth: 1 } },
+    ]
+  },
+  {
+    scenario: "If it's all said and done and you're remembered for one thing...",
+    question:  "What do you want it to be?",
+    answers: [
+      { text: "What you built — something lasting that outlives you.",                     scores: { Builder: 2, Sovereign: 1, Earth: 2 } },
+      { text: "How you led — the men you raised up and the fire you lit in them.",        scores: { Leader: 1, Sovereign: 2, Fire: 2 } },
+      { text: "How you made people feel — seen, valued, and not alone.",                  scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "The life you actually lived — fully, boldly, with no held back.",          scores: { Explorer: 2, Warrior: 1, Air: 1, Fire: 1 } },
+    ]
+  },
+  {
+    scenario: "The pressure is at its highest. Everyone around you is rattled.",
+    question:  "What happens to you?",
+    answers: [
+      { text: "You get sharper. More decisive. Pressure is fuel.",                         scores: { Warrior: 1, Leader: 2, Fire: 2 } },
+      { text: "You go quiet. Calculated. You play the longer game.",                      scores: { Strategist: 2, Sovereign: 1, Water: 1, Air: 1 } },
+      { text: "You become the anchor. Calm and steady while everything shakes.",           scores: { Protector: 2, Guardian: 2, Earth: 2 } },
+      { text: "Something unlocks. Pressure sparks your best ideas.",                      scores: { Creator: 2, Visionary: 1, Air: 2 } },
+    ]
+  },
+  {
+    scenario: "A brother in your circle is going through a hard season. He hasn't asked for help.",
+    question:  "What do you do?",
+    answers: [
+      { text: "Show up uninvited. You don't wait for people to ask.",                      scores: { Protector: 2, Guardian: 1, Fire: 1, Earth: 1 } },
+      { text: "Create the right moment — a conversation, a meal, a walk.",                scores: { Communicator: 2, Leader: 1, Water: 2 } },
+      { text: "Find the most practical way to take a burden off him right now.",          scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+      { text: "Hold him in prayer and stay present — sometimes presence is enough.",      scores: { Monk: 2, Protector: 1, Water: 2 } },
+    ]
+  },
+];
+
 let assessAnswers   = new Array(ASSESS_QUESTIONS.length).fill(null);
+let scenarioAnswers = new Array(SCENARIO_QUESTIONS.length).fill(null);
 let assessIndex     = 0;
+let scenarioIndex   = 0;
 let assessBrotherId = null;
 
 // ── PROFILE QUESTIONS (after archetype questions) ──
@@ -1285,7 +1390,9 @@ const assessContent = document.getElementById('assessContent');
 function openAssessment(brotherId) {
   assessBrotherId   = brotherId;
   assessAnswers     = new Array(ASSESS_QUESTIONS.length).fill(null);
+  scenarioAnswers   = new Array(SCENARIO_QUESTIONS.length).fill(null);
   assessIndex       = 0;
+  scenarioIndex     = 0;
   profileAnswers    = {};
   profileIndex      = 0;
   selectedInterests = [];
@@ -1298,22 +1405,57 @@ function renderAssessIntro() {
     <div class="assess-intro">
       <div class="assess-intro-icon">${IC.target}</div>
       <div class="assess-intro-title">Brotherhood Assessment</div>
-      <p class="assess-intro-text">Two parts. First, 24 quick questions to discover your archetype and element. Then 5 questions to build your personal profile. Takes about 6 minutes.</p>
-      <p class="assess-intro-text" style="opacity:0.6;font-size:0.85rem;margin-top:-8px">No right answers — just the honest ones.</p>
-      <button class="btn btn-primary assess-done-btn" id="assessStartBtn">Let's Go</button>
+      <p class="assess-intro-text">This isn't a personality quiz. It's a discovery — designed to surface what's already true about who you are.</p>
+      <div class="assess-stages-preview">
+        <div class="stage-preview-item">
+          <div class="stage-preview-num">I</div>
+          <div>
+            <div class="stage-preview-label">Instinct</div>
+            <div class="stage-preview-sub">24 questions</div>
+          </div>
+        </div>
+        <div class="stage-preview-divider"></div>
+        <div class="stage-preview-item">
+          <div class="stage-preview-num">II</div>
+          <div>
+            <div class="stage-preview-label">Decisions</div>
+            <div class="stage-preview-sub">10 scenarios</div>
+          </div>
+        </div>
+        <div class="stage-preview-divider"></div>
+        <div class="stage-preview-item">
+          <div class="stage-preview-num">III</div>
+          <div>
+            <div class="stage-preview-label">Your Archetype</div>
+            <div class="stage-preview-sub">Result</div>
+          </div>
+        </div>
+      </div>
+      <p class="assess-intro-text" style="opacity:0.55;font-size:0.82rem;margin-top:4px">No right answers. No wrong ones. Just honest ones.</p>
+      <button class="btn btn-primary assess-done-btn" id="assessStartBtn">Begin</button>
     </div>`;
   document.getElementById('assessStartBtn').addEventListener('click', () => renderAssessQuestion());
+}
+
+function assessStagePills(active) {
+  const stages = ['Instinct', 'Decisions', 'Result'];
+  return `<div class="assess-stage-pills">
+    ${stages.map((s, i) => `<div class="assess-stage-pill ${i === active ? 'active' : i < active ? 'done' : ''}">${s}</div>`).join('<div class="assess-stage-connector"></div>')}
+  </div>`;
 }
 
 function renderAssessQuestion() {
   const q   = ASSESS_QUESTIONS[assessIndex];
   const val = assessAnswers[assessIndex];
   const labels = ['Strongly Agree', 'Slightly Agree', 'Neutral', 'Slightly Agree', 'Strongly Agree'];
+  const pct = ((assessIndex + 1) / ASSESS_QUESTIONS.length) * 100;
+  const isLast = assessIndex === ASSESS_QUESTIONS.length - 1;
 
-  const totalQ = ASSESS_QUESTIONS.length + PROFILE_QUESTIONS.length;
   assessContent.innerHTML = `
-    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${((assessIndex)/totalQ)*100}%"></div></div>
-    <div class="assess-step-label">Question ${assessIndex + 1} of ${totalQ}</div>
+    ${assessStagePills(0)}
+    <div class="assess-part-label">Part I — Instinct</div>
+    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${pct}%"></div></div>
+    <div class="assess-step-label">${assessIndex + 1} of ${ASSESS_QUESTIONS.length}</div>
     <div class="assess-lean-heading">What do you lean towards more?</div>
     <div class="assess-sides">
       <div class="assess-side left">${escHtml(q.left)}</div>
@@ -1326,7 +1468,7 @@ function renderAssessQuestion() {
     <div class="assess-nav">
       <button class="btn btn-ghost" id="assessBackBtn" ${assessIndex === 0 ? 'disabled' : ''}>Back</button>
       <div class="assess-nav-spacer"></div>
-      <button class="btn btn-primary" id="assessNextBtn" ${val == null ? 'disabled' : ''}>${assessIndex === ASSESS_QUESTIONS.length - 1 ? 'See Results' : 'Next'}</button>
+      <button class="btn btn-primary" id="assessNextBtn" ${val == null ? 'disabled' : ''}>${isLast ? 'Continue' : 'Next'}</button>
     </div>`;
 
   assessContent.querySelectorAll('.spectrum-btn').forEach(btn => {
@@ -1341,6 +1483,68 @@ function renderAssessQuestion() {
   document.getElementById('assessNextBtn').addEventListener('click', () => {
     if (assessAnswers[assessIndex] == null) return;
     if (assessIndex < ASSESS_QUESTIONS.length - 1) { assessIndex++; renderAssessQuestion(); }
+    else renderPart1Bridge();
+  });
+}
+
+function renderPart1Bridge() {
+  assessContent.innerHTML = `
+    <div class="assess-bridge">
+      <div class="assess-bridge-badge">I</div>
+      <div class="assess-bridge-title">Part I Complete</div>
+      <p class="assess-bridge-text">Your instincts have been recorded. Now we go deeper.</p>
+      <p class="assess-bridge-text">Part II places you inside real situations — the kind where who you actually are gets revealed under pressure.</p>
+      <div class="assess-bridge-next-label">NEXT</div>
+      <div class="assess-bridge-next-name">Part II — Decisions</div>
+      <div class="assess-bridge-next-sub">10 Scenarios</div>
+      <button class="btn btn-primary assess-done-btn" id="part2StartBtn">Enter Part II</button>
+    </div>`;
+  document.getElementById('part2StartBtn').addEventListener('click', () => {
+    scenarioIndex = 0;
+    renderScenarioQuestion();
+  });
+}
+
+function renderScenarioQuestion() {
+  const q   = SCENARIO_QUESTIONS[scenarioIndex];
+  const sel = scenarioAnswers[scenarioIndex];
+  const pct = ((scenarioIndex + 1) / SCENARIO_QUESTIONS.length) * 100;
+  const isLast = scenarioIndex === SCENARIO_QUESTIONS.length - 1;
+
+  const choiceLetters = ['A', 'B', 'C', 'D'];
+  assessContent.innerHTML = `
+    ${assessStagePills(1)}
+    <div class="assess-part-label">Part II — Decisions</div>
+    <div class="assess-progress-track"><div class="assess-progress-fill" style="width:${pct}%"></div></div>
+    <div class="assess-step-label">${scenarioIndex + 1} of ${SCENARIO_QUESTIONS.length}</div>
+    <div class="scenario-setup">${escHtml(q.scenario)}</div>
+    <div class="assess-lean-heading">${escHtml(q.question)}</div>
+    <div class="scenario-choices">
+      ${q.answers.map((a, i) => `
+        <button class="scenario-choice ${sel === i ? 'selected' : ''}" data-idx="${i}">
+          <span class="scenario-choice-letter">${choiceLetters[i]}</span>
+          <span class="scenario-choice-text">${escHtml(a.text)}</span>
+        </button>`).join('')}
+    </div>
+    <div class="assess-nav">
+      <button class="btn btn-ghost" id="scenBackBtn">${scenarioIndex === 0 ? 'Back to Part I' : 'Back'}</button>
+      <div class="assess-nav-spacer"></div>
+      <button class="btn btn-primary" id="scenNextBtn" ${sel == null ? 'disabled' : ''}>${isLast ? 'See My Archetype' : 'Next'}</button>
+    </div>`;
+
+  assessContent.querySelectorAll('.scenario-choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      scenarioAnswers[scenarioIndex] = parseInt(btn.dataset.idx, 10);
+      renderScenarioQuestion();
+    });
+  });
+  document.getElementById('scenBackBtn').addEventListener('click', () => {
+    if (scenarioIndex > 0) { scenarioIndex--; renderScenarioQuestion(); }
+    else renderPart1Bridge();
+  });
+  document.getElementById('scenNextBtn').addEventListener('click', () => {
+    if (scenarioAnswers[scenarioIndex] == null) return;
+    if (scenarioIndex < SCENARIO_QUESTIONS.length - 1) { scenarioIndex++; renderScenarioQuestion(); }
     else finishAssessment();
   });
 }
@@ -1358,6 +1562,17 @@ async function finishAssessment() {
     else if (v === 3) { archetypeScores[q.leftScore.arch] += 1; elementScores[q.leftScore.el] += 1; archetypeScores[q.rightScore.arch] += 1; elementScores[q.rightScore.el] += 1; }
     else if (v === 4) { archetypeScores[q.rightScore.arch] += 3; elementScores[q.rightScore.el] += 3; }
     else if (v === 5) { archetypeScores[q.rightScore.arch] += 5; elementScores[q.rightScore.el] += 5; }
+  });
+
+  // Scenario answers — multi-point scoring
+  SCENARIO_QUESTIONS.forEach((q, i) => {
+    const choiceIdx = scenarioAnswers[i];
+    if (choiceIdx == null) return;
+    const chosen = q.answers[choiceIdx];
+    Object.entries(chosen.scores).forEach(([key, pts]) => {
+      if (key in archetypeScores) archetypeScores[key] += pts;
+      else if (key in elementScores) elementScores[key] += pts;
+    });
   });
 
   const archSorted = Object.entries(archetypeScores).sort((a, b) => b[1] - a[1]);
