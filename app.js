@@ -1660,6 +1660,7 @@ function renderFeedAdmin(el) {
                 <div class="sub-brother">${escHtml(s.brotherName)}</div>
                 <div class="sub-challenge">${escHtml(ch?.title || 'Challenge')}</div>
                 ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
+                ${s.proofLink ? `<a class="sub-link" href="${escHtml(s.proofLink)}" target="_blank" rel="noopener">🔗 ${escHtml(s.proofLink)}</a>` : ''}
                 <div class="sub-xp-badge">+${ch?.xpReward || 0} XP on approve</div>
               </div>
               <div class="sub-actions">
@@ -2048,6 +2049,7 @@ function renderSocialFeed() {
           ${post.photoUrl2 ? `<img src="${post.photoUrl2}" class="sf-photo" alt="proof 2" />` : ''}
         </div>` : ''}
         ${post.audioUrl ? `<audio class="sf-audio" controls src="${post.audioUrl}"></audio>` : ''}
+        ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">🔗 ${escHtml(post.proofLink)}</a>` : ''}
         <div class="sf-xp-row"><span class="sf-xp-badge">+${post.xpAwarded} XP</span></div>
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
@@ -2296,6 +2298,7 @@ function openSubmitProofModal(challengeId, profile) {
   resetPhotoSlot(1);
   resetPhotoSlot(2);
   resetAudioSlot();
+  document.getElementById('proofLink').value     = '';
   document.getElementById('proofCaption').value  = '';
   document.getElementById('submitProofBtn').disabled = false;
   openModal(submitProofModal);
@@ -2332,11 +2335,12 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
   const file1       = document.getElementById('proofPhoto1').files[0];
   const file2       = document.getElementById('proofPhoto2').files[0];
   const audioFile   = document.getElementById('proofAudio').files[0];
+  const proofLink   = document.getElementById('proofLink').value.trim();
   const caption     = document.getElementById('proofCaption').value.trim();
   const btn         = document.getElementById('submitProofBtn');
 
   if (!submittingProfile || !ch) return;
-  if (ch.photoRequired && !file1 && !audioFile) { showToast('Please add a photo or voice note', 'info'); return; }
+  if (ch.photoRequired && !file1 && !audioFile && !proofLink) { showToast('Please add a photo, voice note, or link', 'info'); return; }
 
   btn.disabled    = true;
   btn.textContent = 'Submitting…';
@@ -2361,7 +2365,8 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
       brotherName: submittingProfile.name,
       photoUrl,
       photoUrl2:   photoUrl2 || null,
-      audioUrl:    audioUrl  || null,
+      audioUrl:    audioUrl   || null,
+      proofLink:   proofLink  || null,
       caption,
       status:      'pending',
       submittedAt: new Date().toISOString(),
@@ -2406,6 +2411,7 @@ async function approveSubmission(subId) {
       photoUrl:       s.photoUrl   || null,
       photoUrl2:      s.photoUrl2  || null,
       audioUrl:       s.audioUrl   || null,
+      proofLink:      s.proofLink  || null,
       caption:        s.caption    || null,
       comments:       [],
       createdAt:      Date.now(),

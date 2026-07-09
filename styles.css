@@ -2456,6 +2456,15 @@ body {
 .sf-photos-wrap   { display: flex; gap: 6px; }
 .sf-photos-wrap .sf-photo { flex: 1; width: 0; }
 .sf-audio         { width: 100%; margin-top: 8px; height: 36px; }
+.sf-link, .sub-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--blue);
+  word-break: break-all;
+  text-decoration: none;
+}
+.sf-link:hover, .sub-link:hover { text-decoration: underline; }
 .sub-brother      { font-size: 15px; font-weight: 700; color: var(--text-primary); }
 .sub-challenge    { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 .sub-caption      { font-size: 13px; color: var(--text-secondary); margin-top: 4px; font-style: italic; }
