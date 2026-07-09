@@ -942,7 +942,7 @@ body {
   font-family: 'Barlow', sans-serif;
   font-size: 12px;
   font-weight: 500;
-  color: rgba(15,34,51,0.5);
+  color: rgba(15,34,51,0.45);
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -3102,7 +3102,7 @@ body {
 }
 
 [data-theme="light"] .login-left {
-  background: #2a1a0f;
+  background: #f5f0e8;
 }
 
 [data-theme="light"] .score-chip {
