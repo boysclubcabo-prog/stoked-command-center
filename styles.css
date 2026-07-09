@@ -889,7 +889,7 @@ body {
 
 /* Left panel */
 .login-left {
-  background: linear-gradient(160deg, #1a3045 0%, #0f2233 100%);
+  background: #f5f0e8;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -908,7 +908,7 @@ body {
   font-size: 360px;
   font-weight: 900;
   font-style: italic;
-  color: rgba(75,114,170,0.15);
+  color: rgba(0,0,0,0.07);
   line-height: 1;
   pointer-events: none;
 }
@@ -916,14 +916,14 @@ body {
 .login-logo-img,
 .login-left img,
 .login-box img {
-  width: 60px !important;
-  height: 60px !important;
-  max-width: 60px !important;
-  max-height: 60px !important;
+  width: 120px !important;
+  height: 120px !important;
+  max-width: 120px !important;
+  max-height: 120px !important;
   min-width: 0 !important;
   min-height: 0 !important;
   object-fit: contain !important;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   display: block;
 }
 
@@ -933,7 +933,7 @@ body {
   font-weight: 400;
   letter-spacing: 0.08em;
   line-height: 1.0;
-  color: #C8963C;
+  color: #0f2233;
   margin-bottom: 14px;
   letter-spacing: -0.01em;
 }
@@ -942,7 +942,7 @@ body {
   font-family: 'Barlow', sans-serif;
   font-size: 12px;
   font-weight: 500;
-  color: rgba(255,255,255,0.5);
+  color: rgba(15,34,51,0.5);
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -978,7 +978,7 @@ body {
   font-size: 42px;
   font-weight: 400;
   letter-spacing: 0.08em;
-  color: var(--text-primary);
+  color: #f5f0e8;
   margin-bottom: 6px;
   line-height: 1.1;
 }
