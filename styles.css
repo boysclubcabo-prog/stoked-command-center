@@ -915,10 +915,10 @@ body {
 
 .login-logo-img {
   width: auto;
-  height: 72px;
-  max-width: 120px;
+  height: 60px;
+  max-width: 60px;
   object-fit: contain;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
 .login-brand-title {
@@ -1059,8 +1059,8 @@ body {
 
   .login-logo-img {
     width: auto;
-    height: 56px;
-    max-width: 100px;
+    height: 48px;
+    max-width: 48px;
     object-fit: contain;
     margin-bottom: 16px;
   }
