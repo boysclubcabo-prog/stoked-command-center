@@ -1499,21 +1499,24 @@ body {
 
 /* ── Intro stages preview ── */
 .assess-stages-preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  margin: 20px 0 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0 14px;
 }
 .stage-preview-item {
   display: flex;
   align-items: center;
   gap: 10px;
   text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
 }
 .stage-preview-num {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 1px solid rgba(212,175,55,0.4);
   background: rgba(212,175,55,0.07);
@@ -1540,11 +1543,7 @@ body {
   letter-spacing: 0.05em;
 }
 .stage-preview-divider {
-  width: 24px;
-  height: 1px;
-  background: var(--border);
-  margin: 0 8px;
-  flex-shrink: 0;
+  display: none;
 }
 
 /* ── Part bridge screen ── */
@@ -1737,13 +1736,13 @@ body {
 /* ── Intro ── */
 .assess-intro {
   text-align: center;
-  padding: 8px 0 4px;
+  padding: 0 0 4px;
 }
 
 .assess-intro-icon {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto 16px;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 12px;
   border-radius: 50%;
   background: rgba(212,175,55,0.1);
   border: 1px solid rgba(212,175,55,0.35);
@@ -1765,7 +1764,7 @@ body {
   color: var(--text-secondary);
   line-height: 1.6;
   max-width: 400px;
-  margin: 0 auto 22px;
+  margin: 0 auto 14px;
 }
 
 .assess-progress-track {
