@@ -4204,13 +4204,25 @@ body {
   display: flex;
   flex-direction: column;
   padding: 0 0 60px;
+  position: relative;
+}
+/* Continuous vertical line through the center axis */
+.path-trail::before {
+  content: '';
+  position: absolute;
+  left: calc(50% - 1px);
+  top: 22px;
+  bottom: 60px;
+  width: 2px;
+  background: var(--border);
+  z-index: 0;
 }
 
-/* Each node: card + axis (dot+lines) + spacer */
+/* Each node: card + axis (dot only) + spacer */
 .pz-node {
   display: flex;
-  align-items: stretch;
-  min-height: 90px;
+  align-items: center;
+  min-height: 88px;
 }
 
 /* right = card on right side of axis */
@@ -4218,23 +4230,20 @@ body {
 /* left  = card on left side of axis  */
 .pz-node.pz-left  { flex-direction: row-reverse; }
 
-/* the central axis column */
+/* the central axis column — dot only, no lines */
 .pz-axis {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 56px;
   flex-shrink: 0;
   position: relative;
   z-index: 1;
+  align-self: stretch;
 }
-.pz-line {
-  flex: 1;
-  width: 2px;
-  background: var(--border);
-  min-height: 14px;
-}
-.pz-line-done { background: var(--terra); opacity: 0.55; }
+/* hide the separate line elements — the ::before handles the line */
+.pz-line { display: none; }
 
 /* the dot */
 .pz-dot {
