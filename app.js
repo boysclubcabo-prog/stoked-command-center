@@ -3304,8 +3304,33 @@ function openMissionModal(archetype, idx, profile) {
       <label class="form-label">Reflection (optional)</label>
       <textarea id="missionReflection" class="form-control" rows="3" placeholder="What did you notice or discover?" maxlength="500"></textarea>
     </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Photo proof (optional)</label>
+      <label class="mission-upload-label" id="missionPhotoLabel">
+        <span id="missionPhotoLabelText">📷 Add Photo</span>
+        <input type="file" id="missionPhoto" accept="image/*" style="display:none">
+      </label>
+      <div id="missionPhotoPreview" style="display:none;margin-top:8px">
+        <img id="missionPhotoImg" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px">
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label">Music / MP3 link (optional)</label>
+      <input type="url" id="missionMp3" class="form-control" placeholder="Paste a Spotify, SoundCloud or MP3 URL…">
+    </div>
     <div class="mission-modal-xp">+100 XP awarded</div>
   `;
+  document.getElementById('missionPhoto').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('missionPhotoLabelText').textContent = '✅ ' + file.name;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('missionPhotoImg').src = ev.target.result;
+      document.getElementById('missionPhotoPreview').style.display = '';
+    };
+    reader.readAsDataURL(file);
+  });
   openModal(document.getElementById('missionModal'));
 }
 
@@ -3383,13 +3408,26 @@ document.getElementById('missionSubmitBtn').addEventListener('click', async () =
   if (!profile) return;
 
   const reflection = document.getElementById('missionReflection')?.value?.trim() || '';
+  const mp3Link    = document.getElementById('missionMp3')?.value?.trim() || '';
+  const photoFile  = document.getElementById('missionPhoto')?.files?.[0] || null;
   const btn = document.getElementById('missionSubmitBtn');
   btn.disabled = true;
   btn.textContent = 'Saving…';
 
-  const now        = new Date().toISOString();
-  const key        = `${archetype}_${idx}`;
-  const newProgress = { ...(profile.pathProgress || {}), [key]: { completedAt: now, reflection } };
+  const now = new Date().toISOString();
+  const key = `${archetype}_${idx}`;
+  let photoUrl = '';
+  if (photoFile) {
+    try {
+      photoUrl = await uploadPhoto(photoFile, `missionProof/${profile.id}/${key}_${Date.now()}`);
+    } catch (uploadErr) {
+      console.warn('Photo upload failed', uploadErr);
+    }
+  }
+  const entry = { completedAt: now, reflection };
+  if (photoUrl) entry.photoUrl = photoUrl;
+  if (mp3Link)  entry.mp3Link  = mp3Link;
+  const newProgress = { ...(profile.pathProgress || {}), [key]: entry };
 
   try {
     await updateDoc(doc(db, 'brothers', profile.id), {
