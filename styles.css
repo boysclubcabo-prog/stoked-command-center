@@ -880,6 +880,102 @@ body {
 }
 
 /* ── LOGIN SCREEN ── */
+/* ── ONBOARDING WELCOME SCREEN ─────────────────── */
+#onboardingScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0a0a08;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#onboardingScreen.hidden { display: none; }
+
+.onboard-welcome {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  width: 100%;
+  max-width: 480px;
+  padding: env(safe-area-inset-top, 0) 32px env(safe-area-inset-bottom, 0);
+  padding-top: max(env(safe-area-inset-top, 0px), 52px);
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 40px);
+  box-sizing: border-box;
+}
+
+.onboard-wordmark {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: rgba(212,175,55,0.55);
+  margin-bottom: 0;
+}
+
+.onboard-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 40px 0 32px;
+}
+
+.onboard-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 9vw, 52px);
+  letter-spacing: 0.03em;
+  line-height: 1.05;
+  color: #f5f0e8;
+  margin: 0 0 28px;
+  font-weight: 400;
+}
+
+.onboard-divider {
+  width: 32px;
+  height: 1px;
+  background: rgba(212,175,55,0.5);
+  margin-bottom: 28px;
+}
+
+.onboard-line {
+  font-size: 15px;
+  line-height: 1.7;
+  color: rgba(245,240,232,0.65);
+  margin: 0 0 14px;
+  font-weight: 400;
+}
+
+.onboard-line-em {
+  color: rgba(245,240,232,0.9);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.onboard-footer {
+  padding-top: 8px;
+}
+
+.onboard-accept-btn {
+  width: 100%;
+  padding: 17px 24px;
+  background: #D4AF37;
+  color: #0a0a08;
+  border: none;
+  border-radius: 6px;
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.onboard-accept-btn:active {
+  background: #b8962e;
+  transform: scale(0.98);
+}
+
+/* ── LOGIN SCREEN ─────────────────── */
 .login-screen {
   min-height: 100vh;
   display: grid;

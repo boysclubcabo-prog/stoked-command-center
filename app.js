@@ -724,7 +724,8 @@ onAuthStateChanged(auth, async user => {
         if (profile?.role === 'mentor') isMentor = true;
       } catch (_) {}
     }
-    showApp();
+    const handledByOnboarding = await maybeShowOnboarding();
+    if (!handledByOnboarding) showApp();
   } else {
     currentUser = null;
     isAdmin     = false;
@@ -782,6 +783,34 @@ function showLogin() {
   loginForm.reset();
   loginBtn.textContent = 'Sign In';
   loginBtn.disabled    = false;
+}
+
+async function maybeShowOnboarding() {
+  if (isAdmin) return false;
+  try {
+    const snap = await getDocs(collection(db, 'brothers'));
+    const me = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+    if (!me || me.onboardingAccepted) return false;
+    // Show welcome screen
+    const onboardEl = document.getElementById('onboardingScreen');
+    loginScreen.classList.add('hidden');
+    onboardEl.classList.remove('hidden');
+    document.getElementById('onboardAcceptBtn').onclick = async () => {
+      onboardEl.classList.add('hidden');
+      // Record acceptance
+      try {
+        await updateDoc(doc(db, 'brothers', me.id), {
+          onboardingAccepted: true,
+          onboardingAcceptedAt: new Date().toISOString(),
+        });
+      } catch (_) {}
+      showApp();
+    };
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 function showApp() {
