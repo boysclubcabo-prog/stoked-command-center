@@ -1409,7 +1409,7 @@ function renderMemberView() {
   const elColor = ELEMENT_COLORS[profile.dominantElement];
 
   memberHero.innerHTML = `
-    <div class="member-card" style="--arch-border:${clr.border};--arch-glow:${clr.glow};--arch-icon:${clr.icon}">
+    <div class="member-card" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(profile.dominantElement||'')}" style="--arch-border:${clr.border};--arch-glow:${clr.glow};--arch-icon:${clr.icon}">
       <div class="member-card-top">
         <div>
           <div class="member-name">${escHtml(profile.name)}${profile.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : ''}</div>
@@ -1540,7 +1540,7 @@ function renderCard(brother) {
   const nextText = lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to ${lvl.next.name}` : 'MAX LEVEL ACHIEVED';
 
   return `
-    <div class="brother-card" id="card-${brother.id}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
+    <div class="brother-card" id="card-${brother.id}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(brother.dominantElement||'')}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
       <div class="card-top">
         <div class="card-identity">
           <div class="card-name">
@@ -3035,7 +3035,7 @@ function renderRoster() {
         const isMe = b.id === me?.id;
         const bsCat = b.brotherhoodScore != null ? getBSCategory(b.brotherhoodScore) : null;
         return `
-          <div class="roster-card ${isMe ? 'roster-card-me' : ''}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
+          <div class="roster-card ${isMe ? 'roster-card-me' : ''}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(b.dominantElement||'')}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
             <div class="roster-rank">#${i + 1}</div>
             <span class="arch-icon roster-icon">${icon}</span>
             <div class="roster-info">
@@ -3414,7 +3414,47 @@ document.getElementById('xpCancelBtn').addEventListener('click',  () => closeMod
   el.addEventListener('click', e => { if (e.target === el) closeModal(el); }));
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal, viewCheckInModal, challengeModal, submitProofModal].forEach(closeModal);
+  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal, viewCheckInModal, challengeModal, submitProofModal, archetypeModal].forEach(closeModal);
+});
+
+// ── ARCHETYPE INFO MODAL ────────────────────────
+const archetypeModal     = document.getElementById('archetypeModal');
+const archetypeModalBody = document.getElementById('archetypeModalBody');
+document.getElementById('archetypeModalClose').addEventListener('click', () => closeModal(archetypeModal));
+archetypeModal.addEventListener('click', e => { if (e.target === archetypeModal) closeModal(archetypeModal); });
+
+function openArchetypeModal(archetype, element) {
+  const desc  = ARCHETYPE_DESC[archetype];
+  if (!desc) return;
+  const clr   = ARCHETYPE_COLORS[archetype] || { border: '#888', glow: '#888', icon: '#888' };
+  const elColor = ELEMENT_COLORS[element] || '#888';
+  const icon  = archetypeElementIcon(archetype, element);
+  const elDesc = element && desc[element] ? `
+    <div class="arch-modal-el-label" style="border-color:${elColor}44;color:${elColor}">${element} Element</div>
+    <p class="arch-modal-el-desc">${desc[element]}</p>
+  ` : '';
+  document.getElementById('archetypeModalTitle').textContent = `${archetype}${element ? ' · ' + element : ''}`;
+  archetypeModalBody.innerHTML = `
+    <div class="arch-modal-hero" style="--arch-border:${clr.border};--arch-glow:${clr.glow};--arch-icon:${clr.icon}">
+      <span class="arch-icon arch-modal-icon">${icon}</span>
+      <div class="arch-modal-name">${archetype}</div>
+      ${element ? `<div class="arch-modal-element" style="color:${elColor}">${element} Element</div>` : ''}
+    </div>
+    <p class="arch-modal-primary">${desc.primary || ''}</p>
+    ${elDesc}
+  `;
+  openModal(archetypeModal);
+}
+
+// Delegate clicks on arch-icon elements anywhere in the page
+document.addEventListener('click', e => {
+  const trigger = e.target.closest('.archetype-pill, .arch-icon-wrap, .arch-icon, .arch-icon-img');
+  if (!trigger) return;
+  const card = trigger.closest('[data-archetype]');
+  if (!card) return;
+  const archetype = card.dataset.archetype;
+  const element   = card.dataset.element;
+  if (archetype) openArchetypeModal(archetype, element);
 });
 
 // ── TOAST ─────────────────────────────────────

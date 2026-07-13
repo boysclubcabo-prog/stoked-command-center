@@ -356,6 +356,13 @@ body {
   align-items: center;
   gap: 3px;
   margin-bottom: 12px;
+  cursor: pointer;
+}
+.archetype-pill:active { opacity: 0.7; }
+
+[data-archetype] .arch-icon,
+[data-archetype] .arch-icon-img {
+  cursor: pointer;
 }
 
 .arch-icon {
@@ -4042,3 +4049,56 @@ body {
 
 /* tap cursor on submission photos */
 .sub-photo-tap { cursor: zoom-in; }
+
+/* ── ARCHETYPE INFO MODAL ─────────────────────── */
+.archetype-modal { max-width: 420px; }
+.arch-modal-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+}
+.arch-modal-icon {
+  width: 96px;
+  height: 96px;
+  filter: drop-shadow(0 0 14px var(--arch-glow, transparent));
+}
+.arch-modal-icon .arch-icon-img { width: 96px; height: 96px; }
+.arch-modal-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--arch-icon, var(--text-primary));
+}
+.arch-modal-element {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.arch-modal-primary {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0 0 18px;
+}
+.arch-modal-el-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-left: 3px solid;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}
+.arch-modal-el-desc {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+}
