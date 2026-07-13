@@ -2249,15 +2249,18 @@ async function finishAssessment() {
   const growthElement    = elSorted[elSorted.length - 1][0];
 
   if (assessBrotherId) {
+    const assessmentData = { primaryArchetype, growthArchetype, dominantElement, growthElement, archetypeScores, elementScores, assessmentCompletedAt: new Date().toISOString() };
     const local = brothers.find(b => b.id === assessBrotherId);
-    if (local) Object.assign(local, { primaryArchetype, growthArchetype, dominantElement, archetypeScores, elementScores });
+    if (local) {
+      Object.assign(local, assessmentData);
+    } else {
+      // Brand-new brother created during onboarding — add to local array so render() sees it
+      brothers.push({ id: assessBrotherId, email: currentUser.email.toLowerCase(), xp: 0, role: 'member', ...assessmentData });
+    }
     render();
 
     try {
-      await updateDoc(doc(db, 'brothers', assessBrotherId), {
-        primaryArchetype, growthArchetype, dominantElement, growthElement, archetypeScores, elementScores,
-        assessmentCompletedAt: new Date().toISOString(),
-      });
+      await updateDoc(doc(db, 'brothers', assessBrotherId), assessmentData);
     } catch (err) {
       console.error('Failed to save assessment results:', err);
       showToast('Results shown but failed to save — check your connection and retake.', 'info');
@@ -2360,13 +2363,14 @@ async function finishProfile() {
         profileCompletedAt: new Date().toISOString(),
       });
       const local = brothers.find(b => b.id === assessBrotherId);
-      if (local) Object.assign(local, {
+      const profileData = {
         yearlyGoal:  profileAnswers.yearlyGoal  || '',
         strengths:   profileAnswers.strengths   || '',
         struggles:   profileAnswers.struggles   || '',
         interests:   profileAnswers.interests   || [],
         oneWord:     profileAnswers.oneWord      || '',
-      });
+      };
+      if (local) Object.assign(local, profileData);
     } catch (err) {
       console.error('Failed to save profile:', err);
       showToast('Profile shown but failed to save — check connection.', 'info');
