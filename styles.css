@@ -892,7 +892,7 @@ body {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #0a0a08;
+  background: var(--bg-base);
   display: flex;
   align-items: stretch;
   justify-content: center;
@@ -917,7 +917,7 @@ body {
   font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
   font-size: 11px;
   letter-spacing: 0.22em;
-  color: rgba(212,175,55,0.55);
+  color: rgba(184,92,48,0.6);
   margin-bottom: 0;
 }
 
@@ -934,28 +934,29 @@ body {
   font-size: clamp(36px, 9vw, 52px);
   letter-spacing: 0.03em;
   line-height: 1.05;
-  color: #f5f0e8;
+  color: var(--cream);
   margin: 0 0 28px;
   font-weight: 400;
 }
 
 .onboard-divider {
   width: 32px;
-  height: 1px;
-  background: rgba(212,175,55,0.5);
+  height: 2px;
+  background: var(--terra);
+  opacity: 0.5;
   margin-bottom: 28px;
 }
 
 .onboard-line {
   font-size: 15px;
   line-height: 1.7;
-  color: rgba(245,240,232,0.65);
+  color: var(--text-secondary);
   margin: 0 0 14px;
   font-weight: 400;
 }
 
 .onboard-line-em {
-  color: rgba(245,240,232,0.9);
+  color: var(--cream);
   font-style: italic;
   margin-top: 6px;
 }
@@ -967,8 +968,8 @@ body {
 .onboard-accept-btn {
   width: 100%;
   padding: 17px 24px;
-  background: #D4AF37;
-  color: #0a0a08;
+  background: var(--terra);
+  color: #fff;
   border: none;
   border-radius: 6px;
   font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
@@ -977,12 +978,13 @@ body {
   cursor: pointer;
   transition: background 0.15s, transform 0.1s;
 }
+.onboard-accept-btn:hover  { background: #c4693a; }
 .onboard-accept-btn:active {
-  background: #b8962e;
+  background: #a04e28;
   transform: scale(0.98);
 }
 .onboard-accept-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
   transform: none;
 }
@@ -1010,25 +1012,26 @@ body {
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(212,175,55,0.7);
+  color: var(--terra);
+  opacity: 0.85;
   font-weight: 600;
 }
 
 .onboard-input {
-  background: rgba(245,240,232,0.06);
-  border: 1px solid rgba(245,240,232,0.15);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
   border-radius: 6px;
   padding: 13px 14px;
   font-size: 15px;
-  color: #f5f0e8;
+  color: var(--cream);
   outline: none;
   width: 100%;
   box-sizing: border-box;
   transition: border-color 0.15s;
   -webkit-appearance: none;
 }
-.onboard-input::placeholder { color: rgba(245,240,232,0.3); }
-.onboard-input:focus { border-color: rgba(212,175,55,0.5); }
+.onboard-input::placeholder { color: var(--text-muted); }
+.onboard-input:focus { border-color: var(--terra); }
 
 .onboard-err {
   font-size: 13px;
@@ -1712,15 +1715,15 @@ body {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  border: 2px solid rgba(212,175,55,0.5);
-  background: rgba(212,175,55,0.08);
+  border: 2px solid rgba(184,92,48,0.5);
+  background: rgba(184,92,48,0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: Georgia, serif;
   font-size: 22px;
   font-style: italic;
-  color: var(--accent);
+  color: var(--terra);
   margin: 0 auto 16px;
 }
 .assess-bridge-title {
