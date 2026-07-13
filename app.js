@@ -3205,20 +3205,31 @@ function renderMyPath() {
   // So user scrolls UP to see future locked missions
   const reversed = [...challenges].map((c, i) => ({ ...c, idx: i })).reverse();
 
+  const archIconHtml = archetypeElementIcon(currentArch, profile.dominantElement);
+  const pct = Math.round(doneCount / challenges.length * 100);
+
   let html = `
     <div class="path-screen">
       <div class="path-arch-banner" style="--path-clr:${aClr.icon};--path-glow:${aClr.glow}">
-        <div class="path-arch-symbol">${archData.symbol}</div>
+        <div class="path-banner-icon-wrap" style="border-color:${aClr.icon}22;background:${aClr.glow}">${archIconHtml}</div>
         <div class="path-arch-info">
+          <div class="path-arch-label">YOUR PATH</div>
           <div class="path-arch-name" style="color:${aClr.icon}">${currentArch}</div>
           <div class="path-arch-motto">${escHtml(archData.motto)}</div>
         </div>
         <div class="path-arch-counter">
-          <span class="path-arch-count" style="color:${aClr.icon}">${doneCount}</span>
-          <span class="path-arch-total">/ ${challenges.length}</span>
+          <svg class="path-xp-ring" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3"/>
+            <circle cx="22" cy="22" r="18" fill="none" stroke="${aClr.icon}" stroke-width="3"
+              stroke-dasharray="${Math.round(2*Math.PI*18*pct/100)} ${Math.round(2*Math.PI*18*(1-pct/100))}"
+              stroke-dashoffset="${Math.round(2*Math.PI*18*0.25)}"
+              stroke-linecap="round"/>
+            <text x="22" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="${aClr.icon}">${doneCount}/${challenges.length}</text>
+          </svg>
         </div>
       </div>
-      <div class="path-arch-progress"><div class="path-arch-fill" style="width:${Math.round(doneCount/challenges.length*100)}%;background:${aClr.icon}"></div></div>`;
+      <div class="path-arch-progress"><div class="path-arch-fill" style="width:${pct}%;background:${aClr.icon}"></div></div>
+      <div class="path-xp-row"><span class="path-xp-earned" style="color:${aClr.icon}">+${doneCount * 100} XP earned</span><span class="path-xp-remain">${(challenges.length - doneCount) * 100} XP remaining</span></div>`;
 
   if (allDone) {
     html += `
@@ -3243,28 +3254,35 @@ function renderMyPath() {
     const num        = idx + 1;
 
     const dotContent = done
-      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
       : isLocked
-      ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
+      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
       : `<span class="pz-num">${num}</span>`;
 
     const stateClass = done ? 'pz-done' : isActive ? 'pz-active' : 'pz-locked';
+    const photoUrl = progress[key]?.photoUrl || '';
+    const mp3Link  = progress[key]?.mp3Link  || '';
 
     html += `
       <div class="pz-node ${stateClass} pz-${side}" id="pznode-${idx}">
-        <div class="pz-card">
-          ${isActive ? `<div class="pz-active-label">CURRENT</div>` : ''}
-          ${done     ? `<div class="pz-done-label">${completedDate}</div>` : ''}
+        <div class="pz-card" style="${isActive ? `--card-clr:${aClr.icon};--card-glow:${aClr.glow}` : ''}">
+          ${isActive ? `<div class="pz-active-badge" style="background:${aClr.icon}">NOW</div>` : ''}
+          ${done     ? `<div class="pz-done-badge">✓ ${completedDate}</div>` : ''}
+          ${isLocked ? `<div class="pz-locked-badge">🔒 Locked</div>` : ''}
+          <div class="pz-num-label">${isLocked ? `Challenge ${num}` : `Challenge ${num}`}</div>
           <div class="pz-title">${escHtml(title)}</div>
-          ${isActive ? `<div class="pz-task">${escHtml(task)}</div>
-            <button class="pz-complete-btn" data-pz-idx="${idx}">Mark Complete</button>` : ''}
+          ${isActive ? `
+            <div class="pz-task">${escHtml(task)}</div>
+            <div class="pz-xp-pill" style="color:${aClr.icon};border-color:${aClr.icon}40">+100 XP</div>
+            <button class="pz-complete-btn" data-pz-idx="${idx}" style="background:${aClr.icon}">Mark Complete</button>` : ''}
+          ${done && photoUrl ? `<img src="${escHtml(photoUrl)}" class="pz-proof-thumb" alt="proof">` : ''}
+          ${done && mp3Link  ? `<a href="${escHtml(mp3Link)}" target="_blank" rel="noopener" class="pz-mp3-link">🎵 Listen</a>` : ''}
           ${done && reflection ? `<div class="pz-reflection">"${escHtml(reflection)}"</div>` : ''}
-          ${isLocked ? `<div class="pz-lock-text">Locked</div>` : ''}
         </div>
         <div class="pz-axis">
-          <div class="pz-line pz-line-top${done ? ' pz-line-done' : ''}"></div>
-          <div class="pz-dot${done ? ' pz-dot-done' : isActive ? ' pz-dot-active' : ''}" style="${!isLocked ? `background:${aClr.icon};${isActive ? `box-shadow:0 0 0 6px ${aClr.icon}22` : ''}` : ''}">${dotContent}</div>
-          <div class="pz-line pz-line-bot${done ? ' pz-line-done' : ''}"></div>
+          <div class="pz-line pz-line-top"></div>
+          <div class="pz-dot${done ? ' pz-dot-done' : isActive ? ' pz-dot-active' : ''}" style="${!isLocked ? `background:${aClr.icon}` : ''}">${dotContent}</div>
+          <div class="pz-line pz-line-bot"></div>
         </div>
         <div class="pz-spacer"></div>
       </div>`;
