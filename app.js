@@ -790,29 +790,106 @@ async function maybeShowOnboarding() {
   const key = `onboardingAccepted_${currentUser.uid}`;
   if (localStorage.getItem(key)) return false;
 
-  // Show welcome screen
   const onboardEl = document.getElementById('onboardingScreen');
   loginScreen.classList.add('hidden');
   onboardEl.classList.remove('hidden');
 
-  document.getElementById('onboardAcceptBtn').onclick = async () => {
-    localStorage.setItem(key, '1');
-    onboardEl.classList.add('hidden');
-    // Best-effort write to Firestore if profile exists
-    try {
-      const snap = await getDocs(collection(db, 'brothers'));
-      const me = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
-      if (me) {
-        await updateDoc(doc(db, 'brothers', me.id), {
-          onboardingAccepted: true,
+  // ── Screen 1: Welcome ──
+  showOnboardWelcome(onboardEl, () => {
+    // ── Screen 2: Profile setup ──
+    showOnboardProfile(onboardEl, async (profileData) => {
+      // Create brother document
+      try {
+        const id = 'br_' + Date.now().toString(36);
+        await setDoc(doc(db, 'brothers', id), {
+          ...profileData,
+          email:                currentUser.email.toLowerCase(),
+          xp:                   0,
+          role:                 'member',
+          onboardingAccepted:   true,
           onboardingAcceptedAt: new Date().toISOString(),
+          createdAt:            new Date().toISOString(),
+          updatedAt:            new Date().toISOString(),
         });
+      } catch (err) {
+        showToast('Error saving profile: ' + err.message, 'info');
+        return;
       }
-    } catch (_) {}
-    showApp();
-  };
+      localStorage.setItem(key, '1');
+      onboardEl.classList.add('hidden');
+      showApp();
+    });
+  });
+
   return true;
+}
+
+function showOnboardWelcome(container, onAccept) {
+  container.innerHTML = `
+    <div class="onboard-welcome">
+      <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
+      <div class="onboard-body">
+        <h1 class="onboard-title">Welcome to<br/>Stoked Brotherhood</h1>
+        <div class="onboard-divider"></div>
+        <p class="onboard-line">You have been invited into a space built for growth.</p>
+        <p class="onboard-line">This is a place to become stronger, more disciplined, more capable, and more honest with yourself.</p>
+        <p class="onboard-line">You will be challenged.</p>
+        <p class="onboard-line">You will be expected to keep your word.</p>
+        <p class="onboard-line">You will learn what you are capable of.</p>
+        <p class="onboard-line">You will not be asked to become someone else.</p>
+        <p class="onboard-line onboard-line-em">You will be challenged to become more fully who you are.</p>
+      </div>
+      <div class="onboard-footer">
+        <button class="btn onboard-accept-btn" id="onboardAcceptBtn">I Accept</button>
+      </div>
+    </div>`;
+  container.querySelector('#onboardAcceptBtn').onclick = onAccept;
+}
+
+function showOnboardProfile(container, onComplete) {
+  container.innerHTML = `
+    <div class="onboard-welcome">
+      <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
+      <div class="onboard-body onboard-body-form">
+        <h1 class="onboard-title">Set Up<br/>Your Profile</h1>
+        <div class="onboard-divider"></div>
+        <p class="onboard-line" style="margin-bottom:28px">This is how your brothers will know you.</p>
+        <div class="onboard-form">
+          <div class="onboard-field">
+            <label class="onboard-label">Full Name</label>
+            <input class="onboard-input" id="onboardName" type="text" placeholder="Your name" autocomplete="name" />
+          </div>
+          <div class="onboard-field">
+            <label class="onboard-label">Age</label>
+            <input class="onboard-input" id="onboardAge" type="number" placeholder="Your age" min="13" max="99" />
+          </div>
+          <div class="onboard-field">
+            <label class="onboard-label">City</label>
+            <input class="onboard-input" id="onboardCity" type="text" placeholder="Where you're based" />
+          </div>
+          <div class="onboard-err hidden" id="onboardErr">Please enter your name to continue.</div>
+        </div>
+      </div>
+      <div class="onboard-footer">
+        <button class="btn onboard-accept-btn" id="onboardProfileBtn">Continue</button>
+      </div>
+    </div>`;
+
+  container.querySelector('#onboardProfileBtn').onclick = async () => {
+    const name = container.querySelector('#onboardName').value.trim();
+    const age  = parseInt(container.querySelector('#onboardAge').value) || null;
+    const city = container.querySelector('#onboardCity').value.trim();
+    if (!name) {
+      container.querySelector('#onboardErr').classList.remove('hidden');
+      container.querySelector('#onboardName').focus();
+      return;
+    }
+    const btn = container.querySelector('#onboardProfileBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    await onComplete({ name, age, city: city || null });
+  };
+  setTimeout(() => container.querySelector('#onboardName')?.focus(), 300);
 }
 
 function showApp() {
@@ -1138,8 +1215,8 @@ function renderMemberView() {
     memberHero.innerHTML = `
       <div class="member-no-profile">
         <div class="empty-icon">${IC.shield}</div>
-        <h2>Profile Not Set Up Yet</h2>
-        <p>Your mentor hasn't added your profile yet. Check back soon.</p>
+        <h2>Welcome, Brother</h2>
+        <p>Your profile is being set up. Refresh in a moment.</p>
       </div>`;
     brothersGrid.innerHTML = '';
     emptyState.classList.add('hidden');
