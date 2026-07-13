@@ -2956,6 +2956,16 @@ function renderSocialFeed() {
   el.innerHTML = html;
   if (isAdmin) bindAnnouncementBtn(el);
 
+  // Tap feed photo to open fullscreen
+  el.querySelectorAll('.sf-photo').forEach(img => {
+    img.addEventListener('click', () => {
+      const wrap = img.closest('.sf-photos-wrap');
+      const imgs = wrap ? Array.from(wrap.querySelectorAll('.sf-photo')) : [img];
+      const photoUrl2 = imgs[1]?.src || null;
+      openPhotoLightbox(img.src, null, '', '', 0, photoUrl2, null);
+    });
+  });
+
   // Delete post buttons
   el.querySelectorAll('[data-delete-post]').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -3336,9 +3346,11 @@ function openPhotoLightbox(photoUrl, subId, brotherName, challengeTitle, xp, pho
   const lbAudio = document.getElementById('lbAudio');
   if (audioUrl) { lbAudio.src = audioUrl; lbAudio.classList.remove('hidden'); }
   else          { lbAudio.src = ''; lbAudio.classList.add('hidden'); }
-  document.getElementById('lbBrother').textContent = brotherName;
-  document.getElementById('lbChallenge').textContent = challengeTitle;
-  document.getElementById('lbXp').textContent = `+${xp} XP`;
+  document.getElementById('lbBrother').textContent = brotherName || '';
+  document.getElementById('lbChallenge').textContent = challengeTitle || '';
+  document.getElementById('lbXp').textContent = xp ? `+${xp} XP` : '';
+  document.getElementById('photoLightbox').querySelector('.lb-meta').style.display =
+    (brotherName || challengeTitle || xp) ? '' : 'none';
   lb.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
