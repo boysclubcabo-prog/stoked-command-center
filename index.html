@@ -130,6 +130,10 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M21 21v-2a4 4 0 00-3-3.87"/></svg>
         Brothers
       </button>
+      <button class="tab-btn hidden" data-tab="mypath" id="mypathTabBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/><line x1="12" y1="7" x2="12" y2="17"/><circle cx="5" cy="12" r="1.5"/><line x1="6.5" y1="12" x2="10.5" y2="12"/></svg>
+        My Path
+      </button>
     </nav>
 
     <!-- GROUP STATS BAR (admin only) -->
@@ -176,6 +180,11 @@
     <!-- ROSTER SECTION (member view of all brothers) -->
     <div class="community-section hidden" id="rosterSection">
       <div class="community-inner" id="rosterContainer"></div>
+    </div>
+
+    <!-- MY PATH SECTION (member only) -->
+    <div class="community-section hidden" id="mypathSection">
+      <div class="community-inner" id="mypathContainer"></div>
     </div>
 
     <!-- MAIN CONTENT -->
@@ -622,6 +631,21 @@
           <button type="submit" class="btn btn-primary">Post</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MY PATH — MISSION COMPLETE MODAL -->
+  <div class="modal-overlay" id="missionModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="missionModalTitle">Complete Mission</h2>
+        <button class="modal-close" id="missionModalClose">✕</button>
+      </div>
+      <div class="modal-body" id="missionModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="missionCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="missionSubmitBtn">Mark Complete</button>
+      </div>
     </div>
   </div>
 
