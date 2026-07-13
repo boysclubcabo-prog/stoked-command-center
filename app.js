@@ -110,18 +110,102 @@ const ELEMENT_DESC = {
 };
 
 const ARCHETYPE_DESC = {
-  Warrior:      { primary: 'You grow through challenge, courage, discipline, and action.',          growth: 'Your next evolution is taking on hard challenges with discipline and courage.' },
-  Monk:         { primary: 'You grow through calm, awareness, and inner control.',                  growth: 'Your next evolution is developing calm, awareness, and inner control.' },
-  Creator:      { primary: 'You grow through expression, imagination, and making things real.',     growth: 'Your next evolution is creating boldly and trusting your imagination.' },
-  Explorer:     { primary: 'You grow through curiosity, freedom, and new experience.',               growth: 'Your next evolution is stepping into the unknown and staying curious.' },
-  Leader:       { primary: 'You grow through influence, energy, and lifting others up.',             growth: 'Your next evolution is stepping up and leading with purpose.' },
-  Builder:      { primary: 'You grow through discipline, structure, and getting things done.',       growth: 'Your next evolution is building consistent habits and following through.' },
-  Protector:    { primary: 'You grow through loyalty, responsibility, and standing for others.',     growth: 'Your next evolution is showing up for the people who depend on you.' },
-  Strategist:   { primary: 'You grow through thinking, planning, and understanding how things work.',growth: 'Your next evolution is slowing down to think before you act.' },
-  Visionary:    { primary: 'You grow through purpose, big ideas, and seeing what\'s possible.',       growth: 'Your next evolution is dreaming bigger and trusting your vision.' },
-  Communicator: { primary: 'You grow through connection, voice, and being understood.',               growth: 'Your next evolution is speaking up and connecting honestly.' },
-  Guardian:     { primary: 'You grow through stability, integrity, and consistency.',                 growth: 'Your next evolution is becoming the steady one others can count on.' },
-  Sovereign:    { primary: 'You grow through presence, ownership, and self-respect.',                 growth: 'Your next evolution is owning your presence and standing on your own.' },
+  Warrior: {
+    primary: `The Warrior is the man who does not wait for perfect conditions. He trains when he doesn't feel like it, competes when the odds are against him, and gets back up every single time. His growth lives inside difficulty. He understands that pain is not the enemy — softness is. He does not need to be angry to be dangerous. The Warrior is disciplined, focused, and relentless. He is not reckless — he is forged. His weapon is will.`,
+    growth: `The Warrior is your frontier. You have the capacity for far more courage and discipline than you've tested. Your growth isn't about getting tougher — it's about learning to stay in the fight when everything in you wants to quit. Start by doing one hard thing daily, on purpose. Physical challenge is the fastest way in. When you stop choosing comfort, you'll find out who you actually are.`,
+    Fire:   `Fire is the element of ignition. A Warrior with Fire doesn't just fight — he burns. He leads with intensity, acts before others are ready, and refuses to let the moment die. His energy is contagious and his commitment is total. The challenge is learning to direct the flame. Uncontrolled fire destroys. Mastered fire forges.`,
+    Water:  `A Warrior with Water fights from a different place. He is not driven by rage — he is driven by love. Love for his people, his purpose, and the things that matter. He can take a hit and keep moving because he feels deeply and channels it forward. His strength is not hard — it is fluid and relentless, like a river that carves through stone.`,
+    Air:    `A Warrior with Air is the thinking fighter. He doesn't just train his body — he studies the game. He reads people, anticipates outcomes, and moves with strategic precision. Where brute force would fail, his mind wins. He is the man in the room who looks calm and sees everything.`,
+    Earth:  `A Warrior with Earth is the most reliable man in any fight. He shows up. Every day. Without drama. His training is disciplined, his habits are locked in, and his endurance is built on years of consistent work. He doesn't peak — he sustains. He is the man still standing when everyone else has burned out.`,
+  },
+  Monk: {
+    primary: `The Monk is the man who has learned that the greatest battles are fought inside. He is not passive — he is precise. He has trained himself to observe before reacting, to listen before speaking, to be still when everything else is moving. His self-mastery is not weakness — it is the highest form of discipline. He knows who he is because he has sat with himself long enough to find out.`,
+    growth:  `The Monk is your invitation to stop running. You grow through stillness, reflection, and radical honesty with yourself. Start spending time alone — not distracted, actually alone. Journal. Pray. Think. The answers you've been looking for outside of yourself have been inside the whole time. Your growth will not come from doing more. It will come from understanding more deeply.`,
+    Fire:   `A Monk with Fire is rare. He has the discipline of stillness and the intensity of purpose. He doesn't burn hot on the surface — his fire burns at the core. He meditates, but he is not soft. He withdraws, but only to return stronger. He is the man who appears calm but is internally ablaze with commitment.`,
+    Water:  `A Monk with Water is the deepest well in the room. He feels everything but shows nothing until the moment is right. His intuition is sharp, his emotional intelligence is high, and his presence creates safety for others. He doesn't need to speak to be heard. His inner world is vast, and what comes from it is precise.`,
+    Air:    `A Monk with Air is the philosophical man. He thinks in layers, asks questions others don't consider, and sees patterns in human behavior most miss. His mind is always working even when he appears still. He is the one who walks away from a conversation with insights no one else caught.`,
+    Earth:  `A Monk with Earth is immovable. His peace is not something he performs — it is something he has built through consistent practice over years. He shows up the same way every day. He is the anchor. People around him calm down simply by being near him. He does not react — he responds, slowly and with full intention.`,
+  },
+  Creator: {
+    primary: `The Creator cannot help but make things. He sees the world as raw material — a conversation, a room, a problem, a relationship — and his instinct is to shape it into something better than he found it. He is driven by expression and originates ideas that others follow. His art is not always on a canvas. It is in how he lives, leads, builds, and communicates. When he is alive in his gift, the world around him shifts.`,
+    growth:  `The Creator is your invitation to express what's actually inside you. You have ideas, visions, and perspectives that no one else has — and you've been keeping them quieter than you should. Start making things. It doesn't need to be perfect. In fact, it won't be. Make it anyway. Your growth begins the moment you stop waiting until you're ready and start putting something real into the world.`,
+    Fire:   `A Creator with Fire makes things that move people. He doesn't just build — he ignites. His work carries intensity and purpose. He creates with urgency, as if the idea will expire if he doesn't get it out. He is the one who starts the movement, launches the project, breaks the silence. His creative energy is a force, not a hobby.`,
+    Water:  `A Creator with Water makes things that heal and connect. His work carries emotional truth. He writes the thing that makes people feel seen. He builds the space where others exhale. He is sensitive to beauty, to pain, to nuance, and his creations reflect all of it. What he makes isn't just impressive — it's meaningful.`,
+    Air:    `A Creator with Air lives in the world of ideas and language. He thinks in stories, in metaphors, in systems of meaning. He can take something complex and make it clear, or take something ordinary and reveal its depth. His creativity is primarily of the mind — conceptual, philosophical, visionary.`,
+    Earth:  `A Creator with Earth finishes what he starts. He is not just a dreamer — he is a maker in the truest sense. He brings ideas from imagination into physical reality through discipline, craft, and patience. He builds things that last. His work is tangible, well-made, and built to endure.`,
+  },
+  Explorer: {
+    primary: `The Explorer is the man who was not made for standing still. He is drawn toward the unknown — new places, new ideas, new versions of himself. He doesn't fear the unfamiliar; he's energized by it. The Explorer doesn't wait for life to come to him — he goes after it. His courage is quiet but constant. He is the one who walks into rooms others avoid, tries things others dismiss, and keeps moving when others settle.`,
+    growth:  `The Explorer is your next chapter. There is a version of your life you haven't lived yet — and part of you knows it. Your growth comes from stepping into the unfamiliar with intention. Sign up for the thing you've been putting off. Say yes to the uncomfortable invitation. Change one environment that has been holding you back. The next version of you is on the other side of a door you haven't opened yet.`,
+    Fire:   `An Explorer with Fire doesn't explore carefully — he charges. He is bold, fast-moving, and willing to go first. He doesn't need a map. He is the man who starts an adventure before he has a plan and figures it out along the way. His confidence in motion is contagious. He does not wait for permission.`,
+    Water:  `An Explorer with Water moves through the world with emotional curiosity. He doesn't just explore places — he explores people, relationships, inner landscapes. He goes deep as well as wide. His journey is often inward, uncovering truths about himself through experience. He is drawn to depth, to mystery, to what's beneath the surface.`,
+    Air:    `An Explorer with Air is the idea traveler. He explores through reading, conversation, philosophy, and connection. He collects perspectives the way other men collect gear. His range of thought is wide and his hunger to understand is constant. He might not travel far physically — but his mind covers vast territory.`,
+    Earth:  `An Explorer with Earth is the adventurer who is also reliable. He goes out, pushes limits, and keeps coming back. He builds a life of adventure without losing his roots. His exploration is purposeful — he doesn't wander, he journeys. He comes home changed, and he brings what he learned back to the people he loves.`,
+  },
+  Leader: {
+    primary: `The Leader is the man the room reorganizes around when he walks in. He doesn't need a title. He has presence, conviction, and the rare ability to make people believe in something bigger than themselves. His power is in what he inspires, not what he demands. He sees people clearly — their strengths, their limits, their potential — and he calls it out of them. He is not in it for the credit. He is in it for the outcome.`,
+    growth:  `The Leader is your calling. You have more influence than you're using, and people around you are waiting for someone to step up. Your growth starts with taking responsibility for rooms you've been watching from the side. Lead in small things first. Speak when others stay quiet. Make the call when others hesitate. The capacity is already there — it just needs to be activated.`,
+    Fire:   `A Leader with Fire is impossible to ignore. His energy fills the room before he says a word. He moves fast, decides boldly, and rallies people with his conviction. He doesn't wait for momentum — he creates it. His challenge is learning when to slow down, because the people behind him need time to follow.`,
+    Water:  `A Leader with Water leads by feeling. He is deeply attuned to the people around him and earns loyalty through understanding, not authority. He listens with full presence. He notices who is struggling before they say anything. His team follows him not because they have to, but because they trust him completely.`,
+    Air:    `A Leader with Air leads through vision and clarity. He can articulate where they're going better than anyone. He makes complex things simple. He gives people a picture of the future that makes them want to show up. His leadership is persuasive and inspiring — built on ideas and communication more than force.`,
+    Earth:  `A Leader with Earth is the steady hand. He doesn't panic. He doesn't perform. He shows up every day and sets the standard through how he lives, not just what he says. His leadership is earned through consistency. People follow him because he has already proven he will do the work regardless of who is watching.`,
+  },
+  Builder: {
+    primary: `The Builder is the man who makes things real. He doesn't get excited about ideas — he gets to work. He is defined by follow-through: setting a plan, doing the next thing, and keeping going when the novelty has worn off and the grind is all that's left. His results speak. He doesn't need to announce what he's building — you can see it. He is the architect of his own life and the foundation of every team he's part of.`,
+    growth:  `The Builder is your invitation to stop talking about it and start building. You have a project, a plan, a version of yourself you've been delaying. The gap between where you are and where you want to be is closed by daily action, not by a breakthrough moment. Pick one thing and build it brick by brick. Consistency over time is more powerful than any single effort. Your growth is already designed — it just needs to be constructed.`,
+    Fire:   `A Builder with Fire builds with intensity and urgency. He doesn't just grind — he burns while he works. He starts early, stays late, and brings a competitive edge to everything he constructs. His drive is massive and his output is high. His challenge is learning to build for the long game, not just the next sprint.`,
+    Water:  `A Builder with Water builds things that serve others. His motivation is not personal glory — it is the deep satisfaction of creating something that meets a real need. He builds relationships as carefully as he builds projects. What he constructs tends to last because it is grounded in purpose, not ego.`,
+    Air:    `A Builder with Air builds systems of thought — ideas, frameworks, communication structures. He is the man who designs the strategy, architects the process, and gives the work its clarity. He doesn't just do — he thinks through how to do it right. His contribution is often invisible but everything would fall apart without it.`,
+    Earth:  `A Builder with Earth is the most consistent man in the room. He shows up the same way every day. No drama. No shortcuts. He lays the foundation properly and builds upward with patience. He is the man still working while others have already posted about their results. His life is built to last.`,
+  },
+  Protector: {
+    primary: `The Protector's identity is built around the people he is responsible for. He doesn't ask what he'll get — he asks what's needed. His loyalty is total and his presence is a form of safety. He is the man who steps between danger and the people he loves without thinking twice. He doesn't seek conflict, but he does not flinch from it when the people he loves are at stake. His strength is not worn for show — it is reserved for the moment it matters.`,
+    growth:  `The Protector is your calling toward responsibility. You are more capable of showing up for others than you've allowed yourself to believe. Your growth comes from choosing someone or something to be truly responsible for — not in a controlling way, but in the way a man carries weight with dignity. Step into your role as the reliable one. The men and people around you need the version of you that shows up without being asked.`,
+    Fire:   `A Protector with Fire guards with intensity. He is not passive about protection — he is fierce about it. He will speak loudly, act quickly, and stand between his people and anything that threatens them without hesitation. His protection comes from heat — the burning conviction that these people matter and that he will not let them down.`,
+    Water:  `A Protector with Water protects emotionally as much as physically. He creates safety through presence, through listening, through being a steady place where others can fall apart without judgment. His protection is felt before it's seen. The people around him feel safe because he makes them feel understood.`,
+    Air:    `A Protector with Air uses his mind to shield the people around him. He anticipates threats before they arrive. He sees around corners, asks the questions others miss, and prepares his people for what's coming. His protection is strategic — thinking through consequences so others don't have to suffer them.`,
+    Earth:  `A Protector with Earth is unmovable. He is the wall between his family and chaos. He doesn't promise — he proves. Year after year, season after season, he is simply there. His people know he won't leave, won't give up, and won't fail them. That consistency is his greatest act of protection.`,
+  },
+  Strategist: {
+    primary: `The Strategist sees the board three moves ahead. While others react, he analyzes. While others debate, he has already mapped the options. He is not cold — he is precise. He understands that the quality of a decision matters far more than the speed of it, and he does not allow emotion or pressure to push him into a bad move. He is the man others want in the room when things get complicated. He finds the path others miss.`,
+    growth:  `The Strategist is your invitation to think before you move. You are capable of making far better decisions than you currently do — but it requires slowing down, stepping back, and asking better questions. Your growth comes from developing the habit of analysis: What's really happening here? What do I actually want? What's the best path? Don't just react to your life — design it. The men around you need your ability to see clearly.`,
+    Fire:   `A Strategist with Fire acts on his analysis with total conviction. He doesn't just plan — he executes boldly. He is the man who thinks it through and then goes hard. He doesn't second-guess once the decision is made. His strategic mind and his fire combine into something rare: a man who is both precise and decisive.`,
+    Water:  `A Strategist with Water uses emotional intelligence as his primary strategic tool. He reads people with precision — their motivations, their fears, what they need. He plans around how humans actually behave, not how they should. His strategy is built on understanding, empathy, and deep observation of the people involved.`,
+    Air:    `A Strategist with Air is the purest version of the archetype. His mind is his domain. He thinks in systems, in probability, in leverage points. He is highly adaptable because he processes information faster than others. He changes the plan when the data changes, without ego. He is always learning, always refining.`,
+    Earth:  `A Strategist with Earth is the long-game player. He doesn't think in days — he thinks in years. He builds his plans with patience and implements them with consistent daily action. He doesn't chase the shortcut. He understands that the real leverage is in doing the unsexy thing, every day, for as long as it takes.`,
+  },
+  Visionary: {
+    primary: `The Visionary sees what isn't there yet and believes in it anyway. He lives in the possible. His greatest contribution is not what he does today but the picture he paints of what tomorrow could be. He is the man who changes the trajectory of a conversation, a company, or a community by asking "what if?" and meaning it. He is not a dreamer in the passive sense — he is a prophet in the truest sense: a man who sees ahead and moves accordingly.`,
+    growth:  `The Visionary is your invitation to think bigger than you've allowed yourself to. You have a picture of what could be — for your life, for the people around you — that you've been keeping quiet because it feels too large or too far away. Your growth begins when you start speaking your vision out loud and taking the first steps toward it. The future you see is not a fantasy. It is a destination. Start moving.`,
+    Fire:   `A Visionary with Fire doesn't just see the future — he declares it and dares people to join him. He moves toward his vision with urgency and charisma. He is the man who starts movements, launches missions, and pulls others into something they didn't know they needed until he named it. His passion makes the impossible feel inevitable.`,
+    Water:  `A Visionary with Water sees the human future — the emotional and relational landscape of what could be. His vision is not about systems or industries — it is about people. He sees who others could become and what a family, a community, or a generation could look like if it were fully alive. His vision heals and inspires.`,
+    Air:    `A Visionary with Air is the truest intellectual of the archetypes. He thinks across disciplines, connects distant ideas, and synthesizes patterns into new understanding. His vision is often ahead of its time. He is the man reading things others haven't discovered yet, thinking about things others haven't considered yet.`,
+    Earth:  `A Visionary with Earth brings his vision down to ground level. He doesn't just dream — he builds the path toward the dream with his own hands. He is practical about the impractical. He takes the impossibly large vision and breaks it into the next brick to lay. He is the reason big ideas actually happen.`,
+  },
+  Communicator: {
+    primary: `The Communicator holds people together through the power of his words and presence. He is the one who says the thing that needed to be said, who hears what others miss, and who builds trust through honest, real conversation. He doesn't just talk — he connects. His ability to articulate what others feel but cannot express is rare and powerful. When he uses his voice well, rooms shift. Relationships deepen. People feel less alone.`,
+    growth:  `The Communicator is your invitation to use your voice more honestly. You have more to say than you've been saying — more truth, more care, more perspective. Your growth comes from speaking up in the moments you've been going quiet. It also comes from listening more deeply than you think you need to. Your relationships are the training ground. Go deeper in them. Let your words be more honest, more present, and more intentional.`,
+    Fire:   `A Communicator with Fire speaks with conviction and boldness. He is the one who says the hard thing directly, who rallies people with his words, and who is not afraid to take up space. His voice carries weight because his conviction is real. He doesn't soften things to be liked — he speaks truth because he cares about what happens when people hear it.`,
+    Water:  `A Communicator with Water is the most emotionally intelligent man in the room. He listens at a level others rarely reach. He hears the feeling beneath the words. He can sit with someone in their pain without trying to fix it, and that presence is its own form of power. When he speaks, it is because he has something worth saying. And people feel it.`,
+    Air:    `A Communicator with Air moves through words and ideas with natural ease. He articulates complex things clearly, expresses thoughts with precision, and makes people feel understood with language. He is the writer, the teacher, the voice that translates the difficult into the accessible. His gift is clarity — and clarity changes things.`,
+    Earth:  `A Communicator with Earth speaks with weight and reliability. His words are grounded. He doesn't exaggerate, doesn't perform, doesn't oversell. When he says something, he means it. His communication is built over time through consistency and follow-through. People trust what he says because he always does what he said he would.`,
+  },
+  Guardian: {
+    primary: `The Guardian is the man who holds the line. He doesn't need applause or recognition — he needs to know that what he is responsible for is safe, strong, and standing. He is the keeper of standards, the reliable one, the man who shows up without being asked and leaves only when the job is done. His consistency is not a personality trait — it is a discipline he has chosen. He knows that his presence, his integrity, and his dependability are among the greatest gifts he can give.`,
+    growth:  `The Guardian is your invitation to become the steady one. You may have been inconsistent in ways you haven't fully acknowledged — in your habits, your words, your presence. Your growth comes from radical reliability. Do what you say. Show up when it matters. Be the person others can count on without thinking twice. Start small if you need to, but start. Your consistency over time is one of the most powerful things you can build.`,
+    Fire:   `A Guardian with Fire protects with passion. He is not a passive presence — he is actively, intensely committed to keeping what he values safe. He will fight for what he guards. He will speak up when things are threatened. He doesn't just hold the line — he draws it boldly and stands on it.`,
+    Water:  `A Guardian with Water keeps people safe through emotional presence. He creates environments where people feel held, heard, and seen. His steadiness is not cold — it is warm and deep. He guards the relational health of those around him with the same care a physical guardian would guard physical safety. He is the emotional anchor.`,
+    Air:    `A Guardian with Air protects through awareness and foresight. He sees problems coming. He pays attention to what others dismiss. His vigilance is mental — he is always thinking about how to maintain what matters and prevent what threatens it. His protection is quiet and anticipatory rather than reactive.`,
+    Earth:  `A Guardian with Earth is the most elemental version of the archetype. He is consistent, grounded, and utterly dependable. He doesn't shift with the mood or bend with the pressure. He is the same man in public that he is in private. His integrity is structural. What he guards, he guards for good.`,
+  },
+  Sovereign: {
+    primary: `The Sovereign is the man who has taken full ownership of his life. He does not blame, defer, or wait for permission. He has decided what he stands for and he lives accordingly. His authority is not given — it is earned through self-mastery and consistency. He is the man others look to not because of his title but because of how he carries himself. His presence communicates something that cannot be faked: a man who is at home in himself, accountable to his values, and unwilling to compromise his integrity.`,
+    growth:  `The Sovereign is your invitation to take full ownership. The areas of your life that feel like they are happening to you are actually waiting for you to decide. Your growth comes from accepting total responsibility — not just for your successes but for every consequence of your choices. Stop waiting for conditions to change. Decide who you are. Draw the lines you will not cross. Own your house, your word, your presence. The man you are becoming has no excuses.`,
+    Fire:   `A Sovereign with Fire is commanding. He does not ask for the room — he takes it. His presence is felt immediately. He is bold, self-possessed, and deeply confident without arrogance. He knows what he stands for and he doesn't apologize for it. His authority comes from the inside and radiates outward. People follow him because he is already leading himself.`,
+    Water:  `A Sovereign with Water leads himself through deep self-knowledge. He has sat with his own darkness, his own desires, his own wounds — and he has taken responsibility for all of them. His sovereignty is not loud — it is quiet and total. He is at peace with who he is and who he is not. He doesn't need validation because he has already done the hard work of knowing himself.`,
+    Air:    `A Sovereign with Air governs through clarity of thought and principle. He has built a philosophy by which he lives and he does not deviate from it under pressure. His self-rule is intellectual and ethical. He thinks before he acts, speaks before he reacts, and makes decisions rooted in his values rather than his emotions.`,
+    Earth:  `A Sovereign with Earth has built his authority over years of consistency. He is the man who has shown up day after day, kept his word season after season, and built a life he can stand behind. His sovereignty is not declared — it is demonstrated. It is visible in how he lives. He has earned the right to lead himself, and that earns him the trust of others.`,
+  },
 };
 
 // ── ARCHETYPE ASSESSMENT ──────────────────────
@@ -799,9 +883,10 @@ async function maybeShowOnboarding() {
     // ── Screen 2: Profile setup ──
     showOnboardProfile(onboardEl, async (profileData) => {
       // Create brother document
+      let newBrotherId = null;
       try {
-        const id = 'br_' + Date.now().toString(36);
-        await setDoc(doc(db, 'brothers', id), {
+        newBrotherId = 'br_' + Date.now().toString(36);
+        await setDoc(doc(db, 'brothers', newBrotherId), {
           ...profileData,
           email:                currentUser.email.toLowerCase(),
           xp:                   0,
@@ -815,13 +900,39 @@ async function maybeShowOnboarding() {
         showToast('Error saving profile: ' + err.message, 'info');
         return;
       }
-      localStorage.setItem(key, '1');
-      onboardEl.classList.add('hidden');
-      showApp();
+      // ── Screen 3: Assessment bridge ──
+      showOnboardAssessmentBridge(onboardEl, () => {
+        localStorage.setItem(key, '1');
+        onboardEl.classList.add('hidden');
+        showApp();
+        // Immediately open the assessment for the new brother
+        setTimeout(() => openAssessment(newBrotherId), 400);
+      });
     });
   });
 
   return true;
+}
+
+function showOnboardAssessmentBridge(container, onBegin) {
+  container.innerHTML = `
+    <div class="onboard-welcome">
+      <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
+      <div class="onboard-body">
+        <h1 class="onboard-title">Before You<br/>Enter</h1>
+        <div class="onboard-divider"></div>
+        <p class="onboard-line">Every man who has come before you has done this first.</p>
+        <p class="onboard-line">Before we can walk beside you, we need to understand you.</p>
+        <p class="onboard-line">Your strengths. Your blind spots. The way you think, respond, and see the world.</p>
+        <p class="onboard-line">This assessment will surface what is already true about you — things you may have sensed but never had words for.</p>
+        <p class="onboard-line onboard-line-em">It will take about 15 minutes. Answer honestly. There are no right answers.</p>
+        <p class="onboard-line" style="margin-top:20px;font-size:13px;opacity:0.45">Your result will reveal your Brotherhood Archetype — the core of who you are and the frontier of where you are going.</p>
+      </div>
+      <div class="onboard-footer">
+        <button class="btn onboard-accept-btn" id="onboardBeginAssessBtn">Begin the Assessment</button>
+      </div>
+    </div>`;
+  container.querySelector('#onboardBeginAssessBtn').onclick = onBegin;
 }
 
 function showOnboardWelcome(container, onAccept) {
@@ -1220,6 +1331,20 @@ function renderMemberView() {
       </div>`;
     brothersGrid.innerHTML = '';
     emptyState.classList.add('hidden');
+    return;
+  }
+
+  if (!profile.assessmentCompletedAt) {
+    memberHero.innerHTML = `
+      <div class="member-no-profile">
+        <div class="empty-icon">${IC.target}</div>
+        <h2>Complete Your Assessment</h2>
+        <p>Before you can access your card, you need to complete the Brotherhood Assessment. It will reveal your archetype and unlock your full profile.</p>
+        <button class="btn btn-primary" style="margin-top:20px" id="takeAssessFromCard">Begin Assessment</button>
+      </div>`;
+    brothersGrid.innerHTML = '';
+    emptyState.classList.add('hidden');
+    document.getElementById('takeAssessFromCard')?.addEventListener('click', () => openAssessment(profile.id));
     return;
   }
 
@@ -2070,8 +2195,10 @@ async function finishAssessment() {
 
   const archSorted = Object.entries(archetypeScores).sort((a, b) => b[1] - a[1]);
   const primaryArchetype = archSorted[0][0];
-  const growthArchetype  = archSorted[1][0];
-  const dominantElement  = Object.entries(elementScores).sort((a, b) => b[1] - a[1])[0][0];
+  const growthArchetype  = archSorted[archSorted.length - 1][0];
+  const elSorted         = Object.entries(elementScores).sort((a, b) => b[1] - a[1]);
+  const dominantElement  = elSorted[0][0];
+  const growthElement    = elSorted[elSorted.length - 1][0];
 
   if (assessBrotherId) {
     const local = brothers.find(b => b.id === assessBrotherId);
@@ -2080,7 +2207,7 @@ async function finishAssessment() {
 
     try {
       await updateDoc(doc(db, 'brothers', assessBrotherId), {
-        primaryArchetype, growthArchetype, dominantElement, archetypeScores, elementScores,
+        primaryArchetype, growthArchetype, dominantElement, growthElement, archetypeScores, elementScores,
         assessmentCompletedAt: new Date().toISOString(),
       });
     } catch (err) {
@@ -2090,7 +2217,7 @@ async function finishAssessment() {
   }
 
   // Store archetype results for final display, then go to profile questions
-  profileAnswers._archetype = { primaryArchetype, growthArchetype, dominantElement };
+  profileAnswers._archetype = { primaryArchetype, growthArchetype, dominantElement, growthElement };
   profileIndex = 0;
   renderProfileQuestion();
 }
@@ -2172,7 +2299,7 @@ function renderProfileQuestion() {
 }
 
 async function finishProfile() {
-  const { primaryArchetype, growthArchetype, dominantElement } = profileAnswers._archetype || {};
+  const { primaryArchetype, growthArchetype, dominantElement, growthElement } = profileAnswers._archetype || {};
 
   if (assessBrotherId) {
     try {
@@ -2198,37 +2325,62 @@ async function finishProfile() {
     }
   }
 
-  renderAssessResults(primaryArchetype, growthArchetype, dominantElement);
+  renderAssessResults(primaryArchetype, growthArchetype, dominantElement, growthElement);
 }
 
-function renderAssessResults(primaryArchetype, growthArchetype, dominantElement) {
-  const pClr = ARCHETYPE_COLORS[primaryArchetype];
-  const gClr = ARCHETYPE_COLORS[growthArchetype];
-  const elColor = ELEMENT_COLORS[dominantElement];
-  const pIcon = archetypeElementIcon(primaryArchetype, dominantElement);
-  const gIcon = archetypeElementIcon(growthArchetype, dominantElement);
+function renderAssessResults(primaryArchetype, growthArchetype, dominantElement, growthElement) {
+  const pClr    = ARCHETYPE_COLORS[primaryArchetype] || { border:'var(--border)', glow:'transparent', icon:'var(--accent)' };
+  const gClr    = ARCHETYPE_COLORS[growthArchetype]  || { border:'var(--border)', glow:'transparent', icon:'var(--accent)' };
+  const elColor = ELEMENT_COLORS[dominantElement]    || 'var(--accent)';
+  const grElColor = ELEMENT_COLORS[growthElement]    || 'var(--accent)';
+  const pIcon   = archetypeElementIcon(primaryArchetype, dominantElement);
+  const gIcon   = archetypeElementIcon(growthArchetype,  growthElement);
+
+  const primaryElDesc  = ARCHETYPE_DESC[primaryArchetype]?.[dominantElement] || ARCHETYPE_DESC[primaryArchetype]?.primary || '';
+  const growthElDesc   = ARCHETYPE_DESC[growthArchetype]?.[growthElement]    || ARCHETYPE_DESC[growthArchetype]?.growth   || '';
 
   assessContent.innerHTML = `
     <div class="assess-results">
-      <div class="assess-result-card" style="--arch-border:${pClr.border};--arch-glow:${pClr.glow};--arch-icon:${pClr.icon}">
+
+      <div class="assess-results-header">
+        <div class="assess-results-wordmark">YOUR RESULT</div>
+        <p class="assess-results-intro">This is not a label. It is a mirror — showing your strongest natural energy and the frontier where your next growth lives.</p>
+      </div>
+
+      <div class="assess-result-section-label">WHO YOU ARE</div>
+
+      <div class="assess-result-card primary-card" style="--arch-border:${pClr.border};--arch-glow:${pClr.glow};--arch-icon:${pClr.icon}">
         <div class="assess-result-tag">Primary Archetype</div>
-        <span class="arch-icon">${pIcon}</span>
-        <div class="assess-result-name">${primaryArchetype}</div>
-        <div class="assess-result-desc">${ARCHETYPE_DESC[primaryArchetype].primary}</div>
+        <div class="assess-result-combo">
+          <span class="arch-icon">${pIcon}</span>
+          <div>
+            <div class="assess-result-name">${primaryArchetype}</div>
+            <div class="assess-result-element" style="color:${elColor}">${dominantElement} Element</div>
+          </div>
+        </div>
+        <div class="assess-result-desc">${ARCHETYPE_DESC[primaryArchetype]?.primary || ''}</div>
+        <div class="assess-result-el-label" style="border-color:${elColor}44;color:${elColor}">What ${dominantElement} means for the ${primaryArchetype}</div>
+        <div class="assess-result-desc assess-result-el-desc">${primaryElDesc}</div>
       </div>
-      <div class="assess-result-card" style="--arch-border:${gClr.border};--arch-glow:${gClr.glow};--arch-icon:${gClr.icon}">
+
+      <div class="assess-result-section-label" style="margin-top:28px">WHERE YOU GROW</div>
+
+      <div class="assess-result-card growth-card" style="--arch-border:${gClr.border};--arch-glow:${gClr.glow};--arch-icon:${gClr.icon}">
         <div class="assess-result-tag">Growth Archetype</div>
-        <span class="arch-icon">${gIcon}</span>
-        <div class="assess-result-name">${growthArchetype}</div>
-        <div class="assess-result-desc">${ARCHETYPE_DESC[growthArchetype].growth}</div>
+        <div class="assess-result-combo">
+          <span class="arch-icon">${gIcon}</span>
+          <div>
+            <div class="assess-result-name">${growthArchetype}</div>
+            <div class="assess-result-element" style="color:${grElColor}">${growthElement} Element</div>
+          </div>
+        </div>
+        <div class="assess-result-desc">${ARCHETYPE_DESC[growthArchetype]?.growth || ''}</div>
+        <div class="assess-result-el-label" style="border-color:${grElColor}44;color:${grElColor}">What ${growthElement} means for the ${growthArchetype}</div>
+        <div class="assess-result-desc assess-result-el-desc">${growthElDesc}</div>
       </div>
-      <div class="assess-result-card" style="--arch-border:${elColor}66;--arch-glow:${elColor}11;--arch-icon:${elColor}">
-        <div class="assess-result-tag">Dominant Element</div>
-        <div class="assess-result-name">${dominantElement}</div>
-        <div class="assess-result-desc">${ELEMENT_DESC[dominantElement]}</div>
-      </div>
-      <p class="assess-mirror">"Your archetype is not a box. It shows your strongest natural energy right now and where you can grow next."</p>
-      <button class="btn btn-primary assess-done-btn" id="assessCloseBtn">Done</button>
+
+      <p class="assess-mirror">"Your archetype is not a box. It is your strongest current energy — and your growth archetype is the frontier where more of you is waiting."</p>
+      <button class="btn btn-primary assess-done-btn" id="assessCloseBtn">Enter the Brotherhood</button>
     </div>`;
 
   document.getElementById('assessCloseBtn').addEventListener('click', () => closeModal(assessModal));
