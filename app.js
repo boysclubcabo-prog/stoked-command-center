@@ -727,100 +727,144 @@ const IC = {
 // ── MY PATH — ARCHETYPE MISSIONS ──────────────
 // Ordered sequence of archetypes every brother walks through.
 // The brother's primary archetype is placed first at render time.
-const PATH_MISSIONS = {
+// ── MY PATH — PER-ARCHETYPE CHALLENGES ────────
+// Each archetype has 5 sequential challenges. Complete all 5 to evolve.
+const ARCHETYPE_CHALLENGES = {
   Warrior: {
-    title:       'The Warrior Trial',
-    task:        'Complete 7 consecutive days of physical training — no exceptions, no excuses.',
-    description: 'Discipline is not motivation. It is a decision made once, then honored daily. Prove you can show up when your body says no.',
-    xp:          150,
-    symbol:      '⚔',
+    motto:  'Choose courage over comfort.',
+    symbol: '⚔',
+    challenges: [
+      { title: 'Cold Shower',        task: 'Take a full cold shower. Take a selfie right after finishing.' },
+      { title: '100 Push-Ups',       task: 'Complete 100 push-ups in one session. Photograph your workout spot when you\'re done.' },
+      { title: 'Summit',             task: 'Find the highest point near you and climb it. Photograph the view from the top.' },
+      { title: 'Sunrise',            task: 'Be somewhere outdoors before 7 AM to watch the sunrise. Photograph it.' },
+      { title: 'Train With Someone', task: 'Work out with a parent or adult you respect. Take a selfie together after moving your bodies.' },
+    ],
   },
   Monk: {
-    title:       'The Monk Practice',
-    task:        'Maintain a daily silence or meditation practice for 10 days. No phone for the first 30 minutes of each morning.',
-    description: 'The Monk knows that the quality of your inner world determines the quality of everything else. Build the stillness.',
-    xp:          150,
-    symbol:      '○',
+    motto:  'Master yourself before the world.',
+    symbol: '○',
+    challenges: [
+      { title: 'Stillness',    task: 'Sit in silence and meditate for 10 minutes. Photograph the place where you did it.' },
+      { title: 'Read 20 Pages',task: 'Read 20 pages of a real book. Photograph it open to today\'s page.' },
+      { title: 'Phone Away',   task: 'Put your phone in another room for 1 full hour. Photograph where you left it.' },
+      { title: 'Nature Sit',   task: 'Find a spot in nature and sit quietly for 15 minutes. Photograph the place.' },
+      { title: 'Journal',      task: 'Fill one full page in a journal. Photograph the completed page (writing doesn\'t need to be readable).' },
+    ],
   },
   Creator: {
-    title:       'The Creator Expression',
-    task:        'Complete and share one creative work — writing, art, music, or design — with a real audience.',
-    description: 'Creation completed in private is practice. Creation shared is proof of courage. Make something and put it in the world.',
-    xp:          150,
-    symbol:      '◈',
+    motto:  'Create instead of consume.',
+    symbol: '◈',
+    challenges: [
+      { title: 'Draw Something New', task: 'Draw something you have never drawn before. Photograph it.' },
+      { title: 'Build Something',    task: 'Build something using objects at home. Photograph your creation.' },
+      { title: 'Create a Meal',      task: 'Make a simple meal or snack from scratch. Photograph it before eating.' },
+      { title: 'Inspire Your Space', task: 'Rearrange your room to make it feel more inspiring. Photograph the result.' },
+      { title: 'Make for Someone',   task: 'Create something for another person — a drawing, a meal, a note. Photograph it.' },
+    ],
   },
   Explorer: {
-    title:       'The Explorer Mission',
-    task:        'Do something you have never done before that genuinely challenges you. Document what you discovered.',
-    description: 'Comfort is the enemy of growth. The Explorer moves into unfamiliar territory by design, not by accident.',
-    xp:          150,
-    symbol:      '✦',
+    motto:  'Go somewhere you\'ve never gone.',
+    symbol: '✦',
+    challenges: [
+      { title: 'New Route',      task: 'Walk a route you\'ve never walked. Photograph your favourite discovery along the way.' },
+      { title: 'New Place',      task: 'Visit a place in your town you\'ve never been to. Photograph it.' },
+      { title: 'New Sunset',     task: 'Watch a sunset from a location you\'ve never been to before. Photograph it.' },
+      { title: 'New Food',       task: 'Try a food you\'ve never eaten before. Photograph it.' },
+      { title: 'Nature Find',    task: 'Find something in nature you\'ve never noticed before. Photograph it.' },
+    ],
   },
   Leader: {
-    title:       'The Leader Stand',
-    task:        'Organize and lead something — a workout, a gathering, a project — where you are fully responsible for the outcome.',
-    description: 'Leaders are not elected. They step up. Pick something that matters and own it completely.',
-    xp:          150,
-    symbol:      '▲',
+    motto:  'Lead through action.',
+    symbol: '▲',
+    challenges: [
+      { title: 'Family Game Night', task: 'Organize a family game night. You plan it. Take one group photo.' },
+      { title: 'Cook Together',     task: 'Cook dinner alongside a parent. Photograph the finished meal.' },
+      { title: 'Lead a Workout',    task: 'Lead a 10-minute workout for at least one other person. Photograph the group.' },
+      { title: 'Plan Tomorrow',     task: 'Write tomorrow\'s full schedule tonight. Photograph your written plan.' },
+      { title: 'Organize Unprompted', task: 'Organize one room in your home before anyone asks you to. Photograph the result.' },
+    ],
   },
   Builder: {
-    title:       'The Builder Commitment',
-    task:        'Choose one goal and work on it every day for 21 days without breaking the chain.',
-    description: 'The Builder does not rely on inspiration. He shows up, lays the next brick, and builds something that will outlast his mood.',
-    xp:          150,
-    symbol:      '■',
+    motto:  'Leave things better than you found them.',
+    symbol: '■',
+    challenges: [
+      { title: 'Clean Your Desk',      task: 'Clear and organize your desk completely. Photograph the finished result.' },
+      { title: 'Fix Something',        task: 'Build or fix something in your home. Photograph it.' },
+      { title: 'Organize Your Pack',   task: 'Fully unpack, clean, and reorganize your bag or backpack. Photograph it.' },
+      { title: 'Build With Someone',   task: 'Assemble or build something together with a parent. Photograph the result.' },
+      { title: 'Before and After',     task: 'Find something that needs improvement. Fix it. Photograph both before and after.' },
+    ],
   },
   Protector: {
-    title:       'The Protector Vow',
-    task:        'Identify someone in your life who needs protection — physical, emotional, or financial — and take one concrete action to provide it.',
-    description: 'The Protector does not wait to be asked. He sees what needs to be defended and he acts.',
-    xp:          150,
-    symbol:      '◉',
+    motto:  'Use your strength to serve.',
+    symbol: '◉',
+    challenges: [
+      { title: 'Carry the Load',   task: 'Help carry groceries or heavy bags without being asked. Photograph the bags.' },
+      { title: 'Walk the Dog',     task: 'Walk the family dog or help a neighbour with theirs. Photograph it.' },
+      { title: 'Pick Up 20 Pieces',task: 'Pick up 20 pieces of litter from your environment. Photograph your collection.' },
+      { title: 'Help a Sibling',   task: 'Help a younger sibling or someone younger with something real. Photograph the moment.' },
+      { title: 'Wash the Car',     task: 'Wash the family car with a parent. Photograph it clean.' },
+    ],
   },
   Strategist: {
-    title:       'The Strategist Map',
-    task:        'Write a clear 90-day plan for your most important goal. Include the obstacles, the resources, and the exact actions.',
-    description: 'Effort without strategy is just movement. The Strategist sees the full board before making his first move.',
-    xp:          150,
-    symbol:      '◎',
+    motto:  'Think first.',
+    symbol: '◎',
+    challenges: [
+      { title: 'Solve a Puzzle',     task: 'Solve a puzzle, Rubik\'s cube, or logic challenge. Photograph it completed.' },
+      { title: 'Top 3 Goals',        task: 'Write your top 3 goals for the week. Photograph the list.' },
+      { title: 'Morning Routine',    task: 'Write your ideal morning routine in full. Photograph it.' },
+      { title: 'Weekly Calendar',    task: 'Plan and organize your calendar for the entire week. Photograph it.' },
+      { title: 'Strategy Game',      task: 'Play one strategy game with a family member. Photograph the game in progress.' },
+    ],
   },
   Visionary: {
-    title:       'The Visionary Declaration',
-    task:        'Write your 5-year vision in full detail — who you are, what you have built, how you live, and who is around you.',
-    description: 'The Visionary does not wait for clarity. He creates it by naming what he sees and then walking toward it.',
-    xp:          150,
-    symbol:      '◐',
+    motto:  'Think beyond today.',
+    symbol: '◐',
+    challenges: [
+      { title: 'Vision Board',        task: 'Create a vision board — paper or digital. Photograph it.' },
+      { title: 'Letter to Future Self',task: 'Write a letter to yourself 5 years from now. Photograph the written letter.' },
+      { title: 'Place That Inspires', task: 'Find and photograph a place that genuinely inspires you.' },
+      { title: 'Dream Space',         task: 'Draw your dream workspace or future home. Photograph the drawing.' },
+      { title: 'Top 10 Dreams',       task: 'Write your top 10 dreams for your life. Photograph the page.' },
+    ],
   },
   Communicator: {
-    title:       'The Communicator Challenge',
-    task:        'Have one difficult conversation you have been avoiding. Say what needs to be said, directly and with respect.',
-    description: 'The Communicator knows that avoiding hard conversations is a form of dishonesty. Say the true thing.',
-    xp:          150,
-    symbol:      '◇',
+    motto:  'Connect honestly.',
+    symbol: '◇',
+    challenges: [
+      { title: '20-Minute Talk',     task: 'Have a real 20-minute conversation with a parent. Take a selfie together after.' },
+      { title: 'Thank-You Note',     task: 'Write a genuine thank-you note to someone. Photograph it before giving it.' },
+      { title: 'Ask a Grandparent',  task: 'Ask a grandparent or elder about their childhood. Photograph together or photograph your notes.' },
+      { title: '3 Compliments',      task: 'Give three genuine, specific compliments today. Write the names of who you complimented and photograph the list.' },
+      { title: 'Interview Someone',  task: 'Interview someone you admire with at least 5 questions. Photograph your notes.' },
+    ],
   },
   Guardian: {
-    title:       'The Guardian Standard',
-    task:        'Identify one commitment or standard you have been inconsistent with and hold it perfectly for 14 days.',
-    description: 'The Guardian is not impressive in moments. He is impressive in the quiet, repeated, unseen choices to hold the line.',
-    xp:          150,
-    symbol:      '⬡',
+    motto:  'Consistency builds trust.',
+    symbol: '⬡',
+    challenges: [
+      { title: 'Make Your Bed — 7 Days', task: 'Make your bed every morning for 7 consecutive days. Photograph it on Day 7.' },
+      { title: 'Water Plants — 7 Days',  task: 'Water plants consistently for 7 days. Photograph them on Day 7.' },
+      { title: 'Care for a Pet',          task: 'Take full responsibility for feeding and caring for a pet for one week. Photograph on Day 7.' },
+      { title: 'Prepare the Night Before',task: 'Lay out tomorrow\'s clothes and prepare your bag the night before for 5 days. Photograph on Day 5.' },
+      { title: 'Clean a Shared Space',    task: 'Clean one shared space in your home that others use. Photograph the result.' },
+    ],
   },
   Sovereign: {
-    title:       'The Sovereign Accounting',
-    task:        'Conduct a full life audit — health, relationships, finances, purpose. Write what is aligned and what is not. Then make one significant change.',
-    description: 'The Sovereign holds himself accountable to no one\'s standard but his own highest one. The audit is not about shame — it is about clarity.',
-    xp:          200,
-    symbol:      '♔',
+    motto:  'Serve before you lead.',
+    symbol: '♔',
+    challenges: [
+      { title: 'Cook a Full Meal',      task: 'Cook a full meal for your family from scratch. Photograph the table set and ready.' },
+      { title: 'Family Meeting',        task: 'Organize and lead a family dinner or meeting. Photograph everyone together.' },
+      { title: 'Personal Code',         task: 'Write your personal code — 5 rules you want to live by. Photograph the written page.' },
+      { title: 'Help Someone\'s Goal',  task: 'Help one person in your life make real progress on their goal this week. Photograph the moment or your notes.' },
+      { title: 'Unforgettable Moment',  task: 'Create one unforgettable family moment — a game night, a hike, a dessert evening. Take one photo together.' },
+    ],
   },
 };
 
-// Build the ordered path for a brother: primary first, then remaining in default order
 const ARCHETYPE_ORDER = ['Warrior','Monk','Creator','Explorer','Leader','Builder','Protector','Strategist','Visionary','Communicator','Guardian','Sovereign'];
-
-function buildPath(primaryArchetype) {
-  if (!primaryArchetype || !ARCHETYPE_ORDER.includes(primaryArchetype)) return ARCHETYPE_ORDER;
-  return [primaryArchetype, ...ARCHETYPE_ORDER.filter(a => a !== primaryArchetype)];
-}
 
 // ── BROTHERHOOD SCORE ─────────────────────────
 function calcBrotherhoodScore(f, m, d, c, s) {
@@ -1170,6 +1214,9 @@ function showApp() {
   if (rosterTabBtn) rosterTabBtn.classList.toggle('hidden', isAdmin);
   const mypathTabBtn  = document.getElementById('mypathTabBtn');
   if (mypathTabBtn) mypathTabBtn.classList.toggle('hidden', isAdmin);
+
+  // Members land on My Path by default
+  if (!isAdmin) switchTab('mypath');
 
   // Set up notifications (ask permission)
   setupNotifications();
@@ -3134,135 +3181,226 @@ function renderMyPath() {
   if (!el) return;
   const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
   if (!profile) { el.innerHTML = `<div class="feed-empty">Profile not found.</div>`; return; }
+
   if (!profile.assessmentCompletedAt) {
     el.innerHTML = `<div class="path-gate"><div class="path-gate-icon">◎</div><h2 class="path-gate-title">Your Path Awaits</h2><p class="path-gate-text">Complete the Brotherhood Assessment first to unlock your personal mission path.</p></div>`;
     return;
   }
 
+  // Current archetype path = stored value or primary archetype
+  const currentArch   = profile.currentPathArchetype || profile.primaryArchetype;
+  const archData      = ARCHETYPE_CHALLENGES[currentArch];
+  if (!archData) { el.innerHTML = `<div class="feed-empty">Archetype data not found.</div>`; return; }
+
+  const aClr      = ARCHETYPE_COLORS[currentArch] || { icon: 'var(--terra)', border: 'var(--border)', glow: 'transparent' };
   const progress  = profile.pathProgress || {};
-  const ordered   = buildPath(profile.primaryArchetype);
-  const clr       = ARCHETYPE_COLORS[profile.primaryArchetype] || { border: 'var(--border)', icon: 'var(--terra)' };
+  const challenges = archData.challenges;
 
-  // Find active index: first incomplete mission
-  let activeIdx = ordered.findIndex(a => !progress[a]?.completedAt);
-  if (activeIdx === -1) activeIdx = ordered.length; // all done
+  // Keys: "{Archetype}_{index}"
+  const doneCount = challenges.filter((_, i) => progress[`${currentArch}_${i}`]?.completedAt).length;
+  const allDone   = doneCount === challenges.length;
+  const activeIdx = allDone ? challenges.length : challenges.findIndex((_, i) => !progress[`${currentArch}_${i}`]?.completedAt);
 
-  const totalDone = ordered.filter(a => progress[a]?.completedAt).length;
+  // Build nodes in REVERSE order (index 4 = top, index 0 = bottom)
+  // So user scrolls UP to see future locked missions
+  const reversed = [...challenges].map((c, i) => ({ ...c, idx: i })).reverse();
 
   let html = `
-    <div class="path-header">
-      <div class="path-header-top">
-        <div class="path-wordmark">MY PATH</div>
-        <div class="path-progress-label">${totalDone} / ${ordered.length} Complete</div>
+    <div class="path-screen">
+      <div class="path-arch-banner" style="--path-clr:${aClr.icon};--path-glow:${aClr.glow}">
+        <div class="path-arch-symbol">${archData.symbol}</div>
+        <div class="path-arch-info">
+          <div class="path-arch-name" style="color:${aClr.icon}">${currentArch}</div>
+          <div class="path-arch-motto">${escHtml(archData.motto)}</div>
+        </div>
+        <div class="path-arch-counter">
+          <span class="path-arch-count" style="color:${aClr.icon}">${doneCount}</span>
+          <span class="path-arch-total">/ ${challenges.length}</span>
+        </div>
       </div>
-      <div class="path-progress-track"><div class="path-progress-fill" style="width:${Math.round(totalDone/ordered.length*100)}%"></div></div>
-      ${profile.primaryArchetype ? `<div class="path-archetype-label" style="color:${clr.icon}">Primary Archetype: ${profile.primaryArchetype}</div>` : ''}
-    </div>
-    <div class="path-list">`;
+      <div class="path-arch-progress"><div class="path-arch-fill" style="width:${Math.round(doneCount/challenges.length*100)}%;background:${aClr.icon}"></div></div>`;
 
-  ordered.forEach((archetype, idx) => {
-    const mission    = PATH_MISSIONS[archetype];
-    if (!mission) return;
-    const done       = !!progress[archetype]?.completedAt;
-    const isActive   = idx === activeIdx;
-    const isLocked   = !done && idx > activeIdx;
-    const isPrimary  = idx === 0;
-    const aClr       = ARCHETYPE_COLORS[archetype] || { border: '#888', icon: '#888' };
-    const completedDate = done ? new Date(progress[archetype].completedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : null;
-    const reflection = progress[archetype]?.reflection || '';
+  if (allDone) {
+    html += `
+      <div class="path-evolved-banner">
+        <div class="path-evolved-symbol">✦</div>
+        <div class="path-evolved-title">Path Complete</div>
+        <div class="path-evolved-text">You have completed all ${currentArch} challenges. You are ready to evolve.</div>
+        <button class="btn btn-primary path-evolve-btn" id="pathEvolveBtn">Evolve Your Path</button>
+      </div>`;
+  }
 
-    const stateClass = done ? 'path-node-done' : isActive ? 'path-node-active' : 'path-node-locked';
+  html += `<div class="path-trail" id="pathTrail">`;
+
+  reversed.forEach(({ title, task, idx }) => {
+    const key       = `${currentArch}_${idx}`;
+    const done      = !!progress[key]?.completedAt;
+    const isActive  = idx === activeIdx;
+    const isLocked  = !done && idx > activeIdx;
+    const side      = idx % 2 === 0 ? 'right' : 'left'; // alternating sides
+    const completedDate = done ? new Date(progress[key].completedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : null;
+    const reflection = progress[key]?.reflection || '';
+    const num        = idx + 1;
+
+    const dotContent = done
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+      : isLocked
+      ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
+      : `<span class="pz-num">${num}</span>`;
+
+    const stateClass = done ? 'pz-done' : isActive ? 'pz-active' : 'pz-locked';
 
     html += `
-      <div class="path-node ${stateClass}${isPrimary ? ' path-node-primary' : ''}">
-        <div class="path-node-line-wrap">
-          <div class="path-node-dot" style="${!isLocked ? `background:${aClr.icon};box-shadow:0 0 10px ${aClr.icon}44` : ''}">
-            ${done ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
-                   : isLocked ? `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
-                   : `<span class="path-symbol">${mission.symbol}</span>`}
-          </div>
-          ${idx < ordered.length - 1 ? `<div class="path-node-connector${done ? ' connector-done' : ''}"></div>` : ''}
+      <div class="pz-node ${stateClass} pz-${side}" id="pznode-${idx}">
+        <div class="pz-card">
+          ${isActive ? `<div class="pz-active-label">CURRENT</div>` : ''}
+          ${done     ? `<div class="pz-done-label">${completedDate}</div>` : ''}
+          <div class="pz-title">${escHtml(title)}</div>
+          ${isActive ? `<div class="pz-task">${escHtml(task)}</div>
+            <button class="pz-complete-btn" data-pz-idx="${idx}">Mark Complete</button>` : ''}
+          ${done && reflection ? `<div class="pz-reflection">"${escHtml(reflection)}"</div>` : ''}
+          ${isLocked ? `<div class="pz-lock-text">Locked</div>` : ''}
         </div>
-
-        <div class="path-node-card">
-          ${isPrimary ? `<div class="path-primary-badge">Primary Archetype</div>` : ''}
-          ${isActive  ? `<div class="path-active-badge">Current Mission</div>` : ''}
-          <div class="path-node-arch" style="${!isLocked ? `color:${aClr.icon}` : ''}">${archetype}</div>
-          <div class="path-node-title">${mission.title}</div>
-          ${!isLocked ? `<div class="path-node-task">${mission.task}</div>` : `<div class="path-node-locked-msg">Complete the previous mission to unlock</div>`}
-
-          ${done ? `
-            <div class="path-node-meta">
-              <span class="path-done-date">Completed ${completedDate}</span>
-              <span class="path-done-xp">+${mission.xp} XP</span>
-            </div>
-            ${reflection ? `<div class="path-node-reflection">"${escHtml(reflection)}"</div>` : ''}
-          ` : ''}
-
-          ${isActive ? `<button class="btn btn-primary path-complete-btn" data-mission="${archetype}">Mark as Complete</button>` : ''}
+        <div class="pz-axis">
+          <div class="pz-line pz-line-top${done ? ' pz-line-done' : ''}"></div>
+          <div class="pz-dot${done ? ' pz-dot-done' : isActive ? ' pz-dot-active' : ''}" style="${!isLocked ? `background:${aClr.icon};${isActive ? `box-shadow:0 0 0 6px ${aClr.icon}22` : ''}` : ''}">${dotContent}</div>
+          <div class="pz-line pz-line-bot${done ? ' pz-line-done' : ''}"></div>
         </div>
+        <div class="pz-spacer"></div>
       </div>`;
   });
 
-  html += `</div>`;
+  html += `</div></div>`;
   el.innerHTML = html;
 
+  // Scroll active node into view (center of screen)
+  const activeNode = document.getElementById(`pznode-${activeIdx}`);
+  if (activeNode) setTimeout(() => activeNode.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+
   // Bind complete buttons
-  el.querySelectorAll('[data-mission]').forEach(btn => {
-    btn.addEventListener('click', () => openMissionModal(btn.dataset.mission, profile));
+  el.querySelectorAll('[data-pz-idx]').forEach(btn => {
+    btn.addEventListener('click', () => openMissionModal(currentArch, parseInt(btn.dataset.pzIdx), profile));
   });
+
+  // Evolve button
+  document.getElementById('pathEvolveBtn')?.addEventListener('click', () => openEvolveModal(profile));
 }
 
 let pendingMissionArchetype = null;
+let pendingMissionIdx       = null;
 
-function openMissionModal(archetype, profile) {
-  const mission = PATH_MISSIONS[archetype];
-  if (!mission) return;
+function openMissionModal(archetype, idx, profile) {
+  const archData  = ARCHETYPE_CHALLENGES[archetype];
+  const challenge = archData?.challenges[idx];
+  if (!challenge) return;
   const aClr = ARCHETYPE_COLORS[archetype] || { icon: 'var(--terra)' };
   pendingMissionArchetype = archetype;
-  document.getElementById('missionModalTitle').textContent = mission.title;
+  pendingMissionIdx       = idx;
+  document.getElementById('missionModalTitle').textContent = challenge.title;
   document.getElementById('missionModalBody').innerHTML = `
-    <div class="mission-modal-arch" style="color:${aClr.icon}">${archetype}</div>
-    <p class="mission-modal-desc">${mission.description}</p>
-    <div class="mission-modal-task"><strong>The task:</strong> ${mission.task}</div>
+    <div class="mission-modal-arch" style="color:${aClr.icon}">${archetype} · Challenge ${idx + 1}</div>
+    <div class="mission-modal-task">${escHtml(challenge.task)}</div>
     <div class="form-group" style="margin-top:18px">
       <label class="form-label">Reflection (optional)</label>
-      <textarea id="missionReflection" class="form-control" rows="3" placeholder="What did you learn or experience completing this mission?" maxlength="500"></textarea>
+      <textarea id="missionReflection" class="form-control" rows="3" placeholder="What did you notice or discover?" maxlength="500"></textarea>
     </div>
-    <div class="mission-modal-xp">+${mission.xp} XP awarded on completion</div>
+    <div class="mission-modal-xp">+100 XP awarded</div>
   `;
   openModal(document.getElementById('missionModal'));
 }
 
-document.getElementById('missionModalClose').addEventListener('click', () => closeModal(document.getElementById('missionModal')));
-document.getElementById('missionCancelBtn').addEventListener('click',  () => closeModal(document.getElementById('missionModal')));
-document.getElementById('missionModal').addEventListener('click', e => { if (e.target === document.getElementById('missionModal')) closeModal(document.getElementById('missionModal')); });
+function openEvolveModal(profile) {
+  const completedArchetypes = profile.completedPathArchetypes || [];
+  if (profile.currentPathArchetype) completedArchetypes.push(profile.currentPathArchetype);
+  const available = ARCHETYPE_ORDER.filter(a => !completedArchetypes.includes(a));
+  if (!available.length) {
+    showToast('You have walked every path. You are complete.', 'success');
+    return;
+  }
+  document.getElementById('missionModalTitle').textContent = 'Choose Your Next Path';
+  document.getElementById('missionModalBody').innerHTML = `
+    <p class="mission-modal-desc">You have completed the ${profile.currentPathArchetype || profile.primaryArchetype} path. Choose the next archetype to walk.</p>
+    <div class="evolve-grid">
+      ${available.map(a => {
+        const aClr = ARCHETYPE_COLORS[a] || { icon: 'var(--terra)' };
+        const archData = ARCHETYPE_CHALLENGES[a];
+        return `<button class="evolve-option" data-evolve-arch="${a}" style="--ev-clr:${aClr.icon}">
+          <div class="evolve-symbol">${archData?.symbol || '◎'}</div>
+          <div class="evolve-name">${a}</div>
+        </button>`;
+      }).join('')}
+    </div>`;
+  document.getElementById('missionSubmitBtn').style.display = 'none';
+  document.getElementById('missionCancelBtn').textContent = 'Not Yet';
+  openModal(document.getElementById('missionModal'));
+  document.querySelectorAll('[data-evolve-arch]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const newArch = btn.dataset.evolveArch;
+      const completed = [...(profile.completedPathArchetypes || [])];
+      if (profile.currentPathArchetype && !completed.includes(profile.currentPathArchetype)) {
+        completed.push(profile.currentPathArchetype);
+      }
+      try {
+        await updateDoc(doc(db, 'brothers', profile.id), {
+          currentPathArchetype: newArch,
+          completedPathArchetypes: completed,
+        });
+        profile.currentPathArchetype = newArch;
+        profile.completedPathArchetypes = completed;
+        closeModal(document.getElementById('missionModal'));
+        renderMyPath();
+        showToast(`New path unlocked: ${newArch}`, 'success');
+      } catch (err) {
+        showToast('Failed to save — check connection.', 'info');
+      }
+    });
+  });
+}
+
+document.getElementById('missionModalClose').addEventListener('click', () => {
+  document.getElementById('missionSubmitBtn').style.display = '';
+  document.getElementById('missionCancelBtn').textContent = 'Cancel';
+  closeModal(document.getElementById('missionModal'));
+});
+document.getElementById('missionCancelBtn').addEventListener('click',  () => {
+  document.getElementById('missionSubmitBtn').style.display = '';
+  document.getElementById('missionCancelBtn').textContent = 'Cancel';
+  closeModal(document.getElementById('missionModal'));
+});
+document.getElementById('missionModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('missionModal')) {
+    document.getElementById('missionSubmitBtn').style.display = '';
+    document.getElementById('missionCancelBtn').textContent = 'Cancel';
+    closeModal(document.getElementById('missionModal'));
+  }
+});
 
 document.getElementById('missionSubmitBtn').addEventListener('click', async () => {
   const archetype = pendingMissionArchetype;
-  if (!archetype) return;
-  const mission   = PATH_MISSIONS[archetype];
+  const idx       = pendingMissionIdx;
+  if (!archetype || idx === null) return;
   const profile   = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
-  if (!profile || !mission) return;
+  if (!profile) return;
 
   const reflection = document.getElementById('missionReflection')?.value?.trim() || '';
   const btn = document.getElementById('missionSubmitBtn');
   btn.disabled = true;
   btn.textContent = 'Saving…';
 
-  const now = new Date().toISOString();
-  const newProgress = { ...(profile.pathProgress || {}), [archetype]: { completedAt: now, reflection } };
+  const now        = new Date().toISOString();
+  const key        = `${archetype}_${idx}`;
+  const newProgress = { ...(profile.pathProgress || {}), [key]: { completedAt: now, reflection } };
 
   try {
     await updateDoc(doc(db, 'brothers', profile.id), {
       pathProgress: newProgress,
-      xp: (profile.xp || 0) + mission.xp,
+      xp: (profile.xp || 0) + 100,
     });
     profile.pathProgress = newProgress;
-    profile.xp = (profile.xp || 0) + mission.xp;
+    profile.xp = (profile.xp || 0) + 100;
     closeModal(document.getElementById('missionModal'));
     renderMyPath();
-    showToast(`Mission complete! +${mission.xp} XP`, 'success');
+    showToast(`Challenge complete! +100 XP`, 'success');
   } catch (err) {
     console.error(err);
     showToast('Failed to save — check connection.', 'info');
