@@ -787,30 +787,32 @@ function showLogin() {
 
 async function maybeShowOnboarding() {
   if (isAdmin) return false;
-  try {
-    const snap = await getDocs(collection(db, 'brothers'));
-    const me = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
-    if (!me || me.onboardingAccepted) return false;
-    // Show welcome screen
-    const onboardEl = document.getElementById('onboardingScreen');
-    loginScreen.classList.add('hidden');
-    onboardEl.classList.remove('hidden');
-    document.getElementById('onboardAcceptBtn').onclick = async () => {
-      onboardEl.classList.add('hidden');
-      // Record acceptance
-      try {
+  const key = `onboardingAccepted_${currentUser.uid}`;
+  if (localStorage.getItem(key)) return false;
+
+  // Show welcome screen
+  const onboardEl = document.getElementById('onboardingScreen');
+  loginScreen.classList.add('hidden');
+  onboardEl.classList.remove('hidden');
+
+  document.getElementById('onboardAcceptBtn').onclick = async () => {
+    localStorage.setItem(key, '1');
+    onboardEl.classList.add('hidden');
+    // Best-effort write to Firestore if profile exists
+    try {
+      const snap = await getDocs(collection(db, 'brothers'));
+      const me = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+      if (me) {
         await updateDoc(doc(db, 'brothers', me.id), {
           onboardingAccepted: true,
           onboardingAcceptedAt: new Date().toISOString(),
         });
-      } catch (_) {}
-      showApp();
-    };
-    return true;
-  } catch (_) {
-    return false;
-  }
+      }
+    } catch (_) {}
+    showApp();
+  };
+  return true;
 }
 
 function showApp() {
