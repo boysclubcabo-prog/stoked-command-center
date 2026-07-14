@@ -3743,7 +3743,7 @@ function renderMyPath() {
       ${switcherChips ? `<div class="path-switcher"><div class="path-switcher-label">Switch Path</div><div class="path-switcher-chips">${switcherChips}</div></div>` : ''}
     </div>
 
-    <div class="path-trail" id="pathTrail" style="--trail-clr:${aClr.icon}">`;
+    <div class="path-trail" id="pathTrail" style="--trail-clr:${aClr.icon};--trail-bg:${(theme.trailBg||'none').replace(/currentColor/g, aClr.icon)}">`;
 
   // Render stages 4 → 1 (top = hardest/future, bottom = first/completed)
   for (let stageNum = archData.stages.length; stageNum >= 1; stageNum--) {
