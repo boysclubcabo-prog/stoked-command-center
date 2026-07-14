@@ -730,6 +730,179 @@ const IC = {
 // ── MY PATH — PER-ARCHETYPE CHALLENGES ────────
 // 4 stages × 5 missions = 20 missions per archetype.
 // Progress key format: `${arch}_s${stage}_${idx}` (stage 1-4, idx 0-4)
+// ── ARCHETYPE VISUAL THEMES ───────────────────
+// decorSvg: ambient art in the banner (positioned right, semi-transparent)
+// trailAccent: small emoji shown next to stage headers
+// trailBg: CSS background for the path trail area
+const ARCHETYPE_THEMES = {
+  Warrior: {
+    trailAccent: '⚔',
+    trailBg: 'repeating-linear-gradient(135deg,currentColor 0,currentColor 1px,transparent 0,transparent 50%) 0 0/28px 28px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 64 L22 22 L38 42 L60 8 L82 32 L100 14 L130 44 L130 64Z" fill="currentColor" opacity="0.09"/>
+      <line x1="100" y1="4" x2="126" y2="58" stroke="currentColor" stroke-width="2" opacity="0.18" stroke-linecap="round"/>
+      <line x1="126" y1="4" x2="100" y2="58" stroke="currentColor" stroke-width="2" opacity="0.18" stroke-linecap="round"/>
+      <line x1="90" y1="31" x2="136" y2="31" stroke="currentColor" stroke-width="1.2" opacity="0.14" stroke-linecap="round"/>
+    </svg>`,
+  },
+  Monk: {
+    trailAccent: '○',
+    trailBg: 'radial-gradient(circle,currentColor 1px,transparent 1px) 0 0/32px 32px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="90" cy="32" r="28" stroke="currentColor" stroke-width="0.8" opacity="0.14"/>
+      <circle cx="90" cy="32" r="20" stroke="currentColor" stroke-width="0.8" opacity="0.16"/>
+      <circle cx="90" cy="32" r="13" stroke="currentColor" stroke-width="0.9" opacity="0.18"/>
+      <circle cx="90" cy="32" r="6"  stroke="currentColor" stroke-width="1"   opacity="0.22"/>
+      <circle cx="90" cy="32" r="2"  fill="currentColor" opacity="0.3"/>
+      <path d="M10 55 Q30 20 50 55" stroke="currentColor" stroke-width="1" fill="none" opacity="0.12" stroke-linecap="round"/>
+      <path d="M20 55 Q40 10 60 55" stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.1" stroke-linecap="round"/>
+    </svg>`,
+  },
+  Creator: {
+    trailAccent: '◈',
+    trailBg: 'radial-gradient(circle,currentColor 1.5px,transparent 1.5px) 0 0/24px 24px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="18" cy="10" r="2"   fill="currentColor" opacity="0.35"/>
+      <circle cx="48" cy="22" r="1.5" fill="currentColor" opacity="0.3"/>
+      <circle cx="32" cy="38" r="1.5" fill="currentColor" opacity="0.28"/>
+      <circle cx="65" cy="12" r="2.5" fill="currentColor" opacity="0.32"/>
+      <circle cx="82" cy="44" r="1.5" fill="currentColor" opacity="0.26"/>
+      <line x1="18" y1="10" x2="48" y2="22" stroke="currentColor" stroke-width="0.6" opacity="0.2"/>
+      <line x1="48" y1="22" x2="32" y2="38" stroke="currentColor" stroke-width="0.6" opacity="0.18"/>
+      <line x1="48" y1="22" x2="65" y2="12" stroke="currentColor" stroke-width="0.6" opacity="0.18"/>
+      <line x1="65" y1="12" x2="82" y2="44" stroke="currentColor" stroke-width="0.6" opacity="0.15"/>
+      <path d="M90 54 Q105 28 120 48" stroke="currentColor" stroke-width="3" fill="none" opacity="0.1" stroke-linecap="round"/>
+    </svg>`,
+  },
+  Explorer: {
+    trailAccent: '✦',
+    trailBg: 'repeating-linear-gradient(0deg,currentColor 0,currentColor 1px,transparent 0,transparent 40px),repeating-linear-gradient(90deg,currentColor 0,currentColor 1px,transparent 0,transparent 40px) 0 0/40px 40px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="55" cy="44" rx="48" ry="18" stroke="currentColor" stroke-width="0.8" opacity="0.14"/>
+      <ellipse cx="55" cy="44" rx="34" ry="12" stroke="currentColor" stroke-width="0.8" opacity="0.15"/>
+      <ellipse cx="55" cy="44" rx="20" ry="7"  stroke="currentColor" stroke-width="0.9" opacity="0.17"/>
+      <circle cx="104" cy="24" r="18" stroke="currentColor" stroke-width="0.8" opacity="0.14"/>
+      <line x1="104" y1="6" x2="104" y2="42" stroke="currentColor" stroke-width="1"   opacity="0.2"/>
+      <line x1="86"  y1="24" x2="122" y2="24" stroke="currentColor" stroke-width="1"   opacity="0.2"/>
+      <polygon points="104,6 101,14 104,11 107,14" fill="currentColor" opacity="0.35"/>
+    </svg>`,
+  },
+  Leader: {
+    trailAccent: '▲',
+    trailBg: 'repeating-linear-gradient(60deg,currentColor 0,currentColor 1px,transparent 0,transparent 30px) 0 0/30px 52px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="95" cy="32" r="26" stroke="currentColor" stroke-width="0.9" opacity="0.13"/>
+      <circle cx="95" cy="32" r="18" stroke="currentColor" stroke-width="0.7" opacity="0.11"/>
+      <line x1="95" y1="6" x2="95" y2="58" stroke="currentColor" stroke-width="1.2" opacity="0.2"/>
+      <line x1="69" y1="32" x2="121" y2="32" stroke="currentColor" stroke-width="1.2" opacity="0.2"/>
+      <line x1="77" y1="14" x2="113" y2="50" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <line x1="113" y1="14" x2="77" y2="50" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <polygon points="95,6 91,18 95,14 99,18" fill="currentColor" opacity="0.4"/>
+      <polygon points="121,32 109,28 113,32 109,36" fill="currentColor" opacity="0.25"/>
+    </svg>`,
+  },
+  Builder: {
+    trailAccent: '■',
+    trailBg: 'repeating-linear-gradient(0deg,currentColor 0,currentColor 1px,transparent 0,transparent 24px),repeating-linear-gradient(90deg,currentColor 0,currentColor 1px,transparent 0,transparent 24px) 0 0/24px 24px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4"  y="4"  width="68" height="56" stroke="currentColor" stroke-width="1" opacity="0.14" rx="1"/>
+      <line x1="4" y1="14" x2="72"  y2="14" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <line x1="4" y1="24" x2="72"  y2="24" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <line x1="4" y1="34" x2="72"  y2="34" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <line x1="4" y1="44" x2="72"  y2="44" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <line x1="24" y1="4" x2="24" y2="60" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <line x1="44" y1="4" x2="44" y2="60" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
+      <path d="M88 48 L88 30 L100 18 L108 26 L96 38" stroke="currentColor" stroke-width="2" fill="none" opacity="0.22" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="110" cy="16" r="5" stroke="currentColor" stroke-width="2" fill="none" opacity="0.2"/>
+    </svg>`,
+  },
+  Protector: {
+    trailAccent: '◉',
+    trailBg: 'repeating-linear-gradient(180deg,currentColor 0,currentColor 1px,transparent 0,transparent 20px) 0 0/20px 20px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 60 L20 30 M12 38 L20 22 L28 38 M8 48 L20 28 L32 48" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.18" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M50 60 L50 35 M43 42 L50 28 L57 42" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.14" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M86 8 L110 8 L118 8 L118 36 L102 52 L86 36Z" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2" stroke-linejoin="round"/>
+      <path d="M92 28 L99 36 L116 16" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+  },
+  Strategist: {
+    trailAccent: '◎',
+    trailBg: 'repeating-linear-gradient(0deg,currentColor 0,currentColor 1px,transparent 0,transparent 16px),repeating-linear-gradient(90deg,currentColor 0,currentColor 1px,transparent 0,transparent 16px) 0 0/16px 16px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="72" y="4"  width="12" height="12" fill="currentColor" opacity="0.1"/>
+      <rect x="84" y="4"  width="12" height="12" fill="currentColor" opacity="0.07"/>
+      <rect x="72" y="16" width="12" height="12" fill="currentColor" opacity="0.07"/>
+      <rect x="84" y="16" width="12" height="12" fill="currentColor" opacity="0.1"/>
+      <rect x="96" y="4"  width="12" height="12" fill="currentColor" opacity="0.1"/>
+      <rect x="96" y="16" width="12" height="12" fill="currentColor" opacity="0.07"/>
+      <rect x="72" y="28" width="12" height="12" fill="currentColor" opacity="0.1"/>
+      <rect x="84" y="28" width="12" height="12" fill="currentColor" opacity="0.07"/>
+      <rect x="96" y="28" width="12" height="12" fill="currentColor" opacity="0.1"/>
+      <path d="M10 10 L50 10 L50 50 L10 50 Z" stroke="currentColor" stroke-width="1" fill="none" opacity="0.14"/>
+      <line x1="10" y1="30" x2="50" y2="30" stroke="currentColor" stroke-width="0.8" opacity="0.13"/>
+      <line x1="30" y1="10" x2="30" y2="50" stroke="currentColor" stroke-width="0.8" opacity="0.13"/>
+      <circle cx="30" cy="30" r="6" stroke="currentColor" stroke-width="1" fill="none" opacity="0.16"/>
+    </svg>`,
+  },
+  Visionary: {
+    trailAccent: '◐',
+    trailBg: 'radial-gradient(circle,currentColor 1px,transparent 1px) 0 0/40px 40px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 64 L28 8 L48 38 L72 4 L92 30 L114 12 L130 36 L130 64Z" fill="currentColor" opacity="0.08"/>
+      <circle cx="28"  cy="8"  r="2"   fill="currentColor" opacity="0.45"/>
+      <circle cx="72"  cy="4"  r="2.5" fill="currentColor" opacity="0.5"/>
+      <circle cx="114" cy="12" r="2"   fill="currentColor" opacity="0.4"/>
+      <circle cx="15"  cy="20" r="1.2" fill="currentColor" opacity="0.3"/>
+      <circle cx="55"  cy="15" r="1.2" fill="currentColor" opacity="0.28"/>
+      <circle cx="96"  cy="22" r="1.2" fill="currentColor" opacity="0.3"/>
+      <circle cx="125" cy="10" r="1.5" fill="currentColor" opacity="0.35"/>
+    </svg>`,
+  },
+  Communicator: {
+    trailAccent: '◇',
+    trailBg: 'repeating-linear-gradient(90deg,currentColor 0,currentColor 1px,transparent 0,transparent 20px) 0 0/20px 20px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="44" y="18" width="10" height="18" rx="5" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.24"/>
+      <path d="M39 32 Q39 46 49 46 Q59 46 59 32" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.24" stroke-linecap="round"/>
+      <line x1="49" y1="46" x2="49" y2="54" stroke="currentColor" stroke-width="1.5" opacity="0.22" stroke-linecap="round"/>
+      <line x1="43" y1="54" x2="55" y2="54" stroke="currentColor" stroke-width="1.5" opacity="0.2" stroke-linecap="round"/>
+      <path d="M70 32 Q80 20 80 32 Q80 44 70 32" stroke="currentColor" stroke-width="1.3" fill="none" opacity="0.28" stroke-linecap="round"/>
+      <path d="M65 32 Q84 14 84 32 Q84 50 65 32" stroke="currentColor" stroke-width="1"   fill="none" opacity="0.2"  stroke-linecap="round"/>
+      <path d="M60 32 Q88 8 88 32 Q88 56 60 32"  stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.14" stroke-linecap="round"/>
+      <path d="M95 32 Q105 20 105 32 Q105 44 95 32" stroke="currentColor" stroke-width="1.3" fill="none" opacity="0.22" stroke-linecap="round"/>
+      <path d="M90 32 Q109 10 109 32 Q109 54 90 32"  stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.14" stroke-linecap="round"/>
+    </svg>`,
+  },
+  Guardian: {
+    trailAccent: '⬡',
+    trailBg: 'repeating-linear-gradient(60deg,currentColor 0,currentColor 1px,transparent 0,transparent 20px),repeating-linear-gradient(-60deg,currentColor 0,currentColor 1px,transparent 0,transparent 20px) 0 0/20px 34px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="82" cy="28" r="26" stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.12"/>
+      <circle cx="82" cy="28" r="20" stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.14"/>
+      <circle cx="82" cy="28" r="14" stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.16"/>
+      <circle cx="82" cy="28" r="8"  stroke="currentColor" stroke-width="0.9" fill="none" opacity="0.18"/>
+      <circle cx="82" cy="28" r="3"  fill="currentColor" opacity="0.25"/>
+      <path d="M82 54 Q68 62 56 58" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.15" stroke-linecap="round"/>
+      <path d="M82 54 Q94 62 106 58" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.15" stroke-linecap="round"/>
+      <path d="M10 20 L10 56 M22 14 L22 56 M34 20 L34 56" stroke="currentColor" stroke-width="1.5" opacity="0.13" stroke-linecap="round"/>
+      <path d="M6 20 Q16 6 28 14 Q40 6 40 20" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.14" stroke-linecap="round"/>
+    </svg>`,
+  },
+  Sovereign: {
+    trailAccent: '♔',
+    trailBg: 'repeating-linear-gradient(45deg,currentColor 0,currentColor 1px,transparent 0,transparent 22px),repeating-linear-gradient(-45deg,currentColor 0,currentColor 1px,transparent 0,transparent 22px) 0 0/22px 22px',
+    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M70 38 L76 10 L86 28 L96 4 L106 28 L116 10 L122 38 Z" stroke="currentColor" stroke-width="1.4" fill="none" opacity="0.2" stroke-linejoin="round"/>
+      <line x1="68" y1="42" x2="124" y2="42" stroke="currentColor" stroke-width="1.4" opacity="0.18" stroke-linecap="round"/>
+      <rect x="78" y="42" width="36" height="16" stroke="currentColor" stroke-width="1" fill="none" opacity="0.14"/>
+      <rect x="10" y="18" width="8" height="40" stroke="currentColor" stroke-width="1" fill="none" opacity="0.16" rx="1"/>
+      <rect x="28" y="12" width="8" height="46" stroke="currentColor" stroke-width="1" fill="none" opacity="0.16" rx="1"/>
+      <path d="M6 18 Q14 4 22 12 Q30 4 40 18" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.18" stroke-linecap="round"/>
+    </svg>`,
+  },
+};
+
 const ARCHETYPE_STAGE_NAMES = {
   1: ['Iron Will',   'Stillness',  'Spark',     'Wander',    'Lead Yourself', 'Foundation', 'Watch',  'Observe',   'Dream',   'Voice',    'Roots',    'Claim'],
   2: ['Steel Mind',  'Depth',      'Form',      'Discovery', 'Lead Others',   'Blueprint',  'Guard',  'Plan',      'See',     'Connect',  'Stand',    'Rule'],
@@ -3509,6 +3682,7 @@ function renderMyPath() {
 
   const archIconHtml = archetypeElementIcon(currentArch, profile.dominantElement);
   const archFullyComplete = earned.includes(currentArch);
+  const theme = ARCHETYPE_THEMES[currentArch] || { decorSvg: '', trailAccent: '', trailBg: 'none' };
 
   // ── Badge rack (all 12 archetypes)
   const badgeRack = ARCHETYPE_ORDER.map(a => {
@@ -3531,11 +3705,12 @@ function renderMyPath() {
     </button>`;
   }).join('');
 
-  let html = `<div class="path-screen">
+  let html = `<div class="path-screen" data-arch="${currentArch}">
     <div class="path-badge-rack">${badgeRack}</div>
     <div class="path-badge-count-row"><span>${earned.length}</span> / 12 badges collected</div>
 
     <div class="path-arch-banner" style="--path-clr:${aClr.icon};--path-glow:${aClr.glow}">
+      <div class="path-banner-decor" style="color:${aClr.icon}">${theme.decorSvg}</div>
       <div class="path-banner-icon-wrap" style="border-color:${aClr.icon}33;background:${aClr.glow}">${archIconHtml}</div>
       <div class="path-arch-info">
         <div class="path-arch-label">YOUR PATH</div>
@@ -3561,7 +3736,7 @@ function renderMyPath() {
 
     ${switcherChips ? `<div class="path-switcher"><div class="path-switcher-label">Switch Path</div><div class="path-switcher-chips">${switcherChips}</div></div>` : ''}
 
-    <div class="path-trail" id="pathTrail">`;
+    <div class="path-trail" id="pathTrail" style="--trail-clr:${aClr.icon}">`;
 
   // Render stages 4 → 1 (top = hardest/future, bottom = first/completed)
   for (let stageNum = archData.stages.length; stageNum >= 1; stageNum--) {
@@ -3576,10 +3751,10 @@ function renderMyPath() {
     html += `<div class="pz-stage-header ${stageIsLocked ? 'pz-stage-locked' : stageAllDone ? 'pz-stage-complete' : 'pz-stage-active'}" style="${!stageIsLocked ? `--stage-clr:${aClr.icon}` : ''}">
       <div class="pz-stage-badge" style="${!stageIsLocked ? `background:${aClr.icon}` : ''}">${stageAllDone ? '★' : stageIsLocked ? '🔒' : ['I','II','III','IV'][stageNum-1]}</div>
       <div class="pz-stage-info">
-        <div class="pz-stage-label">${stageLabel}</div>
+        <div class="pz-stage-label">${stageLabel} <span class="pz-stage-accent">${theme.trailAccent}</span></div>
         <div class="pz-stage-name">${stageName}</div>
       </div>
-      <div class="pz-stage-progress">${stageIsLocked ? 'Locked' : stageAllDone ? 'Complete' : `${stageDone}/5`}</div>
+      <div class="pz-stage-progress">${stageIsLocked ? 'Locked' : stageAllDone ? 'Complete ✓' : `${stageDone}/5`}</div>
     </div>`;
 
     // Render missions within this stage in reverse (5 at top, 1 at bottom)
