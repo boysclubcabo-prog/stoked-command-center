@@ -4428,6 +4428,142 @@ body {
 /* spacer fills the opposite half */
 .pz-spacer { flex: 1; min-width: 0; }
 
+/* ── BADGE RACK ── */
+.path-badge-rack {
+  display: flex;
+  gap: 6px;
+  padding: 12px 12px 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+}
+.path-badge-rack::-webkit-scrollbar { display: none; }
+.path-badge-count-row {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 0 6px;
+  border-bottom: 1px solid var(--border);
+}
+.path-badge-count-row span {
+  font-weight: 700;
+  color: var(--terra);
+}
+.path-badge-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  width: 44px;
+}
+.path-badge-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: transform 0.2s;
+}
+.path-badge-earned .path-badge-icon {
+  box-shadow: 0 0 10px 2px currentColor;
+}
+.path-badge-locked .path-badge-icon { opacity: 0.28; filter: grayscale(1); }
+.path-badge-name { font-size: 8px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+.path-badge-earned .path-badge-name { color: var(--text-secondary); }
+
+/* ── PATH SWITCHER ── */
+.path-switcher {
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.path-switcher-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.path-switcher-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.path-switch-chip {
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid;
+  background: transparent;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.path-switch-chip:hover { opacity: 0.8; }
+.path-switch-earned { opacity: 0.6; }
+
+/* ── STAGE HEADERS ── */
+.pz-stage-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px 10px;
+  margin: 0;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 3;
+}
+.pz-stage-header:first-child { border-top: none; }
+.pz-stage-locked { opacity: 0.45; }
+.pz-stage-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-base);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: 'Barlow Condensed', sans-serif;
+  color: #fff;
+  flex-shrink: 0;
+}
+.pz-stage-complete .pz-stage-badge { font-size: 14px; }
+.pz-stage-info { flex: 1; }
+.pz-stage-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--stage-clr, var(--text-muted));
+  margin-bottom: 1px;
+}
+.pz-stage-name {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.pz-stage-progress {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.06em;
+}
+.pz-stage-complete .pz-stage-progress { color: #5a8c5a; }
+
 /* mission modal */
 .mission-modal-arch {
   font-size: 10px;

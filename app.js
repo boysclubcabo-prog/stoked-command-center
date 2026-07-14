@@ -728,138 +728,436 @@ const IC = {
 // Ordered sequence of archetypes every brother walks through.
 // The brother's primary archetype is placed first at render time.
 // ── MY PATH — PER-ARCHETYPE CHALLENGES ────────
-// Each archetype has 5 sequential challenges. Complete all 5 to evolve.
+// 4 stages × 5 missions = 20 missions per archetype.
+// Progress key format: `${arch}_s${stage}_${idx}` (stage 1-4, idx 0-4)
+const ARCHETYPE_STAGE_NAMES = {
+  1: ['Iron Will',   'Stillness',  'Spark',     'Wander',    'Lead Yourself', 'Foundation', 'Watch',  'Observe',   'Dream',   'Voice',    'Roots',    'Claim'],
+  2: ['Steel Mind',  'Depth',      'Form',      'Discovery', 'Lead Others',   'Blueprint',  'Guard',  'Plan',      'See',     'Connect',  'Stand',    'Rule'],
+  3: ['Brotherhood', 'Mastery',    'Flow',      'Wild',      'Build a Team',  'Build',      'Serve',  'Execute',   'Create',  'Influence','Preserve', 'Wisdom'],
+  4: ['Sovereign',   'The Sage',   'The Work',  'Pathfinder','The Commander', 'Architect',  'Shield', 'The Master','Prophet', 'Orator',   'The Elder','The King'],
+};
+const ARCHETYPE_STAGE_NAME_MAP = {
+  Warrior:      ['Iron Will','Steel Mind','Brotherhood','Sovereign Warrior'],
+  Monk:         ['Stillness','Depth','Mastery','The Sage'],
+  Creator:      ['Spark','Form','Flow','The Work'],
+  Explorer:     ['Wander','Discovery','Wild','The Pathfinder'],
+  Leader:       ['Lead Yourself','Lead Others','Build a Team','The Commander'],
+  Builder:      ['Foundation','Blueprint','Build','The Architect'],
+  Protector:    ['Watch','Guard','Serve','The Shield'],
+  Strategist:   ['Observe','Plan','Execute','The Master'],
+  Visionary:    ['Dream','See','Create','The Prophet'],
+  Communicator: ['Voice','Connect','Influence','The Orator'],
+  Guardian:     ['Roots','Stand','Preserve','The Elder'],
+  Sovereign:    ['Claim','Rule','Wisdom','The King'],
+};
+
 const ARCHETYPE_CHALLENGES = {
   Warrior: {
-    motto:  'Choose courage over comfort.',
+    motto: 'Choose courage over comfort.',
     symbol: '⚔',
-    challenges: [
-      { title: 'Cold Shower',        task: 'Take a full cold shower. Take a selfie right after finishing.' },
-      { title: '100 Push-Ups',       task: 'Complete 100 push-ups in one session. Photograph your workout spot when you\'re done.' },
-      { title: 'Summit',             task: 'Find the highest point near you and climb it. Photograph the view from the top.' },
-      { title: 'Sunrise',            task: 'Be somewhere outdoors before 7 AM to watch the sunrise. Photograph it.' },
-      { title: 'Train With Someone', task: 'Work out with a parent or adult you respect. Take a selfie together after moving your bodies.' },
+    stages: [
+      [
+        { title: 'Cold Shower',        task: 'Take a full cold shower. Take a selfie right after finishing.' },
+        { title: '100 Push-Ups',       task: 'Complete 100 push-ups in one session. Photograph your workout spot when done.' },
+        { title: 'Summit',             task: 'Find the highest point near you and climb it. Photograph the view from the top.' },
+        { title: 'Sunrise',            task: 'Be somewhere outdoors before 7 AM to watch the sunrise. Photograph it.' },
+        { title: 'Train With Someone', task: 'Work out with a parent or adult you respect. Take a selfie together after.' },
+      ],
+      [
+        { title: 'Ice Bath',       task: 'Submerge in an ice bath or cold body of water for at least 3 minutes. Document the moment.' },
+        { title: '5K Run',         task: 'Run a full 5K without stopping. Record your time and photograph your finish.' },
+        { title: 'Fasted Workout', task: 'Train hard on an empty stomach. Log every exercise you did.' },
+        { title: '5AM Week',       task: 'Wake at 5 AM every day for 5 consecutive days. Photograph the clock each morning.' },
+        { title: 'Spar or Grapple',task: 'Do a sparring session, grapple, or enter any combat discipline. Face real contact.' },
+      ],
+      [
+        { title: '30-Day Streak',     task: 'Train every single day for 30 days. One discipline, no exceptions. Log all 30.' },
+        { title: 'Be the Strong One', task: 'Help a brother or family member through something physically demanding. Be their strength.' },
+        { title: 'No Comfort Week',   task: '7 days: no alcohol, no junk food, cold showers only, up at 5 AM. Document Day 7.' },
+        { title: 'Public Challenge',  task: 'Do something physically demanding in public you\'d normally be too self-conscious to try.' },
+        { title: 'Coach Someone',     task: 'Train a beginner through a full session. Teach them what you now embody.' },
+      ],
+      [
+        { title: 'Endurance Test',    task: 'Complete a half-marathon, 10K with heavy pack, or 24-hour fast + cold exposure. Document it.' },
+        { title: 'Compete Officially',task: 'Enter and complete an official physical competition — fight, race, tournament, or event.' },
+        { title: 'Warrior\'s Code',   task: 'Write your personal warrior code — 5 non-negotiable disciplines you will keep for life. Share with a brother.' },
+        { title: 'Teach the Path',    task: 'Lead a group training session for 3+ people. You are now the standard.' },
+        { title: 'Design Your Test',  task: 'Create your own ultimate physical challenge harder than anything you\'ve done. Complete and document it.' },
+      ],
     ],
   },
   Monk: {
-    motto:  'Master yourself before the world.',
+    motto: 'Master yourself before the world.',
     symbol: '○',
-    challenges: [
-      { title: 'Stillness',    task: 'Sit in silence and meditate for 10 minutes. Photograph the place where you did it.' },
-      { title: 'Read 20 Pages',task: 'Read 20 pages of a real book. Photograph it open to today\'s page.' },
-      { title: 'Phone Away',   task: 'Put your phone in another room for 1 full hour. Photograph where you left it.' },
-      { title: 'Nature Sit',   task: 'Find a spot in nature and sit quietly for 15 minutes. Photograph the place.' },
-      { title: 'Journal',      task: 'Fill one full page in a journal. Photograph the completed page (writing doesn\'t need to be readable).' },
+    stages: [
+      [
+        { title: 'Stillness',     task: 'Sit in silence and meditate for 10 minutes. Photograph the place where you did it.' },
+        { title: 'Read 20 Pages', task: 'Read 20 pages of a real book. Photograph it open to today\'s page.' },
+        { title: 'Phone Away',    task: 'Put your phone in another room for 1 full hour. Photograph where you left it.' },
+        { title: 'Nature Sit',    task: 'Find a spot in nature and sit quietly for 15 minutes. Photograph the place.' },
+        { title: 'Journal',       task: 'Fill one full page in a journal. Photograph the completed page.' },
+      ],
+      [
+        { title: '30-Min Meditation', task: 'Sit in uninterrupted meditation for 30 minutes. Photograph your space before and after.' },
+        { title: 'Read a Full Book',  task: 'Finish an entire book this week. Photograph the cover when you finish.' },
+        { title: 'Digital Detox Day', task: 'Go 24 hours without social media, gaming, or streaming. Write what you noticed.' },
+        { title: 'Gratitude Practice',task: 'Write 10 genuine gratitudes every day for 7 days. Photograph Day 7.' },
+        { title: 'Hard Conversation', task: 'Have one honest, difficult conversation you\'ve been avoiding. Write what happened.' },
+      ],
+      [
+        { title: 'Meditation Streak', task: 'Meditate every day for 21 consecutive days. Photograph your space on Day 21.' },
+        { title: 'Teach Stillness',   task: 'Guide a friend or family member through their first meditation session.' },
+        { title: 'Mind Fast',         task: 'Spend one full weekend with no entertainment — no music, no screens, no podcasts. Just presence.' },
+        { title: 'Study the Masters', task: 'Study one philosopher or stoic deeply for a week. Write your 3 biggest takeaways.' },
+        { title: 'Silence Day',       task: 'Spend one full day in near-complete silence. Speak only when absolutely necessary.' },
+      ],
+      [
+        { title: 'Retreat',         task: 'Complete a 2-day solo retreat or silent retreat. Document your insights.' },
+        { title: 'The Monk\'s Year', task: 'Design a 12-month inner discipline plan — what you will read, practice, and give up. Write it fully.' },
+        { title: 'Teach the Path',  task: 'Lead 2+ people in a 30+ minute meditation or mindfulness practice.' },
+        { title: 'Ego Inventory',   task: 'Write a complete honest inventory of your ego patterns, fears, and stories. Share one insight with a brother.' },
+        { title: 'Sage\'s Letter',  task: 'Write a letter of wisdom to your 10-years-younger self and 10-years-older self. Photograph both.' },
+      ],
     ],
   },
   Creator: {
-    motto:  'Create instead of consume.',
+    motto: 'Create instead of consume.',
     symbol: '◈',
-    challenges: [
-      { title: 'Draw Something New', task: 'Draw something you have never drawn before. Photograph it.' },
-      { title: 'Build Something',    task: 'Build something using objects at home. Photograph your creation.' },
-      { title: 'Create a Meal',      task: 'Make a simple meal or snack from scratch. Photograph it before eating.' },
-      { title: 'Inspire Your Space', task: 'Rearrange your room to make it feel more inspiring. Photograph the result.' },
-      { title: 'Make for Someone',   task: 'Create something for another person — a drawing, a meal, a note. Photograph it.' },
+    stages: [
+      [
+        { title: 'Draw Something New', task: 'Draw something you have never drawn before. Photograph it.' },
+        { title: 'Build Something',    task: 'Build something using objects at home. Photograph your creation.' },
+        { title: 'Create a Meal',      task: 'Make a simple meal or snack from scratch. Photograph it before eating.' },
+        { title: 'Inspire Your Space', task: 'Rearrange your room to make it feel more inspiring. Photograph the result.' },
+        { title: 'Make for Someone',   task: 'Create something for another person — a drawing, a meal, a note. Photograph it.' },
+      ],
+      [
+        { title: 'Learn a New Skill', task: 'Spend 2+ hours learning one creative skill you\'ve never tried. Document your first attempt.' },
+        { title: 'Create Every Day',  task: 'Create something every day for 7 days — any medium. Photograph all 7 creations.' },
+        { title: 'Finish Something',  task: 'Complete a creative project you started but never finished. Photograph it done.' },
+        { title: 'Collab',            task: 'Create something together with another person. Document the process.' },
+        { title: 'Exhibit',           task: 'Share one of your creations publicly — post it, display it, or gift it. Document the response.' },
+      ],
+      [
+        { title: '30-Day Create',   task: 'Create something every single day for 30 days. Any size, any medium. Photograph all 30.' },
+        { title: 'The Hard Project',task: 'Start and complete a creative project that genuinely scares you in scope or difficulty.' },
+        { title: 'Teach Your Craft',task: 'Teach someone else something you\'ve created or learned. Lead a 30+ minute session.' },
+        { title: 'Create to Give',  task: 'Create something specifically to give away for free — to the community, a stranger, or a friend.' },
+        { title: 'Remix',           task: 'Take something old or broken and transform it into something new and beautiful.' },
+      ],
+      [
+        { title: 'Magnum Opus', task: 'Create your most ambitious work yet — something you\'ll be proud of in 10 years. Document the process.' },
+        { title: 'Launch',      task: 'Launch a creative project publicly — a portfolio, a performance, a product, or an event.' },
+        { title: 'Artist\'s Statement', task: 'Write your artist\'s statement: who you are, what you create, and why it matters.' },
+        { title: 'Mentor a Creator',    task: 'Commit to mentoring one newer creator for at least a month. Document their growth.' },
+        { title: 'Leave a Mark',        task: 'Create something permanent in the world — a mural, a published piece, a public installation. Document it.' },
+      ],
     ],
   },
   Explorer: {
-    motto:  'Go somewhere you\'ve never gone.',
+    motto: 'Go somewhere you\'ve never gone.',
     symbol: '✦',
-    challenges: [
-      { title: 'New Route',      task: 'Walk a route you\'ve never walked. Photograph your favourite discovery along the way.' },
-      { title: 'New Place',      task: 'Visit a place in your town you\'ve never been to. Photograph it.' },
-      { title: 'New Sunset',     task: 'Watch a sunset from a location you\'ve never been to before. Photograph it.' },
-      { title: 'New Food',       task: 'Try a food you\'ve never eaten before. Photograph it.' },
-      { title: 'Nature Find',    task: 'Find something in nature you\'ve never noticed before. Photograph it.' },
+    stages: [
+      [
+        { title: 'New Route',   task: 'Walk a route you\'ve never walked. Photograph your favourite discovery along the way.' },
+        { title: 'New Place',   task: 'Visit a place in your town you\'ve never been to. Photograph it.' },
+        { title: 'New Sunset',  task: 'Watch a sunset from a location you\'ve never been to before. Photograph it.' },
+        { title: 'New Food',    task: 'Try a food you\'ve never eaten before. Photograph it.' },
+        { title: 'Nature Find', task: 'Find something in nature you\'ve never noticed before. Photograph it.' },
+      ],
+      [
+        { title: 'Daytrip',           task: 'Take a solo or group daytrip somewhere at least 1 hour away you\'ve never been. Document 3 discoveries.' },
+        { title: 'Talk to a Stranger',task: 'Have a genuine 10-minute conversation with someone you\'ve never met. Write what you learned.' },
+        { title: 'New Language',      task: 'Learn 20 phrases in a language you\'ve never spoken. Record yourself saying them.' },
+        { title: 'Before Sunrise',    task: 'Be somewhere new and remarkable before the sun rises. Photograph the moment it appears.' },
+        { title: 'Urban Explore',     task: 'Explore a part of your city you\'ve never set foot in. Photograph 5 things that surprise you.' },
+      ],
+      [
+        { title: 'Overnight Alone',  task: 'Spend one night in nature alone — camping or sleeping under stars. Document the morning.' },
+        { title: 'Brave the Unknown',task: 'Do something you\'ve never done that genuinely scares you. Write about the moment after.' },
+        { title: 'Leave the Map',    task: 'Spend one full day with no plan, no GPS, no itinerary. Go wherever feels right. Document what happened.' },
+        { title: 'Cross a Border',   task: 'Travel to a new country, city, or region you\'ve never visited. Photograph your arrival.' },
+        { title: 'Extreme Nature',   task: 'Experience something raw in nature — a summit, a storm, a desert, a canyon. Document the scale of it.' },
+      ],
+      [
+        { title: 'Epic Journey',    task: 'Plan and complete a multi-day trip somewhere you\'ve always wanted to go. Document every day.' },
+        { title: 'Guide Someone',   task: 'Take someone who needs a new experience somewhere meaningful. Be their guide.' },
+        { title: 'Explorer\'s Manifesto', task: 'Write your explorer\'s manifesto — the places you will go, the things you will do, the life you will live.' },
+        { title: 'Your Wild Place', task: 'Discover a place in the world that feels like yours — one you\'ll return to. Photograph it and describe why.' },
+        { title: 'Inspire Wandering', task: 'Share your exploration story in a way that inspires at least one other person to go somewhere new.' },
+      ],
     ],
   },
   Leader: {
-    motto:  'Lead through action.',
+    motto: 'Lead through action.',
     symbol: '▲',
-    challenges: [
-      { title: 'Family Game Night', task: 'Organize a family game night. You plan it. Take one group photo.' },
-      { title: 'Cook Together',     task: 'Cook dinner alongside a parent. Photograph the finished meal.' },
-      { title: 'Lead a Workout',    task: 'Lead a 10-minute workout for at least one other person. Photograph the group.' },
-      { title: 'Plan Tomorrow',     task: 'Write tomorrow\'s full schedule tonight. Photograph your written plan.' },
-      { title: 'Organize Unprompted', task: 'Organize one room in your home before anyone asks you to. Photograph the result.' },
+    stages: [
+      [
+        { title: 'Family Game Night',     task: 'Organize a family game night. You plan it. Take one group photo.' },
+        { title: 'Cook Together',         task: 'Cook dinner alongside a parent. Photograph the finished meal.' },
+        { title: 'Lead a Workout',        task: 'Lead a 10-minute workout for at least one other person. Photograph the group.' },
+        { title: 'Plan Tomorrow',         task: 'Write tomorrow\'s full schedule tonight. Photograph your written plan.' },
+        { title: 'Organize Unprompted',   task: 'Organize one room in your home before anyone asks you to. Photograph the result.' },
+      ],
+      [
+        { title: 'Run a Meeting',         task: 'Organize and run a real meeting with an agenda — family, team, or group. Document the outcome.' },
+        { title: 'Delegate',              task: 'Assign a task to someone and trust them to do it. Write what you delegated and the result.' },
+        { title: 'Resolve a Conflict',    task: 'Mediate or resolve a real disagreement between two people. Write how you did it.' },
+        { title: 'Public Speaking',       task: 'Speak in front of 5+ people on any topic. Record a clip or photograph the room.' },
+        { title: 'Accountability Partner',task: 'Make a commitment with someone and hold each other to it for 2 weeks.' },
+      ],
+      [
+        { title: 'Recruit',            task: 'Bring 3+ people together around a shared mission or project. Lead the first meeting.' },
+        { title: 'Feedback Session',   task: 'Ask 3 people who know you well for honest feedback on your leadership. Write what you heard.' },
+        { title: 'Lead Under Pressure',task: 'Take charge in a high-stress situation — solve a real problem others are struggling with.' },
+        { title: 'Vision Cast',        task: 'Present a vision for something you want to build or change to at least 3 people. Document their response.' },
+        { title: 'Develop Someone',    task: 'Intentionally invest in helping one person grow over 30 days. Write their progress.' },
+      ],
+      [
+        { title: 'Complete a Project', task: 'Conceive, plan, and complete a real project with a team. Document every phase.' },
+        { title: 'The Hard Call',      task: 'Make a genuinely difficult leadership decision that affects others. Write your reasoning and the outcome.' },
+        { title: 'Leader\'s Legacy',   task: 'Write what you want to be remembered for as a leader. Share it with your team.' },
+        { title: 'Build the Next Leader', task: 'Identify someone with leadership potential. Spend 30 days actively developing them.' },
+        { title: 'Keynote',            task: 'Give a 10+ minute talk to the largest audience you\'ve ever addressed. Film it.' },
+      ],
     ],
   },
   Builder: {
-    motto:  'Leave things better than you found them.',
+    motto: 'Leave things better than you found them.',
     symbol: '■',
-    challenges: [
-      { title: 'Clean Your Desk',      task: 'Clear and organize your desk completely. Photograph the finished result.' },
-      { title: 'Fix Something',        task: 'Build or fix something in your home. Photograph it.' },
-      { title: 'Organize Your Pack',   task: 'Fully unpack, clean, and reorganize your bag or backpack. Photograph it.' },
-      { title: 'Build With Someone',   task: 'Assemble or build something together with a parent. Photograph the result.' },
-      { title: 'Before and After',     task: 'Find something that needs improvement. Fix it. Photograph both before and after.' },
+    stages: [
+      [
+        { title: 'Clean Your Desk',    task: 'Clear and organize your desk completely. Photograph the finished result.' },
+        { title: 'Fix Something',      task: 'Build or fix something in your home. Photograph it.' },
+        { title: 'Organize Your Pack', task: 'Fully unpack, clean, and reorganize your bag or backpack. Photograph it.' },
+        { title: 'Build With Someone', task: 'Assemble or build something together with a parent. Photograph the result.' },
+        { title: 'Before and After',   task: 'Find something that needs improvement. Fix it. Photograph both before and after.' },
+      ],
+      [
+        { title: 'System',            task: 'Design and implement a personal system — for your finances, schedule, or health. Document it.' },
+        { title: 'Build Something Real', task: 'Build something physical from scratch that will actually be used. Photograph the process.' },
+        { title: 'Repair',            task: 'Fix something broken that most people would throw away. Photograph before and after.' },
+        { title: 'Deep Organization', task: 'Spend one full day organizing one major area of your life — workspace, finances, digital files.' },
+        { title: 'Teach to Build',    task: 'Teach someone else a practical skill — woodwork, cooking, coding, fixing. Document the session.' },
+      ],
+      [
+        { title: '30-Day Build',          task: 'Work on one project every day for 30 days. Photograph Day 1, Day 15, and Day 30.' },
+        { title: 'Build for the Brotherhood', task: 'Create something useful for the group — a tool, a system, a resource. Present it.' },
+        { title: 'The Rebuild',           task: 'Take something broken in your life — a habit, a relationship — and systematically rebuild it over 30 days.' },
+        { title: 'Legacy Build',          task: 'Start a project that will outlast you — something people will use or benefit from after you\'re gone.' },
+        { title: 'Audit and Upgrade',     task: 'Audit your life across 5 areas and execute a concrete upgrade in each one.' },
+      ],
+      [
+        { title: 'Build an Enterprise',  task: 'Design and launch one real business or income-generating project. Document Month 1.' },
+        { title: 'Health System',        task: 'Create a complete sustainable personal health system and follow it for 60 days. Document the blueprint.' },
+        { title: 'Architect\'s Blueprint', task: 'Write the complete blueprint for your ideal life 10 years from now — finances, health, relationships, work, legacy.' },
+        { title: 'Mentor a Builder',     task: 'Find someone who wants to build something and guide them through the full process.' },
+        { title: 'Leave a Structure',    task: 'Create something lasting that others can use after you — a framework, a community, a physical space.' },
+      ],
     ],
   },
   Protector: {
-    motto:  'Use your strength to serve.',
+    motto: 'Use your strength to serve.',
     symbol: '◉',
-    challenges: [
-      { title: 'Carry the Load',   task: 'Help carry groceries or heavy bags without being asked. Photograph the bags.' },
-      { title: 'Walk the Dog',     task: 'Walk the family dog or help a neighbour with theirs. Photograph it.' },
-      { title: 'Pick Up 20 Pieces',task: 'Pick up 20 pieces of litter from your environment. Photograph your collection.' },
-      { title: 'Help a Sibling',   task: 'Help a younger sibling or someone younger with something real. Photograph the moment.' },
-      { title: 'Wash the Car',     task: 'Wash the family car with a parent. Photograph it clean.' },
+    stages: [
+      [
+        { title: 'Carry the Load',    task: 'Help carry groceries or heavy bags without being asked. Photograph the bags.' },
+        { title: 'Walk the Dog',      task: 'Walk the family dog or help a neighbour with theirs. Photograph it.' },
+        { title: 'Pick Up 20 Pieces', task: 'Pick up 20 pieces of litter from your environment. Photograph your collection.' },
+        { title: 'Help a Sibling',    task: 'Help a younger sibling or someone younger with something real. Photograph the moment.' },
+        { title: 'Wash the Car',      task: 'Wash the family car with a parent. Photograph it clean.' },
+      ],
+      [
+        { title: 'Community Service', task: 'Volunteer 3+ hours at an organisation that serves others. Document who you helped.' },
+        { title: 'Defend Someone',    task: 'Stand up for someone who was being treated unfairly. Write what happened and how it felt.' },
+        { title: 'Learn First Aid',   task: 'Learn basic first aid or CPR. Document your training.' },
+        { title: 'Environment Day',   task: 'Spend a full day in service of your environment — clean, plant, restore. Photograph the impact.' },
+        { title: 'Check In',          task: 'Reach out to 5 people you haven\'t spoken to in a while and genuinely check how they are.' },
+      ],
+      [
+        { title: '30-Day Service',       task: 'Perform one act of service every day for 30 days. Log all 30. Photograph 10 of them.' },
+        { title: 'Protect the Vulnerable', task: 'Identify someone vulnerable in your community and actively look out for them for a month.' },
+        { title: 'Emergency Ready',      task: 'Prepare a genuine emergency kit for your household. Document everything in it.' },
+        { title: 'Mentor a Younger Brother', task: 'Commit to mentoring someone younger for 30 days. Write their progress and yours.' },
+        { title: 'Create Safety',        task: 'Identify a space or situation that feels unsafe and take a real step to make it better.' },
+      ],
+      [
+        { title: 'Year of Service',   task: 'Commit to a structured community service role for at least 3 months. Document the impact.' },
+        { title: 'Teach Protection',  task: 'Teach a group practical safety, self-defence, or emergency skills.' },
+        { title: 'The Shield\'s Oath',task: 'Write your personal oath of protection — who you protect, what you stand for, what you will never allow. Share it.' },
+        { title: 'Systemic Change',   task: 'Identify one systemic problem in your community. Take a real, documented step towards solving it.' },
+        { title: 'Be the Protector',  task: 'In 90 days, be the person your family or community genuinely depends on. Document 5 real moments.' },
+      ],
     ],
   },
   Strategist: {
-    motto:  'Think first.',
+    motto: 'Think first.',
     symbol: '◎',
-    challenges: [
-      { title: 'Solve a Puzzle',     task: 'Solve a puzzle, Rubik\'s cube, or logic challenge. Photograph it completed.' },
-      { title: 'Top 3 Goals',        task: 'Write your top 3 goals for the week. Photograph the list.' },
-      { title: 'Morning Routine',    task: 'Write your ideal morning routine in full. Photograph it.' },
-      { title: 'Weekly Calendar',    task: 'Plan and organize your calendar for the entire week. Photograph it.' },
-      { title: 'Strategy Game',      task: 'Play one strategy game with a family member. Photograph the game in progress.' },
+    stages: [
+      [
+        { title: 'Solve a Puzzle',  task: 'Solve a puzzle, Rubik\'s cube, or logic challenge. Photograph it completed.' },
+        { title: 'Top 3 Goals',     task: 'Write your top 3 goals for the week. Photograph the list.' },
+        { title: 'Morning Routine', task: 'Write your ideal morning routine in full. Photograph it.' },
+        { title: 'Weekly Calendar', task: 'Plan and organize your calendar for the entire week. Photograph it.' },
+        { title: 'Strategy Game',   task: 'Play one strategy game with a family member. Photograph the game in progress.' },
+      ],
+      [
+        { title: 'SWOT Yourself', task: 'Write a full personal SWOT analysis — strengths, weaknesses, opportunities, threats. Photograph it.' },
+        { title: '90-Day Plan',   task: 'Write a complete 90-day personal development plan with goals, milestones, and actions.' },
+        { title: 'Both Sides',    task: 'Prepare and argue both sides of a complex issue. Write your strongest points for each.' },
+        { title: 'Chess — 10 Games', task: 'Play 10 games of chess or go. Record your wins, losses, and what you learned.' },
+        { title: 'Pre-Mortem',    task: 'Pick one major goal and write every possible way it could fail. Then write how you\'d prevent each.' },
+      ],
+      [
+        { title: 'Execute the Plan',      task: 'Complete the full 90-day plan you designed in Stage II. Document what happened.' },
+        { title: 'War Room',              task: 'Set up a dedicated space for thinking, planning, and strategy. Photograph and document its purpose.' },
+        { title: 'Study a Strategist',    task: 'Spend one week studying Sun Tzu, Napoleon, or another great strategist. Write your 5 biggest lessons.' },
+        { title: 'Solve a Real Problem',  task: 'Identify a real problem in your life or community. Write a complete strategic solution with steps and timeline.' },
+        { title: 'After-Action Review',   task: 'Review the last 90 days of your life in detail — what worked, what failed, what you\'re changing.' },
+      ],
+      [
+        { title: 'The Grand Strategy', task: 'Write your complete life strategy — a 10-year plan covering every domain. Specific and actionable.' },
+        { title: 'Teach Strategy',     task: 'Teach 3+ people how to think and plan strategically. Lead a 1-hour session.' },
+        { title: 'Turn a Loss',        task: 'Take your biggest recent failure and execute a complete strategic reversal within 90 days.' },
+        { title: 'Change the Game',    task: 'Identify one area where you\'re playing the wrong game entirely. Change the game. Document the shift.' },
+        { title: 'Predict and Win',    task: 'Make 5 bold predictions about your life in the next year. Document them now. Check back in 12 months.' },
+      ],
     ],
   },
   Visionary: {
-    motto:  'Think beyond today.',
+    motto: 'Think beyond today.',
     symbol: '◐',
-    challenges: [
-      { title: 'Vision Board',        task: 'Create a vision board — paper or digital. Photograph it.' },
-      { title: 'Letter to Future Self',task: 'Write a letter to yourself 5 years from now. Photograph the written letter.' },
-      { title: 'Place That Inspires', task: 'Find and photograph a place that genuinely inspires you.' },
-      { title: 'Dream Space',         task: 'Draw your dream workspace or future home. Photograph the drawing.' },
-      { title: 'Top 10 Dreams',       task: 'Write your top 10 dreams for your life. Photograph the page.' },
+    stages: [
+      [
+        { title: 'Vision Board',          task: 'Create a vision board — paper or digital. Photograph it.' },
+        { title: 'Letter to Future Self', task: 'Write a letter to yourself 5 years from now. Photograph the written letter.' },
+        { title: 'Place That Inspires',   task: 'Find and photograph a place that genuinely inspires you.' },
+        { title: 'Dream Space',           task: 'Draw your dream workspace or future home. Photograph the drawing.' },
+        { title: 'Top 10 Dreams',         task: 'Write your top 10 dreams for your life. Photograph the page.' },
+      ],
+      [
+        { title: 'Trend Spotter',   task: 'Research and write about 3 trends that will shape the world in 10 years. What opportunities do you see?' },
+        { title: 'Ideal Day',       task: 'Write your ideal average day 5 years from now in complete detail — hour by hour.' },
+        { title: 'Inspire Someone', task: 'Share your vision with one person in a way that genuinely excites them. Write their reaction.' },
+        { title: 'Study a Visionary', task: 'Spend one week studying a great visionary. Write your 3 biggest insights.' },
+        { title: 'The Big Question', task: 'Write the single most important question your life is trying to answer. Then write 5 paths to the answer.' },
+      ],
+      [
+        { title: 'Present Your Vision', task: 'Present your personal vision to a group of 3+ people. Film or document the session.' },
+        { title: 'Build the Prototype', task: 'Take one thing from your vision and build the very first version of it. Document the process.' },
+        { title: 'The Long Game',       task: 'Write a 20-year vision for your life. Then reverse-engineer the first 90 days of steps.' },
+        { title: 'Change One Mind',     task: 'Change how at least one person sees the world through a conversation, project, or creation.' },
+        { title: 'The Dream Team',      task: 'Identify the 5 people you need to realize your vision. Take a real step to connect with each.' },
+      ],
+      [
+        { title: 'The Manifesto',     task: 'Write your personal manifesto — your beliefs, your vision, your non-negotiables. Make it public.' },
+        { title: 'Build What\'s New', task: 'Create something — a community, a business, a movement — that didn\'t exist before you built it.' },
+        { title: 'Speak the Vision',  task: 'Give a public talk on your vision to the largest audience you\'ve ever addressed.' },
+        { title: 'Recruit Believers', task: 'Find 3+ people who share your vision and commit to building it together. Document the first meeting.' },
+        { title: 'Visionary\'s Legacy', task: 'Write what you want the world to be different because you were here. Share it with the Brotherhood.' },
+      ],
     ],
   },
   Communicator: {
-    motto:  'Connect honestly.',
+    motto: 'Connect honestly.',
     symbol: '◇',
-    challenges: [
-      { title: '20-Minute Talk',     task: 'Have a real 20-minute conversation with a parent. Take a selfie together after.' },
-      { title: 'Thank-You Note',     task: 'Write a genuine thank-you note to someone. Photograph it before giving it.' },
-      { title: 'Ask a Grandparent',  task: 'Ask a grandparent or elder about their childhood. Photograph together or photograph your notes.' },
-      { title: '3 Compliments',      task: 'Give three genuine, specific compliments today. Write the names of who you complimented and photograph the list.' },
-      { title: 'Interview Someone',  task: 'Interview someone you admire with at least 5 questions. Photograph your notes.' },
+    stages: [
+      [
+        { title: '20-Minute Talk',    task: 'Have a real 20-minute conversation with a parent. Take a selfie together after.' },
+        { title: 'Thank-You Note',    task: 'Write a genuine thank-you note to someone. Photograph it before giving it.' },
+        { title: 'Ask a Grandparent', task: 'Ask a grandparent or elder about their childhood. Photograph together or photograph your notes.' },
+        { title: '3 Compliments',     task: 'Give three genuine, specific compliments today. Write the names and photograph the list.' },
+        { title: 'Interview Someone', task: 'Interview someone you admire with at least 5 questions. Photograph your notes.' },
+      ],
+      [
+        { title: 'Cold Outreach',    task: 'Reach out to someone you\'ve never met but admire. Write what happened.' },
+        { title: 'Public Speaking',  task: 'Speak in front of 10+ people on any topic. Record the moment.' },
+        { title: 'Write and Send',   task: 'Write a letter or message to someone who changed your life. Send it.' },
+        { title: 'Active Listening', task: 'Spend one full conversation only listening — no advice, no stories about yourself. Write what you heard.' },
+        { title: 'Clear the Air',    task: 'Have an honest conversation that resolves something unresolved. Write the outcome.' },
+      ],
+      [
+        { title: 'Give a Talk',      task: 'Give a 10-minute prepared talk to a real audience on something you care about. Film it.' },
+        { title: 'Publish',          task: 'Publish something — an essay, a post, an article — that expresses a real opinion. Share it.' },
+        { title: 'Deep Listen Week', task: 'Spend one full week prioritizing listening in every conversation. Journal what changed.' },
+        { title: 'Build a Bridge',   task: 'Connect two people who need to know each other. Write what happened.' },
+        { title: 'Hard Feedback',    task: 'Deliver difficult feedback to someone in a way that strengthens rather than damages the relationship.' },
+      ],
+      [
+        { title: 'Keynote',         task: 'Deliver a keynote or major talk to the largest audience you\'ve ever addressed. Film the whole thing.' },
+        { title: 'Publish Your Voice', task: 'Create and publish a body of work — a series, a podcast, a blog — over 30 days. Document the reach.' },
+        { title: 'Mediate',         task: 'Mediate a real, serious conflict between two parties. Write the outcome and what you learned.' },
+        { title: 'Communicator\'s Code', task: 'Write your personal code of communication — how you speak, listen, and connect. Share it with the Brotherhood.' },
+        { title: 'Change the Room', task: 'Enter a situation where people are confused or arguing and change the energy through words alone.' },
+      ],
     ],
   },
   Guardian: {
-    motto:  'Consistency builds trust.',
+    motto: 'Consistency builds trust.',
     symbol: '⬡',
-    challenges: [
-      { title: 'Make Your Bed — 7 Days', task: 'Make your bed every morning for 7 consecutive days. Photograph it on Day 7.' },
-      { title: 'Water Plants — 7 Days',  task: 'Water plants consistently for 7 days. Photograph them on Day 7.' },
-      { title: 'Care for a Pet',          task: 'Take full responsibility for feeding and caring for a pet for one week. Photograph on Day 7.' },
-      { title: 'Prepare the Night Before',task: 'Lay out tomorrow\'s clothes and prepare your bag the night before for 5 days. Photograph on Day 5.' },
-      { title: 'Clean a Shared Space',    task: 'Clean one shared space in your home that others use. Photograph the result.' },
+    stages: [
+      [
+        { title: 'Make Your Bed — 7 Days',  task: 'Make your bed every morning for 7 consecutive days. Photograph it on Day 7.' },
+        { title: 'Water Plants — 7 Days',   task: 'Water plants consistently for 7 days. Photograph them on Day 7.' },
+        { title: 'Care for a Pet',          task: 'Take full responsibility for feeding and caring for a pet for one week. Photograph on Day 7.' },
+        { title: 'Prepare the Night Before',task: 'Lay out tomorrow\'s clothes and prepare your bag the night before for 5 days. Photograph on Day 5.' },
+        { title: 'Clean a Shared Space',    task: 'Clean one shared space in your home that others use. Photograph the result.' },
+      ],
+      [
+        { title: '30-Day Habit',   task: 'Choose one positive daily habit and execute it every day for 30 days. Log every day.' },
+        { title: 'Keep Your Word', task: 'Make 3 commitments to 3 different people and keep all three without being reminded. Document each.' },
+        { title: 'Reliability Test', task: 'Ask 3 people who know you well: "Can you count on me?" Write what they honestly say.' },
+        { title: 'Own a Responsibility', task: 'Take ownership of one household responsibility. Hold it for 30 days without being reminded.' },
+        { title: 'Ancestors\' Night',    task: 'Learn and document the stories of 3 family members across 2+ generations. Write what you discovered.' },
+      ],
+      [
+        { title: '90-Day Stack',    task: 'Maintain a stack of 3+ daily habits every day for 90 days. Log all 90.' },
+        { title: 'Integrity Audit', task: 'Review the last 30 days: where did you say one thing and do another? Write it honestly and fix one.' },
+        { title: 'Community Pillar',task: 'Become a reliable presence in one community — show up consistently for 30+ days. Document it.' },
+        { title: 'The Family Tree', task: 'Build a documented family tree going back at least 3 generations. Photograph your research.' },
+        { title: 'Protect the Ritual', task: 'Establish a recurring ritual with people you love. Hold it consistently for 30 days.' },
+      ],
+      [
+        { title: 'Guardian\'s Year', task: 'For 12 consecutive months, maintain your core habits, rituals, and commitments without breaking them.' },
+        { title: 'Pass It Down',    task: 'Teach something you know — a skill, a value, a tradition — to someone at least 10 years younger.' },
+        { title: 'Write the Family Story', task: 'Document your family\'s complete story as far back as you can research. Preserve it for the next generation.' },
+        { title: 'Guardian\'s Oath', task: 'Write your personal oath of consistency — what you commit to doing, being, and protecting forever. Share it.' },
+        { title: 'Legacy Ritual',   task: 'Create a ritual you will pass to your children or community. Hold it once and document why it matters.' },
+      ],
     ],
   },
   Sovereign: {
-    motto:  'Serve before you lead.',
+    motto: 'Serve before you lead.',
     symbol: '♔',
-    challenges: [
-      { title: 'Cook a Full Meal',      task: 'Cook a full meal for your family from scratch. Photograph the table set and ready.' },
-      { title: 'Family Meeting',        task: 'Organize and lead a family dinner or meeting. Photograph everyone together.' },
-      { title: 'Personal Code',         task: 'Write your personal code — 5 rules you want to live by. Photograph the written page.' },
-      { title: 'Help Someone\'s Goal',  task: 'Help one person in your life make real progress on their goal this week. Photograph the moment or your notes.' },
-      { title: 'Unforgettable Moment',  task: 'Create one unforgettable family moment — a game night, a hike, a dessert evening. Take one photo together.' },
+    stages: [
+      [
+        { title: 'Cook a Full Meal',       task: 'Cook a full meal for your family from scratch. Photograph the table set and ready.' },
+        { title: 'Family Meeting',         task: 'Organize and lead a family dinner or meeting. Photograph everyone together.' },
+        { title: 'Personal Code',          task: 'Write your personal code — 5 rules you want to live by. Photograph the written page.' },
+        { title: 'Help Someone\'s Goal',   task: 'Help one person make real progress on their goal this week. Photograph the moment or your notes.' },
+        { title: 'Unforgettable Moment',   task: 'Create one unforgettable family moment — a game night, a hike, a dessert evening. Take one photo together.' },
+      ],
+      [
+        { title: 'Lead the Room',   task: 'Take command in a social or professional setting and leave it better than you found it. Write what you did.' },
+        { title: 'Royal Generosity',task: 'Give something significant — time, money, resources — to someone without expecting anything back. Document it.' },
+        { title: 'Own the Outcome', task: 'Take full responsibility for something that went wrong in your life. Write what you did to fix it.' },
+        { title: 'The King\'s Table', task: 'Host a gathering — dinner, event, or meeting — for at least 5 people. You organize everything. Photograph it.' },
+        { title: 'Discipline Check', task: 'Review your daily habits. Where are you acting like a servant of comfort? Fix one thing for 30 days.' },
+      ],
+      [
+        { title: 'Study Great Kings',  task: 'Spend one week studying two great kings or leaders. Write 5 principles you\'re adopting.' },
+        { title: 'Kingdom Audit',      task: 'Audit your life: finances, health, relationships, environment, legacy. Write what needs a king\'s attention.' },
+        { title: 'Mentor Without Credit', task: 'Spend 30 days investing in someone else\'s growth while seeking zero credit or acknowledgment.' },
+        { title: 'Sacrifice',          task: 'Give up something you enjoy for 30 days in service of your bigger mission. Document the impact.' },
+        { title: 'Sovereign Decision', task: 'Make one major decision you\'ve been avoiding. Own it completely. Write your reasoning.' },
+      ],
+      [
+        { title: 'The Kingdom',         task: 'Define your kingdom — the people, places, and domains you are responsible for. Write a complete inventory.' },
+        { title: 'Legacy Speech',       task: 'Write the speech you want delivered at your funeral — to clarify how you must live, not to be morbid.' },
+        { title: 'Rule for Others',     task: 'For 90 days, put someone else\'s growth or success before your own in every decision. Document it.' },
+        { title: 'Crown a Successor',   task: 'Identify someone you are developing to lead after you. Invest 60 days in them. Write their progress.' },
+        { title: 'The Final Trial',     task: 'Face the single hardest thing in your life right now with full sovereignty — no excuses, no escape. Document the outcome.' },
+      ],
     ],
   },
 };
@@ -3187,136 +3485,196 @@ function renderMyPath() {
     return;
   }
 
-  // Current archetype path = stored value or primary archetype
-  const currentArch   = profile.currentPathArchetype || profile.primaryArchetype;
-  const archData      = ARCHETYPE_CHALLENGES[currentArch];
+  const currentArch = profile.currentPathArchetype || profile.primaryArchetype;
+  const archData    = ARCHETYPE_CHALLENGES[currentArch];
   if (!archData) { el.innerHTML = `<div class="feed-empty">Archetype data not found.</div>`; return; }
 
-  const aClr      = ARCHETYPE_COLORS[currentArch] || { icon: 'var(--terra)', border: 'var(--border)', glow: 'transparent' };
-  const progress  = profile.pathProgress || {};
-  const challenges = archData.challenges;
+  const aClr        = ARCHETYPE_COLORS[currentArch] || { icon: 'var(--terra)', glow: 'transparent' };
+  const progress    = profile.pathProgress || {};
+  const stageNames  = ARCHETYPE_STAGE_NAME_MAP[currentArch] || ['I','II','III','IV'];
+  const earned      = profile.earnedBadges || [];
+  const unlocked    = profile.unlockedArchetypes || [currentArch];
+  const archetypeStages = profile.archetypeStages || {};
+  const currentStage = archetypeStages[currentArch] || 1; // 1-4, or 5 = fully complete
 
-  // Keys: "{Archetype}_{index}"
-  const doneCount = challenges.filter((_, i) => progress[`${currentArch}_${i}`]?.completedAt).length;
-  const allDone   = doneCount === challenges.length;
-  const activeIdx = allDone ? challenges.length : challenges.findIndex((_, i) => !progress[`${currentArch}_${i}`]?.completedAt);
-
-  // Build nodes in REVERSE order (index 4 = top, index 0 = bottom)
-  // So user scrolls UP to see future locked missions
-  const reversed = [...challenges].map((c, i) => ({ ...c, idx: i })).reverse();
+  // Count total done across all stages
+  const totalMissions = archData.stages.length * archData.stages[0].length;
+  let totalDone = 0;
+  for (let s = 1; s <= archData.stages.length; s++) {
+    for (let i = 0; i < archData.stages[s-1].length; i++) {
+      if (progress[`${currentArch}_s${s}_${i}`]?.completedAt) totalDone++;
+    }
+  }
+  const pct = Math.round(totalDone / totalMissions * 100);
 
   const archIconHtml = archetypeElementIcon(currentArch, profile.dominantElement);
-  const pct = Math.round(doneCount / challenges.length * 100);
+  const archFullyComplete = earned.includes(currentArch);
 
-  let html = `
-    <div class="path-screen">
-      <div class="path-arch-banner" style="--path-clr:${aClr.icon};--path-glow:${aClr.glow}">
-        <div class="path-banner-icon-wrap" style="border-color:${aClr.icon}22;background:${aClr.glow}">${archIconHtml}</div>
-        <div class="path-arch-info">
-          <div class="path-arch-label">YOUR PATH</div>
-          <div class="path-arch-name" style="color:${aClr.icon}">${currentArch}</div>
-          <div class="path-arch-motto">${escHtml(archData.motto)}</div>
-        </div>
-        <div class="path-arch-counter">
-          <svg class="path-xp-ring" viewBox="0 0 44 44">
-            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3"/>
-            <circle cx="22" cy="22" r="18" fill="none" stroke="${aClr.icon}" stroke-width="3"
-              stroke-dasharray="${Math.round(2*Math.PI*18*pct/100)} ${Math.round(2*Math.PI*18*(1-pct/100))}"
-              stroke-dashoffset="${Math.round(2*Math.PI*18*0.25)}"
-              stroke-linecap="round"/>
-            <text x="22" y="26" text-anchor="middle" font-size="11" font-weight="700" fill="${aClr.icon}">${doneCount}/${challenges.length}</text>
-          </svg>
-        </div>
+  // ── Badge rack (all 12 archetypes)
+  const badgeRack = ARCHETYPE_ORDER.map(a => {
+    const hasIt = earned.includes(a);
+    const aData = ARCHETYPE_CHALLENGES[a];
+    const bClr  = ARCHETYPE_COLORS[a] || { icon: '#888', glow: 'transparent' };
+    return `<div class="path-badge-slot ${hasIt ? 'path-badge-earned' : 'path-badge-locked'}" title="${a}${hasIt ? ' — Complete' : ''}">
+      <div class="path-badge-icon" style="${hasIt ? `color:${bClr.icon};border-color:${bClr.icon};background:${bClr.glow}` : ''}">${aData?.symbol || '?'}</div>
+      <div class="path-badge-name">${a.slice(0,4)}</div>
+    </div>`;
+  }).join('');
+
+  // ── Archetype switcher chips (unlocked archetypes, not current)
+  const switcherChips = unlocked.filter(a => a !== currentArch).map(a => {
+    const bClr = ARCHETYPE_COLORS[a] || { icon: '#888' };
+    const bData = ARCHETYPE_CHALLENGES[a];
+    const isEarned = earned.includes(a);
+    return `<button class="path-switch-chip${isEarned ? ' path-switch-earned' : ''}" data-switch-arch="${a}" style="border-color:${bClr.icon}40;color:${bClr.icon}">
+      ${bData?.symbol || ''} ${a}${isEarned ? ' ✓' : ''}
+    </button>`;
+  }).join('');
+
+  let html = `<div class="path-screen">
+    <div class="path-badge-rack">${badgeRack}</div>
+    <div class="path-badge-count-row"><span>${earned.length}</span> / 12 badges collected</div>
+
+    <div class="path-arch-banner" style="--path-clr:${aClr.icon};--path-glow:${aClr.glow}">
+      <div class="path-banner-icon-wrap" style="border-color:${aClr.icon}33;background:${aClr.glow}">${archIconHtml}</div>
+      <div class="path-arch-info">
+        <div class="path-arch-label">YOUR PATH</div>
+        <div class="path-arch-name" style="color:${aClr.icon}">${currentArch} ${archFullyComplete ? '★' : ''}</div>
+        <div class="path-arch-motto">${escHtml(archData.motto)}</div>
       </div>
-      <div class="path-arch-progress"><div class="path-arch-fill" style="width:${pct}%;background:${aClr.icon}"></div></div>
-      <div class="path-xp-row"><span class="path-xp-earned" style="color:${aClr.icon}">+${doneCount * 100} XP earned</span><span class="path-xp-remain">${(challenges.length - doneCount) * 100} XP remaining</span></div>`;
+      <div class="path-arch-counter">
+        <svg class="path-xp-ring" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3"/>
+          <circle cx="22" cy="22" r="18" fill="none" stroke="${aClr.icon}" stroke-width="3"
+            stroke-dasharray="${Math.round(2*Math.PI*18*pct/100)} ${Math.round(2*Math.PI*18*(100-pct)/100)}"
+            stroke-dashoffset="${Math.round(2*Math.PI*18*0.25)}"
+            stroke-linecap="round"/>
+          <text x="22" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="${aClr.icon}">${totalDone}/${totalMissions}</text>
+        </svg>
+      </div>
+    </div>
+    <div class="path-arch-progress"><div class="path-arch-fill" style="width:${pct}%;background:${aClr.icon}"></div></div>
+    <div class="path-xp-row">
+      <span class="path-xp-earned" style="color:${aClr.icon}">+${totalDone * 100} XP earned</span>
+      <span class="path-xp-remain">Stage ${Math.min(currentStage, 4)} · ${stageNames[Math.min(currentStage,4)-1]}</span>
+    </div>
 
-  if (allDone) {
-    html += `
-      <div class="path-evolved-banner">
-        <div class="path-evolved-symbol">✦</div>
-        <div class="path-evolved-title">Path Complete</div>
-        <div class="path-evolved-text">You have completed all ${currentArch} challenges. You are ready to evolve.</div>
-        <button class="btn btn-primary path-evolve-btn" id="pathEvolveBtn">Evolve Your Path</button>
-      </div>`;
-  }
+    ${switcherChips ? `<div class="path-switcher"><div class="path-switcher-label">Switch Path</div><div class="path-switcher-chips">${switcherChips}</div></div>` : ''}
 
-  html += `<div class="path-trail" id="pathTrail">`;
+    <div class="path-trail" id="pathTrail">`;
 
-  reversed.forEach(({ title, task, idx }) => {
-    const key       = `${currentArch}_${idx}`;
-    const done      = !!progress[key]?.completedAt;
-    const isActive  = idx === activeIdx;
-    const isLocked  = !done && idx > activeIdx;
-    const side      = idx % 2 === 0 ? 'right' : 'left'; // alternating sides
-    const completedDate = done ? new Date(progress[key].completedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : null;
-    const reflection = progress[key]?.reflection || '';
-    const num        = idx + 1;
+  // Render stages 4 → 1 (top = hardest/future, bottom = first/completed)
+  for (let stageNum = archData.stages.length; stageNum >= 1; stageNum--) {
+    const stageChallenges = archData.stages[stageNum - 1];
+    const stageName = stageNames[stageNum - 1];
+    const stageLabel = `${currentArch} ${['I','II','III','IV'][stageNum-1]}`;
+    const stageDone = stageChallenges.filter((_, i) => progress[`${currentArch}_s${stageNum}_${i}`]?.completedAt).length;
+    const stageAllDone = stageDone === stageChallenges.length;
+    const stageIsActive = stageNum === currentStage;
+    const stageIsLocked = stageNum > currentStage;
 
-    const dotContent = done
-      ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
-      : isLocked
-      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
-      : `<span class="pz-num">${num}</span>`;
+    html += `<div class="pz-stage-header ${stageIsLocked ? 'pz-stage-locked' : stageAllDone ? 'pz-stage-complete' : 'pz-stage-active'}" style="${!stageIsLocked ? `--stage-clr:${aClr.icon}` : ''}">
+      <div class="pz-stage-badge" style="${!stageIsLocked ? `background:${aClr.icon}` : ''}">${stageAllDone ? '★' : stageIsLocked ? '🔒' : ['I','II','III','IV'][stageNum-1]}</div>
+      <div class="pz-stage-info">
+        <div class="pz-stage-label">${stageLabel}</div>
+        <div class="pz-stage-name">${stageName}</div>
+      </div>
+      <div class="pz-stage-progress">${stageIsLocked ? 'Locked' : stageAllDone ? 'Complete' : `${stageDone}/5`}</div>
+    </div>`;
 
-    const stateClass = done ? 'pz-done' : isActive ? 'pz-active' : 'pz-locked';
-    const photoUrl = progress[key]?.photoUrl || '';
-    const mp3Link  = progress[key]?.mp3Link  || '';
+    // Render missions within this stage in reverse (5 at top, 1 at bottom)
+    const reversed = [...stageChallenges].map((c, i) => ({ ...c, idx: i })).reverse();
 
-    html += `
-      <div class="pz-node ${stateClass} pz-${side}" id="pznode-${idx}">
+    // Find active mission index within this stage
+    const stageActiveIdx = stageIsActive
+      ? (stageAllDone ? stageChallenges.length : stageChallenges.findIndex((_, i) => !progress[`${currentArch}_s${stageNum}_${i}`]?.completedAt))
+      : -1;
+
+    reversed.forEach(({ title, task, idx }) => {
+      const key     = `${currentArch}_s${stageNum}_${idx}`;
+      const done    = !!progress[key]?.completedAt;
+      const isActive = idx === stageActiveIdx;
+      const isLocked = stageIsLocked || (!done && idx > stageActiveIdx);
+      const side    = (stageNum * 5 + idx) % 2 === 0 ? 'right' : 'left';
+      const completedDate = done ? new Date(progress[key].completedAt).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : null;
+      const reflection = progress[key]?.reflection || '';
+      const photoUrl   = progress[key]?.photoUrl   || '';
+      const mp3Link    = progress[key]?.mp3Link    || '';
+      const num = idx + 1;
+      const stateClass = done ? 'pz-done' : isActive ? 'pz-active' : 'pz-locked';
+
+      const dotContent = done
+        ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+        : isLocked
+        ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`
+        : `<span class="pz-num">${num}</span>`;
+
+      html += `<div class="pz-node ${stateClass} pz-${side}" id="pznode-s${stageNum}-${idx}">
         <div class="pz-card" style="${isActive ? `--card-clr:${aClr.icon};--card-glow:${aClr.glow}` : ''}">
           ${isActive ? `<div class="pz-active-badge" style="background:${aClr.icon}">NOW</div>` : ''}
           ${done     ? `<div class="pz-done-badge">✓ ${completedDate}</div>` : ''}
           ${isLocked ? `<div class="pz-locked-badge">🔒 Locked</div>` : ''}
-          <div class="pz-num-label">${isLocked ? `Challenge ${num}` : `Challenge ${num}`}</div>
+          <div class="pz-num-label">Mission ${num}</div>
           <div class="pz-title">${escHtml(title)}</div>
-          ${isActive ? `
-            <div class="pz-task">${escHtml(task)}</div>
+          ${isActive ? `<div class="pz-task">${escHtml(task)}</div>
             <div class="pz-xp-pill" style="color:${aClr.icon};border-color:${aClr.icon}40">+100 XP</div>
-            <button class="pz-complete-btn" data-pz-idx="${idx}" style="background:${aClr.icon}">Mark Complete</button>` : ''}
+            <button class="pz-complete-btn" data-pz-stage="${stageNum}" data-pz-idx="${idx}" style="background:${aClr.icon}">Mark Complete</button>` : ''}
           ${done && photoUrl ? `<img src="${escHtml(photoUrl)}" class="pz-proof-thumb" alt="proof">` : ''}
           ${done && mp3Link  ? `<a href="${escHtml(mp3Link)}" target="_blank" rel="noopener" class="pz-mp3-link">🎵 Listen</a>` : ''}
           ${done && reflection ? `<div class="pz-reflection">"${escHtml(reflection)}"</div>` : ''}
         </div>
         <div class="pz-axis">
           <div class="pz-line pz-line-top"></div>
-          <div class="pz-dot${done ? ' pz-dot-done' : isActive ? ' pz-dot-active' : ''}" style="${!isLocked ? `background:${aClr.icon}` : ''}">${dotContent}</div>
+          <div class="pz-dot${done ? ' pz-dot-done' : isActive ? ' pz-dot-active' : ''}" style="${!isLocked ? `background:${aClr.icon};color:#fff` : ''}">${dotContent}</div>
           <div class="pz-line pz-line-bot"></div>
         </div>
         <div class="pz-spacer"></div>
       </div>`;
-  });
+    });
+  }
 
   html += `</div></div>`;
   el.innerHTML = html;
 
-  // Scroll active node into view (center of screen)
-  const activeNode = document.getElementById(`pznode-${activeIdx}`);
-  if (activeNode) setTimeout(() => activeNode.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
+  // Scroll to active mission
+  const activeStageMission = document.getElementById(`pznode-s${currentStage}-${
+    archData.stages[currentStage-1]?.findIndex((_, i) => !progress[`${currentArch}_s${currentStage}_${i}`]?.completedAt) ?? 0
+  }`);
+  if (activeStageMission) setTimeout(() => activeStageMission.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
 
   // Bind complete buttons
-  el.querySelectorAll('[data-pz-idx]').forEach(btn => {
-    btn.addEventListener('click', () => openMissionModal(currentArch, parseInt(btn.dataset.pzIdx), profile));
+  el.querySelectorAll('[data-pz-stage]').forEach(btn => {
+    btn.addEventListener('click', () => openMissionModal(currentArch, parseInt(btn.dataset.pzStage), parseInt(btn.dataset.pzIdx), profile));
   });
 
-  // Evolve button
-  document.getElementById('pathEvolveBtn')?.addEventListener('click', () => openEvolveModal(profile));
+  // Bind switcher chips
+  el.querySelectorAll('[data-switch-arch]').forEach(chip => {
+    chip.addEventListener('click', async () => {
+      const newArch = chip.dataset.switchArch;
+      try {
+        await updateDoc(doc(db, 'brothers', profile.id), { currentPathArchetype: newArch });
+        profile.currentPathArchetype = newArch;
+        renderMyPath();
+      } catch (err) { showToast('Could not switch path.', 'info'); }
+    });
+  });
 }
 
 let pendingMissionArchetype = null;
+let pendingMissionStage     = null;
 let pendingMissionIdx       = null;
 
-function openMissionModal(archetype, idx, profile) {
+function openMissionModal(archetype, stage, idx, profile) {
   const archData  = ARCHETYPE_CHALLENGES[archetype];
-  const challenge = archData?.challenges[idx];
+  const challenge = archData?.stages?.[stage - 1]?.[idx];
   if (!challenge) return;
   const aClr = ARCHETYPE_COLORS[archetype] || { icon: 'var(--terra)' };
   pendingMissionArchetype = archetype;
+  pendingMissionStage     = stage;
   pendingMissionIdx       = idx;
   document.getElementById('missionModalTitle').textContent = challenge.title;
   document.getElementById('missionModalBody').innerHTML = `
-    <div class="mission-modal-arch" style="color:${aClr.icon}">${archetype} · Challenge ${idx + 1}</div>
+    <div class="mission-modal-arch" style="color:${aClr.icon}">${archetype} ${['I','II','III','IV'][stage-1]} · Mission ${idx + 1}</div>
     <div class="mission-modal-task">${escHtml(challenge.task)}</div>
     <div class="form-group" style="margin-top:18px">
       <label class="form-label">Reflection (optional)</label>
@@ -3420,9 +3778,10 @@ document.getElementById('missionModal').addEventListener('click', e => {
 
 document.getElementById('missionSubmitBtn').addEventListener('click', async () => {
   const archetype = pendingMissionArchetype;
+  const stage     = pendingMissionStage;
   const idx       = pendingMissionIdx;
-  if (!archetype || idx === null) return;
-  const profile   = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+  if (!archetype || !stage || idx === null) return;
+  const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
   if (!profile) return;
 
   const reflection = document.getElementById('missionReflection')?.value?.trim() || '';
@@ -3433,30 +3792,99 @@ document.getElementById('missionSubmitBtn').addEventListener('click', async () =
   btn.textContent = 'Saving…';
 
   const now = new Date().toISOString();
-  const key = `${archetype}_${idx}`;
+  const key = `${archetype}_s${stage}_${idx}`;
   let photoUrl = '';
   if (photoFile) {
     try {
       photoUrl = await uploadPhoto(photoFile, `missionProof/${profile.id}/${key}_${Date.now()}`);
-    } catch (uploadErr) {
-      console.warn('Photo upload failed', uploadErr);
-    }
+    } catch (uploadErr) { console.warn('Photo upload failed', uploadErr); }
   }
   const entry = { completedAt: now, reflection };
   if (photoUrl) entry.photoUrl = photoUrl;
   if (mp3Link)  entry.mp3Link  = mp3Link;
+
   const newProgress = { ...(profile.pathProgress || {}), [key]: entry };
 
+  // ── Check if this completes the current stage ──
+  const archData = ARCHETYPE_CHALLENGES[archetype];
+  const stageChallenges = archData?.stages?.[stage - 1] || [];
+  const stageNowDone = stageChallenges.every((_, i) => {
+    const k = `${archetype}_s${stage}_${i}`;
+    return k === key || newProgress[k]?.completedAt;
+  });
+
+  const archetypeStages = { ...(profile.archetypeStages || {}) };
+  let newUnlocked = [...(profile.unlockedArchetypes || [archetype])];
+  let newBadges   = [...(profile.earnedBadges || [])];
+  let didEvolve   = false;
+  let didBadge    = false;
+  let newlyUnlockedArchetypes = [];
+
+  if (stageNowDone) {
+    const nextStage = stage + 1;
+    const totalStages = archData.stages.length;
+    didEvolve = true;
+
+    if (nextStage <= totalStages) {
+      archetypeStages[archetype] = nextStage;
+    } else {
+      // All 4 stages done → badge earned
+      archetypeStages[archetype] = totalStages + 1;
+      if (!newBadges.includes(archetype)) {
+        newBadges.push(archetype);
+        didBadge = true;
+      }
+    }
+
+    // Unlock 2 new archetypes on completing Stage 1
+    if (stage === 1) {
+      const allArchetypes = ARCHETYPE_ORDER;
+      const available = allArchetypes.filter(a => !newUnlocked.includes(a));
+      // shuffle
+      for (let i = available.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [available[i], available[j]] = [available[j], available[i]];
+      }
+      newlyUnlockedArchetypes = available.slice(0, 2);
+      newUnlocked = [...newUnlocked, ...newlyUnlockedArchetypes];
+    }
+  }
+
+  const updatePayload = {
+    pathProgress: newProgress,
+    xp: (profile.xp || 0) + 100,
+  };
+  if (stageNowDone) {
+    updatePayload.archetypeStages   = archetypeStages;
+    updatePayload.unlockedArchetypes = newUnlocked;
+    updatePayload.earnedBadges       = newBadges;
+  }
+
   try {
-    await updateDoc(doc(db, 'brothers', profile.id), {
-      pathProgress: newProgress,
-      xp: (profile.xp || 0) + 100,
-    });
-    profile.pathProgress = newProgress;
-    profile.xp = (profile.xp || 0) + 100;
+    await updateDoc(doc(db, 'brothers', profile.id), updatePayload);
+    profile.pathProgress    = newProgress;
+    profile.xp              = (profile.xp || 0) + 100;
+    if (stageNowDone) {
+      profile.archetypeStages    = archetypeStages;
+      profile.unlockedArchetypes = newUnlocked;
+      profile.earnedBadges       = newBadges;
+    }
     closeModal(document.getElementById('missionModal'));
+
+    if (didBadge) {
+      showToast(`🏆 ${archetype} badge earned! All 4 stages complete.`, 'success');
+      setTimeout(() => showToast(`Collect all 12 badges to master the Brotherhood Path.`, 'info'), 2000);
+    } else if (didEvolve) {
+      const newStageName = ARCHETYPE_STAGE_NAME_MAP[archetype]?.[archetypeStages[archetype]-1] || '';
+      showToast(`⬆️ Evolved to ${archetype} ${['I','II','III','IV'][archetypeStages[archetype]-1]} — ${newStageName}!`, 'success');
+      if (newlyUnlockedArchetypes.length > 0) {
+        setTimeout(() => showToast(`🔓 Unlocked new paths: ${newlyUnlockedArchetypes.join(' & ')}`, 'info'), 2200);
+      }
+    } else {
+      showToast(`Mission complete! +100 XP`, 'success');
+    }
+
     renderMyPath();
-    showToast(`Challenge complete! +100 XP`, 'success');
   } catch (err) {
     console.error(err);
     showToast('Failed to save — check connection.', 'info');
