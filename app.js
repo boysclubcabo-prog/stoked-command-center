@@ -1535,6 +1535,21 @@ async function maybeShowOnboarding() {
   const key = `onboardingAccepted_${currentUser.uid}`;
   if (localStorage.getItem(key)) return false;
 
+  // Check Firestore — existing accounts may have lost their localStorage flag
+  // (new device, cleared storage, etc.). Never re-onboard someone who already
+  // has a profile.
+  try {
+    const snap = await getDocs(collection(db, 'brothers'));
+    const existing = snap.docs.find(d => {
+      const e = d.data().email;
+      return e && e.toLowerCase() === currentUser.email.toLowerCase();
+    });
+    if (existing) {
+      localStorage.setItem(key, '1');
+      return false;
+    }
+  } catch (_) {}
+
   const onboardEl = document.getElementById('onboardingScreen');
   loginScreen.classList.add('hidden');
   onboardEl.classList.remove('hidden');
