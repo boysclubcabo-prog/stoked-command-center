@@ -1686,8 +1686,8 @@ function showApp() {
   const mypathTabBtn  = document.getElementById('mypathTabBtn');
   if (mypathTabBtn) mypathTabBtn.classList.toggle('hidden', isAdmin);
 
-  // Members land on My Path by default
-  if (!isAdmin) switchTab('mypath');
+  // Members land on My Path by default — but wait for first data load
+  if (!isAdmin) switchTab('brothers'); // show skeleton while loading
 
   // Set up notifications (ask permission)
   setupNotifications();
@@ -1698,6 +1698,7 @@ function showApp() {
   // Track member's own XP to detect approval notifications
   let prevMyXP = null;
   let firstBrothersSnap = true;
+  let memberDefaultTabSet = false;
 
   // Subscribe to brothers collection
   unsubBrothers = onSnapshot(collection(db, 'brothers'), snap => {
@@ -1719,6 +1720,11 @@ function showApp() {
     }
 
     render();
+    // Switch to My Path on first load for members (data is now available)
+    if (!isAdmin && !memberDefaultTabSet) {
+      memberDefaultTabSet = true;
+      switchTab('mypath');
+    }
     // Re-register FCM token now that brothers are loaded (gets correct brotherId)
     if (Notification.permission === 'granted') registerFCMToken();
   });
