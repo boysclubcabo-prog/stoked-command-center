@@ -4464,6 +4464,15 @@ body {
 /* spacer fills the opposite half */
 .pz-spacer { flex: 1; min-width: 0; }
 
+/* ── STICKY PATH HEADER ── */
+.path-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border);
+}
+
 /* ── BADGE RACK ── */
 .path-badge-rack {
   display: flex;
