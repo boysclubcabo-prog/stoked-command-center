@@ -3712,35 +3712,36 @@ function renderMyPath() {
   }).join('');
 
   let html = `<div class="path-screen" data-arch="${currentArch}">
-    <div class="path-badge-rack">${badgeRack}</div>
-    <div class="path-badge-count-row"><span>${earned.length}</span> / 12 badges collected</div>
+    <div class="path-sticky-header">
+      <div class="path-badge-rack">${badgeRack}</div>
+      <div class="path-badge-count-row"><span>${earned.length}</span> / 12 badges collected</div>
 
-    <div class="path-arch-banner" style="--path-clr:${aClr.icon};--path-glow:${aClr.glow}">
-      <div class="path-banner-decor" style="color:${aClr.icon}">${theme.decorSvg}</div>
-      <div class="path-banner-icon-wrap" style="border-color:${aClr.icon}33;background:${aClr.glow}">${archIconHtml}</div>
-      <div class="path-arch-info">
-        <div class="path-arch-label">YOUR PATH</div>
-        <div class="path-arch-name" style="color:${aClr.icon}">${currentArch} ${archFullyComplete ? '★' : ''}</div>
-        <div class="path-arch-motto">${escHtml(archData.motto)}</div>
+      <div class="path-arch-banner" style="--path-clr:${aClr.icon};--path-glow:${aClr.glow}">
+        <div class="path-banner-decor" style="color:${aClr.icon}">${theme.decorSvg}</div>
+        <div class="path-banner-icon-wrap" style="border-color:${aClr.icon}33;background:${aClr.glow}">${archIconHtml}</div>
+        <div class="path-arch-info">
+          <div class="path-arch-label">YOUR PATH</div>
+          <div class="path-arch-name" style="color:${aClr.icon}">${currentArch} ${archFullyComplete ? '★' : ''}</div>
+          <div class="path-arch-motto">${escHtml(archData.motto)}</div>
+        </div>
+        <div class="path-arch-counter">
+          <svg class="path-xp-ring" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3"/>
+            <circle cx="22" cy="22" r="18" fill="none" stroke="${aClr.icon}" stroke-width="3"
+              stroke-dasharray="${Math.round(2*Math.PI*18*pct/100)} ${Math.round(2*Math.PI*18*(100-pct)/100)}"
+              stroke-dashoffset="${Math.round(2*Math.PI*18*0.25)}"
+              stroke-linecap="round"/>
+            <text x="22" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="${aClr.icon}">${totalDone}/${totalMissions}</text>
+          </svg>
+        </div>
       </div>
-      <div class="path-arch-counter">
-        <svg class="path-xp-ring" viewBox="0 0 44 44">
-          <circle cx="22" cy="22" r="18" fill="none" stroke="var(--border)" stroke-width="3"/>
-          <circle cx="22" cy="22" r="18" fill="none" stroke="${aClr.icon}" stroke-width="3"
-            stroke-dasharray="${Math.round(2*Math.PI*18*pct/100)} ${Math.round(2*Math.PI*18*(100-pct)/100)}"
-            stroke-dashoffset="${Math.round(2*Math.PI*18*0.25)}"
-            stroke-linecap="round"/>
-          <text x="22" y="26" text-anchor="middle" font-size="10" font-weight="700" fill="${aClr.icon}">${totalDone}/${totalMissions}</text>
-        </svg>
+      <div class="path-arch-progress"><div class="path-arch-fill" style="width:${pct}%;background:${aClr.icon}"></div></div>
+      <div class="path-xp-row">
+        <span class="path-xp-earned" style="color:${aClr.icon}">+${totalDone * 100} XP earned</span>
+        <span class="path-xp-remain">Stage ${Math.min(currentStage, 4)} · ${stageNames[Math.min(currentStage,4)-1]}</span>
       </div>
+      ${switcherChips ? `<div class="path-switcher"><div class="path-switcher-label">Switch Path</div><div class="path-switcher-chips">${switcherChips}</div></div>` : ''}
     </div>
-    <div class="path-arch-progress"><div class="path-arch-fill" style="width:${pct}%;background:${aClr.icon}"></div></div>
-    <div class="path-xp-row">
-      <span class="path-xp-earned" style="color:${aClr.icon}">+${totalDone * 100} XP earned</span>
-      <span class="path-xp-remain">Stage ${Math.min(currentStage, 4)} · ${stageNames[Math.min(currentStage,4)-1]}</span>
-    </div>
-
-    ${switcherChips ? `<div class="path-switcher"><div class="path-switcher-label">Switch Path</div><div class="path-switcher-chips">${switcherChips}</div></div>` : ''}
 
     <div class="path-trail" id="pathTrail" style="--trail-clr:${aClr.icon}">`;
 
