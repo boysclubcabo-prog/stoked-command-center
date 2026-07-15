@@ -103,3 +103,38 @@ exports.onNewFeedPost = onDocumentCreated('feed/{postId}', async event => {
   const tokens = await getAllTokens();
   await sendToTokens(tokens, title, body);
 });
+
+// ── TRIGGER: Brother XP updated → notify anyone they passed ──
+exports.onXPUpdated = onDocumentUpdated('brothers/{brotherId}', async event => {
+  const before = event.data.before.data();
+  const after  = event.data.after.data();
+
+  const xpBefore = before.xp || 0;
+  const xpAfter  = after.xp  || 0;
+
+  // Only care about XP increases
+  if (xpAfter <= xpBefore) return;
+
+  const climberName = after.name || 'A brother';
+  const climberId   = event.params.brotherId;
+
+  // Find all brothers who were ahead before but are now behind
+  const brothersSnap = await db.collection('brothers').get();
+  const passed = brothersSnap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(b =>
+      b.id !== climberId &&
+      (b.xp || 0) >= xpBefore &&   // was ahead of or tied with climber before
+      (b.xp || 0) <  xpAfter        // now behind the climber
+    );
+
+  for (const brother of passed) {
+    const tokens = await getTokensForBrother(brother.id);
+    const gap    = xpAfter - (brother.xp || 0);
+    await sendToTokens(
+      tokens,
+      `⚠️ ${climberName} just passed you!`,
+      `You're now ${gap} XP behind — complete a challenge and take back your spot 🔥`
+    );
+  }
+});
