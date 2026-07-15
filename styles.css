@@ -1467,23 +1467,26 @@ body {
 
 .btn-checkin-member {
   width: 100%;
-  padding: 14px;
-  background: rgba(196,105,58,0.08);
-  border: 1px solid rgba(196,105,58,0.3);
-  color: #C8963C;
+  padding: 16px;
+  background: var(--terra);
+  border: none;
+  color: #fff;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-  margin-top: 4px;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-top: 12px;
+  box-shadow: 0 4px 14px rgba(196,105,58,0.35);
 }
 
 .btn-checkin-member:hover {
-  background: rgba(196,105,58,0.18);
-  border-color: #C8963C;
+  opacity: 0.88;
+}
+.btn-checkin-member:active {
+  transform: scale(0.98);
 }
 
 /* ── COACH NOTE BUTTON (card) ── */

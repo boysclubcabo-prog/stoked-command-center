@@ -2041,6 +2041,13 @@ function renderMemberView() {
   // Update streak on login
   updateStreak(profile);
 
+  // Auto-popup daily check-in if not yet done today
+  const todayStr = new Date().toDateString();
+  const lastCI   = profile.lastCheckInDate ? new Date(profile.lastCheckInDate).toDateString() : null;
+  if (lastCI !== todayStr) {
+    setTimeout(() => openCheckInModal(profile.id), 800);
+  }
+
   // Show a full hero profile for the member
   const xp    = profile.xp || 0;
   const lvl   = getLevelInfo(xp);
@@ -2115,13 +2122,13 @@ function renderMemberView() {
           const cat = getBSCategory(profile.brotherhoodScore);
           return `<div class="score-chip weekly" style="--bs-color:${cat.color}">
             <div class="score-num" style="color:${cat.color}">${profile.brotherhoodScore}</div>
-            <div class="score-lbl">Weekly Score</div>
+            <div class="score-lbl">Daily Score</div>
             <div class="score-cat" style="color:${cat.color}">${cat.label}</div>
           </div>`;
         })() : `<div class="score-chip weekly empty">
           <div class="score-num" style="color:var(--text-muted)">—</div>
-          <div class="score-lbl">Weekly Score</div>
-          <div class="score-cat" style="color:var(--text-muted)">No Check-In</div>
+          <div class="score-lbl">Daily Score</div>
+          <div class="score-cat" style="color:var(--text-muted)">No Check-In Today</div>
         </div>`}
       </div>
 
@@ -2152,7 +2159,7 @@ function renderMemberView() {
           ${profile.coachNoteDate ? `<div class="coach-note-member-date">${new Date(profile.coachNoteDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>` : ''}
         </div>` : ''}
 
-      <button class="btn-checkin-member" data-checkin="${profile.id}">Weekly Check-In</button>
+      <button class="btn-checkin-member" data-checkin="${profile.id}">✓ Daily Check-In</button>
     </div>`;
 
   // Wire member check-in button
@@ -2245,13 +2252,13 @@ function renderCard(brother) {
           const cat = getBSCategory(brother.brotherhoodScore);
           return `<div class="score-chip weekly" style="--bs-color:${cat.color}">
             <div class="score-num" style="color:${cat.color}">${brother.brotherhoodScore}</div>
-            <div class="score-lbl">Weekly Score</div>
+            <div class="score-lbl">Daily Score</div>
             <div class="score-cat" style="color:${cat.color}">${cat.label}</div>
           </div>`;
         })() : `<div class="score-chip weekly empty">
           <div class="score-num" style="color:var(--text-muted)">—</div>
-          <div class="score-lbl">Weekly Score</div>
-          <div class="score-cat" style="color:var(--text-muted)">No Check-In</div>
+          <div class="score-lbl">Daily Score</div>
+          <div class="score-cat" style="color:var(--text-muted)">No Check-In Today</div>
         </div>`}
       </div>
 
@@ -3174,7 +3181,7 @@ document.getElementById('checkInForm').addEventListener('submit', async e => {
     await updateDoc(doc(db, 'brothers', id), data);
     closeModal(checkInModal);
     const cat = getBSCategory(brotherhoodScore);
-    showToast(`Check-in complete · Brotherhood Score: ${brotherhoodScore}/100 — ${cat.label}`, 'success');
+    showToast(`Daily check-in complete · Brotherhood Score: ${brotherhoodScore}/100 — ${cat.label}`, 'success');
   } catch (err) {
     showToast('Error saving check-in: ' + err.message, 'info');
   }
