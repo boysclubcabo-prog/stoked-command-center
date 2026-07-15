@@ -4027,7 +4027,7 @@ document.getElementById('missionSubmitBtn').addEventListener('click', async () =
   }
   if (videoFile) {
     try {
-      btn.textContent = 'Compressing video…';
+      btn.textContent = 'Uploading video…';
       videoUrl = await uploadVideo(videoFile, `missionProof/${profile.id}/${key}_vid_${Date.now()}`,
         pct => { btn.textContent = `Uploading video ${pct}%…`; });
     } catch (uploadErr) {
@@ -4607,14 +4607,11 @@ async function uploadPhoto(file, path) {
 const VIDEO_MAX_DURATION = 30;  // seconds
 const VIDEO_MAX_BYTES    = 50 * 1024 * 1024; // 50 MB
 
-// Validate duration + size, then compress via MediaRecorder re-encode
-async function compressAndValidateVideo(file, onProgress) {
-  // Size check first
+// Validate duration + size, then upload original (already compressed by phone camera)
+async function validateVideo(file) {
   if (file.size > VIDEO_MAX_BYTES) {
     throw new Error(`Video must be under 50 MB (yours is ${(file.size/1024/1024).toFixed(1)} MB)`);
   }
-
-  // Duration check
   const duration = await new Promise((res, rej) => {
     const v = document.createElement('video');
     v.preload = 'metadata';
@@ -4622,77 +4619,16 @@ async function compressAndValidateVideo(file, onProgress) {
     v.onerror = rej;
     v.src = URL.createObjectURL(file);
   });
-
   if (duration > VIDEO_MAX_DURATION) {
     throw new Error(`Video must be 30 seconds or less (yours is ${Math.round(duration)}s)`);
   }
-
-  // Re-encode at lower bitrate using MediaRecorder
-  return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
-    video.muted = true;
-    video.playsInline = true;
-    video.src = URL.createObjectURL(file);
-
-    video.onloadedmetadata = () => {
-      const canvas = document.createElement('canvas');
-      // Cap resolution to 720p to save space
-      const scale = Math.min(1, 1280 / Math.max(video.videoWidth, video.videoHeight));
-      canvas.width  = Math.round(video.videoWidth  * scale);
-      canvas.height = Math.round(video.videoHeight * scale);
-      const ctx = canvas.getContext('2d');
-
-      const stream = canvas.captureStream(30);
-      // Try to capture audio too
-      try {
-        const audioCtx = new AudioContext();
-        const src = audioCtx.createMediaElementSource(video);
-        const dst = audioCtx.createMediaStreamDestination();
-        src.connect(dst);
-        src.connect(audioCtx.destination);
-        dst.stream.getAudioTracks().forEach(t => stream.addTrack(t));
-      } catch (_) {}
-
-      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
-        ? 'video/webm;codecs=vp9,opus'
-        : MediaRecorder.isTypeSupported('video/webm')
-        ? 'video/webm'
-        : 'video/mp4';
-
-      const recorder = new MediaRecorder(stream, {
-        mimeType,
-        videoBitsPerSecond: 800_000, // 800 kbps — good quality, small file
-      });
-      const chunks = [];
-      recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
-      recorder.onstop = () => {
-        URL.revokeObjectURL(video.src);
-        const blob = new Blob(chunks, { type: mimeType });
-        resolve(blob);
-      };
-      recorder.onerror = reject;
-
-      recorder.start();
-      video.play();
-
-      const drawFrame = () => {
-        if (video.ended || video.paused) { recorder.stop(); return; }
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        if (onProgress) onProgress(Math.min(99, Math.round((video.currentTime / duration) * 100)));
-        requestAnimationFrame(drawFrame);
-      };
-      video.onplay = () => requestAnimationFrame(drawFrame);
-      video.onended = () => recorder.stop();
-    };
-    video.onerror = reject;
-  });
 }
 
 async function uploadVideo(file, path, onProgress) {
-  const blob = await compressAndValidateVideo(file, onProgress);
-  const ext  = blob.type.includes('mp4') ? 'mp4' : 'webm';
-  const r    = storageRef(storage, `${path}.${ext}`);
-  await uploadBytes(r, blob);
+  await validateVideo(file);
+  const ext = file.name.split('.').pop() || 'mp4';
+  const r   = storageRef(storage, `${path}.${ext}`);
+  await uploadBytes(r, file);
   return getDownloadURL(r);
 }
 
@@ -4751,7 +4687,7 @@ document.getElementById('announcementForm').addEventListener('submit', async e =
       photoUrl = await uploadPhoto(photoFile, `feed/${Date.now()}_${photoFile.name}`);
     }
     if (videoFile) {
-      submitBtn.textContent = 'Compressing video…';
+      submitBtn.textContent = 'Uploading video…';
       videoUrl = await uploadVideo(videoFile, `feed/vid_${Date.now()}`,
         pct => { submitBtn.textContent = `Uploading video ${pct}%…`; });
     }
@@ -4798,7 +4734,7 @@ document.getElementById('announcementVideo').addEventListener('change', function
   if (file) {
     const url = URL.createObjectURL(file);
     preview.innerHTML = `<video src="${url}" style="width:100%;max-height:200px;border-radius:8px;margin-top:8px;background:#000" controls playsinline muted></video>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Will be compressed before upload</div>`;
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Max 30s · 50MB</div>`;
   } else {
     preview.innerHTML = '';
   }
