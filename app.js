@@ -3566,7 +3566,7 @@ function renderSocialFeed() {
         </div>
         <div class="sf-announcement-text">${linkify(post.text || '')}</div>
         ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="" />` : ''}
-        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}" controls playsinline preload="metadata"></video>` : ''}
+        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>` : ''}
         ${pinnedCh ? `<div class="sf-pinned-challenge">
           <div class="sf-pinned-label">📌 Challenge</div>
           <div class="sf-pinned-title">${escHtml(pinnedCh.title)}</div>
@@ -3605,7 +3605,7 @@ function renderSocialFeed() {
           ${post.photoUrl  ? `<img src="${post.photoUrl}"  class="sf-photo" alt="proof" />` : ''}
           ${post.photoUrl2 ? `<img src="${post.photoUrl2}" class="sf-photo" alt="proof 2" />` : ''}
         </div>` : ''}
-        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}" controls playsinline preload="metadata"></video>` : ''}
+        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>` : ''}
         ${post.audioUrl ? `<audio class="sf-audio" controls src="${post.audioUrl}"></audio>` : ''}
         ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">🔗 ${escHtml(post.proofLink)}</a>` : ''}
         <div class="sf-xp-row">
