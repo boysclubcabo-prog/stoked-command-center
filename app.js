@@ -4194,12 +4194,21 @@ async function openDM(brotherId) {
   // Unsubscribe previous listener
   if (dmUnsub) { dmUnsub(); dmUnsub = null; }
 
-  // Subscribe to messages
+  // Subscribe to messages — sort client-side to avoid needing a composite index
   const msgsRef = collection(db, 'dms', convoId, 'messages');
-  const q = query(msgsRef, orderBy('sentAt', 'asc'));
-  dmUnsub = onSnapshot(q, snap => {
-    const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  dmUnsub = onSnapshot(msgsRef, snap => {
+    const msgs = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => {
+        const ta = a.sentAt?.toMillis ? a.sentAt.toMillis() : (a.sentAt || 0);
+        const tb = b.sentAt?.toMillis ? b.sentAt.toMillis() : (b.sentAt || 0);
+        return ta - tb;
+      });
     renderDMMessages(msgs, me.id);
+  }, err => {
+    console.error('[DM] snapshot error:', err);
+    document.getElementById('dmMessages').innerHTML =
+      `<div class="dm-empty">Chat unavailable — Firestore rules may need updating.<br><span style="font-size:11px;opacity:0.6">${err.code}</span></div>`;
   });
 }
 
@@ -4248,7 +4257,8 @@ document.getElementById('dmForm').addEventListener('submit', async e => {
       sentAt: serverTimestamp(),
     });
   } catch (err) {
-    showToast('Could not send message', 'info');
+    console.error('[DM] send error:', err);
+    showToast('Could not send — check Firestore rules (' + err.code + ')', 'info');
     input.value = text;
   }
 });
