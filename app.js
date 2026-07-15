@@ -3560,6 +3560,7 @@ function renderSocialFeed() {
         </div>
         <div class="sf-announcement-text">${linkify(post.text || '')}</div>
         ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="" />` : ''}
+        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}" controls playsinline preload="metadata"></video>` : ''}
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
         </div>
@@ -3589,6 +3590,7 @@ function renderSocialFeed() {
           ${post.photoUrl  ? `<img src="${post.photoUrl}"  class="sf-photo" alt="proof" />` : ''}
           ${post.photoUrl2 ? `<img src="${post.photoUrl2}" class="sf-photo" alt="proof 2" />` : ''}
         </div>` : ''}
+        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}" controls playsinline preload="metadata"></video>` : ''}
         ${post.audioUrl ? `<audio class="sf-audio" controls src="${post.audioUrl}"></audio>` : ''}
         ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">🔗 ${escHtml(post.proofLink)}</a>` : ''}
         <div class="sf-xp-row"><span class="sf-xp-badge">+${post.xpAwarded} XP</span></div>
@@ -3886,13 +3888,20 @@ function openMissionModal(archetype, stage, idx, profile) {
       <textarea id="missionReflection" class="form-control" rows="3" placeholder="What did you notice or discover?" maxlength="500"></textarea>
     </div>
     <div class="form-group" style="margin-top:12px">
-      <label class="form-label">Photo proof (optional)</label>
+      <label class="form-label">Photo or Video proof (optional)</label>
       <label class="mission-upload-label" id="missionPhotoLabel">
         <span id="missionPhotoLabelText">📷 Add Photo</span>
         <input type="file" id="missionPhoto" accept="image/*" style="display:none">
       </label>
+      <label class="mission-upload-label" id="missionVideoLabel" style="margin-top:6px">
+        <span id="missionVideoLabelText">🎬 Add Video <span style="font-size:11px;opacity:0.6">(max 30s · 50MB)</span></span>
+        <input type="file" id="missionVideo" accept="video/*" style="display:none">
+      </label>
       <div id="missionPhotoPreview" style="display:none;margin-top:8px">
         <img id="missionPhotoImg" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px">
+      </div>
+      <div id="missionVideoPreview" style="display:none;margin-top:8px">
+        <video id="missionVideoEl" style="width:100%;max-height:180px;border-radius:8px;background:#000" controls playsinline muted></video>
       </div>
     </div>
     <div class="form-group" style="margin-top:12px">
@@ -3911,6 +3920,15 @@ function openMissionModal(archetype, stage, idx, profile) {
       document.getElementById('missionPhotoPreview').style.display = '';
     };
     reader.readAsDataURL(file);
+  });
+  document.getElementById('missionVideo').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('missionVideoLabelText').innerHTML = `🎬 ${file.name}`;
+    const url = URL.createObjectURL(file);
+    const vid = document.getElementById('missionVideoEl');
+    vid.src = url;
+    document.getElementById('missionVideoPreview').style.display = '';
   });
   openModal(document.getElementById('missionModal'));
 }
@@ -3992,6 +4010,7 @@ document.getElementById('missionSubmitBtn').addEventListener('click', async () =
   const reflection = document.getElementById('missionReflection')?.value?.trim() || '';
   const mp3Link    = document.getElementById('missionMp3')?.value?.trim() || '';
   const photoFile  = document.getElementById('missionPhoto')?.files?.[0] || null;
+  const videoFile  = document.getElementById('missionVideo')?.files?.[0] || null;
   const btn = document.getElementById('missionSubmitBtn');
   btn.disabled = true;
   btn.textContent = 'Saving…';
@@ -3999,13 +4018,30 @@ document.getElementById('missionSubmitBtn').addEventListener('click', async () =
   const now = new Date().toISOString();
   const key = `${archetype}_s${stage}_${idx}`;
   let photoUrl = '';
+  let videoUrl = '';
+
   if (photoFile) {
     try {
       photoUrl = await uploadPhoto(photoFile, `missionProof/${profile.id}/${key}_${Date.now()}`);
     } catch (uploadErr) { console.warn('Photo upload failed', uploadErr); }
   }
+  if (videoFile) {
+    try {
+      btn.textContent = 'Compressing video…';
+      videoUrl = await uploadVideo(videoFile, `missionProof/${profile.id}/${key}_vid_${Date.now()}`,
+        pct => { btn.textContent = `Uploading video ${pct}%…`; });
+    } catch (uploadErr) {
+      showToast(uploadErr.message || 'Video upload failed', 'info');
+      btn.disabled = false;
+      btn.textContent = 'Complete Mission';
+      return;
+    }
+  }
+  btn.textContent = 'Saving…';
+
   const entry = { completedAt: now, reflection };
   if (photoUrl) entry.photoUrl = photoUrl;
+  if (videoUrl) entry.videoUrl = videoUrl;
   if (mp3Link)  entry.mp3Link  = mp3Link;
 
   const newProgress = { ...(profile.pathProgress || {}), [key]: entry };
@@ -4561,10 +4597,102 @@ exportBtn.addEventListener('click', () => {
 function openModal(el)  { el.classList.add('open');    document.body.style.overflow = 'hidden'; }
 function closeModal(el) { el.classList.remove('open'); document.body.style.overflow = '';       }
 
-// ── STORAGE UPLOAD HELPER ─────────────────────
+// ── STORAGE UPLOAD HELPERS ────────────────────
 async function uploadPhoto(file, path) {
   const r = storageRef(storage, path);
   await uploadBytes(r, file);
+  return getDownloadURL(r);
+}
+
+const VIDEO_MAX_DURATION = 30;  // seconds
+const VIDEO_MAX_BYTES    = 50 * 1024 * 1024; // 50 MB
+
+// Validate duration + size, then compress via MediaRecorder re-encode
+async function compressAndValidateVideo(file, onProgress) {
+  // Size check first
+  if (file.size > VIDEO_MAX_BYTES) {
+    throw new Error(`Video must be under 50 MB (yours is ${(file.size/1024/1024).toFixed(1)} MB)`);
+  }
+
+  // Duration check
+  const duration = await new Promise((res, rej) => {
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    v.onloadedmetadata = () => { URL.revokeObjectURL(v.src); res(v.duration); };
+    v.onerror = rej;
+    v.src = URL.createObjectURL(file);
+  });
+
+  if (duration > VIDEO_MAX_DURATION) {
+    throw new Error(`Video must be 30 seconds or less (yours is ${Math.round(duration)}s)`);
+  }
+
+  // Re-encode at lower bitrate using MediaRecorder
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.muted = true;
+    video.playsInline = true;
+    video.src = URL.createObjectURL(file);
+
+    video.onloadedmetadata = () => {
+      const canvas = document.createElement('canvas');
+      // Cap resolution to 720p to save space
+      const scale = Math.min(1, 1280 / Math.max(video.videoWidth, video.videoHeight));
+      canvas.width  = Math.round(video.videoWidth  * scale);
+      canvas.height = Math.round(video.videoHeight * scale);
+      const ctx = canvas.getContext('2d');
+
+      const stream = canvas.captureStream(30);
+      // Try to capture audio too
+      try {
+        const audioCtx = new AudioContext();
+        const src = audioCtx.createMediaElementSource(video);
+        const dst = audioCtx.createMediaStreamDestination();
+        src.connect(dst);
+        src.connect(audioCtx.destination);
+        dst.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+      } catch (_) {}
+
+      const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+        ? 'video/webm;codecs=vp9,opus'
+        : MediaRecorder.isTypeSupported('video/webm')
+        ? 'video/webm'
+        : 'video/mp4';
+
+      const recorder = new MediaRecorder(stream, {
+        mimeType,
+        videoBitsPerSecond: 800_000, // 800 kbps — good quality, small file
+      });
+      const chunks = [];
+      recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+      recorder.onstop = () => {
+        URL.revokeObjectURL(video.src);
+        const blob = new Blob(chunks, { type: mimeType });
+        resolve(blob);
+      };
+      recorder.onerror = reject;
+
+      recorder.start();
+      video.play();
+
+      const drawFrame = () => {
+        if (video.ended || video.paused) { recorder.stop(); return; }
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        if (onProgress) onProgress(Math.min(99, Math.round((video.currentTime / duration) * 100)));
+        requestAnimationFrame(drawFrame);
+      };
+      video.onplay = () => requestAnimationFrame(drawFrame);
+      video.onended = () => recorder.stop();
+    };
+    video.onerror = reject;
+  });
+}
+
+async function uploadVideo(file, path, onProgress) {
+  const blob = await compressAndValidateVideo(file, onProgress);
+  const ext  = blob.type.includes('mp4') ? 'mp4' : 'webm';
+  const r    = storageRef(storage, `${path}.${ext}`);
+  await uploadBytes(r, blob);
   return getDownloadURL(r);
 }
 
@@ -4605,9 +4733,11 @@ document.getElementById('announcementCancelBtn').addEventListener('click',  () =
 announcementModal.addEventListener('click', e => { if (e.target === announcementModal) closeModal(announcementModal); });
 document.getElementById('announcementForm').addEventListener('submit', async e => {
   e.preventDefault();
-  const text     = document.getElementById('announcementText').value.trim();
-  const fileInput = document.getElementById('announcementPhoto');
-  const file     = fileInput.files[0];
+  const text       = document.getElementById('announcementText').value.trim();
+  const photoInput = document.getElementById('announcementPhoto');
+  const videoInput = document.getElementById('announcementVideo');
+  const photoFile  = photoInput.files[0];
+  const videoFile  = videoInput.files[0];
   if (!text) return;
 
   const submitBtn = e.target.querySelector('[type="submit"]');
@@ -4616,19 +4746,28 @@ document.getElementById('announcementForm').addEventListener('submit', async e =
 
   try {
     let photoUrl = null;
-    if (file) {
-      photoUrl = await uploadPhoto(file, `feed/${Date.now()}_${file.name}`);
+    let videoUrl = null;
+    if (photoFile) {
+      photoUrl = await uploadPhoto(photoFile, `feed/${Date.now()}_${photoFile.name}`);
+    }
+    if (videoFile) {
+      submitBtn.textContent = 'Compressing video…';
+      videoUrl = await uploadVideo(videoFile, `feed/vid_${Date.now()}`,
+        pct => { submitBtn.textContent = `Uploading video ${pct}%…`; });
     }
     await addDoc(collection(db, 'feed'), {
       type:      'announcement',
       text,
       photoUrl:  photoUrl || null,
+      videoUrl:  videoUrl || null,
       comments:  [],
       createdAt: Date.now(),
     });
     document.getElementById('announcementText').value = '';
-    fileInput.value = '';
+    photoInput.value = '';
+    videoInput.value = '';
     document.getElementById('announcementPhotoPreview').innerHTML = '';
+    document.getElementById('announcementVideoPreview').innerHTML = '';
     closeModal(announcementModal);
     switchTab('socialfeed');
     showToast('Posted to feed!', 'success');
@@ -4647,6 +4786,19 @@ document.getElementById('announcementPhoto').addEventListener('change', function
   if (file) {
     const url = URL.createObjectURL(file);
     preview.innerHTML = `<img src="${url}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;" />`;
+  } else {
+    preview.innerHTML = '';
+  }
+});
+
+// Video preview for announcement
+document.getElementById('announcementVideo').addEventListener('change', function() {
+  const preview = document.getElementById('announcementVideoPreview');
+  const file = this.files[0];
+  if (file) {
+    const url = URL.createObjectURL(file);
+    preview.innerHTML = `<video src="${url}" style="width:100%;max-height:200px;border-radius:8px;margin-top:8px;background:#000" controls playsinline muted></video>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Will be compressed before upload</div>`;
   } else {
     preview.innerHTML = '';
   }
