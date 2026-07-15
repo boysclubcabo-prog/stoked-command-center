@@ -3550,14 +3550,16 @@ function renderSocialFeed() {
 
     if (post.type === 'announcement') {
       const posterName = post.authorName || 'Coach';
-      const posterIcon = post.authorIcon || '🏆';
+      const posterIconHtml = (post.authorArchetype && post.authorElement)
+        ? archetypeElementIcon(post.authorArchetype, post.authorElement)
+        : (post.authorArchetype ? archetypeElementIcon(post.authorArchetype, null) : (post.authorIcon || '🏆'));
       const canDelete  = isAdmin || (isMentor && post.authorId === profile?.id);
       // Find pinned challenge if any
       const pinnedCh   = post.pinnedChallengeId ? challenges.find(c => c.id === post.pinnedChallengeId) : null;
       const myPinnedSub = pinnedCh ? submissions.find(s => s.challengeId === pinnedCh.id && s.brotherId === profile?.id) : null;
       html += `<div class="sf-post sf-announcement">
         <div class="sf-post-header">
-          <div class="sf-avatar sf-avatar-coach">${posterIcon}</div>
+          <div class="sf-avatar sf-avatar-coach">${posterIconHtml}</div>
           <div class="sf-post-meta">
             <div class="sf-post-author">${escHtml(posterName)}</div>
             <div class="sf-post-time">${ago}</div>
@@ -4741,6 +4743,8 @@ document.getElementById('announcementForm').addEventListener('submit', async e =
       authorId:         me?.id || null,
       authorName:       me?.name || (isAdmin ? 'Coach' : 'Mentor'),
       authorIcon:       isAdmin ? '🏆' : '⚡',
+      authorArchetype:  me?.primaryArchetype || me?.archetype || null,
+      authorElement:    me?.dominantElement || null,
       comments:         [],
       createdAt:        Date.now(),
     });

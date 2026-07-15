@@ -3869,12 +3869,15 @@ body {
   height: 280px;
 }
 .sf-video {
-  width: 100%;
-  max-height: 420px;
-  border-radius: var(--radius-md);
   display: block;
+  max-width: 100%;
+  max-height: 560px;
+  width: auto;
+  height: auto;
+  margin: 6px auto 0;
+  border-radius: var(--radius-md);
   background: #000;
-  margin-top: 6px;
+  object-fit: contain;
 }
 .sf-xp-row {
   padding: 10px 16px 4px;
