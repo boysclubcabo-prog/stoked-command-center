@@ -3533,13 +3533,13 @@ function renderSocialFeed() {
 
   let html = `<div class="feed-header">
     <h2 class="feed-title">Brotherhood Feed</h2>
-    ${isAdmin ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">📣 Post</button>` : ''}
+    ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">📣 Post</button>` : ''}
   </div>`;
 
   if (!feedPosts.length) {
     html += `<div class="feed-empty">No posts yet — complete a challenge to post your first win! 🏆</div>`;
     el.innerHTML = html;
-    if (isAdmin) bindAnnouncementBtn(el);
+    if (isAdmin || isMentor) bindAnnouncementBtn(el);
     return;
   }
 
@@ -3549,18 +3549,33 @@ function renderSocialFeed() {
     const icon = brother ? archetypeElementIcon(brother.primaryArchetype || brother.archetype, brother.dominantElement) : '';
 
     if (post.type === 'announcement') {
+      const posterName = post.authorName || 'Coach';
+      const posterIcon = post.authorIcon || '🏆';
+      const canDelete  = isAdmin || (isMentor && post.authorId === profile?.id);
+      // Find pinned challenge if any
+      const pinnedCh   = post.pinnedChallengeId ? challenges.find(c => c.id === post.pinnedChallengeId) : null;
+      const myPinnedSub = pinnedCh ? submissions.find(s => s.challengeId === pinnedCh.id && s.brotherId === profile?.id) : null;
       html += `<div class="sf-post sf-announcement">
         <div class="sf-post-header">
-          <div class="sf-avatar sf-avatar-coach">🏆</div>
+          <div class="sf-avatar sf-avatar-coach">${posterIcon}</div>
           <div class="sf-post-meta">
-            <div class="sf-post-author">Coach</div>
+            <div class="sf-post-author">${escHtml(posterName)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
-          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">✕</button>` : ''}
+          ${canDelete ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">✕</button>` : ''}
         </div>
         <div class="sf-announcement-text">${linkify(post.text || '')}</div>
         ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="" />` : ''}
         ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}" controls playsinline preload="metadata"></video>` : ''}
+        ${pinnedCh ? `<div class="sf-pinned-challenge">
+          <div class="sf-pinned-label">📌 Challenge</div>
+          <div class="sf-pinned-title">${escHtml(pinnedCh.title)}</div>
+          ${pinnedCh.description ? `<div class="sf-pinned-desc">${escHtml(pinnedCh.description)}</div>` : ''}
+          <div class="sf-pinned-xp">+${pinnedCh.xpReward} XP</div>
+          ${myPinnedSub
+            ? `<div class="sub-status-badge status-completed" style="margin-top:8px">✅ You completed this!</div>`
+            : `<button class="btn btn-primary sf-pinned-complete-btn" data-submit="${pinnedCh.id}">Complete Challenge</button>`}
+        </div>` : ''}
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
         </div>
@@ -3593,7 +3608,15 @@ function renderSocialFeed() {
         ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}" controls playsinline preload="metadata"></video>` : ''}
         ${post.audioUrl ? `<audio class="sf-audio" controls src="${post.audioUrl}"></audio>` : ''}
         ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">🔗 ${escHtml(post.proofLink)}</a>` : ''}
-        <div class="sf-xp-row"><span class="sf-xp-badge">+${post.xpAwarded} XP</span></div>
+        <div class="sf-xp-row">
+          <span class="sf-xp-badge">+${post.xpAwarded} XP</span>
+          ${(() => {
+            if (!post.challengeId || !profile) return '';
+            const alreadyDone = submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id);
+            if (alreadyDone) return `<span class="sf-already-done">✅ You did this</span>`;
+            return `<button class="sf-complete-too-btn btn btn-ghost btn-sm" data-submit="${post.challengeId}">+ Complete this challenge</button>`;
+          })()}
+        </div>
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
         </div>
@@ -3606,7 +3629,7 @@ function renderSocialFeed() {
   });
 
   el.innerHTML = html;
-  if (isAdmin) bindAnnouncementBtn(el);
+  if (isAdmin || isMentor) bindAnnouncementBtn(el);
 
   // Tap feed photo to open fullscreen
   el.querySelectorAll('.sf-photo').forEach(img => {
@@ -3624,6 +3647,11 @@ function renderSocialFeed() {
       if (!confirm('Delete this post?')) return;
       await deleteDoc(doc(db, 'feed', btn.dataset.deletePost));
     });
+  });
+
+  // Complete challenge buttons (pinned on post, and "complete this too" on win posts)
+  el.querySelectorAll('[data-submit]').forEach(btn => {
+    btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile));
   });
 
   // Comment send buttons
@@ -3661,7 +3689,18 @@ async function postComment(postId, el, profile) {
 
 function bindAnnouncementBtn(el) {
   const btn = el.querySelector('#openAnnouncementBtn');
-  if (btn) btn.addEventListener('click', () => openModal(document.getElementById('announcementModal')));
+  if (btn) btn.addEventListener('click', () => {
+    // Populate challenge picker with public challenges
+    const sel = document.getElementById('announcementPinChallenge');
+    sel.innerHTML = '<option value="">— No pinned challenge —</option>';
+    challenges.filter(c => !c.assignedTo).forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = `${c.title} (+${c.xpReward} XP)`;
+      sel.appendChild(opt);
+    });
+    openModal(document.getElementById('announcementModal'));
+  });
 }
 
 function timeAgo(ts) {
@@ -4691,19 +4730,26 @@ document.getElementById('announcementForm').addEventListener('submit', async e =
       videoUrl = await uploadVideo(videoFile, `feed/vid_${Date.now()}`,
         pct => { submitBtn.textContent = `Uploading video ${pct}%…`; });
     }
+    const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+    const pinnedChallengeId = document.getElementById('announcementPinChallenge').value || null;
     await addDoc(collection(db, 'feed'), {
-      type:      'announcement',
+      type:             'announcement',
       text,
-      photoUrl:  photoUrl || null,
-      videoUrl:  videoUrl || null,
-      comments:  [],
-      createdAt: Date.now(),
+      photoUrl:         photoUrl || null,
+      videoUrl:         videoUrl || null,
+      pinnedChallengeId,
+      authorId:         me?.id || null,
+      authorName:       me?.name || (isAdmin ? 'Coach' : 'Mentor'),
+      authorIcon:       isAdmin ? '🏆' : '⚡',
+      comments:         [],
+      createdAt:        Date.now(),
     });
     document.getElementById('announcementText').value = '';
     photoInput.value = '';
     videoInput.value = '';
     document.getElementById('announcementPhotoPreview').innerHTML = '';
     document.getElementById('announcementVideoPreview').innerHTML = '';
+    document.getElementById('announcementPinChallenge').value = '';
     closeModal(announcementModal);
     switchTab('socialfeed');
     showToast('Posted to feed!', 'success');
