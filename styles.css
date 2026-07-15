@@ -4686,3 +4686,185 @@ body {
   color: var(--ev-clr, var(--terra));
   text-align: center;
 }
+
+/* ── DM CHAT ── */
+.dm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-end;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.dm-overlay.dm-open {
+  opacity: 1;
+  pointer-events: all;
+}
+.dm-overlay.hidden { display: none; }
+.dm-panel {
+  width: 100%;
+  max-height: 92vh;
+  background: var(--bg-base);
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.32,0.72,0,1);
+}
+.dm-open .dm-panel {
+  transform: translateY(0);
+}
+.dm-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.dm-back {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--text-main);
+  padding: 4px 8px 4px 0;
+  line-height: 1;
+}
+.dm-header-info { flex: 1; min-width: 0; }
+.dm-header-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  truncate: ellipsis;
+}
+.dm-header-arch {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 1px;
+}
+.dm-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+.dm-loading, .dm-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: auto;
+  padding: 32px 0;
+}
+.dm-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 78%;
+}
+.dm-mine { align-self: flex-end; align-items: flex-end; }
+.dm-theirs { align-self: flex-start; align-items: flex-start; }
+.dm-bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+.dm-mine .dm-bubble {
+  background: var(--terra);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.dm-theirs .dm-bubble {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+.dm-time {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 3px;
+  padding: 0 4px;
+}
+.dm-form {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px 20px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.dm-input {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: var(--text-main);
+  outline: none;
+}
+.dm-input:focus { border-color: var(--terra); }
+.dm-send {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--terra);
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dm-send:active { opacity: 0.8; }
+/* Inbox */
+.dm-inbox { display: flex; flex-direction: column; }
+.dm-inbox-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.dm-inbox-row:active { background: var(--bg-card); border-radius: 10px; }
+.dm-inbox-icon { font-size: 20px; flex-shrink: 0; }
+.dm-inbox-info { flex: 1; min-width: 0; }
+.dm-inbox-name { font-size: 14px; font-weight: 600; color: var(--text-main); }
+.dm-inbox-arch { font-size: 11px; margin-top: 1px; text-transform: uppercase; letter-spacing: 0.07em; }
+.dm-inbox-arrow { color: var(--text-muted); font-size: 14px; }
+/* Roster DM button */
+.roster-dm-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+.roster-dm-btn:hover { opacity: 1; }
+/* Inbox button in feed header */
+.btn-dm-inbox {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-dm-inbox:hover { border-color: var(--terra); color: var(--terra); }

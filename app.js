@@ -8,7 +8,8 @@ import { getAuth, signInWithEmailAndPassword,
          signOut, onAuthStateChanged }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc, addDoc,
-         deleteDoc, getDoc, getDocs }             from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         deleteDoc, getDoc, getDocs,
+         query, orderBy, serverTimestamp }         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef,
          uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 import { getMessaging, getToken, onMessage }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
@@ -4110,7 +4111,10 @@ function renderRoster() {
   }
 
   container.innerHTML = `
-    <div class="feed-header"><h2 class="feed-title">The Brotherhood</h2></div>
+    <div class="feed-header">
+      <h2 class="feed-title">The Brotherhood</h2>
+      <button class="btn-dm-inbox" id="dmInboxBtn">💬 Messages</button>
+    </div>
     <div class="roster-list">
       ${sorted.map((b, i) => {
         const xp  = b.xp || 0;
@@ -4141,10 +4145,155 @@ function renderRoster() {
                 <span class="roster-xp-num">${xp.toLocaleString()} XP</span>
               </div>
             </div>
-            ${bsCat ? `<div class="roster-score" style="color:${bsCat.color}">${b.brotherhoodScore}<span class="roster-score-lbl">WK</span></div>` : ''}
+            ${bsCat ? `<div class="roster-score" style="color:${bsCat.color}">${b.brotherhoodScore}<span class="roster-score-lbl">BS</span></div>` : ''}
+            ${!isMe ? `<button class="roster-dm-btn" data-dm="${b.id}" title="Message ${escHtml(b.name)}">💬</button>` : ''}
           </div>`;
       }).join('')}
     </div>`;
+
+  // Wire DM buttons
+  container.querySelectorAll('[data-dm]').forEach(btn => {
+    btn.addEventListener('click', () => openDM(btn.dataset.dm));
+  });
+  document.getElementById('dmInboxBtn')?.addEventListener('click', openDMInbox);
+}
+
+// ── PRIVATE DM CHAT ──────────────────────────
+let dmUnsub = null;
+let activeDMId = null;
+
+function dmConvoId(idA, idB) {
+  return [idA, idB].sort().join('_');
+}
+
+async function openDM(brotherId) {
+  const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+  if (!me) return;
+  const them = brothers.find(b => b.id === brotherId);
+  if (!them) return;
+
+  const convoId = dmConvoId(me.id, them.id);
+  activeDMId = convoId;
+
+  const archClr = ARCHETYPE_COLORS[them.primaryArchetype || them.archetype] || ARCHETYPE_COLORS.Warrior;
+
+  document.getElementById('dmHeaderName').textContent = them.name;
+  document.getElementById('dmHeaderArch').textContent = them.primaryArchetype || them.archetype || '';
+  document.getElementById('dmHeaderArch').style.color = archClr.icon;
+  const dot = document.getElementById('dmOnlineDot');
+  dot.classList.toggle('hidden', !isOnline(them));
+
+  document.getElementById('dmMessages').innerHTML = '<div class="dm-loading">Loading…</div>';
+  document.getElementById('dmInput').value = '';
+  document.getElementById('dmForm').classList.remove('hidden');
+
+  const overlay = document.getElementById('dmOverlay');
+  overlay.classList.remove('hidden');
+  requestAnimationFrame(() => overlay.classList.add('dm-open'));
+
+  // Unsubscribe previous listener
+  if (dmUnsub) { dmUnsub(); dmUnsub = null; }
+
+  // Subscribe to messages
+  const msgsRef = collection(db, 'dms', convoId, 'messages');
+  const q = query(msgsRef, orderBy('sentAt', 'asc'));
+  dmUnsub = onSnapshot(q, snap => {
+    const msgs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderDMMessages(msgs, me.id);
+  });
+}
+
+function renderDMMessages(msgs, myId) {
+  const container = document.getElementById('dmMessages');
+  if (!msgs.length) {
+    container.innerHTML = '<div class="dm-empty">No messages yet. Say something.</div>';
+    return;
+  }
+  container.innerHTML = msgs.map(m => {
+    const mine = m.senderId === myId;
+    const time = m.sentAt?.toDate ? m.sentAt.toDate().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+    return `<div class="dm-msg ${mine ? 'dm-mine' : 'dm-theirs'}">
+      <div class="dm-bubble">${escHtml(m.text)}</div>
+      <div class="dm-time">${time}</div>
+    </div>`;
+  }).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+function closeDM() {
+  const overlay = document.getElementById('dmOverlay');
+  overlay.classList.remove('dm-open');
+  setTimeout(() => overlay.classList.add('hidden'), 280);
+  if (dmUnsub) { dmUnsub(); dmUnsub = null; }
+  activeDMId = null;
+}
+
+document.getElementById('dmBack').addEventListener('click', closeDM);
+
+document.getElementById('dmForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const input = document.getElementById('dmInput');
+  const text = input.value.trim();
+  if (!text || !activeDMId) return;
+
+  const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+  if (!me) return;
+
+  input.value = '';
+  try {
+    await addDoc(collection(db, 'dms', activeDMId, 'messages'), {
+      text,
+      senderId: me.id,
+      senderName: me.name,
+      sentAt: serverTimestamp(),
+    });
+  } catch (err) {
+    showToast('Could not send message', 'info');
+    input.value = text;
+  }
+});
+
+// Inbox: show list of conversations this user is part of
+async function openDMInbox() {
+  const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+  if (!me) return;
+
+  // Find all DM conversations involving this user by scanning brothers
+  const overlay = document.getElementById('dmOverlay');
+  document.getElementById('dmHeaderName').textContent = 'Messages';
+  document.getElementById('dmHeaderArch').textContent = '';
+  document.getElementById('dmOnlineDot').classList.add('hidden');
+
+  const msgEl = document.getElementById('dmMessages');
+  msgEl.innerHTML = '<div class="dm-loading">Loading…</div>';
+  overlay.classList.remove('hidden');
+  requestAnimationFrame(() => overlay.classList.add('dm-open'));
+
+  // Build inbox: one row per brother (whether or not there's a message)
+  const others = brothers.filter(b => b.id !== me.id);
+  msgEl.innerHTML = `<div class="dm-inbox">
+    ${others.map(b => {
+      const archClr = ARCHETYPE_COLORS[b.primaryArchetype || b.archetype] || ARCHETYPE_COLORS.Warrior;
+      const icon = archetypeElementIcon(b.primaryArchetype || b.archetype, b.dominantElement);
+      return `<div class="dm-inbox-row" data-dm="${b.id}">
+        <span class="dm-inbox-icon" style="color:${archClr.icon}">${icon}</span>
+        <div class="dm-inbox-info">
+          <div class="dm-inbox-name">${escHtml(b.name)}</div>
+          <div class="dm-inbox-arch" style="color:${archClr.icon}">${escHtml(b.primaryArchetype || b.archetype || '')}</div>
+        </div>
+        ${isOnline(b) ? '<span class="online-dot"></span>' : ''}
+        <span class="dm-inbox-arrow">→</span>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // Wire rows
+  msgEl.querySelectorAll('[data-dm]').forEach(row => {
+    row.addEventListener('click', () => openDM(row.dataset.dm));
+  });
+
+  // Hide the send form for inbox view
+  document.getElementById('dmForm').classList.add('hidden');
 }
 
 // ── CREATE / EDIT CHALLENGE ───────────────────

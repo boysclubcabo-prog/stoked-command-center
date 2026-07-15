@@ -343,6 +343,25 @@
     </div>
   </div>
 
+  <!-- DM CHAT PANEL -->
+  <div class="dm-overlay hidden" id="dmOverlay">
+    <div class="dm-panel" id="dmPanel">
+      <div class="dm-header">
+        <button class="dm-back" id="dmBack">←</button>
+        <div class="dm-header-info">
+          <div class="dm-header-name" id="dmHeaderName"></div>
+          <div class="dm-header-arch" id="dmHeaderArch"></div>
+        </div>
+        <div class="dm-online-dot hidden" id="dmOnlineDot"></div>
+      </div>
+      <div class="dm-messages" id="dmMessages"></div>
+      <form class="dm-form" id="dmForm">
+        <input class="dm-input" id="dmInput" type="text" placeholder="Message…" autocomplete="off" maxlength="1000" />
+        <button class="dm-send" type="submit">↑</button>
+      </form>
+    </div>
+  </div>
+
   <!-- DAILY CHECK-IN MODAL -->
   <div class="modal-overlay" id="checkInModal">
     <div class="modal modal-checkin">
