@@ -3550,9 +3550,12 @@ function renderSocialFeed() {
 
     if (post.type === 'announcement') {
       const posterName = post.authorName || 'Coach';
-      const posterIconHtml = (post.authorArchetype && post.authorElement)
-        ? archetypeElementIcon(post.authorArchetype, post.authorElement)
-        : (post.authorArchetype ? archetypeElementIcon(post.authorArchetype, null) : (post.authorIcon || '🏆'));
+      const posterBrother = post.authorId ? brothers.find(b => b.id === post.authorId) : null;
+      const pArch = post.authorArchetype || posterBrother?.primaryArchetype || posterBrother?.archetype;
+      const pElem = post.authorElement  || posterBrother?.dominantElement;
+      const posterIconHtml = pArch
+        ? archetypeElementIcon(pArch, pElem || null)
+        : (post.authorIcon || '🏆');
       const canDelete  = isAdmin || (isMentor && post.authorId === profile?.id);
       // Find pinned challenge if any
       const pinnedCh   = post.pinnedChallengeId ? challenges.find(c => c.id === post.pinnedChallengeId) : null;
