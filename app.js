@@ -95,12 +95,7 @@ const ELEMENT_COLORS = {
 // Returns a CSS class name for the icon ring based on level (1–12)
 function levelRingClass(level) {
   if (!level || level < 1) return 'ring-none';
-  if (level <= 2)  return 'ring-tier1';  // plain dim ring
-  if (level <= 4)  return 'ring-tier2';  // solid warm glow
-  if (level <= 6)  return 'ring-tier3';  // gradient ring
-  if (level <= 8)  return 'ring-tier4';  // bright multi-colour gradient
-  if (level <= 10) return 'ring-tier5';  // animated pulse glow
-  return 'ring-tier6';                   // full legendary animated spinning gradient
+  return `ring-tier${Math.min(level, 12)}`;
 }
 
 // Hand-drawn archetype+element icon set, one PNG per combo in /icons

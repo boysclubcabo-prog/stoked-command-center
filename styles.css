@@ -405,169 +405,234 @@ body {
 /* Tier 0 — no ring */
 .arch-icon-wrap.ring-none { padding: 0; }
 
-/* ── TIER 1: Recruit/Initiate — thin dim ring in archetype color ── */
+/* ── LEVEL 1: Recruit — hairline ghost ring ── */
 .arch-icon-wrap.ring-tier1 {
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring-clr) 40%, transparent);
+  padding: 2px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ring-clr) 25%, transparent);
 }
 
-/* ── TIER 2: Apprentice/Challenger — solid archetype ring, faint glow ── */
+/* ── LEVEL 2: Initiate — thin solid ring ── */
 .arch-icon-wrap.ring-tier2 {
-  box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ring-clr) 70%, #000),
-    0 0 6px 1px color-mix(in srgb, var(--ring-clr) 30%, transparent);
+  padding: 2px;
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--ring-clr) 50%, transparent);
 }
 
-/* ── TIER 3: Pathfinder/Ascender — gradient ring, moderate glow ── */
+/* ── LEVEL 3: Apprentice — solid ring, whisper of glow ── */
 .arch-icon-wrap.ring-tier3 {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, var(--ring-clr) 50%, #000),
-    var(--ring-clr),
-    color-mix(in srgb, var(--ring-clr) 50%, #000));
-  box-shadow: 0 0 8px 3px color-mix(in srgb, var(--ring-clr) 35%, transparent);
+  padding: 2px;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--ring-clr) 65%, #000),
+    0 0 5px 1px color-mix(in srgb, var(--ring-clr) 20%, transparent);
 }
 
-/* ── TIER 4: Vanguard/Captain — bright gradient + outer halo ── */
+/* ── LEVEL 4: Challenger — double ring ── */
 .arch-icon-wrap.ring-tier4 {
+  padding: 3px;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ring-clr) 80%, #000),
+    0 0 0 3px color-mix(in srgb, var(--ring-clr) 30%, transparent),
+    0 0 7px 2px color-mix(in srgb, var(--ring-clr) 25%, transparent);
+}
+
+/* ── LEVEL 5: Pathfinder — gradient ring appears ── */
+.arch-icon-wrap.ring-tier5 {
+  padding: 3px;
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--ring-clr) 40%, #000),
-    color-mix(in srgb, var(--ring-clr) 90%, #fff),
     var(--ring-clr),
     color-mix(in srgb, var(--ring-clr) 40%, #000));
-  box-shadow:
-    0 0 10px 3px color-mix(in srgb, var(--ring-clr) 50%, transparent),
-    0 0 22px 5px color-mix(in srgb, var(--ring-clr) 20%, transparent);
+  box-shadow: 0 0 8px 3px color-mix(in srgb, var(--ring-clr) 30%, transparent);
 }
 
-/* ── TIER 5: Commander/King — pulsing glow, strong outer presence ── */
-.arch-icon-wrap.ring-tier5 {
+/* ── LEVEL 6: Ascender — brighter gradient + first halo ── */
+.arch-icon-wrap.ring-tier6 {
+  padding: 3px;
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--ring-clr) 35%, #000),
-    color-mix(in srgb, var(--ring-clr) 95%, #fff),
+    color-mix(in srgb, var(--ring-clr) 85%, #fff),
+    var(--ring-clr),
     color-mix(in srgb, var(--ring-clr) 35%, #000));
   box-shadow:
-    0 0 12px 4px color-mix(in srgb, var(--ring-clr) 60%, transparent),
-    0 0 28px 8px color-mix(in srgb, var(--ring-clr) 25%, transparent);
+    0 0 10px 3px color-mix(in srgb, var(--ring-clr) 40%, transparent),
+    0 0 20px 5px color-mix(in srgb, var(--ring-clr) 15%, transparent);
+}
+
+/* ── LEVEL 7: Vanguard — thick gradient + double halo ── */
+.arch-icon-wrap.ring-tier7 {
+  padding: 4px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ring-clr) 30%, #000),
+    color-mix(in srgb, var(--ring-clr) 90%, #fff),
+    var(--ring-clr),
+    color-mix(in srgb, var(--ring-clr) 90%, #fff),
+    color-mix(in srgb, var(--ring-clr) 30%, #000));
+  box-shadow:
+    0 0 12px 4px color-mix(in srgb, var(--ring-clr) 50%, transparent),
+    0 0 24px 8px color-mix(in srgb, var(--ring-clr) 20%, transparent);
+}
+
+/* ── LEVEL 8: Captain — slow pulse begins ── */
+.arch-icon-wrap.ring-tier8 {
+  padding: 4px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ring-clr) 25%, #000),
+    color-mix(in srgb, var(--ring-clr) 95%, #fff),
+    var(--ring-clr),
+    color-mix(in srgb, var(--ring-clr) 95%, #fff),
+    color-mix(in srgb, var(--ring-clr) 25%, #000));
+  box-shadow:
+    0 0 14px 5px color-mix(in srgb, var(--ring-clr) 55%, transparent),
+    0 0 28px 9px color-mix(in srgb, var(--ring-clr) 22%, transparent);
+  animation: ringPulse 3s ease-in-out infinite;
+}
+
+/* ── LEVEL 9: Commander — faster pulse, outer corona ── */
+.arch-icon-wrap.ring-tier9 {
+  padding: 4px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--ring-clr) 20%, #000),
+    color-mix(in srgb, var(--ring-clr) 95%, #fff),
+    var(--ring-clr),
+    color-mix(in srgb, var(--ring-clr) 95%, #fff),
+    color-mix(in srgb, var(--ring-clr) 20%, #000));
+  box-shadow:
+    0 0 14px 5px color-mix(in srgb, var(--ring-clr) 60%, transparent),
+    0 0 30px 10px color-mix(in srgb, var(--ring-clr) 28%, transparent),
+    0 0 50px 14px color-mix(in srgb, var(--ring-clr) 10%, transparent);
   animation: ringPulse 2.2s ease-in-out infinite;
 }
 
-/* ── TIER 6: Mentor/Legend — spinning conic + outer corona ── */
-.arch-icon-wrap.ring-tier6 {
+/* ── LEVEL 10: King — conic gradient, strong corona, faster pulse ── */
+.arch-icon-wrap.ring-tier10 {
+  padding: 4px;
   background: conic-gradient(
-    color-mix(in srgb, var(--ring-clr) 20%, #000),
+    color-mix(in srgb, var(--ring-clr) 15%, #000),
     var(--ring-clr),
     color-mix(in srgb, var(--ring-clr) 90%, #fff),
     var(--ring-clr),
-    color-mix(in srgb, var(--ring-clr) 20%, #000));
+    color-mix(in srgb, var(--ring-clr) 15%, #000));
   box-shadow:
-    0 0 14px 5px color-mix(in srgb, var(--ring-clr) 70%, transparent),
-    0 0 32px 10px color-mix(in srgb, var(--ring-clr) 30%, transparent),
-    0 0 50px 14px color-mix(in srgb, var(--ring-clr) 12%, transparent);
-  animation: ringPulse 1.8s ease-in-out infinite, ringSpin 5s linear infinite;
+    0 0 16px 6px color-mix(in srgb, var(--ring-clr) 65%, transparent),
+    0 0 34px 12px color-mix(in srgb, var(--ring-clr) 30%, transparent),
+    0 0 55px 18px color-mix(in srgb, var(--ring-clr) 12%, transparent);
+  animation: ringPulse 1.8s ease-in-out infinite;
 }
 
-/* ── ARCHETYPE outer-flare personalities ── */
-
-/* Warrior — hard sharp edges, intense concentrated burst */
-.arch-icon-wrap.arch-warrior.ring-tier4,
-.arch-icon-wrap.arch-warrior.ring-tier5,
-.arch-icon-wrap.arch-warrior.ring-tier6 {
+/* ── LEVEL 11: Mentor — spinning conic + wide corona + pulse ── */
+.arch-icon-wrap.ring-tier11 {
+  padding: 5px;
+  background: conic-gradient(
+    color-mix(in srgb, var(--ring-clr) 10%, #000),
+    color-mix(in srgb, var(--ring-clr) 70%, #000),
+    color-mix(in srgb, var(--ring-clr) 95%, #fff),
+    var(--ring-clr),
+    color-mix(in srgb, var(--ring-clr) 95%, #fff),
+    color-mix(in srgb, var(--ring-clr) 70%, #000),
+    color-mix(in srgb, var(--ring-clr) 10%, #000));
   box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--ring-clr) 80%, #fff),
-    0 0 10px 4px color-mix(in srgb, var(--ring-clr) 65%, transparent),
-    0 0 20px 2px color-mix(in srgb, var(--ring-clr) 40%, transparent),
-    0 0 0 6px color-mix(in srgb, var(--ring-clr) 10%, transparent);
+    0 0 18px 7px color-mix(in srgb, var(--ring-clr) 70%, transparent),
+    0 0 38px 14px color-mix(in srgb, var(--ring-clr) 32%, transparent),
+    0 0 60px 20px color-mix(in srgb, var(--ring-clr) 14%, transparent);
+  animation: ringPulse 1.5s ease-in-out infinite, ringSpin 6s linear infinite;
 }
 
-/* Leader / Sovereign — commanding wide radiant aura */
-.arch-icon-wrap.arch-leader.ring-tier4,
-.arch-icon-wrap.arch-sovereign.ring-tier4,
-.arch-icon-wrap.arch-leader.ring-tier5,
-.arch-icon-wrap.arch-sovereign.ring-tier5,
-.arch-icon-wrap.arch-leader.ring-tier6,
-.arch-icon-wrap.arch-sovereign.ring-tier6 {
+/* ── LEVEL 12: Legend — full spinning conic, max corona, fast pulse ── */
+.arch-icon-wrap.ring-tier12 {
+  padding: 5px;
+  background: conic-gradient(
+    color-mix(in srgb, var(--ring-clr) 08%, #000),
+    color-mix(in srgb, var(--ring-clr) 60%, #000),
+    var(--ring-clr),
+    color-mix(in srgb, var(--ring-clr) 100%, #fff),
+    var(--ring-clr),
+    color-mix(in srgb, var(--ring-clr) 60%, #000),
+    color-mix(in srgb, var(--ring-clr) 08%, #000));
+  box-shadow:
+    0 0 20px 8px color-mix(in srgb, var(--ring-clr) 75%, transparent),
+    0 0 40px 16px color-mix(in srgb, var(--ring-clr) 38%, transparent),
+    0 0 65px 24px color-mix(in srgb, var(--ring-clr) 18%, transparent),
+    0 0 90px 30px color-mix(in srgb, var(--ring-clr) 07%, transparent);
+  animation: ringPulse 1.2s ease-in-out infinite, ringSpin 4s linear infinite;
+}
+
+/* ── ARCHETYPE outer-flare personalities (kick in at tier 6+) ── */
+
+/* Warrior — tight concentrated burst, hard edge */
+.arch-icon-wrap.arch-warrior[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4):not(.ring-tier5) {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ring-clr) 90%, #fff),
+    0 0 10px 3px color-mix(in srgb, var(--ring-clr) 70%, transparent),
+    0 0 18px 2px color-mix(in srgb, var(--ring-clr) 45%, transparent),
+    0 0 0 7px color-mix(in srgb, var(--ring-clr) 08%, transparent);
+}
+
+/* Leader / Sovereign — wide commanding radiant aura */
+.arch-icon-wrap.arch-leader[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4):not(.ring-tier5),
+.arch-icon-wrap.arch-sovereign[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4):not(.ring-tier5) {
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--ring-clr) 85%, #fff),
-    0 0 16px 6px color-mix(in srgb, var(--ring-clr) 55%, transparent),
-    0 0 36px 12px color-mix(in srgb, var(--ring-clr) 22%, transparent),
-    0 0 55px 18px color-mix(in srgb, var(--ring-clr) 09%, transparent);
+    0 0 18px 7px color-mix(in srgb, var(--ring-clr) 55%, transparent),
+    0 0 40px 14px color-mix(in srgb, var(--ring-clr) 22%, transparent),
+    0 0 65px 22px color-mix(in srgb, var(--ring-clr) 09%, transparent);
 }
 
-/* Visionary — ethereal soft wide glow, no hard edges */
-.arch-icon-wrap.arch-visionary.ring-tier3,
-.arch-icon-wrap.arch-visionary.ring-tier4,
-.arch-icon-wrap.arch-visionary.ring-tier5,
-.arch-icon-wrap.arch-visionary.ring-tier6 {
+/* Visionary — soft ethereal wide glow */
+.arch-icon-wrap.arch-visionary[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4) {
   box-shadow:
-    0 0 10px 5px color-mix(in srgb, var(--ring-clr) 45%, transparent),
-    0 0 28px 12px color-mix(in srgb, var(--ring-clr) 20%, transparent),
-    0 0 50px 20px color-mix(in srgb, var(--ring-clr) 08%, transparent);
-  filter: blur(0.3px) brightness(1.1);
+    0 0 12px 6px color-mix(in srgb, var(--ring-clr) 40%, transparent),
+    0 0 32px 14px color-mix(in srgb, var(--ring-clr) 18%, transparent),
+    0 0 58px 22px color-mix(in srgb, var(--ring-clr) 07%, transparent);
+  filter: blur(0.4px) brightness(1.1);
 }
 
-/* Monk — minimal, barely-there inner light, no external flare */
-.arch-icon-wrap.arch-monk.ring-tier4,
-.arch-icon-wrap.arch-monk.ring-tier5,
-.arch-icon-wrap.arch-monk.ring-tier6 {
+/* Monk — inner calm, almost no external light */
+.arch-icon-wrap.arch-monk[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4):not(.ring-tier5) {
   box-shadow:
-    0 0 0 1.5px color-mix(in srgb, var(--ring-clr) 55%, transparent),
-    0 0 8px 3px color-mix(in srgb, var(--ring-clr) 20%, transparent);
-  filter: brightness(0.9);
+    0 0 0 1.5px color-mix(in srgb, var(--ring-clr) 50%, transparent),
+    0 0 6px 2px color-mix(in srgb, var(--ring-clr) 18%, transparent);
+  filter: brightness(0.88);
 }
 
-/* Creator — expressive, painterly glow with colour spread */
-.arch-icon-wrap.arch-creator.ring-tier4,
-.arch-icon-wrap.arch-creator.ring-tier5,
-.arch-icon-wrap.arch-creator.ring-tier6 {
+/* Creator — saturated painterly spread */
+.arch-icon-wrap.arch-creator[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4):not(.ring-tier5) {
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--ring-clr) 80%, #fff),
-    0 0 14px 6px color-mix(in srgb, var(--ring-clr) 50%, transparent),
-    0 0 30px 14px color-mix(in srgb, var(--ring-clr) 18%, transparent);
-  filter: saturate(1.3) brightness(1.1);
+    0 0 16px 7px color-mix(in srgb, var(--ring-clr) 48%, transparent),
+    0 0 34px 16px color-mix(in srgb, var(--ring-clr) 17%, transparent);
+  filter: saturate(1.35) brightness(1.1);
 }
 
-/* Explorer — wide but grounded glow, earthy spread */
-.arch-icon-wrap.arch-explorer.ring-tier4,
-.arch-icon-wrap.arch-explorer.ring-tier5,
-.arch-icon-wrap.arch-explorer.ring-tier6 {
+/* Explorer — earthy wide spread */
+.arch-icon-wrap.arch-explorer[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4):not(.ring-tier5) {
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--ring-clr) 75%, #000),
-    0 0 12px 5px color-mix(in srgb, var(--ring-clr) 40%, transparent),
-    0 0 30px 10px color-mix(in srgb, var(--ring-clr) 15%, transparent);
+    0 0 14px 6px color-mix(in srgb, var(--ring-clr) 38%, transparent),
+    0 0 34px 12px color-mix(in srgb, var(--ring-clr) 14%, transparent);
 }
 
-/* Strategist — cold precise ring, tight glow */
-.arch-icon-wrap.arch-strategist.ring-tier4,
-.arch-icon-wrap.arch-strategist.ring-tier5,
-.arch-icon-wrap.arch-strategist.ring-tier6 {
+/* Strategist — cold precise, tight controlled glow */
+.arch-icon-wrap.arch-strategist[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4):not(.ring-tier5) {
   box-shadow:
     0 0 0 2px color-mix(in srgb, var(--ring-clr) 90%, #fff),
-    0 0 8px 2px color-mix(in srgb, var(--ring-clr) 60%, transparent),
-    0 0 18px 4px color-mix(in srgb, var(--ring-clr) 20%, transparent);
-  filter: contrast(1.1);
+    0 0 8px 2px color-mix(in srgb, var(--ring-clr) 62%, transparent),
+    0 0 16px 4px color-mix(in srgb, var(--ring-clr) 22%, transparent);
+  filter: contrast(1.12);
 }
 
-/* Communicator / Protector / Builder / Guardian — warm honest glow */
-.arch-icon-wrap.arch-communicator.ring-tier4,
-.arch-icon-wrap.arch-protector.ring-tier4,
-.arch-icon-wrap.arch-builder.ring-tier4,
-.arch-icon-wrap.arch-guardian.ring-tier4,
-.arch-icon-wrap.arch-communicator.ring-tier5,
-.arch-icon-wrap.arch-protector.ring-tier5,
-.arch-icon-wrap.arch-builder.ring-tier5,
-.arch-icon-wrap.arch-guardian.ring-tier5,
-.arch-icon-wrap.arch-communicator.ring-tier6,
-.arch-icon-wrap.arch-protector.ring-tier6,
-.arch-icon-wrap.arch-builder.ring-tier6,
-.arch-icon-wrap.arch-guardian.ring-tier6 {
+/* Communicator / Protector / Builder / Guardian — warm steady glow */
+.arch-icon-wrap.arch-communicator[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4),
+.arch-icon-wrap.arch-protector[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4),
+.arch-icon-wrap.arch-builder[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4),
+.arch-icon-wrap.arch-guardian[class*="ring-tier"]:not(.ring-none):not(.ring-tier1):not(.ring-tier2):not(.ring-tier3):not(.ring-tier4) {
   box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--ring-clr) 70%, transparent),
-    0 0 12px 5px color-mix(in srgb, var(--ring-clr) 35%, transparent),
-    0 0 26px 8px color-mix(in srgb, var(--ring-clr) 14%, transparent);
+    0 0 0 2px color-mix(in srgb, var(--ring-clr) 65%, transparent),
+    0 0 14px 6px color-mix(in srgb, var(--ring-clr) 32%, transparent),
+    0 0 30px 10px color-mix(in srgb, var(--ring-clr) 13%, transparent);
 }
 
 @keyframes ringPulse {
   0%, 100% { filter: brightness(1); }
-  50%       { filter: brightness(1.4); }
+  50%       { filter: brightness(1.45); }
 }
 
 @keyframes ringSpin {
