@@ -405,40 +405,41 @@ body {
 /* Tier 0 — no ring */
 .arch-icon-wrap.ring-none { padding: 0; }
 
-/* Tier 1 — Recruit / Initiate: subtle dim ring */
+/* Tier 1 — Recruit / Initiate: dim iron ring */
 .arch-icon-wrap.ring-tier1 {
-  box-shadow: 0 0 0 2px rgba(160,140,110,0.35);
+  box-shadow: 0 0 0 2px rgba(120,110,95,0.5);
 }
 
-/* Tier 2 — Apprentice / Challenger: solid warm amber */
+/* Tier 2 — Apprentice / Challenger: forged iron with faint glow */
 .arch-icon-wrap.ring-tier2 {
-  box-shadow: 0 0 0 2px #b07c3a, 0 0 6px 1px rgba(176,124,58,0.4);
+  box-shadow: 0 0 0 2px #5c5040, 0 0 5px 1px rgba(92,80,64,0.5);
+  background: linear-gradient(135deg, #3a3028, #6b5a45, #3a3028);
 }
 
-/* Tier 3 — Pathfinder / Ascender: gradient ring via border trick */
+/* Tier 3 — Pathfinder / Ascender: raw bronze */
 .arch-icon-wrap.ring-tier3 {
-  background: linear-gradient(135deg, #c87941, #e8c96a, #c87941);
-  box-shadow: 0 0 8px 2px rgba(200,121,65,0.5);
+  background: linear-gradient(135deg, #6b4c22, #a8733a, #6b4c22);
+  box-shadow: 0 0 7px 2px rgba(120,80,30,0.55);
 }
 
-/* Tier 4 — Vanguard / Captain: vivid multi-colour gradient */
+/* Tier 4 — Vanguard / Captain: dark gold with ember glow */
 .arch-icon-wrap.ring-tier4 {
-  background: linear-gradient(135deg, #e85d04, #f9c74f, #43aa8b, #e85d04);
-  box-shadow: 0 0 12px 3px rgba(232,93,4,0.55);
+  background: linear-gradient(135deg, #7a4f1a, #c8922a, #e8b84b, #c8922a, #7a4f1a);
+  box-shadow: 0 0 10px 3px rgba(200,146,42,0.5), 0 0 20px 4px rgba(200,80,20,0.25);
 }
 
-/* Tier 5 — Commander / King: pulsing glow */
+/* Tier 5 — Commander / King: blood-gold pulsing forge */
 .arch-icon-wrap.ring-tier5 {
-  background: linear-gradient(135deg, #ffd60a, #f72585, #4361ee, #ffd60a);
-  box-shadow: 0 0 14px 4px rgba(255,214,10,0.6);
-  animation: ringPulse 2.4s ease-in-out infinite;
+  background: linear-gradient(135deg, #8b1a1a, #c8460a, #e8a020, #c8460a, #8b1a1a);
+  box-shadow: 0 0 12px 4px rgba(200,70,10,0.6), 0 0 24px 6px rgba(140,26,26,0.35);
+  animation: ringPulse 2.2s ease-in-out infinite;
 }
 
-/* Tier 6 — Mentor / Legend: spinning rainbow gradient + strong glow */
+/* Tier 6 — Mentor / Legend: dark fire spinning — crimson to molten gold */
 .arch-icon-wrap.ring-tier6 {
-  background: conic-gradient(#ff4d4d, #ff9900, #ffe600, #00e676, #00b0ff, #aa00ff, #ff4d4d);
-  box-shadow: 0 0 18px 6px rgba(255,230,0,0.7), 0 0 32px 10px rgba(170,0,255,0.35);
-  animation: ringPulse 1.8s ease-in-out infinite, ringSpin 4s linear infinite;
+  background: conic-gradient(#1a0a00, #8b1a1a, #c8460a, #e8a020, #c8922a, #c8460a, #8b1a1a, #1a0a00);
+  box-shadow: 0 0 16px 5px rgba(200,70,10,0.7), 0 0 30px 10px rgba(140,26,26,0.4);
+  animation: ringPulse 1.6s ease-in-out infinite, ringSpin 5s linear infinite;
 }
 
 @keyframes ringPulse {
