@@ -3734,6 +3734,373 @@ function timeAgo(ts) {
 }
 
 // ── ROSTER (member view of all brothers) ──────
+// ── GLOBE / MY PATH ───────────────────────────
+
+let globePathTab      = 'globe';  // 'globe' | 'mypath'
+let globeSelectedArch = null;
+let globeScale        = 1;
+let globeTranslateX   = 0;
+let globeTranslateY   = 0;
+let globeDragMoved    = false;
+
+const ARCHETYPE_VIRTUE = {
+  Warrior:      'Courage',
+  Monk:         'Discipline',
+  Creator:      'Expression',
+  Explorer:     'Curiosity',
+  Leader:       'Vision',
+  Builder:      'Perseverance',
+  Protector:    'Loyalty',
+  Strategist:   'Clarity',
+  Visionary:    'Intuition',
+  Communicator: 'Connection',
+  Guardian:     'Integrity',
+  Sovereign:    'Authority',
+};
+
+const ARCHETYPE_GLOBE_MISSION = {
+  Warrior:      'Complete one difficult action before you feel ready.',
+  Monk:         'Eliminate one distraction this week. Go deeper into what matters.',
+  Creator:      'Finish one thing you started. Ship it before it is perfect.',
+  Explorer:     'Step into unfamiliar territory. Report back what you found.',
+  Leader:       'Take responsibility for one outcome that others avoided.',
+  Builder:      'Show up to your highest-priority habit every day this week.',
+  Protector:    'Check in on one brother who has gone quiet.',
+  Strategist:   'Identify the single highest-leverage action available to you.',
+  Visionary:    'Write down one idea that feels too big. Then take the first step.',
+  Communicator: 'Have one honest conversation you have been putting off.',
+  Guardian:     'Hold one boundary that aligns with your values.',
+  Sovereign:    'Make one decision this week without seeking external validation.',
+};
+
+function computeGlobeStats() {
+  const stats = {};
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  for (const arch of ARCHETYPE_ORDER) {
+    stats[arch] = { memberCount: 0, totalXp: 0, activeThisWeek: 0, challengesCompleted: 0, avgLevel: 0, momentum: 0, recentMembers: [], _levels: [] };
+  }
+  for (const b of brothers) {
+    const arch = b.primaryArchetype || b.archetype;
+    if (!arch || !stats[arch]) continue;
+    const s = stats[arch];
+    s.memberCount++;
+    s.totalXp += b.xp || 0;
+    if (b.lastSeen && new Date(b.lastSeen).getTime() > weekAgo) s.activeThisWeek++;
+    for (const val of Object.values(b.pathProgress || {})) {
+      if (val?.completedAt) s.challengesCompleted++;
+    }
+    s._levels.push(getLevelInfo(b.xp || 0).current.level);
+    if (s.recentMembers.length < 3) s.recentMembers.push({ name: b.name, xp: b.xp || 0, element: b.dominantElement, arch });
+  }
+  for (const arch of ARCHETYPE_ORDER) {
+    const s = stats[arch];
+    s.avgLevel = s._levels.length ? +( s._levels.reduce((a, v) => a + v, 0) / s._levels.length).toFixed(1) : 0;
+    s.momentum = s.memberCount ? Math.round((s.activeThisWeek / s.memberCount) * 100) : 0;
+    delete s._levels;
+  }
+  return stats;
+}
+
+function computeBrotherhoodTotals(stats) {
+  let totalXp = 0, activeThisWeek = 0, challengesCompleted = 0;
+  for (const s of Object.values(stats)) {
+    totalXp          += s.totalXp;
+    activeThisWeek   += s.activeThisWeek;
+    challengesCompleted += s.challengesCompleted;
+  }
+  const totalBrothers = brothers.length;
+  return {
+    totalBrothers,
+    totalXp,
+    activeThisWeek,
+    challengesCompleted,
+    weeklyActivityPct: totalBrothers ? Math.round(activeThisWeek / totalBrothers * 100) : 0,
+  };
+}
+
+function renderGlobeNodeHtml(arch, idx, stats, userArch) {
+  const n = ARCHETYPE_ORDER.length;
+  const angle = (idx / n * 360 - 90) * Math.PI / 180;
+  const R = 34;
+  const cx = (50 + R * Math.cos(angle)).toFixed(2);
+  const cy = (50 + R * Math.sin(angle)).toFixed(2);
+  const s    = stats[arch];
+  const aClr = ARCHETYPE_COLORS[arch] || { icon: '#888', glow: 'transparent' };
+  const isMine = arch === userArch;
+  const sym  = ARCHETYPE_CHALLENGES[arch]?.symbol || '?';
+  return `<div class="globe-node${isMine ? ' globe-node-mine' : ''}"
+      data-arch="${escHtml(arch)}"
+      style="left:${cx}%;top:${cy}%;--node-clr:${aClr.icon}"
+      tabindex="0" role="button"
+      aria-label="${escHtml(arch)} archetype, ${s.memberCount} member${s.memberCount !== 1 ? 's' : ''}">
+    <div class="globe-node-ring" style="${isMine ? `border-color:${aClr.icon};box-shadow:0 0 0 1.5px ${aClr.icon}40,0 0 10px ${aClr.icon}28` : ''}">
+      <span class="globe-node-sym" style="color:${aClr.icon}">${escHtml(sym)}</span>
+      <span class="globe-node-count">${s.memberCount}</span>
+    </div>
+    <div class="globe-node-label">${arch.slice(0, 5).toUpperCase()}</div>
+    ${isMine ? `<div class="globe-node-mine-dot" style="background:${aClr.icon}"></div>` : ''}
+  </div>`;
+}
+
+function renderGlobeStatsCommunity(totals) {
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+  return `
+    <div class="globe-stats-eyebrow">Brotherhood</div>
+    <div class="globe-stats-heading">ONE BROTHERHOOD</div>
+    <div class="globe-stat-grid">
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${totals.totalBrothers}</span>
+        <span class="globe-stat-lbl">Brothers</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${fmt(totals.totalXp)}</span>
+        <span class="globe-stat-lbl">Total XP</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${totals.activeThisWeek}</span>
+        <span class="globe-stat-lbl">Active / Week</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${totals.challengesCompleted}</span>
+        <span class="globe-stat-lbl">Missions Done</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${totals.weeklyActivityPct}%</span>
+        <span class="globe-stat-lbl">Weekly Activity</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">12</span>
+        <span class="globe-stat-lbl">Paths</span>
+      </div>
+    </div>
+    <div class="globe-stats-hint">Select an archetype to explore its circle</div>`;
+}
+
+function renderGlobeStatsArch(arch, s, aClr) {
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+  const sym = ARCHETYPE_CHALLENGES[arch]?.symbol || '';
+  return `
+    <div class="globe-stats-eyebrow">Archetype</div>
+    <div class="globe-stats-heading" style="color:${aClr.icon}">${escHtml(sym)} ${escHtml(arch).toUpperCase()}</div>
+    <div class="globe-stat-grid">
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${s.memberCount}</span>
+        <span class="globe-stat-lbl">Members</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${fmt(s.totalXp)}</span>
+        <span class="globe-stat-lbl">Total XP</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${s.activeThisWeek}</span>
+        <span class="globe-stat-lbl">Active / Week</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${s.challengesCompleted}</span>
+        <span class="globe-stat-lbl">Missions Done</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${s.avgLevel}</span>
+        <span class="globe-stat-lbl">Avg Level</span>
+      </div>
+      <div class="globe-stat-cell">
+        <span class="globe-stat-val">${s.momentum}%</span>
+        <span class="globe-stat-lbl">Momentum</span>
+      </div>
+    </div>
+    <div class="globe-momentum-bar">
+      <div class="globe-momentum-fill" style="width:${s.momentum}%;background:${aClr.icon}"></div>
+    </div>`;
+}
+
+function renderGlobeDetail(arch, s, aClr) {
+  const sym    = ARCHETYPE_CHALLENGES[arch]?.symbol || '';
+  const virtue = ARCHETYPE_VIRTUE[arch] || '';
+  const mission = ARCHETYPE_GLOBE_MISSION[arch] || '';
+  const desc   = (ARCHETYPE_DESC[arch]?.primary || '').split('.')[0] + '.';
+  const membersHtml = s.recentMembers.length
+    ? s.recentMembers.map(m => `<div class="globe-detail-member">
+        <span class="globe-detail-member-name">${escHtml(m.name)}</span>
+        <span class="globe-detail-member-level">Lv ${getLevelInfo(m.xp || 0).current.level}</span>
+      </div>`).join('')
+    : `<div class="globe-detail-empty">No members yet</div>`;
+
+  return `<div class="globe-detail-inner">
+    <div class="globe-detail-hd">
+      <span class="globe-detail-sym" style="color:${aClr.icon}">${escHtml(sym)}</span>
+      <div>
+        <div class="globe-detail-name" style="color:${aClr.icon}">${escHtml(arch).toUpperCase()}</div>
+        <div class="globe-detail-virtue">Core Virtue · ${escHtml(virtue)}</div>
+      </div>
+    </div>
+    <div class="globe-detail-desc">"${escHtml(desc)}"</div>
+    <div class="globe-detail-section-label">Circle Mission</div>
+    <div class="globe-detail-mission">${escHtml(mission)}</div>
+    <div class="globe-detail-section-label">Recent Members</div>
+    <div class="globe-detail-members">${membersHtml}</div>
+    <button class="globe-detail-cta" data-view-arch="${escHtml(arch)}">View ${escHtml(arch)} Members</button>
+  </div>`;
+}
+
+function globeUpdateSelection(arch, stats, profile) {
+  document.querySelectorAll('.globe-node').forEach(n => {
+    n.classList.toggle('globe-node-selected', n.dataset.arch === arch);
+  });
+
+  const statsEl  = document.getElementById('globeStatsPanel');
+  const detailEl = document.getElementById('globeDetailPanel');
+  if (!statsEl) return;
+
+  if (!arch) {
+    const totals = computeBrotherhoodTotals(stats);
+    statsEl.innerHTML = renderGlobeStatsCommunity(totals);
+    if (detailEl) detailEl.style.display = 'none';
+  } else {
+    const aClr = ARCHETYPE_COLORS[arch] || { icon: 'var(--orange)', glow: 'transparent' };
+    statsEl.innerHTML = renderGlobeStatsArch(arch, stats[arch], aClr);
+    if (detailEl) {
+      detailEl.innerHTML = renderGlobeDetail(arch, stats[arch], aClr);
+      detailEl.style.display = 'block';
+      detailEl.querySelector('[data-view-arch]')?.addEventListener('click', () => switchTab('brothers'));
+    }
+  }
+}
+
+function initGlobeInteraction(stats, profile) {
+  const viewport = document.getElementById('globeViewport');
+  const canvas   = document.getElementById('globeCanvas');
+  if (!viewport || !canvas) return;
+
+  const applyTransform = () => {
+    canvas.style.transform = `translate(${globeTranslateX}px,${globeTranslateY}px) scale(${globeScale})`;
+  };
+  applyTransform();
+
+  // Zoom controls
+  document.getElementById('globeZoomIn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    globeScale = Math.min(3, globeScale * 1.35);
+    applyTransform();
+  });
+  document.getElementById('globeZoomOut')?.addEventListener('click', e => {
+    e.stopPropagation();
+    globeScale = Math.max(0.5, globeScale / 1.35);
+    applyTransform();
+  });
+  document.getElementById('globeZoomReset')?.addEventListener('click', e => {
+    e.stopPropagation();
+    globeScale = 1; globeTranslateX = 0; globeTranslateY = 0;
+    applyTransform();
+  });
+
+  // Mouse wheel zoom
+  viewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.92 : 1.08;
+    globeScale = Math.min(3, Math.max(0.5, globeScale * delta));
+    applyTransform();
+  }, { passive: false });
+
+  // Drag to pan (mouse)
+  let isDragging = false, startX, startY, startTX, startTY;
+  viewport.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    isDragging  = true;
+    globeDragMoved = false;
+    startX = e.clientX; startY = e.clientY;
+    startTX = globeTranslateX; startTY = globeTranslateY;
+    viewport.style.cursor = 'grabbing';
+  });
+  const onMouseMove = e => {
+    if (!isDragging) return;
+    const dx = e.clientX - startX, dy = e.clientY - startY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) globeDragMoved = true;
+    globeTranslateX = Math.max(-200, Math.min(200, startTX + dx));
+    globeTranslateY = Math.max(-200, Math.min(200, startTY + dy));
+    applyTransform();
+  };
+  const onMouseUp = () => { isDragging = false; if (viewport) viewport.style.cursor = 'grab'; };
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+
+  // Touch pinch + drag
+  let t0dist = null, t0tx, t0ty, t0startX, t0startY;
+  viewport.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+      t0startX = e.touches[0].clientX; t0startY = e.touches[0].clientY;
+      t0tx = globeTranslateX; t0ty = globeTranslateY;
+      globeDragMoved = false;
+    }
+    if (e.touches.length === 2) {
+      t0dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    }
+  }, { passive: true });
+  viewport.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      const dx = e.touches[0].clientX - t0startX, dy = e.touches[0].clientY - t0startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) globeDragMoved = true;
+      globeTranslateX = Math.max(-200, Math.min(200, t0tx + dx));
+      globeTranslateY = Math.max(-200, Math.min(200, t0ty + dy));
+      applyTransform();
+    }
+    if (e.touches.length === 2 && t0dist) {
+      const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      globeScale = Math.min(3, Math.max(0.5, globeScale * (dist / t0dist)));
+      t0dist = dist;
+      applyTransform();
+    }
+  }, { passive: false });
+  viewport.addEventListener('touchend', () => { t0dist = null; });
+
+  // Node selection
+  document.querySelectorAll('.globe-node').forEach(node => {
+    const onClick = () => {
+      if (globeDragMoved) { globeDragMoved = false; return; }
+      const arch = node.dataset.arch;
+      if (!arch) return;
+      globeSelectedArch = globeSelectedArch === arch ? null : arch;
+      globeUpdateSelection(globeSelectedArch, stats, profile);
+    };
+    node.addEventListener('click', onClick);
+    node.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } });
+  });
+
+  // Set initial selection
+  if (!globeSelectedArch) {
+    const userArch = profile?.primaryArchetype || profile?.archetype;
+    globeSelectedArch = userArch || null;
+  }
+  globeUpdateSelection(globeSelectedArch, stats, profile);
+}
+
+function buildGlobeHtml(stats, profile) {
+  const userArch = profile?.primaryArchetype || profile?.archetype;
+  const nodesHtml = ARCHETYPE_ORDER.map((arch, i) => renderGlobeNodeHtml(arch, i, stats, userArch)).join('');
+  const totals    = computeBrotherhoodTotals(stats);
+
+  return `<div class="globe-wrap">
+    <div class="globe-map-outer" id="globeViewport" aria-label="Archetype map. Drag to pan, scroll to zoom.">
+      <div class="globe-map-canvas" id="globeCanvas">
+        <div class="globe-bg-circle globe-bg-circle-outer"></div>
+        <div class="globe-bg-circle globe-bg-circle-inner"></div>
+        <div class="globe-center" aria-hidden="true">
+          <div class="globe-center-line1">STOKED</div>
+          <div class="globe-center-line2">BROTHERHOOD</div>
+        </div>
+        ${nodesHtml}
+      </div>
+      <div class="globe-zoom-controls" aria-label="Zoom controls">
+        <button class="globe-zoom-btn" id="globeZoomIn" aria-label="Zoom in">+</button>
+        <button class="globe-zoom-btn" id="globeZoomReset" aria-label="Reset view">◎</button>
+        <button class="globe-zoom-btn" id="globeZoomOut" aria-label="Zoom out">−</button>
+      </div>
+    </div>
+    <div class="globe-stats-panel" id="globeStatsPanel">${renderGlobeStatsCommunity(totals)}</div>
+    <div class="globe-detail-panel" id="globeDetailPanel" style="display:none"></div>
+  </div>`;
+}
+
 // ── MY PATH ───────────────────────────────────
 function renderMyPath() {
   const el = document.getElementById('mypathContainer');
@@ -3741,14 +4108,31 @@ function renderMyPath() {
   const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
   if (!profile) { el.innerHTML = `<div class="feed-empty">Profile not found.</div>`; return; }
 
+  // ── Tab switcher wrapper ──────────────────────
+  const tabBar = `<div class="gp-tab-bar" role="tablist" aria-label="View switcher">
+    <button class="gp-tab${globePathTab === 'globe'  ? ' gp-tab-active' : ''}" data-gptab="globe"  role="tab" aria-selected="${globePathTab === 'globe'}">The Globe</button>
+    <button class="gp-tab${globePathTab === 'mypath' ? ' gp-tab-active' : ''}" data-gptab="mypath" role="tab" aria-selected="${globePathTab === 'mypath'}">My Path</button>
+  </div>`;
+
+  // ── Early-exit cases still show Globe tab ────
+  const _showGlobeOnly = (pathContent) => {
+    const globeStats = computeGlobeStats();
+    const globeHtml  = buildGlobeHtml(globeStats, profile);
+    el.innerHTML = tabBar
+      + `<div id="globeTabView"  class="gp-view${globePathTab === 'globe'  ? '' : ' gp-hidden'}">${globeHtml}</div>`
+      + `<div id="mypathTabView" class="gp-view${globePathTab === 'mypath' ? '' : ' gp-hidden'}">${pathContent}</div>`;
+    el.querySelectorAll('[data-gptab]').forEach(btn => btn.addEventListener('click', () => { globePathTab = btn.dataset.gptab; renderMyPath(); }));
+    if (globePathTab === 'globe') initGlobeInteraction(globeStats, profile);
+  };
+
   if (!profile.assessmentCompletedAt) {
-    el.innerHTML = `<div class="path-gate"><div class="path-gate-icon">◎</div><h2 class="path-gate-title">Your Path Awaits</h2><p class="path-gate-text">Complete the Brotherhood Assessment first to unlock your personal mission path.</p></div>`;
+    _showGlobeOnly(`<div class="path-gate"><div class="path-gate-icon">◎</div><h2 class="path-gate-title">Your Path Awaits</h2><p class="path-gate-text">Complete the Brotherhood Assessment first to unlock your personal mission path.</p></div>`);
     return;
   }
 
   const currentArch = profile.currentPathArchetype || profile.primaryArchetype;
   const archData    = ARCHETYPE_CHALLENGES[currentArch];
-  if (!archData) { el.innerHTML = `<div class="feed-empty">Archetype data not found.</div>`; return; }
+  if (!archData) { _showGlobeOnly(`<div class="feed-empty">Archetype data not found.</div>`); return; }
 
   const aClr        = ARCHETYPE_COLORS[currentArch] || { icon: 'var(--terra)', glow: 'transparent' };
   const progress    = profile.pathProgress || {};
@@ -3898,13 +4282,33 @@ function renderMyPath() {
   }
 
   html += `</div></div>`;
-  el.innerHTML = html;
 
+  // ── Assemble full page with tab switcher ─────
+  const globeStats = computeGlobeStats();
+  const globeHtml  = buildGlobeHtml(globeStats, profile);
+  el.innerHTML = tabBar
+    + `<div id="globeTabView"  class="gp-view${globePathTab === 'globe'  ? '' : ' gp-hidden'}">${globeHtml}</div>`
+    + `<div id="mypathTabView" class="gp-view${globePathTab === 'mypath' ? '' : ' gp-hidden'}">${html}</div>`;
+
+  // ── Tab switching ─────────────────────────────
+  el.querySelectorAll('[data-gptab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      globePathTab = btn.dataset.gptab;
+      renderMyPath();
+    });
+  });
+
+  // ── Globe interaction (only init when tab visible) ──
+  if (globePathTab === 'globe') initGlobeInteraction(globeStats, profile);
+
+  // ── My Path events ───────────────────────────
   // Scroll to active mission
   const activeStageMission = document.getElementById(`pznode-s${currentStage}-${
     archData.stages[currentStage-1]?.findIndex((_, i) => !progress[`${currentArch}_s${currentStage}_${i}`]?.completedAt) ?? 0
   }`);
-  if (activeStageMission) setTimeout(() => activeStageMission.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  if (globePathTab === 'mypath' && activeStageMission) {
+    setTimeout(() => activeStageMission.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  }
 
   // Bind complete buttons
   el.querySelectorAll('[data-pz-stage]').forEach(btn => {
