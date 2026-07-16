@@ -1036,10 +1036,13 @@ body {
               0 0 10px color-mix(in srgb, var(--node-clr, var(--orange)) 35%, transparent);
 }
 
-.globe-node-sym {
-  font-size: 16px;
-  line-height: 1;
+.globe-node-img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
   display: block;
+  pointer-events: none;
 }
 
 .globe-node-count {
@@ -1179,9 +1182,12 @@ body {
   gap: 10px;
   margin-bottom: 10px;
 }
-.globe-detail-sym {
-  font-size: 24px;
-  line-height: 1;
+.globe-detail-icon-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  object-fit: cover;
   flex-shrink: 0;
 }
 .globe-detail-name {
@@ -1262,7 +1268,7 @@ body {
   .globe-stat-grid { grid-template-columns: repeat(6, 1fr); }
   .globe-map-outer { max-width: 420px; }
   .globe-node-ring { width: 44px; height: 44px; }
-  .globe-node-sym  { font-size: 18px; }
+  .globe-node-img  { width: 32px; height: 32px; }
   .globe-node-label { font-size: 8px; }
 }
 

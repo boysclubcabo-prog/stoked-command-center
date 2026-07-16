@@ -3827,14 +3827,14 @@ function renderGlobeNodeHtml(arch, idx, stats, userArch) {
   const s    = stats[arch];
   const aClr = ARCHETYPE_COLORS[arch] || { icon: '#888', glow: 'transparent' };
   const isMine = arch === userArch;
-  const sym  = ARCHETYPE_CHALLENGES[arch]?.symbol || '?';
+  const iconSrc = `icons/${arch.toLowerCase()}-fire.png`;
   return `<div class="globe-node${isMine ? ' globe-node-mine' : ''}"
       data-arch="${escHtml(arch)}"
       style="left:${cx}%;top:${cy}%;--node-clr:${aClr.icon}"
       tabindex="0" role="button"
       aria-label="${escHtml(arch)} archetype, ${s.memberCount} member${s.memberCount !== 1 ? 's' : ''}">
     <div class="globe-node-ring" style="${isMine ? `border-color:${aClr.icon};box-shadow:0 0 0 1.5px ${aClr.icon}40,0 0 10px ${aClr.icon}28` : ''}">
-      <span class="globe-node-sym" style="color:${aClr.icon}">${escHtml(sym)}</span>
+      <img src="${iconSrc}" alt="${escHtml(arch)}" class="globe-node-img">
       <span class="globe-node-count">${s.memberCount}</span>
     </div>
     <div class="globe-node-label">${arch.slice(0, 5).toUpperCase()}</div>
@@ -3914,10 +3914,10 @@ function renderGlobeStatsArch(arch, s, aClr) {
 }
 
 function renderGlobeDetail(arch, s, aClr) {
-  const sym    = ARCHETYPE_CHALLENGES[arch]?.symbol || '';
-  const virtue = ARCHETYPE_VIRTUE[arch] || '';
+  const virtue  = ARCHETYPE_VIRTUE[arch] || '';
   const mission = ARCHETYPE_GLOBE_MISSION[arch] || '';
-  const desc   = (ARCHETYPE_DESC[arch]?.primary || '').split('.')[0] + '.';
+  const desc    = (ARCHETYPE_DESC[arch]?.primary || '').split('.')[0] + '.';
+  const iconSrc = `icons/${arch.toLowerCase()}-fire.png`;
   const membersHtml = s.recentMembers.length
     ? s.recentMembers.map(m => `<div class="globe-detail-member">
         <span class="globe-detail-member-name">${escHtml(m.name)}</span>
@@ -3927,7 +3927,7 @@ function renderGlobeDetail(arch, s, aClr) {
 
   return `<div class="globe-detail-inner">
     <div class="globe-detail-hd">
-      <span class="globe-detail-sym" style="color:${aClr.icon}">${escHtml(sym)}</span>
+      <img src="${iconSrc}" alt="${escHtml(arch)}" class="globe-detail-icon-img" style="border-color:${aClr.icon}40">
       <div>
         <div class="globe-detail-name" style="color:${aClr.icon}">${escHtml(arch).toUpperCase()}</div>
         <div class="globe-detail-virtue">Core Virtue · ${escHtml(virtue)}</div>
