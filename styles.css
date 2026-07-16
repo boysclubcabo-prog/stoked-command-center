@@ -731,6 +731,162 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* ── Element aura animations ──────────────────────────────── */
+.elem-aura {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  opacity: 0;
+}
+
+/* Show aura only when there's a ring (level > 0) */
+.arch-icon-wrap:not(.ring-none) .elem-aura { opacity: 1; }
+
+/* ── FIRE — clockwise flare bands, flicker ── */
+.elem-fire .elem-aura {
+  background: conic-gradient(
+    rgba(255,50,0,0)       0deg,
+    rgba(255,110,0,0.75)  18deg,
+    rgba(255,200,0,0.55)  32deg,
+    rgba(255,50,0,0)      52deg,
+    rgba(255,80,0,0)      95deg,
+    rgba(255,90,0,0.70)  130deg,
+    rgba(255,180,0,0.50) 148deg,
+    rgba(255,50,0,0)     168deg,
+    rgba(255,80,0,0)     210deg,
+    rgba(255,100,0,0.80) 248deg,
+    rgba(255,220,0,0.60) 265deg,
+    rgba(255,50,0,0)     285deg,
+    rgba(255,80,0,0)     340deg,
+    rgba(255,110,0,0.60) 355deg,
+    rgba(255,50,0,0)     360deg
+  );
+  -webkit-mask: radial-gradient(transparent 52%, black 55% 86%, transparent 90%);
+  mask:         radial-gradient(transparent 52%, black 55% 86%, transparent 90%);
+  filter: blur(1.5px) brightness(1.5);
+  animation: elemFireSpin 1.8s linear infinite, elemFireFlicker 0.9s ease-in-out infinite alternate;
+  box-shadow: 0 0 12px 4px rgba(255,90,0,0.45), 0 0 24px 8px rgba(255,40,0,0.18);
+}
+
+@keyframes elemFireSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes elemFireFlicker {
+  0%   { opacity: 0.8; filter: blur(1.5px) brightness(1.4); }
+  40%  { opacity: 1;   filter: blur(1px)   brightness(1.7); }
+  70%  { opacity: 0.7; filter: blur(2px)   brightness(1.3); }
+  100% { opacity: 1;   filter: blur(1px)   brightness(1.6); }
+}
+
+/* ── WATER — counter-clockwise flow, cool ripple bands ── */
+.elem-water .elem-aura {
+  background: conic-gradient(
+    rgba(74,122,148,0)     0deg,
+    rgba(74,122,148,0.80) 28deg,
+    rgba(123,189,212,0.60) 55deg,
+    rgba(74,122,148,0)    82deg,
+    rgba(74,122,148,0)   120deg,
+    rgba(74,122,148,0.75) 162deg,
+    rgba(123,189,212,0.55) 188deg,
+    rgba(74,122,148,0)   215deg,
+    rgba(74,122,148,0)   255deg,
+    rgba(74,122,148,0.90) 295deg,
+    rgba(123,189,212,0.70) 322deg,
+    rgba(74,122,148,0)   348deg,
+    rgba(74,122,148,0)   360deg
+  );
+  -webkit-mask: radial-gradient(transparent 52%, black 55% 86%, transparent 90%);
+  mask:         radial-gradient(transparent 52%, black 55% 86%, transparent 90%);
+  filter: blur(2px) brightness(1.25);
+  animation: elemWaterFlow 4s linear infinite, elemWaterPulse 3s ease-in-out infinite alternate;
+  box-shadow: 0 0 10px 4px rgba(74,122,148,0.50), 0 0 22px 8px rgba(74,122,148,0.18);
+}
+
+@keyframes elemWaterFlow {
+  to { transform: rotate(-360deg); }
+}
+@keyframes elemWaterPulse {
+  from { opacity: 0.7; filter: blur(2px) brightness(1.1); }
+  to   { opacity: 1;   filter: blur(1.5px) brightness(1.4); }
+}
+
+/* ── AIR — fast ghostly wisps, multiple near-invisible layers ── */
+.elem-air .elem-aura {
+  background: conic-gradient(
+    rgba(138,154,176,0)    0deg,
+    rgba(210,224,240,0.55) 14deg,
+    rgba(138,154,176,0)    28deg,
+    rgba(138,154,176,0)    60deg,
+    rgba(210,224,240,0.45) 74deg,
+    rgba(138,154,176,0)    88deg,
+    rgba(138,154,176,0)   125deg,
+    rgba(210,224,240,0.60) 139deg,
+    rgba(138,154,176,0)   153deg,
+    rgba(138,154,176,0)   190deg,
+    rgba(210,224,240,0.40) 204deg,
+    rgba(138,154,176,0)   218deg,
+    rgba(210,224,240,0.50) 268deg,
+    rgba(138,154,176,0)   282deg,
+    rgba(210,224,240,0.55) 330deg,
+    rgba(138,154,176,0)   344deg,
+    rgba(138,154,176,0)   360deg
+  );
+  -webkit-mask: radial-gradient(transparent 50%, black 53% 84%, transparent 88%);
+  mask:         radial-gradient(transparent 50%, black 53% 84%, transparent 88%);
+  filter: blur(3px) brightness(1.6);
+  animation: elemAirSpin 2.2s linear infinite, elemAirBreath 2.8s ease-in-out infinite alternate;
+  box-shadow: 0 0 8px 3px rgba(138,154,176,0.35), 0 0 18px 6px rgba(138,154,176,0.12);
+}
+
+@keyframes elemAirSpin {
+  to { transform: rotate(360deg); }
+}
+@keyframes elemAirBreath {
+  from { opacity: 0.5; filter: blur(3px) brightness(1.4); }
+  to   { opacity: 0.9; filter: blur(2px) brightness(1.8); }
+}
+
+/* ── EARTH — very slow rotation, stone-plate segments, heavy ── */
+.elem-earth .elem-aura {
+  background: conic-gradient(
+    rgba(122,140,82,0.90)  0deg  16deg,
+    rgba(55,45,25,0.60)   16deg  20deg,
+    rgba(100,118,62,0.75) 20deg  56deg,
+    rgba(55,45,25,0.60)   56deg  60deg,
+    rgba(88,106,50,0.85)  60deg  96deg,
+    rgba(55,45,25,0.60)   96deg 100deg,
+    rgba(122,140,82,0.90)100deg 136deg,
+    rgba(55,45,25,0.60)  136deg 140deg,
+    rgba(100,118,62,0.75)140deg 176deg,
+    rgba(55,45,25,0.60)  176deg 180deg,
+    rgba(88,106,50,0.85) 180deg 216deg,
+    rgba(55,45,25,0.60)  216deg 220deg,
+    rgba(122,140,82,0.90)220deg 256deg,
+    rgba(55,45,25,0.60)  256deg 260deg,
+    rgba(100,118,62,0.75)260deg 296deg,
+    rgba(55,45,25,0.60)  296deg 300deg,
+    rgba(88,106,50,0.85) 300deg 336deg,
+    rgba(55,45,25,0.60)  336deg 340deg,
+    rgba(122,140,82,0.90)340deg 360deg
+  );
+  -webkit-mask: radial-gradient(transparent 52%, black 55% 88%, transparent 92%);
+  mask:         radial-gradient(transparent 52%, black 55% 88%, transparent 92%);
+  filter: brightness(0.9) saturate(0.85) contrast(1.1);
+  animation: elemEarthRotate 22s linear infinite, elemEarthRumble 4s ease-in-out infinite alternate;
+  box-shadow: 0 0 8px 3px rgba(122,140,82,0.40), 0 0 18px 6px rgba(55,45,25,0.30);
+}
+
+@keyframes elemEarthRotate {
+  to { transform: rotate(360deg); }
+}
+@keyframes elemEarthRumble {
+  0%   { opacity: 0.85; filter: brightness(0.85) saturate(0.8); }
+  50%  { opacity: 1;    filter: brightness(0.95) saturate(0.9) contrast(1.15); }
+  100% { opacity: 0.9;  filter: brightness(0.88) saturate(0.85); }
+}
+
 .arch-icon-badge svg {
   width: 100%;
   height: 100%;

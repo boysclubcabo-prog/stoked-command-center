@@ -105,13 +105,15 @@ function archetypeElementIcon(archetype, element, xp) {
   const ringClass = levelRingClass(lvlObj?.current?.level);
   const clr = ARCHETYPE_COLORS[archetype] || ARCHETYPE_COLORS.Warrior;
   const archClass = archetype ? `arch-${archetype.toLowerCase()}` : '';
+  const elemClass = element ? `elem-${element.toLowerCase()}` : '';
   const style = `--ring-clr:${clr.icon};--ring-glow:${clr.glow.replace(/[\d.]+\)$/, '0.55)')};--ring-border:${clr.border}`;
+  const aura = '<div class="elem-aura"></div>';
   if (archetype && element) {
     const key = `${archetype.toLowerCase()}-${element.toLowerCase()}`;
-    return `<div class="arch-icon-wrap ${ringClass} ${archClass}" style="${style}"><img src="icons/${key}.png" alt="${escHtml(archetype)} ${escHtml(element)}" class="arch-icon-img"></div>`;
+    return `<div class="arch-icon-wrap ${ringClass} ${archClass} ${elemClass}" style="${style}">${aura}<img src="icons/${key}.png" alt="${escHtml(archetype)} ${escHtml(element)}" class="arch-icon-img"></div>`;
   }
   const core = ARCHETYPE_ICONS[archetype] || '';
-  return `<div class="arch-icon-wrap ${ringClass} ${archClass}" style="${style}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${core}</svg></div>`;
+  return `<div class="arch-icon-wrap ${ringClass} ${archClass} ${elemClass}" style="${style}">${aura}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${core}</svg></div>`;
 }
 
 const ELEMENT_DESC = {
