@@ -391,6 +391,71 @@ body {
   --arch-icon-filter: invert(1) brightness(1.15);
 }
 
+/* ── Level rings ──────────────────────────────────────────── */
+.arch-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  position: relative;
+  padding: 3px;
+}
+.arch-icon-wrap .arch-icon-img { border-radius: 50%; }
+
+/* Tier 0 — no ring */
+.arch-icon-wrap.ring-none { padding: 0; }
+
+/* Tier 1 — Recruit / Initiate: subtle dim ring */
+.arch-icon-wrap.ring-tier1 {
+  box-shadow: 0 0 0 2px rgba(160,140,110,0.35);
+}
+
+/* Tier 2 — Apprentice / Challenger: solid warm amber */
+.arch-icon-wrap.ring-tier2 {
+  box-shadow: 0 0 0 2px #b07c3a, 0 0 6px 1px rgba(176,124,58,0.4);
+}
+
+/* Tier 3 — Pathfinder / Ascender: gradient ring via border trick */
+.arch-icon-wrap.ring-tier3 {
+  background: linear-gradient(135deg, #c87941, #e8c96a, #c87941);
+  box-shadow: 0 0 8px 2px rgba(200,121,65,0.5);
+}
+
+/* Tier 4 — Vanguard / Captain: vivid multi-colour gradient */
+.arch-icon-wrap.ring-tier4 {
+  background: linear-gradient(135deg, #e85d04, #f9c74f, #43aa8b, #e85d04);
+  box-shadow: 0 0 12px 3px rgba(232,93,4,0.55);
+}
+
+/* Tier 5 — Commander / King: pulsing glow */
+.arch-icon-wrap.ring-tier5 {
+  background: linear-gradient(135deg, #ffd60a, #f72585, #4361ee, #ffd60a);
+  box-shadow: 0 0 14px 4px rgba(255,214,10,0.6);
+  animation: ringPulse 2.4s ease-in-out infinite;
+}
+
+/* Tier 6 — Mentor / Legend: spinning rainbow gradient + strong glow */
+.arch-icon-wrap.ring-tier6 {
+  background: conic-gradient(#ff4d4d, #ff9900, #ffe600, #00e676, #00b0ff, #aa00ff, #ff4d4d);
+  box-shadow: 0 0 18px 6px rgba(255,230,0,0.7), 0 0 32px 10px rgba(170,0,255,0.35);
+  animation: ringPulse 1.8s ease-in-out infinite, ringSpin 4s linear infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% { filter: brightness(1); }
+  50%       { filter: brightness(1.35); }
+}
+
+@keyframes ringSpin {
+  to { --ring-angle: 360deg; }
+}
+/* CSS Houdini spin trick — fallback is static gradient which still looks great */
+@property --ring-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .arch-icon-badge svg {
   width: 100%;
   height: 100%;
@@ -3777,10 +3842,20 @@ body {
   flex-shrink: 0;
   overflow: hidden;
 }
-.sf-avatar img {
+.sf-avatar img,
+.sf-avatar .arch-icon-wrap {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+.sf-avatar .arch-icon-wrap {
+  border-radius: 50%;
+  overflow: hidden;
+}
+.sf-avatar .arch-icon-wrap .arch-icon-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
 }
 .sf-avatar-coach {
   background: rgba(196,105,58,0.12);

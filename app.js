@@ -92,15 +92,28 @@ const ELEMENT_COLORS = {
   Earth: '#7A8C52',
 };
 
+// Returns a CSS class name for the icon ring based on level (1–12)
+function levelRingClass(level) {
+  if (!level || level < 1) return 'ring-none';
+  if (level <= 2)  return 'ring-tier1';  // plain dim ring
+  if (level <= 4)  return 'ring-tier2';  // solid warm glow
+  if (level <= 6)  return 'ring-tier3';  // gradient ring
+  if (level <= 8)  return 'ring-tier4';  // bright multi-colour gradient
+  if (level <= 10) return 'ring-tier5';  // animated pulse glow
+  return 'ring-tier6';                   // full legendary animated spinning gradient
+}
+
 // Hand-drawn archetype+element icon set, one PNG per combo in /icons
 // (e.g. icons/warrior-fire.png), supplied directly by the client.
-function archetypeElementIcon(archetype, element) {
+function archetypeElementIcon(archetype, element, xp) {
+  const lvlObj = xp != null ? getLevelInfo(xp) : null;
+  const ringClass = levelRingClass(lvlObj?.current?.level);
   if (archetype && element) {
     const key = `${archetype.toLowerCase()}-${element.toLowerCase()}`;
-    return `<img src="icons/${key}.png" alt="${escHtml(archetype)} ${escHtml(element)}" class="arch-icon-img">`;
+    return `<div class="arch-icon-wrap ${ringClass}"><img src="icons/${key}.png" alt="${escHtml(archetype)} ${escHtml(element)}" class="arch-icon-img"></div>`;
   }
   const core = ARCHETYPE_ICONS[archetype] || '';
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${core}</svg>`;
+  return `<div class="arch-icon-wrap ${ringClass}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${core}</svg></div>`;
 }
 
 const ELEMENT_DESC = {
@@ -2055,7 +2068,7 @@ function renderMemberView() {
   const maxed = xp >= MAX_XP;
   const displayArchetype = profile.primaryArchetype || profile.archetype;
   const clr   = ARCHETYPE_COLORS[displayArchetype] || ARCHETYPE_COLORS.Warrior;
-  const icon  = archetypeElementIcon(displayArchetype, profile.dominantElement);
+  const icon  = archetypeElementIcon(displayArchetype, profile.dominantElement, profile.xp);
   const elColor = ELEMENT_COLORS[profile.dominantElement];
 
   memberHero.innerHTML = `
@@ -2183,7 +2196,7 @@ function renderCard(brother) {
   const xp      = brother.xp || 0;
   const lvl     = getLevelInfo(xp);
   const displayArchetype = brother.primaryArchetype || brother.archetype;
-  const archIcon = archetypeElementIcon(displayArchetype, brother.dominantElement);
+  const archIcon = archetypeElementIcon(displayArchetype, brother.dominantElement, brother.xp);
   const archClr  = ARCHETYPE_COLORS[displayArchetype] || { border:'var(--border)', glow:'transparent', icon:'var(--orange)' };
   const archElColor = ELEMENT_COLORS[brother.dominantElement];
   const maxed   = xp >= MAX_XP;
@@ -3546,7 +3559,7 @@ function renderSocialFeed() {
   feedPosts.forEach(post => {
     const ago = timeAgo(post.createdAt);
     const brother = brothers.find(b => b.id === post.brotherId);
-    const icon = brother ? archetypeElementIcon(brother.primaryArchetype || brother.archetype, brother.dominantElement) : '';
+    const icon = brother ? archetypeElementIcon(brother.primaryArchetype || brother.archetype, brother.dominantElement, brother.xp) : '';
 
     if (post.type === 'announcement') {
       const posterName = post.authorName || 'Coach';
@@ -3554,7 +3567,7 @@ function renderSocialFeed() {
       const pArch = post.authorArchetype || posterBrother?.primaryArchetype || posterBrother?.archetype;
       const pElem = post.authorElement  || posterBrother?.dominantElement;
       const posterIconHtml = pArch
-        ? archetypeElementIcon(pArch, pElem || null)
+        ? archetypeElementIcon(pArch, pElem || null, posterBrother?.xp)
         : (post.authorIcon || '🏆');
       const canDelete  = isAdmin || (isMentor && post.authorId === profile?.id);
       // Find pinned challenge if any
@@ -4364,7 +4377,7 @@ async function openDMInbox() {
   msgEl.innerHTML = `<div class="dm-inbox">
     ${others.map(b => {
       const archClr = ARCHETYPE_COLORS[b.primaryArchetype || b.archetype] || ARCHETYPE_COLORS.Warrior;
-      const icon = archetypeElementIcon(b.primaryArchetype || b.archetype, b.dominantElement);
+      const icon = archetypeElementIcon(b.primaryArchetype || b.archetype, b.dominantElement, b.xp);
       return `<div class="dm-inbox-row" data-dm="${b.id}">
         <span class="dm-inbox-icon" style="color:${archClr.icon}">${icon}</span>
         <div class="dm-inbox-info">
