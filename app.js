@@ -4213,7 +4213,7 @@ function renderRoster() {
         const xp  = b.xp || 0;
         const lvl = getLevelInfo(xp);
         const displayArchetype = b.primaryArchetype || b.archetype;
-        const icon = archetypeElementIcon(displayArchetype, b.dominantElement);
+        const icon = archetypeElementIcon(displayArchetype, b.dominantElement, xp);
         const archClr = ARCHETYPE_COLORS[displayArchetype] || { border: 'var(--border)', glow: 'transparent', icon: 'var(--orange)' };
         const elColor = ELEMENT_COLORS[b.dominantElement];
         const isMe = b.id === me?.id;
@@ -4221,7 +4221,7 @@ function renderRoster() {
         return `
           <div class="roster-card ${isMe ? 'roster-card-me' : ''}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(b.dominantElement||'')}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
             <div class="roster-rank">#${i + 1}</div>
-            <span class="arch-icon roster-icon">${icon}</span>
+            <div class="roster-icon">${icon}</div>
             <div class="roster-info">
               <div class="roster-name">
                 ${isOnline(b) ? '<span class="online-dot"></span>' : ''}
