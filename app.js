@@ -3956,7 +3956,7 @@ function computeBrotherhoodTotals(stats) {
 function renderGlobeNodeHtml(arch, idx, stats, userArch) {
   const n = ARCHETYPE_ORDER.length;
   const angle = (idx / n * 360 - 90) * Math.PI / 180;
-  const R = 34;
+  const R = 41;
   const cx = (50 + R * Math.cos(angle)).toFixed(2);
   const cy = (50 + R * Math.sin(angle)).toFixed(2);
   const s    = stats[arch];
@@ -4225,16 +4225,36 @@ function buildGlobeHtml(stats, profile) {
   const userArch = profile?.primaryArchetype || profile?.archetype;
   const nodesHtml = ARCHETYPE_ORDER.map((arch, i) => renderGlobeNodeHtml(arch, i, stats, userArch)).join('');
 
+  // Dodecagon vertices at R=43 and R=18 (inner), center=(50,50), starting at top (-90°)
+  const pts = (R) => Array.from({length: 12}, (_, i) => {
+    const a = (i * 30 - 90) * Math.PI / 180;
+    return `${(50 + R * Math.cos(a)).toFixed(2)},${(50 + R * Math.sin(a)).toFixed(2)}`;
+  }).join(' ');
+  const outerPts = pts(43);
+  const innerPts = pts(18);
+  // Spokes from center to each outer vertex
+  const spokes = Array.from({length: 12}, (_, i) => {
+    const a = (i * 30 - 90) * Math.PI / 180;
+    const x = (50 + 43 * Math.cos(a)).toFixed(2);
+    const y = (50 + 43 * Math.sin(a)).toFixed(2);
+    return `<line x1="50" y1="50" x2="${x}" y2="${y}" stroke="var(--border)" stroke-width="0.3" stroke-dasharray="1,1"/>`;
+  }).join('');
+
   return `<div class="globe-wrap">
     <div class="globe-map-outer" id="globeViewport" aria-label="Archetype map. Drag to pan, scroll to zoom.">
       <div class="globe-map-canvas" id="globeCanvas">
-        <div class="globe-bg-circle globe-bg-circle-outer"></div>
-        <div class="globe-bg-circle globe-bg-circle-inner"></div>
-        <div class="globe-center" aria-hidden="true">
-          <div class="globe-center-line1">STOKED</div>
-          <div class="globe-center-line2">BROTHERHOOD</div>
+        <div class="globe-canvas-inner" id="globeInner">
+          <svg class="globe-dodecagon-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            ${spokes}
+            <polygon points="${outerPts}" fill="none" stroke="var(--border)" stroke-width="0.6"/>
+            <polygon points="${innerPts}" fill="none" stroke="var(--border-light)" stroke-width="0.4"/>
+          </svg>
+          <div class="globe-center" aria-hidden="true">
+            <div class="globe-center-line1">STOKED</div>
+            <div class="globe-center-line2">BROTHERHOOD</div>
+          </div>
+          ${nodesHtml}
         </div>
-        ${nodesHtml}
       </div>
       <div class="globe-zoom-controls" aria-label="Zoom controls">
         <button class="globe-zoom-btn" id="globeZoomIn" aria-label="Zoom in">+</button>
