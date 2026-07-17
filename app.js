@@ -736,6 +736,11 @@ const IC = {
   clipboard: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>`,
   photo:     `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
   sword:     `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M2 21l4.5-4.5"/><path d="M19 5l2-2"/></svg>`,
+  comment:   `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>`,
+  pin:       `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+  megaphone: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>`,
+  link:      `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
+  send:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
 };
 
 // ── MY PATH — ARCHETYPE MISSIONS ──────────────
@@ -3555,11 +3560,11 @@ function renderSocialFeed() {
 
   let html = `<div class="feed-header">
     <h2 class="feed-title">Brotherhood Feed</h2>
-    ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">📣 Post</button>` : ''}
+    ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">${IC.megaphone} Post</button>` : ''}
   </div>`;
 
   if (!feedPosts.length) {
-    html += `<div class="feed-empty">No posts yet — complete a challenge to post your first win! 🏆</div>`;
+    html += `<div class="feed-empty">No posts yet — complete a challenge to share your first win.</div>`;
     el.innerHTML = html;
     if (isAdmin || isMentor) bindAnnouncementBtn(el);
     return;
@@ -3569,6 +3574,8 @@ function renderSocialFeed() {
     const ago = timeAgo(post.createdAt);
     const brother = brothers.find(b => b.id === post.brotherId);
     const icon = brother ? archetypeElementIcon(brother.primaryArchetype || brother.archetype, brother.dominantElement, brother.xp) : '';
+    const commentCount = (post.comments || []).length;
+    const commentLabel = commentCount ? `${commentCount}` : '';
 
     if (post.type === 'announcement') {
       const posterName = post.authorName || 'Coach';
@@ -3577,9 +3584,8 @@ function renderSocialFeed() {
       const pElem = post.authorElement  || posterBrother?.dominantElement;
       const posterIconHtml = pArch
         ? archetypeElementIcon(pArch, pElem || null, posterBrother?.xp)
-        : (post.authorIcon || '🏆');
+        : IC.megaphone;
       const canDelete  = isAdmin || (isMentor && post.authorId === profile?.id);
-      // Find pinned challenge if any
       const pinnedCh   = post.pinnedChallengeId ? challenges.find(c => c.id === post.pinnedChallengeId) : null;
       const myPinnedSub = pinnedCh ? submissions.find(s => s.challengeId === pinnedCh.id && s.brotherId === profile?.id) : null;
       html += `<div class="sf-post sf-announcement">
@@ -3589,30 +3595,34 @@ function renderSocialFeed() {
             <div class="sf-post-author">${escHtml(posterName)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
-          ${canDelete ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">✕</button>` : ''}
+          ${canDelete ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
         </div>
         <div class="sf-announcement-text">${linkify(post.text || '')}</div>
-        ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo" alt="" />` : ''}
-        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>` : ''}
+        ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-photo sf-media-bleed" alt="" />` : ''}
+        ${post.videoUrl ? `<video class="sf-video sf-media-bleed" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>` : ''}
         ${pinnedCh ? `<div class="sf-pinned-challenge">
-          <div class="sf-pinned-label">📌 Challenge</div>
+          <div class="sf-pinned-label">${IC.pin} Pinned Challenge</div>
           <div class="sf-pinned-title">${escHtml(pinnedCh.title)}</div>
           ${pinnedCh.description ? `<div class="sf-pinned-desc">${escHtml(pinnedCh.description)}</div>` : ''}
           <div class="sf-pinned-xp">+${pinnedCh.xpReward} XP</div>
           ${myPinnedSub
-            ? `<div class="sub-status-badge status-completed" style="margin-top:8px">✅ You completed this!</div>`
+            ? `<div class="sub-status-badge status-completed" style="margin-top:8px">${IC.check} Completed</div>`
             : `<button class="btn btn-primary sf-pinned-complete-btn" data-submit="${pinnedCh.id}">Complete Challenge</button>`}
         </div>` : ''}
+        <div class="sf-post-footer">
+          <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
+        </div>
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
         </div>
-        <div class="sf-comment-form">
-          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Say something…" maxlength="300" />
-          <button class="sf-comment-send" data-comment-send="${post.id}">↑</button>
+        <div class="sf-comment-form hidden" data-comment-form="${post.id}">
+          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Add a comment…" maxlength="300" />
+          <button class="sf-comment-send" data-comment-send="${post.id}">${IC.send}</button>
         </div>
       </div>`;
     } else {
       const tagColor = post.challengeTag && CHALLENGE_TAGS[post.challengeTag] ? CHALLENGE_TAGS[post.challengeTag].color : '#888';
+      const alreadyDone = post.challengeId && profile ? submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id) : null;
       html += `<div class="sf-post">
         <div class="sf-post-header">
           <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
@@ -3620,36 +3630,36 @@ function renderSocialFeed() {
             <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
-          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">✕</button>` : ''}
+          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
         </div>
         <div class="sf-win-banner">
-          <span class="sf-win-label">✅ Challenge Complete</span>
+          <span class="sf-win-label">${IC.check} Challenge Complete</span>
           ${post.challengeTag ? `<span class="sf-tag-pill" style="background:${tagColor}22;color:${tagColor};border-color:${tagColor}44">${post.challengeTag}</span>` : ''}
         </div>
         <div class="sf-challenge-title">${escHtml(post.challengeTitle || '')}</div>
-        ${post.caption ? `<div class="sf-caption">"${escHtml(post.caption)}"</div>` : ''}
-        ${(post.photoUrl || post.photoUrl2) ? `<div class="sf-photos-wrap">
+        ${post.caption ? `<div class="sf-caption">${escHtml(post.caption)}</div>` : ''}
+        ${(post.photoUrl || post.photoUrl2) ? `<div class="sf-photos-wrap sf-media-bleed">
           ${post.photoUrl  ? `<img src="${post.photoUrl}"  class="sf-photo" alt="proof" />` : ''}
           ${post.photoUrl2 ? `<img src="${post.photoUrl2}" class="sf-photo" alt="proof 2" />` : ''}
         </div>` : ''}
-        ${post.videoUrl ? `<video class="sf-video" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>` : ''}
+        ${post.videoUrl ? `<video class="sf-video sf-media-bleed" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>` : ''}
         ${post.audioUrl ? `<audio class="sf-audio" controls src="${post.audioUrl}"></audio>` : ''}
-        ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">🔗 ${escHtml(post.proofLink)}</a>` : ''}
-        <div class="sf-xp-row">
-          <span class="sf-xp-badge">+${post.xpAwarded} XP</span>
-          ${(() => {
-            if (!post.challengeId || !profile) return '';
-            const alreadyDone = submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id);
-            if (alreadyDone) return `<span class="sf-already-done">✅ You did this</span>`;
-            return `<button class="sf-complete-too-btn btn btn-ghost btn-sm" data-submit="${post.challengeId}">+ Complete this challenge</button>`;
-          })()}
+        ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">${IC.link} ${escHtml(post.proofLink)}</a>` : ''}
+        <div class="sf-post-footer">
+          <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
+          <div class="sf-footer-right">
+            <span class="sf-xp-badge">+${post.xpAwarded} XP</span>
+            ${alreadyDone
+              ? `<span class="sf-already-done">${IC.check} Done</span>`
+              : (post.challengeId ? `<button class="sf-complete-too-btn btn btn-ghost btn-sm" data-submit="${post.challengeId}">Complete too</button>` : '')}
+          </div>
         </div>
         <div class="sf-comments" data-post-id="${post.id}">
           ${renderComments(post.comments || [], profile)}
         </div>
-        <div class="sf-comment-form">
-          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Say something…" maxlength="300" />
-          <button class="sf-comment-send" data-comment-send="${post.id}">↑</button>
+        <div class="sf-comment-form hidden" data-comment-form="${post.id}">
+          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Add a comment…" maxlength="300" />
+          <button class="sf-comment-send" data-comment-send="${post.id}">${IC.send}</button>
         </div>
       </div>`;
     }
@@ -3679,6 +3689,19 @@ function renderSocialFeed() {
   // Complete challenge buttons (pinned on post, and "complete this too" on win posts)
   el.querySelectorAll('[data-submit]').forEach(btn => {
     btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile));
+  });
+
+  // Comment toggle buttons — reveal/hide the comment input
+  el.querySelectorAll('[data-comment-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const postId = btn.dataset.commentToggle;
+      const form = el.querySelector(`[data-comment-form="${postId}"]`);
+      if (!form) return;
+      form.classList.toggle('hidden');
+      if (!form.classList.contains('hidden')) {
+        form.querySelector('input')?.focus();
+      }
+    });
   });
 
   // Comment send buttons
