@@ -1387,6 +1387,8 @@ let unsubFeed        = null;
 let streakUpdatedThisSession = false;
 let reviewingSubId = null;
 let challengeFilter = 'All';
+let liveCall = null;
+let unsubLiveCall = null;
 let lastFeedSeen = 0;
 
 // ── DOM ───────────────────────────────────────
@@ -1541,6 +1543,8 @@ function showLogin() {
   if (unsubBrothers)    { unsubBrothers();    unsubBrothers    = null; }
   if (unsubChallenges)  { unsubChallenges();  unsubChallenges  = null; }
   if (unsubSubmissions) { unsubSubmissions(); unsubSubmissions = null; }
+  if (unsubLiveCall)    { unsubLiveCall();    unsubLiveCall    = null; }
+  liveCall = null;
   streakUpdatedThisSession = false;
   currentTab = 'brothers';
   loginScreen.classList.remove('hidden');
@@ -1812,6 +1816,20 @@ function showApp() {
 
     if (currentTab === 'socialfeed') renderSocialFeed();
     updateFeedBadge();
+  });
+
+  // Subscribe to live call status
+  let firstCallSnap = true;
+  unsubLiveCall = onSnapshot(doc(db, 'meta', 'liveCall'), snap => {
+    const data = snap.exists() ? snap.data() : null;
+    const wasActive = liveCall?.active;
+    liveCall = data;
+    if (!firstCallSnap && data?.active && !wasActive) {
+      showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
+    }
+    firstCallSnap = false;
+    renderLiveCallBanner();
+    if (currentTab === 'socialfeed') renderSocialFeed();
   });
 
   // Tab bar
@@ -3551,6 +3569,91 @@ function renderFeedMember(el) {
     }));
 }
 
+// ── LIVE CALL ─────────────────────────────────
+function renderLiveCallBanner() {
+  let banner = document.getElementById('liveCallBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'liveCallBanner';
+    banner.className = 'live-call-banner hidden';
+    // Insert before the social feed section
+    const feedSection = document.getElementById('socialFeedSection');
+    if (feedSection) feedSection.parentNode.insertBefore(banner, feedSection);
+  }
+
+  if (!liveCall?.active) {
+    banner.classList.add('hidden');
+    return;
+  }
+
+  const canEnd = isAdmin || isMentor;
+  banner.innerHTML = `
+    <div class="live-call-pulse"></div>
+    <div class="live-call-info">
+      <span class="live-call-label">Live Call</span>
+      <span class="live-call-host">${escHtml(liveCall.startedByName || 'Coach')} started a Brotherhood Call</span>
+    </div>
+    <div class="live-call-actions">
+      <button class="btn-join-call" id="joinCallBtn">Join</button>
+      ${canEnd ? `<button class="btn-end-call" id="endCallBtn">End</button>` : ''}
+    </div>`;
+  banner.classList.remove('hidden');
+
+  banner.querySelector('#joinCallBtn')?.addEventListener('click', openJitsiModal);
+  banner.querySelector('#endCallBtn')?.addEventListener('click', endBrotherhoodCall);
+}
+
+async function startBrotherhoodCall(profile) {
+  const roomName = `stoked-brotherhood-${Date.now()}`;
+  const hostName = isAdmin ? 'Coach' : (profile?.name || 'Mentor');
+  await setDoc(doc(db, 'meta', 'liveCall'), {
+    active: true,
+    roomName,
+    startedByName: hostName,
+    startedAt: Date.now(),
+  });
+  openJitsiModal();
+}
+
+async function endBrotherhoodCall() {
+  closeJitsiModal();
+  await setDoc(doc(db, 'meta', 'liveCall'), { active: false });
+}
+
+function openJitsiModal() {
+  if (!liveCall?.roomName) return;
+  let modal = document.getElementById('jitsiModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'jitsiModal';
+    modal.className = 'jitsi-modal';
+    modal.innerHTML = `
+      <div class="jitsi-header">
+        <span class="jitsi-title">Brotherhood Call</span>
+        <button class="jitsi-close" id="jitsiCloseBtn">${IC.xmark}</button>
+      </div>
+      <div class="jitsi-frame-wrap">
+        <iframe id="jitsiFrame" class="jitsi-frame" allow="camera; microphone; display-capture; fullscreen; speaker-selection" allowfullscreen></iframe>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.querySelector('#jitsiCloseBtn').addEventListener('click', closeJitsiModal);
+  }
+  const frame = modal.querySelector('#jitsiFrame');
+  frame.src = `https://meet.jit.si/${liveCall.roomName}`;
+  modal.classList.add('open');
+  document.body.classList.add('jitsi-open');
+}
+
+function closeJitsiModal() {
+  const modal = document.getElementById('jitsiModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  document.body.classList.remove('jitsi-open');
+  // Clear src so camera/mic are released
+  const frame = modal.querySelector('#jitsiFrame');
+  if (frame) frame.src = '';
+}
+
 // ── SOCIAL FEED ───────────────────────────────
 function renderSocialFeed() {
   const el = document.getElementById('socialFeedContainer');
@@ -3558,9 +3661,13 @@ function renderSocialFeed() {
 
   const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser?.email?.toLowerCase());
 
+  const callActive = liveCall?.active;
   let html = `<div class="feed-header">
     <h2 class="feed-title">Brotherhood Feed</h2>
-    ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">${IC.megaphone} Post</button>` : ''}
+    <div style="display:flex;gap:8px;align-items:center">
+      ${(isAdmin || isMentor) && !callActive ? `<button class="btn-start-call" id="startCallBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Start Call</button>` : ''}
+      ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">${IC.megaphone} Post</button>` : ''}
+    </div>
   </div>`;
 
   if (!feedPosts.length) {
@@ -3667,6 +3774,8 @@ function renderSocialFeed() {
 
   el.innerHTML = html;
   if (isAdmin || isMentor) bindAnnouncementBtn(el);
+
+  document.getElementById('startCallBtn')?.addEventListener('click', () => startBrotherhoodCall(profile));
 
   // Tap feed photo to open fullscreen
   el.querySelectorAll('.sf-photo').forEach(img => {

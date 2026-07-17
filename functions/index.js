@@ -128,6 +128,20 @@ exports.onNewDM = onDocumentCreated('dms/{convoId}/messages/{msgId}', async even
   );
 });
 
+// ── TRIGGER: Live call started → notify all brothers ──
+exports.onLiveCallStarted = onDocumentUpdated('meta/liveCall', async event => {
+  const before = event.data.before.data();
+  const after  = event.data.after.data();
+  // Only fire when transitioning to active
+  if (!after.active || before.active === true) return;
+  const tokens = await getAllTokens();
+  await sendToTokens(
+    tokens,
+    '📹 Brotherhood Call Live',
+    `${after.startedByName || 'Coach'} started a group call — join now!`
+  );
+});
+
 // ── TRIGGER: Brother XP updated → notify anyone they passed ──
 exports.onXPUpdated = onDocumentUpdated('brothers/{brotherId}', async event => {
   const before = event.data.before.data();
