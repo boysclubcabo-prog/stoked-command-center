@@ -4086,17 +4086,29 @@ function globeUpdateSelection(arch, stats, profile) {
   const detailEl = document.getElementById('globeDetailPanel');
   if (!statsEl) return;
 
+  const closeBtn = `<button class="globe-panel-close" id="globePanelClose" aria-label="Close">✕</button>`;
+
   if (!arch) {
-    const totals = computeBrotherhoodTotals(stats);
-    statsEl.innerHTML = renderGlobeStatsCommunity(totals);
+    statsEl.classList.remove('visible');
+    statsEl.innerHTML = '';
     if (detailEl) detailEl.style.display = 'none';
   } else {
     const aClr = ARCHETYPE_COLORS[arch] || { icon: 'var(--orange)', glow: 'transparent' };
-    statsEl.innerHTML = renderGlobeStatsArch(arch, stats[arch], aClr);
+    // Show stats panel with arch info
+    statsEl.innerHTML = closeBtn + renderGlobeStatsArch(arch, stats[arch], aClr);
+    statsEl.classList.add('visible');
+    statsEl.querySelector('#globePanelClose')?.addEventListener('click', () => {
+      globeSelectedArch = null;
+      globeUpdateSelection(null, stats, profile);
+    });
     if (detailEl) {
-      detailEl.innerHTML = renderGlobeDetail(arch, stats[arch], aClr);
+      detailEl.innerHTML = closeBtn + renderGlobeDetail(arch, stats[arch], aClr);
       detailEl.style.display = 'block';
       detailEl.querySelector('[data-view-arch]')?.addEventListener('click', () => switchTab('brothers'));
+      detailEl.querySelector('#globePanelClose')?.addEventListener('click', () => {
+        globeSelectedArch = null;
+        globeUpdateSelection(null, stats, profile);
+      });
     }
   }
 }
@@ -4212,7 +4224,6 @@ function initGlobeInteraction(stats, profile) {
 function buildGlobeHtml(stats, profile) {
   const userArch = profile?.primaryArchetype || profile?.archetype;
   const nodesHtml = ARCHETYPE_ORDER.map((arch, i) => renderGlobeNodeHtml(arch, i, stats, userArch)).join('');
-  const totals    = computeBrotherhoodTotals(stats);
 
   return `<div class="globe-wrap">
     <div class="globe-map-outer" id="globeViewport" aria-label="Archetype map. Drag to pan, scroll to zoom.">
@@ -4231,7 +4242,7 @@ function buildGlobeHtml(stats, profile) {
         <button class="globe-zoom-btn" id="globeZoomOut" aria-label="Zoom out">−</button>
       </div>
     </div>
-    <div class="globe-stats-panel" id="globeStatsPanel">${renderGlobeStatsCommunity(totals)}</div>
+    <div class="globe-stats-panel" id="globeStatsPanel"></div>
     <div class="globe-detail-panel" id="globeDetailPanel" style="display:none"></div>
   </div>`;
 }
