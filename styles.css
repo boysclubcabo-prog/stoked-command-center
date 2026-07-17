@@ -47,7 +47,10 @@
   --shadow-modal:  0 16px 48px rgba(0,0,0,0.7);
 }
 
-html { font-size: 16px; }
+html {
+  font-size: 16px;
+  overflow-x: hidden;
+}
 
 body {
   font-family: 'Barlow', system-ui, -apple-system, sans-serif;
@@ -56,6 +59,7 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 /* ── SCROLLBAR ── */
@@ -4439,6 +4443,7 @@ body {
   .header-title { font-size: 14px; letter-spacing: 0.08em; }
   .header-sub { font-size: 11px; }
   .header-logo-svg { height: 46px; width: auto; max-width: 64px; }
+  .header-logo-img { height: 40px; max-width: 180px; }
   .header-right { gap: 8px; }
   .header-right .btn-sm { font-size: 11px; padding: 6px 10px; }
   #addBrotherBtn { font-size: 12px; padding: 8px 12px; }
