@@ -1913,8 +1913,7 @@ async function registerFCMToken() {
     fcmSetupDone = true;
     showToast('Notifications enabled ✓', 'success');
   } catch (e) {
-    showToast('Notif error: ' + e.message, 'info');
-    console.error('FCM token error:', e);
+    console.warn('FCM token error:', e);
   }
 }
 
