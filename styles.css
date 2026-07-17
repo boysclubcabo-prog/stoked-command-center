@@ -10,6 +10,10 @@
 
 :root {
   /* ── Earthy Baja — minimal ── */
+  --globe-line:       rgba(255,255,255,0.25);
+  --globe-line-inner: rgba(255,255,255,0.1);
+  --globe-spoke:      rgba(255,255,255,0.1);
+
   --bg-base:       #111009;
   --bg-card:       #181510;
   --bg-elevated:   #1f1c15;
@@ -1090,6 +1094,7 @@ body {
   object-fit: cover;
   display: block;
   pointer-events: none;
+  filter: brightness(0) invert(1);
 }
 
 .globe-node-count {
@@ -1357,13 +1362,21 @@ body {
 }
 
 /* Light theme tweaks */
+[data-theme="light"] {
+  --globe-line:       rgba(0,0,0,0.28);
+  --globe-line-inner: rgba(0,0,0,0.12);
+  --globe-spoke:      rgba(0,0,0,0.1);
+}
 [data-theme="light"] .globe-map-outer { background: var(--bg-card); }
 [data-theme="light"] .globe-node-ring { background: #fff; border-color: rgba(0,0,0,0.15); }
 [data-theme="light"] .globe-node:hover .globe-node-ring { border-color: rgba(0,0,0,0.3); }
 [data-theme="light"] .globe-node-label { color: rgba(40,30,20,0.7); text-shadow: none; }
 [data-theme="light"] .globe-node.globe-node-selected .globe-node-label { color: rgba(40,30,20,1); }
 [data-theme="light"] .globe-node-count { background: #fff; border-color: rgba(0,0,0,0.15); color: #3a3020; }
+[data-theme="light"] .globe-node-img  { filter: none; }
 [data-theme="light"] .globe-center    { background: #f5f0e8; }
+[data-theme="light"] .globe-center-line1 { color: rgba(40,30,20,0.75); }
+[data-theme="light"] .globe-center-line2 { color: rgba(40,30,20,0.45); }
 
 /* ═══════════════════════════════════════════════════════════ */
 

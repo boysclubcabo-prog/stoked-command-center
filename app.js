@@ -4237,7 +4237,7 @@ function buildGlobeHtml(stats, profile) {
     const a = (i * 30 - 90) * Math.PI / 180;
     const x = (50 + 43 * Math.cos(a)).toFixed(2);
     const y = (50 + 43 * Math.sin(a)).toFixed(2);
-    return `<line x1="50" y1="50" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.1)" stroke-width="0.4" stroke-dasharray="1.5,1.5"/>`;
+    return `<line x1="50" y1="50" x2="${x}" y2="${y}" stroke="var(--globe-spoke)" stroke-width="0.4" stroke-dasharray="1.5,1.5"/>`;
   }).join('');
 
   return `<div class="globe-wrap">
@@ -4246,8 +4246,8 @@ function buildGlobeHtml(stats, profile) {
         <div class="globe-canvas-inner" id="globeInner">
           <svg class="globe-dodecagon-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             ${spokes}
-            <polygon points="${outerPts}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.7"/>
-            <polygon points="${innerPts}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.4"/>
+            <polygon points="${outerPts}" fill="none" stroke="var(--globe-line)" stroke-width="0.7"/>
+            <polygon points="${innerPts}" fill="none" stroke="var(--globe-line-inner)" stroke-width="0.4"/>
           </svg>
           <div class="globe-center" aria-hidden="true">
             <div class="globe-center-line1">STOKED</div>
