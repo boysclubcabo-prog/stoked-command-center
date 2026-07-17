@@ -2173,12 +2173,18 @@ function renderMemberView() {
           ${profile.coachNoteDate ? `<div class="coach-note-member-date">${new Date(profile.coachNoteDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>` : ''}
         </div>` : ''}
 
+      ${dailyChallengeCardHtml(profile, true)}
+
       <button class="btn-checkin-member" data-checkin="${profile.id}">✓ Daily Check-In</button>
     </div>`;
 
   // Wire member check-in button
   const ciBtn = memberHero.querySelector('[data-checkin]');
   if (ciBtn) ciBtn.addEventListener('click', () => openCheckInModal(ciBtn.dataset.checkin));
+
+  // Wire daily challenge buttons
+  memberHero.querySelector('[data-dc-set]')?.addEventListener('click', () => openDailyChallengeModal(profile));
+  memberHero.querySelector('[data-dc-complete]')?.addEventListener('click', () => completeDailyChallenge(profile));
 
   // Wire profile snapshot toggles in hero
   memberHero.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
@@ -2303,6 +2309,8 @@ function renderCard(brother) {
           <div class="coach-note-text">${escHtml(brother.coachNote)}</div>
           ${brother.coachNoteDate ? `<div class="coach-note-date">${new Date(brother.coachNoteDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>` : ''}
         </div>` : ''}
+
+      ${dailyChallengeCardHtml(brother, false)}
 
       <div class="card-btn-row">
         <button class="btn-add-xp" data-addxp="${brother.id}">${IC.bolt} Add XP</button>
@@ -3733,6 +3741,132 @@ function timeAgo(ts) {
   return `${d}d ago`;
 }
 
+// ── DAILY CHALLENGE ───────────────────────────
+
+function getTodayStr() {
+  return new Date().toISOString().slice(0, 10); // "2026-07-17"
+}
+
+function isDailyChallengeCompleted(b) {
+  return b.dailyChallengeCompletedDate === getTodayStr();
+}
+
+// Shared HTML block for displaying a challenge on any card
+function dailyChallengeCardHtml(b, isOwn) {
+  const text  = b.dailyChallenge || '';
+  const done  = isDailyChallengeCompleted(b);
+  const clr   = ARCHETYPE_COLORS[b.primaryArchetype || b.archetype] || { icon: 'var(--orange)', glow: 'transparent' };
+
+  if (!text && !isOwn) return '';   // other brothers with no challenge set: skip
+
+  return `<div class="dc-block${done ? ' dc-done' : ''}${isOwn ? ' dc-own' : ''}" style="--dc-clr:${clr.icon}">
+    <div class="dc-header">
+      <span class="dc-label">DAILY CHALLENGE</span>
+      <span class="dc-badge${done ? ' dc-badge-done' : ' dc-badge-pending'}">${done ? '✓ Done · +50 XP' : 'Pending'}</span>
+    </div>
+    ${text
+      ? `<div class="dc-text">${escHtml(text)}</div>`
+      : `<div class="dc-empty">No challenge set for today.</div>`}
+    ${isOwn ? `<div class="dc-actions">
+      <button class="dc-btn-set" data-dc-set="1">${text ? 'Edit' : 'Set Challenge'}</button>
+      ${text && !done ? `<button class="dc-btn-complete" data-dc-complete="1">✓ Mark Done — +50 XP</button>` : ''}
+    </div>` : ''}
+  </div>`;
+}
+
+// Lightweight badge for roster list
+function dailyChallengeRosterBadge(b) {
+  if (!b.dailyChallenge) return '';
+  const done = isDailyChallengeCompleted(b);
+  return `<span class="dc-roster-badge${done ? ' dc-roster-done' : ''}" title="${escHtml(b.dailyChallenge)}">${done ? '✓' : '◎'} Daily</span>`;
+}
+
+// Modal for setting / editing the challenge
+function openDailyChallengeModal(profile) {
+  let overlay = document.getElementById('dcModal');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'dcModal';
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="dcModalTitle">
+        <div class="modal-header">
+          <h2 class="modal-title" id="dcModalTitle">Daily Challenge</h2>
+          <button class="modal-close" id="dcModalClose" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="dc-modal-sub">Set one commitment you will complete today. It resets at midnight and is worth <strong>+50 XP</strong> when done.</p>
+          <div class="form-group">
+            <label class="form-label" for="dcInput">Your challenge</label>
+            <textarea id="dcInput" class="form-control" rows="3" maxlength="200" placeholder="e.g. 100 push-ups before noon. No phone until 10am. Cold shower."></textarea>
+            <div class="dc-char-count"><span id="dcCharCount">0</span> / 200</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="dcCancelBtn">Cancel</button>
+          <button class="btn btn-primary" id="dcSaveBtn">Save Challenge</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    document.getElementById('dcModalClose').addEventListener('click', () => closeModal(overlay));
+    document.getElementById('dcCancelBtn').addEventListener('click', () => closeModal(overlay));
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay); });
+
+    const input = document.getElementById('dcInput');
+    const counter = document.getElementById('dcCharCount');
+    input.addEventListener('input', () => { counter.textContent = input.value.length; });
+  }
+
+  const input = document.getElementById('dcInput');
+  const counter = document.getElementById('dcCharCount');
+  input.value = profile.dailyChallenge || '';
+  counter.textContent = input.value.length;
+
+  const saveBtn = document.getElementById('dcSaveBtn');
+  const newSave = saveBtn.cloneNode(true);
+  saveBtn.replaceWith(newSave);
+  newSave.addEventListener('click', async () => {
+    const text = input.value.trim();
+    if (!text) { showToast('Enter your challenge first.', 'info'); return; }
+    newSave.disabled = true;
+    newSave.textContent = 'Saving…';
+    try {
+      await updateDoc(doc(db, 'brothers', profile.id), { dailyChallenge: text });
+      profile.dailyChallenge = text;
+      closeModal(overlay);
+      showToast('Daily challenge set. Now go do it.', 'success');
+      renderMemberView();
+    } catch (err) {
+      showToast('Could not save — check connection.', 'info');
+    } finally {
+      newSave.disabled = false;
+      newSave.textContent = 'Save Challenge';
+    }
+  });
+
+  openModal(overlay);
+  setTimeout(() => input.focus(), 100);
+}
+
+async function completeDailyChallenge(profile) {
+  if (isDailyChallengeCompleted(profile)) return;
+  if (!profile.dailyChallenge) { showToast('Set your challenge first.', 'info'); return; }
+  const newXp = Math.min(MAX_XP, (profile.xp || 0) + 50);
+  try {
+    await updateDoc(doc(db, 'brothers', profile.id), {
+      dailyChallengeCompletedDate: getTodayStr(),
+      xp: newXp,
+    });
+    profile.dailyChallengeCompletedDate = getTodayStr();
+    profile.xp = newXp;
+    showToast('Daily challenge complete! +50 XP', 'success');
+    renderMemberView();
+  } catch (err) {
+    showToast('Could not save — check connection.', 'info');
+  }
+}
+
 // ── ROSTER (member view of all brothers) ──────
 // ── GLOBE / MY PATH ───────────────────────────
 
@@ -4634,6 +4768,7 @@ function renderRoster() {
               <div class="roster-meta">
                 ${displayArchetype ? `<span class="roster-arch" style="color:${archClr.icon}">${escHtml(displayArchetype)}</span>` : ''}
                 ${b.dominantElement ? `<span class="roster-el" style="color:${elColor}">${escHtml(b.dominantElement)}</span>` : ''}
+                ${dailyChallengeRosterBadge(b)}
               </div>
               <div class="roster-xp-row">
                 <div class="roster-progress-track">

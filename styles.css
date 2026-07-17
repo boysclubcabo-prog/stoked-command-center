@@ -2406,6 +2406,128 @@ body {
 }
 
 /* Coach Note on admin card */
+/* ── Daily Challenge ──────────────────────────────────────── */
+.dc-block {
+  background: color-mix(in srgb, var(--dc-clr) 6%, var(--bg-elevated));
+  border: 1.5px solid color-mix(in srgb, var(--dc-clr) 30%, transparent);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.dc-block::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--dc-clr);
+  border-radius: 2px 0 0 2px;
+}
+.dc-block.dc-done {
+  opacity: 0.72;
+}
+.dc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.dc-label {
+  font: 700 9px/1 'Barlow', sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dc-clr);
+}
+.dc-badge {
+  font: 600 9px/1 'Barlow', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.dc-badge-pending {
+  background: color-mix(in srgb, var(--dc-clr) 12%, transparent);
+  color: var(--dc-clr);
+  border: 1px solid color-mix(in srgb, var(--dc-clr) 25%, transparent);
+}
+.dc-badge-done {
+  background: rgba(100,180,100,0.12);
+  color: #6ab46a;
+  border: 1px solid rgba(100,180,100,0.25);
+}
+.dc-text {
+  font: 500 13px/1.5 'Barlow', sans-serif;
+  color: var(--text-primary);
+}
+.dc-empty {
+  font: 400 12px/1.4 'Barlow', sans-serif;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.dc-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.dc-btn-set {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--dc-clr) 35%, transparent);
+  border-radius: var(--radius-sm);
+  color: var(--dc-clr);
+  font: 600 10px/1 'Barlow', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.dc-btn-set:hover { background: color-mix(in srgb, var(--dc-clr) 10%, transparent); }
+.dc-btn-complete {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--dc-clr);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font: 700 10px/1 'Barlow', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.dc-btn-complete:hover { opacity: 0.88; }
+
+/* Roster badge */
+.dc-roster-badge {
+  font: 600 9px/1 'Barlow', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+.dc-roster-badge.dc-roster-done {
+  color: #6ab46a;
+  border-color: rgba(100,180,100,0.3);
+  background: rgba(100,180,100,0.06);
+}
+
+/* Modal sub-text */
+.dc-modal-sub {
+  font: 400 13px/1.55 'Barlow', sans-serif;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+.dc-char-count {
+  font: 400 11px/1 'Barlow', sans-serif;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
 .coach-note-display {
   background: rgba(91,138,160,0.07);
   border: 1px solid rgba(91,138,160,0.25);
