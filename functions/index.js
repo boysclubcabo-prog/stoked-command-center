@@ -104,6 +104,30 @@ exports.onNewFeedPost = onDocumentCreated('feed/{postId}', async event => {
   await sendToTokens(tokens, title, body);
 });
 
+// ── TRIGGER: New DM → notify recipient ───────
+exports.onNewDM = onDocumentCreated('dms/{convoId}/messages/{msgId}', async event => {
+  const msg = event.data.data();
+  if (!msg || !msg.senderId || !msg.text) return;
+
+  // convoId = [brotherIdA, brotherIdB].sort().join('_')
+  // Firestore auto-IDs are alphanumeric (no underscores), so one '_' splits cleanly
+  const convoId = event.params.convoId;
+  const parts = convoId.split('_');
+  if (parts.length !== 2) return;
+  const [idA, idB] = parts;
+
+  // The recipient is whoever didn't send it
+  const recipientId = msg.senderId === idA ? idB : idA;
+
+  const tokens = await getTokensForBrother(recipientId);
+  await sendToTokens(
+    tokens,
+    `💬 ${msg.senderName || 'Message'}`,
+    msg.text.slice(0, 120),
+    { type: 'dm', convoId }
+  );
+});
+
 // ── TRIGGER: Brother XP updated → notify anyone they passed ──
 exports.onXPUpdated = onDocumentUpdated('brothers/{brotherId}', async event => {
   const before = event.data.before.data();
