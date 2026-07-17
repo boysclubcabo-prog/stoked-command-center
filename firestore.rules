@@ -91,5 +91,16 @@ service cloud.firestore {
     match /dms/{convoId} {
       allow read, write: if request.auth != null;
     }
+
+    // ── Meta (live call state, etc.) ───────────────────────────────
+    match /meta/{docId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+
+    // ── FCM tokens ─────────────────────────────────────────────────
+    match /fcmTokens/{tokenId} {
+      allow read, write: if request.auth != null;
+    }
   }
 }

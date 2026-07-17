@@ -3606,12 +3606,10 @@ function renderLiveCallBanner() {
 async function startBrotherhoodCall(profile) {
   const roomName = `stoked-brotherhood-${Date.now()}`;
   const hostName = isAdmin ? 'Coach' : (profile?.name || 'Mentor');
-  await setDoc(doc(db, 'meta', 'liveCall'), {
-    active: true,
-    roomName,
-    startedByName: hostName,
-    startedAt: Date.now(),
-  });
+  const callData = { active: true, roomName, startedByName: hostName, startedAt: Date.now() };
+  // Update local state immediately so openJitsiModal has the roomName
+  liveCall = callData;
+  await setDoc(doc(db, 'meta', 'liveCall'), callData);
   openJitsiModal();
 }
 
@@ -3674,6 +3672,7 @@ function renderSocialFeed() {
     html += `<div class="feed-empty">No posts yet — complete a challenge to share your first win.</div>`;
     el.innerHTML = html;
     if (isAdmin || isMentor) bindAnnouncementBtn(el);
+    document.getElementById('startCallBtn')?.addEventListener('click', () => startBrotherhoodCall(profile));
     return;
   }
 
