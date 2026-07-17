@@ -88,6 +88,35 @@ body {
   align-items: center;
 }
 
+.header-wordmark {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.wordmark-stoked {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  color: #3A6BB5;
+}
+
+.wordmark-brotherhood {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1.05rem;
+  letter-spacing: 0.18em;
+  color: #888;
+  margin-left: 0.18em;
+}
+
+[data-theme="dark"] .wordmark-stoked {
+  color: #C8A84B;
+}
+
 .header-logo-svg {
   width: auto;
   height: 56px;
