@@ -5056,6 +5056,17 @@ function resetAudioSlot() {
   document.getElementById('audioFileName').textContent = '';
 }
 
+function resetVideoSlot() {
+  const input = document.getElementById('proofVideo');
+  if (input) input.value = '';
+  document.getElementById('videoPreview')?.classList.add('hidden');
+  document.getElementById('videoPlaceholder')?.classList.remove('hidden');
+  document.getElementById('videoFileName').textContent = '';
+  const vid = document.getElementById('videoPreviewEl');
+  if (vid) { vid.src = ''; vid.load(); }
+  document.getElementById('videoDurationError')?.classList.add('hidden');
+}
+
 function openSubmitProofModal(challengeId, profile) {
   submittingProfile = profile;
   const ch = challenges.find(c => c.id === challengeId);
@@ -5065,6 +5076,7 @@ function openSubmitProofModal(challengeId, profile) {
   resetPhotoSlot(1);
   resetPhotoSlot(2);
   resetAudioSlot();
+  resetVideoSlot();
   document.getElementById('proofLink').value     = '';
   document.getElementById('proofCaption').value  = '';
   document.getElementById('submitProofBtn').disabled = false;
@@ -5095,6 +5107,33 @@ document.getElementById('audioRemoveBtn').addEventListener('click', e => {
   resetAudioSlot();
 });
 
+document.getElementById('proofVideo').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const url = URL.createObjectURL(file);
+  const vid = document.getElementById('videoPreviewEl');
+  vid.src = url;
+  vid.onloadedmetadata = () => {
+    const errEl = document.getElementById('videoDurationError');
+    if (vid.duration > 30) {
+      errEl.classList.remove('hidden');
+      document.getElementById('submitProofBtn').disabled = true;
+    } else {
+      errEl.classList.add('hidden');
+      document.getElementById('submitProofBtn').disabled = false;
+      document.getElementById('videoFileName').textContent = file.name;
+      document.getElementById('videoPreview').classList.remove('hidden');
+      document.getElementById('videoPlaceholder').classList.add('hidden');
+    }
+  };
+});
+
+document.getElementById('videoRemoveBtn').addEventListener('click', e => {
+  e.preventDefault();
+  resetVideoSlot();
+  document.getElementById('submitProofBtn').disabled = false;
+});
+
 document.getElementById('submitProofForm').addEventListener('submit', async e => {
   e.preventDefault();
   const challengeId = document.getElementById('submitChallengeId').value;
@@ -5102,12 +5141,13 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
   const file1       = document.getElementById('proofPhoto1').files[0];
   const file2       = document.getElementById('proofPhoto2').files[0];
   const audioFile   = document.getElementById('proofAudio').files[0];
+  const videoFile   = document.getElementById('proofVideo').files[0];
   const proofLink   = document.getElementById('proofLink').value.trim();
   const caption     = document.getElementById('proofCaption').value.trim();
   const btn         = document.getElementById('submitProofBtn');
 
   if (!submittingProfile || !ch) return;
-  if (ch.photoRequired && !file1 && !audioFile && !proofLink) { showToast('Please add a photo, voice note, or link', 'info'); return; }
+  if (ch.photoRequired && !file1 && !audioFile && !videoFile && !proofLink) { showToast('Please add a photo, video, voice note, or link', 'info'); return; }
 
   btn.disabled    = true;
   btn.textContent = 'Completing…';
@@ -5116,6 +5156,7 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
     let photoUrl  = null;
     let photoUrl2 = null;
     let audioUrl  = null;
+    let videoUrl  = null;
 
     if (file1) photoUrl  = await compressImage(file1, 900, 0.72);
     if (file2) photoUrl2 = await compressImage(file2, 900, 0.72);
@@ -5123,6 +5164,12 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
       const aRef = storageRef(storage, `submissions/audio/${Date.now()}_${audioFile.name}`);
       await uploadBytes(aRef, audioFile);
       audioUrl = await getDownloadURL(aRef);
+    }
+    if (videoFile) {
+      btn.textContent = 'Uploading video…';
+      const vRef = storageRef(storage, `submissions/video/${Date.now()}_${videoFile.name}`);
+      await uploadBytes(vRef, videoFile);
+      videoUrl = await getDownloadURL(vRef);
     }
 
     const id    = 'sub_' + Date.now().toString(36);
@@ -5136,6 +5183,7 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
       photoUrl,
       photoUrl2:   photoUrl2 || null,
       audioUrl:    audioUrl  || null,
+      videoUrl:    videoUrl  || null,
       proofLink:   proofLink || null,
       caption,
       status:      'completed',
@@ -5159,6 +5207,7 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
       photoUrl:       photoUrl  || null,
       photoUrl2:      photoUrl2 || null,
       audioUrl:       audioUrl  || null,
+      videoUrl:       videoUrl  || null,
       proofLink:      proofLink || null,
       caption:        caption   || null,
       comments:       [],

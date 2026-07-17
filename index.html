@@ -550,6 +550,24 @@
           </div>
         </div>
         <div class="form-group">
+          <label>Video Proof — 30 sec max (optional)</label>
+          <label class="video-upload-area" for="proofVideo" id="proofVideoLabel">
+            <input type="file" id="proofVideo" accept="video/*" style="display:none" />
+            <div id="videoPlaceholder">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              Tap to record or upload video
+            </div>
+            <div id="videoPreview" class="hidden">
+              <video id="videoPreviewEl" controls style="width:100%;max-height:160px;border-radius:8px;"></video>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                <span id="videoFileName" style="font-size:12px;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+                <button type="button" id="videoRemoveBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">✕</button>
+              </div>
+            </div>
+          </label>
+          <p id="videoDurationError" class="hidden" style="color:#e05;font-size:12px;margin-top:4px;">Video must be 30 seconds or less.</p>
+        </div>
+        <div class="form-group">
           <label>Voice Note or MP3 (optional)</label>
           <label class="audio-upload-area" for="proofAudio">
             <input type="file" id="proofAudio" accept="audio/mpeg,audio/mp3,audio/mp4,audio/m4a,audio/x-m4a,audio/aac,audio/wav,audio/ogg,audio/webm" style="display:none" />
