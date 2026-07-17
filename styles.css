@@ -95,6 +95,8 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
+  flex: 1;
 }
 
 .logo-mark {
@@ -147,6 +149,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .btn-sm {
@@ -4457,9 +4460,10 @@ body {
   .header-sub { font-size: 11px; }
   .header-logo-svg { height: 46px; width: auto; max-width: 64px; }
   .header-logo-img { height: 40px; max-width: 180px; }
-  .header-right { gap: 8px; }
+  .header-right { gap: 6px; flex-shrink: 0; }
   .header-right .btn-sm { font-size: 11px; padding: 6px 10px; }
   #addBrotherBtn { font-size: 12px; padding: 8px 12px; }
+  .user-badge { display: none; }
 
   .stats-bar {
     overflow-x: auto;
