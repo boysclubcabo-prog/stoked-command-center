@@ -89,8 +89,9 @@ body {
 }
 
 .header-logo-img {
-  height: 28px;
+  height: 80px;
   width: auto;
+  max-width: 340px;
   object-fit: contain;
   flex-shrink: 0;
 }
