@@ -1531,6 +1531,7 @@ function friendlyAuthError(code) {
 
 // ── SHOW / HIDE SCREENS ───────────────────────
 function showLogin() {
+  document.getElementById('authSplash')?.classList.add('hidden');
   stopPresence();
   if (unsubBrothers)    { unsubBrothers();    unsubBrothers    = null; }
   if (unsubChallenges)  { unsubChallenges();  unsubChallenges  = null; }
@@ -1694,6 +1695,7 @@ function showOnboardProfile(container, onComplete) {
 }
 
 function showApp() {
+  document.getElementById('authSplash')?.classList.add('hidden');
   loginScreen.classList.add('hidden');
   appScreen.classList.remove('hidden');
 
