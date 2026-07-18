@@ -6,8 +6,7 @@
 import { initializeApp }                          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword,
          signOut, onAuthStateChanged }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { initializeFirestore, persistentLocalCache,
-         collection, doc,
+import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc, addDoc,
          deleteDoc, getDoc, getDocs,
          query, orderBy, serverTimestamp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -27,9 +26,7 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth        = getAuth(firebaseApp);
-const db          = initializeFirestore(firebaseApp, {
-  localCache: persistentLocalCache()
-});
+const db          = getFirestore(firebaseApp);
 const storage     = getStorage(firebaseApp);
 const messaging   = getMessaging(firebaseApp);
 
@@ -1597,27 +1594,25 @@ async function maybeShowOnboarding() {
     showOnboardProfile(onboardEl, async (profileData) => {
       // Create brother document
       let newBrotherId = null;
-      try {
-        newBrotherId = 'br_' + Date.now().toString(36);
-        // With offline persistence the write resolves immediately from local cache;
-        // the 8s timeout is a safety net for unexpected hangs
-        await withTimeout(setDoc(doc(db, 'brothers', newBrotherId), {
-          ...profileData,
-          email:                currentUser.email.toLowerCase(),
-          xp:                   0,
-          role:                 'member',
-          onboardingAccepted:   true,
-          onboardingAcceptedAt: new Date().toISOString(),
-          createdAt:            new Date().toISOString(),
-          updatedAt:            new Date().toISOString(),
-        }), 8000);
-      } catch (err) {
-        showToast('Error saving profile: ' + err.message, 'info');
-        return;
-      }
+      newBrotherId = 'br_' + Date.now().toString(36);
+      // Fire-and-forget — don't block the UI waiting for Firestore server confirmation.
+      // Firestore queues the write and syncs when the connection is available.
+      setDoc(doc(db, 'brothers', newBrotherId), {
+        ...profileData,
+        email:                currentUser.email.toLowerCase(),
+        xp:                   0,
+        role:                 'member',
+        onboardingAccepted:   true,
+        onboardingAcceptedAt: new Date().toISOString(),
+        createdAt:            new Date().toISOString(),
+        updatedAt:            new Date().toISOString(),
+      }).catch(err => console.error('profile save error:', err));
+
+      // Mark onboarding complete in localStorage immediately so we never re-show it
+      localStorage.setItem(key, '1');
+
       // ── Screen 3: Assessment bridge ──
       showOnboardAssessmentBridge(onboardEl, () => {
-        localStorage.setItem(key, '1');
         onboardEl.classList.add('hidden');
         showApp();
         // Immediately open the assessment for the new brother
