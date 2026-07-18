@@ -1477,6 +1477,11 @@ function isOnline(brother) {
   return (Date.now() - new Date(brother.lastSeen).getTime()) < 90000; // 90 seconds
 }
 
+// Wrap a promise with a timeout so slow Firestore calls never block the splash screen
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise(resolve => setTimeout(resolve, ms))]);
+}
+
 // ── AUTH ──────────────────────────────────────
 onAuthStateChanged(auth, async user => {
   if (user) {
@@ -1486,10 +1491,12 @@ onAuthStateChanged(auth, async user => {
     if (!isAdmin) {
       // Check if this user has mentor role in their brother profile
       try {
-        const snap = await getDocs(collection(db, 'brothers'));
-        const profile = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-          .find(b => b.email && b.email.toLowerCase() === user.email.toLowerCase());
-        if (profile?.role === 'mentor') isMentor = true;
+        const snap = await withTimeout(getDocs(collection(db, 'brothers')), 5000);
+        if (snap) {
+          const profile = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+            .find(b => b.email && b.email.toLowerCase() === user.email.toLowerCase());
+          if (profile?.role === 'mentor') isMentor = true;
+        }
       } catch (_) {}
     }
     const handledByOnboarding = await maybeShowOnboarding();
@@ -1564,14 +1571,16 @@ async function maybeShowOnboarding() {
   // (new device, cleared storage, etc.). Never re-onboard someone who already
   // has a profile.
   try {
-    const snap = await getDocs(collection(db, 'brothers'));
-    const existing = snap.docs.find(d => {
-      const e = d.data().email;
-      return e && e.toLowerCase() === currentUser.email.toLowerCase();
-    });
-    if (existing) {
-      localStorage.setItem(key, '1');
-      return false;
+    const snap = await withTimeout(getDocs(collection(db, 'brothers')), 5000);
+    if (snap) {
+      const existing = snap.docs.find(d => {
+        const e = d.data().email;
+        return e && e.toLowerCase() === currentUser.email.toLowerCase();
+      });
+      if (existing) {
+        localStorage.setItem(key, '1');
+        return false;
+      }
     }
   } catch (_) {}
 

@@ -724,6 +724,15 @@
         } catch(e) {}
       });
     }
+    // Safety net: if Firebase Auth hasn't resolved in 10s, show login screen
+    setTimeout(() => {
+      const splash = document.getElementById('authSplash');
+      if (splash && !splash.classList.contains('hidden')) {
+        splash.classList.add('hidden');
+        const loginScreen = document.getElementById('loginScreen');
+        if (loginScreen) loginScreen.classList.remove('hidden');
+      }
+    }, 10000);
   </script>
 </body>
 </html>
