@@ -3762,6 +3762,7 @@ function renderSocialFeed() {
       <h2 class="feed-title">Brotherhood Feed</h2>
       <div class="feed-header-actions">
         ${(isAdmin || isMentor) && !callActive ? `<button class="feed-action-icon" id="startCallBtn" title="Start Call"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></button>` : ''}
+        ${(isAdmin || isMentor) ? `<button class="feed-action-icon" id="openPollBtn" title="Create Poll"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></button>` : ''}
         ${(isAdmin || isMentor) ? `<button class="feed-action-icon" id="openAnnouncementBtn" title="Post">${IC.megaphone}</button>` : ''}
       </div>
     </div>
@@ -3816,6 +3817,49 @@ function renderSocialFeed() {
             ? `<div class="sub-status-badge status-completed" style="margin-top:8px">${IC.check} Completed</div>`
             : `<button class="btn btn-primary sf-pinned-complete-btn" data-submit="${pinnedCh.id}">Complete Challenge</button>`}
         </div>` : ''}
+        <div class="sf-post-footer">
+          <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
+        </div>
+        <div class="sf-comments" data-post-id="${post.id}">
+          ${renderComments(post.comments || [], profile)}
+        </div>
+        <div class="sf-comment-form hidden" data-comment-form="${post.id}">
+          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Add a comment…" maxlength="300" />
+          <button class="sf-comment-send" data-comment-send="${post.id}">${IC.send}</button>
+        </div>
+      </div>`;
+    } else if (post.type === 'poll') {
+      const canDelete = isAdmin || (isMentor && post.authorId === profile?.id);
+      const options   = post.options || [];
+      const votes     = post.votes  || {};  // { optionIndex: [brotherId, ...] }
+      const myVote    = Object.entries(votes).find(([, ids]) => ids.includes(profile?.id))?.[0];
+      const totalVotes = Object.values(votes).reduce((s, ids) => s + ids.length, 0);
+      const hasVoted  = myVote !== undefined;
+      html += `<div class="sf-post sf-poll-post">
+        <div class="sf-post-header">
+          <div class="sf-avatar sf-avatar-coach">${IC.megaphone}</div>
+          <div class="sf-post-meta">
+            <div class="sf-post-author">${escHtml(post.authorName || 'Coach')}</div>
+            <div class="sf-post-time">${ago}</div>
+          </div>
+          ${canDelete ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
+        </div>
+        <div class="sf-poll-question">${escHtml(post.question || '')}</div>
+        <div class="sf-poll-options">
+          ${options.map((opt, i) => {
+            const voteCount = (votes[i] || []).length;
+            const pct       = totalVotes ? Math.round(voteCount / totalVotes * 100) : 0;
+            const isMyVote  = String(i) === String(myVote);
+            return hasVoted
+              ? `<div class="sf-poll-result ${isMyVote ? 'sf-poll-result-mine' : ''}">
+                  <div class="sf-poll-result-bar" style="width:${pct}%"></div>
+                  <span class="sf-poll-result-label">${escHtml(opt)}</span>
+                  <span class="sf-poll-result-pct">${pct}%</span>
+                </div>`
+              : `<button class="sf-poll-option-btn" data-poll="${post.id}" data-option="${i}">${escHtml(opt)}</button>`;
+          }).join('')}
+        </div>
+        <div class="sf-poll-meta">${totalVotes} vote${totalVotes !== 1 ? 's' : ''}${hasVoted ? ' · tap to see results' : ''}</div>
         <div class="sf-post-footer">
           <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
         </div>
@@ -3923,6 +3967,7 @@ function renderSocialFeed() {
 
   document.getElementById('startCallBtn')?.addEventListener('click', () => startBrotherhoodCall(profile));
   document.getElementById('openStokeBtn')?.addEventListener('click', () => openStokeSheet(profile));
+  document.getElementById('openPollBtn')?.addEventListener('click', () => openModal(document.getElementById('pollModal')));
 
   document.getElementById('loadMoreFeedBtn')?.addEventListener('click', loadMoreFeedPosts);
 
@@ -3945,6 +3990,24 @@ function renderSocialFeed() {
       const wrap = img.closest('.sf-photos-wrap');
       const imgs = wrap ? Array.from(wrap.querySelectorAll('.sf-photo')) : [img];
       openPhotoLightbox(img.src, null, '', '', 0, imgs[1]?.src || null, null);
+    });
+  });
+
+  // Poll vote buttons
+  el.querySelectorAll('[data-poll]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!profile) return;
+      const postId = btn.dataset.poll;
+      const optionIdx = btn.dataset.option;
+      const post = feedPosts.find(p => p.id === postId);
+      if (!post) return;
+      const votes = { ...(post.votes || {}) };
+      // Remove any existing vote by this user
+      Object.keys(votes).forEach(k => {
+        votes[k] = (votes[k] || []).filter(id => id !== profile.id);
+      });
+      votes[optionIdx] = [...(votes[optionIdx] || []), profile.id];
+      await updateDoc(doc(db, 'feed', postId), { votes });
     });
   });
 
@@ -5829,6 +5892,48 @@ document.getElementById('announcementForm').addEventListener('submit', async e =
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Post';
+  }
+});
+
+// ── POLL MODAL WIRING ─────────────────────────
+const pollModal = document.getElementById('pollModal');
+document.getElementById('pollModalClose').addEventListener('click',  () => closeModal(pollModal));
+document.getElementById('pollCancelBtn').addEventListener('click',   () => closeModal(pollModal));
+pollModal.addEventListener('click', e => { if (e.target === pollModal) closeModal(pollModal); });
+document.getElementById('pollForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const question = document.getElementById('pollQuestion').value.trim();
+  const options  = Array.from(document.querySelectorAll('.poll-option-input'))
+    .map(i => i.value.trim()).filter(Boolean);
+  if (!question || options.length < 2) {
+    showToast('Add a question and at least 2 options', 'info');
+    return;
+  }
+  const submitBtn = e.target.querySelector('[type="submit"]');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Posting…';
+  try {
+    const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+    await addDoc(collection(db, 'feed'), {
+      type:       'poll',
+      question,
+      options,
+      votes:      {},
+      authorId:   me?.id || null,
+      authorName: me?.name || (isAdmin ? 'Coach' : 'Mentor'),
+      comments:   [],
+      createdAt:  Date.now(),
+    });
+    document.getElementById('pollQuestion').value = '';
+    document.querySelectorAll('.poll-option-input').forEach(i => i.value = '');
+    closeModal(pollModal);
+    switchTab('socialfeed');
+    showToast('Poll posted!', 'success');
+  } catch (err) {
+    showToast('Error posting poll: ' + err.message, 'info');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Post Poll';
   }
 });
 

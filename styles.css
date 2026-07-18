@@ -6442,6 +6442,62 @@ body {
   .btn-share-stoke { width: 100%; margin: 0; padding: 15px 20px; }
 }
 
+/* ── POLLS ── */
+.sf-poll-post { }
+.sf-poll-question {
+  font: 700 17px/1.3 'Barlow', sans-serif;
+  color: var(--text-main);
+  margin: 4px 0 14px;
+}
+.sf-poll-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.sf-poll-option-btn {
+  width: 100%;
+  padding: 11px 16px;
+  text-align: left;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font: 600 14px/1.2 'Barlow', sans-serif;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.sf-poll-option-btn:hover { border-color: var(--terra); background: color-mix(in srgb, var(--terra) 6%, transparent); }
+.sf-poll-result {
+  position: relative;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sf-poll-result-mine { border-color: var(--terra); }
+.sf-poll-result-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--terra) 14%, transparent);
+  transition: width 0.4s ease;
+}
+.sf-poll-result-mine .sf-poll-result-bar { background: color-mix(in srgb, var(--terra) 22%, transparent); }
+.sf-poll-result-label { position: relative; font: 600 14px/1.2 'Barlow', sans-serif; color: var(--text-main); }
+.sf-poll-result-pct   { position: relative; font: 700 13px/1 'Barlow', sans-serif; color: var(--terra); }
+.sf-poll-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+
+/* poll option inputs in modal */
+.poll-option-input {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--text-main);
+  font: 500 14px/1 'Barlow', sans-serif;
+}
+.poll-option-input:focus { outline: none; border-color: var(--terra); }
+
 /* ── LOAD MORE FEED BUTTON ── */
 .btn-load-more-feed {
   display: block;

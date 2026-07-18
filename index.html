@@ -686,6 +686,37 @@
     </div>
   </div>
 
+  <!-- CREATE POLL MODAL (admin/mentor) -->
+  <div class="modal-overlay" id="pollModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">📊 Create Poll</h2>
+        <button class="modal-close" id="pollModalClose">✕</button>
+      </div>
+      <form id="pollForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Question</label>
+            <input type="text" id="pollQuestion" placeholder="What's your biggest focus this week?" maxlength="120" />
+          </div>
+          <div class="form-group">
+            <label>Options</label>
+            <div id="pollOptions">
+              <input type="text" class="poll-option-input" placeholder="Option 1" maxlength="60" />
+              <input type="text" class="poll-option-input" placeholder="Option 2" maxlength="60" />
+              <input type="text" class="poll-option-input" placeholder="Option 3 (optional)" maxlength="60" />
+              <input type="text" class="poll-option-input" placeholder="Option 4 (optional)" maxlength="60" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" id="pollCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Post Poll</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MY PATH — MISSION COMPLETE MODAL -->
   <div class="modal-overlay" id="missionModal">
     <div class="modal">
