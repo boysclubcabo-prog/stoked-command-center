@@ -129,7 +129,7 @@ exports.onNewDM = onDocumentCreated('dms/{convoId}/messages/{msgId}', async even
 });
 
 // ── TRIGGER: Live call started → notify all brothers ──
-exports.onLiveCallStarted = onDocumentUpdated('meta/liveCall', async event => {
+exports.onLiveCallStarted = onDocumentUpdated('feed/_liveCall_', async event => {
   const before = event.data.before.data();
   const after  = event.data.after.data();
   // Only fire when transitioning to active

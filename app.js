@@ -1543,7 +1543,6 @@ function showLogin() {
   if (unsubBrothers)    { unsubBrothers();    unsubBrothers    = null; }
   if (unsubChallenges)  { unsubChallenges();  unsubChallenges  = null; }
   if (unsubSubmissions) { unsubSubmissions(); unsubSubmissions = null; }
-  if (unsubLiveCall)    { unsubLiveCall();    unsubLiveCall    = null; }
   liveCall = null;
   streakUpdatedThisSession = false;
   currentTab = 'brothers';
@@ -1798,7 +1797,20 @@ function showApp() {
   let firstFeedSnap = true;
   unsubFeed = onSnapshot(collection(db, 'feed'), snap => {
     const prevIds = feedPosts.map(p => p.id);
-    feedPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    // _liveCall_ is a reserved sentinel doc used to store live call state — not a real post
+    const liveCallDoc = snap.docs.find(d => d.id === '_liveCall_');
+    if (liveCallDoc) {
+      const data = liveCallDoc.data();
+      const wasActive = liveCall?.active;
+      liveCall = data;
+      if (data?.active && !wasActive) {
+        showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
+      }
+      renderLiveCallBanner();
+    }
+    feedPosts = snap.docs
+      .filter(d => d.id !== '_liveCall_')
+      .map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
     // Notify members of new feed posts (not on first load)
@@ -1818,19 +1830,8 @@ function showApp() {
     updateFeedBadge();
   });
 
-  // Subscribe to live call status
-  let firstCallSnap = true;
-  unsubLiveCall = onSnapshot(doc(db, 'meta', 'liveCall'), snap => {
-    const data = snap.exists() ? snap.data() : null;
-    const wasActive = liveCall?.active;
-    liveCall = data;
-    if (!firstCallSnap && data?.active && !wasActive) {
-      showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
-    }
-    firstCallSnap = false;
-    renderLiveCallBanner();
-    if (currentTab === 'socialfeed') renderSocialFeed();
-  });
+  // Live call state is stored in feed/_liveCall_ (piggybacking on feed's write rules)
+  // The feed onSnapshot listener handles liveCall updates — no separate listener needed
 
   // Tab bar
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -3609,7 +3610,7 @@ async function startBrotherhoodCall(profile) {
     const hostName = isAdmin ? 'Coach' : (profile?.name || 'Mentor');
     const callData = { active: true, roomName, startedByName: hostName, startedAt: Date.now() };
     liveCall = callData;
-    await setDoc(doc(db, 'meta', 'liveCall'), callData);
+    await setDoc(doc(db, 'feed', '_liveCall_'), callData);
     openJitsiModal();
   } catch (err) {
     console.error('startBrotherhoodCall error:', err);
@@ -3619,7 +3620,7 @@ async function startBrotherhoodCall(profile) {
 
 async function endBrotherhoodCall() {
   closeJitsiModal();
-  await setDoc(doc(db, 'meta', 'liveCall'), { active: false });
+  await setDoc(doc(db, 'feed', '_liveCall_'), { active: false });
 }
 
 function openJitsiModal() {
