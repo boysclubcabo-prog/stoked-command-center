@@ -6,7 +6,8 @@
 import { initializeApp }                          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, signInWithEmailAndPassword,
          signOut, onAuthStateChanged }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, doc,
+import { initializeFirestore, persistentLocalCache,
+         collection, doc,
          onSnapshot, setDoc, updateDoc, addDoc,
          deleteDoc, getDoc, getDocs,
          query, orderBy, serverTimestamp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -26,7 +27,9 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth        = getAuth(firebaseApp);
-const db          = getFirestore(firebaseApp);
+const db          = initializeFirestore(firebaseApp, {
+  localCache: persistentLocalCache()
+});
 const storage     = getStorage(firebaseApp);
 const messaging   = getMessaging(firebaseApp);
 
@@ -1596,7 +1599,9 @@ async function maybeShowOnboarding() {
       let newBrotherId = null;
       try {
         newBrotherId = 'br_' + Date.now().toString(36);
-        await setDoc(doc(db, 'brothers', newBrotherId), {
+        // With offline persistence the write resolves immediately from local cache;
+        // the 8s timeout is a safety net for unexpected hangs
+        await withTimeout(setDoc(doc(db, 'brothers', newBrotherId), {
           ...profileData,
           email:                currentUser.email.toLowerCase(),
           xp:                   0,
@@ -1605,7 +1610,7 @@ async function maybeShowOnboarding() {
           onboardingAcceptedAt: new Date().toISOString(),
           createdAt:            new Date().toISOString(),
           updatedAt:            new Date().toISOString(),
-        });
+        }), 8000);
       } catch (err) {
         showToast('Error saving profile: ' + err.message, 'info');
         return;
