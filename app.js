@@ -3604,13 +3604,17 @@ function renderLiveCallBanner() {
 }
 
 async function startBrotherhoodCall(profile) {
-  const roomName = `stoked-brotherhood-${Date.now()}`;
-  const hostName = isAdmin ? 'Coach' : (profile?.name || 'Mentor');
-  const callData = { active: true, roomName, startedByName: hostName, startedAt: Date.now() };
-  // Update local state immediately so openJitsiModal has the roomName
-  liveCall = callData;
-  await setDoc(doc(db, 'meta', 'liveCall'), callData);
-  openJitsiModal();
+  try {
+    const roomName = `stoked-brotherhood-${Date.now()}`;
+    const hostName = isAdmin ? 'Coach' : (profile?.name || 'Mentor');
+    const callData = { active: true, roomName, startedByName: hostName, startedAt: Date.now() };
+    liveCall = callData;
+    await setDoc(doc(db, 'meta', 'liveCall'), callData);
+    openJitsiModal();
+  } catch (err) {
+    console.error('startBrotherhoodCall error:', err);
+    alert('Could not start call: ' + err.message);
+  }
 }
 
 async function endBrotherhoodCall() {
