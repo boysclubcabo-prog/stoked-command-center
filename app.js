@@ -3746,13 +3746,15 @@ function renderSocialFeed() {
   const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser?.email?.toLowerCase());
 
   const callActive = liveCall?.active;
-  let html = `<div class="feed-header">
-    <h2 class="feed-title">Brotherhood Feed</h2>
-    <div style="display:flex;gap:8px;align-items:center">
-      ${(isAdmin || isMentor) && !callActive ? `<button class="btn-start-call" id="startCallBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Start Call</button>` : ''}
-      ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">${IC.megaphone} Post</button>` : ''}
-      ${!isAdmin && profile ? `<button class="btn-share-stoke" id="openStokeBtn">🔥 Share Your Stoke</button>` : ''}
+  let html = `<div class="feed-header-wrap">
+    <div class="feed-header">
+      <h2 class="feed-title">Brotherhood Feed</h2>
+      <div class="feed-header-actions">
+        ${(isAdmin || isMentor) && !callActive ? `<button class="feed-action-icon" id="startCallBtn" title="Start Call"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></button>` : ''}
+        ${(isAdmin || isMentor) ? `<button class="feed-action-icon" id="openAnnouncementBtn" title="Post">${IC.megaphone}</button>` : ''}
+      </div>
     </div>
+    ${!isAdmin && profile ? `<button class="btn-share-stoke" id="openStokeBtn">Share Your Stoke</button>` : ''}
   </div>`;
 
   if (!feedPosts.length) {
