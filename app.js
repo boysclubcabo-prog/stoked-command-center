@@ -1723,7 +1723,7 @@ function showApp() {
   const rosterTabBtn  = document.getElementById('rosterTabBtn');
   if (rosterTabBtn) rosterTabBtn.classList.toggle('hidden', isAdmin);
   const mypathTabBtn  = document.getElementById('mypathTabBtn');
-  if (mypathTabBtn) mypathTabBtn.classList.toggle('hidden', isAdmin);
+  if (mypathTabBtn) mypathTabBtn.classList.remove('hidden');
 
   // Members land on My Path by default — but wait for first data load
   if (!isAdmin) switchTab('brothers'); // show skeleton while loading
@@ -4407,7 +4407,13 @@ function renderMyPath() {
   const el = document.getElementById('mypathContainer');
   if (!el) return;
   const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
-  if (!profile) { el.innerHTML = `<div class="feed-empty">Profile not found.</div>`; return; }
+  // Admin may not have a brother doc — show globe-only view
+  if (!profile) {
+    const globeStats = computeGlobeStats();
+    el.innerHTML = buildGlobeHtml(globeStats, null);
+    initGlobeInteraction(globeStats, null);
+    return;
+  }
 
   // ── Tab switcher wrapper ──────────────────────
   const tabBar = `<div class="gp-tab-bar" role="tablist" aria-label="View switcher">
