@@ -3600,61 +3600,60 @@ function renderLiveCallBanner() {
     </div>`;
   banner.classList.remove('hidden');
 
-  banner.querySelector('#joinCallBtn')?.addEventListener('click', openJitsiModal);
+  banner.querySelector('#joinCallBtn')?.addEventListener('click', () => {
+    if (liveCall?.meetLink) window.open(liveCall.meetLink, '_blank');
+  });
   banner.querySelector('#endCallBtn')?.addEventListener('click', endBrotherhoodCall);
 }
 
-async function startBrotherhoodCall(profile) {
-  try {
-    const roomName = `stoked-brotherhood-${Date.now()}`;
+function startBrotherhoodCall(profile) {
+  // Show a sheet for the host to paste any meeting link
+  let sheet = document.getElementById('startCallSheet');
+  if (sheet) { sheet.remove(); }
+  sheet = document.createElement('div');
+  sheet.id = 'startCallSheet';
+  sheet.className = 'start-call-sheet';
+  sheet.innerHTML = `
+    <div class="start-call-backdrop" id="startCallBackdrop"></div>
+    <div class="start-call-panel">
+      <div class="start-call-header">
+        <span class="start-call-title">Start Brotherhood Call</span>
+        <button class="start-call-close" id="startCallClose">${IC.xmark}</button>
+      </div>
+      <p class="start-call-hint">Create a <strong>Google Meet</strong>, <strong>Zoom</strong>, or <strong>FaceTime</strong> link and paste it below. Brothers will get a join button.</p>
+      <input class="start-call-input" id="startCallLinkInput" placeholder="https://meet.google.com/..." type="url" />
+      <button class="btn btn-primary start-call-go" id="startCallGo">Go Live</button>
+    </div>`;
+  document.body.appendChild(sheet);
+
+  const close = () => sheet.remove();
+  sheet.querySelector('#startCallBackdrop').addEventListener('click', close);
+  sheet.querySelector('#startCallClose').addEventListener('click', close);
+  sheet.querySelector('#startCallInput')?.focus();
+
+  sheet.querySelector('#startCallGo').addEventListener('click', async () => {
+    const link = sheet.querySelector('#startCallLinkInput').value.trim();
+    if (!link || !link.startsWith('http')) {
+      sheet.querySelector('#startCallLinkInput').focus();
+      return;
+    }
     const hostName = isAdmin ? 'Coach' : (profile?.name || 'Mentor');
-    const callData = { active: true, roomName, startedByName: hostName, startedAt: Date.now() };
+    const callData = { active: true, meetLink: link, startedByName: hostName, startedAt: Date.now() };
     liveCall = callData;
-    await setDoc(doc(db, 'feed', '_liveCall_'), callData);
-    openJitsiModal();
-  } catch (err) {
-    console.error('startBrotherhoodCall error:', err);
-    alert('Could not start call: ' + err.message);
-  }
+    try {
+      await setDoc(doc(db, 'feed', '_liveCall_'), callData);
+    } catch (err) {
+      console.error('startBrotherhoodCall error:', err);
+      alert('Could not start call: ' + err.message);
+      return;
+    }
+    sheet.remove();
+    window.open(link, '_blank');
+  });
 }
 
 async function endBrotherhoodCall() {
-  closeJitsiModal();
   await setDoc(doc(db, 'feed', '_liveCall_'), { active: false });
-}
-
-function openJitsiModal() {
-  if (!liveCall?.roomName) return;
-  let modal = document.getElementById('jitsiModal');
-  if (!modal) {
-    modal = document.createElement('div');
-    modal.id = 'jitsiModal';
-    modal.className = 'jitsi-modal';
-    modal.innerHTML = `
-      <div class="jitsi-header">
-        <span class="jitsi-title">Brotherhood Call</span>
-        <button class="jitsi-close" id="jitsiCloseBtn">${IC.xmark}</button>
-      </div>
-      <div class="jitsi-frame-wrap">
-        <iframe id="jitsiFrame" class="jitsi-frame" allow="camera; microphone; display-capture; fullscreen; speaker-selection" allowfullscreen></iframe>
-      </div>`;
-    document.body.appendChild(modal);
-    modal.querySelector('#jitsiCloseBtn').addEventListener('click', closeJitsiModal);
-  }
-  const frame = modal.querySelector('#jitsiFrame');
-  frame.src = `https://meet.jit.si/${liveCall.roomName}`;
-  modal.classList.add('open');
-  document.body.classList.add('jitsi-open');
-}
-
-function closeJitsiModal() {
-  const modal = document.getElementById('jitsiModal');
-  if (!modal) return;
-  modal.classList.remove('open');
-  document.body.classList.remove('jitsi-open');
-  // Clear src so camera/mic are released
-  const frame = modal.querySelector('#jitsiFrame');
-  if (frame) frame.src = '';
 }
 
 // ── SOCIAL FEED ───────────────────────────────
