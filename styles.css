@@ -1068,18 +1068,18 @@ body {
 }
 
 .globe-node-ring {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: rgba(255,255,255,0.07);
-  border: 1.5px solid rgba(255,255,255,0.18);
+  border: 2.5px solid var(--node-clr, rgba(255,255,255,0.4));
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
-.globe-node:hover .globe-node-ring { transform: scale(1.1); border-color: rgba(255,255,255,0.32); }
+.globe-node:hover .globe-node-ring { transform: scale(1.1); }
 .globe-node.globe-node-selected .globe-node-ring {
   transform: scale(1.14);
   border-color: var(--node-clr, var(--orange));
@@ -1088,8 +1088,8 @@ body {
 }
 
 .globe-node-img {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   display: block;
@@ -1442,8 +1442,8 @@ body {
 /* Responsive */
 @media (min-width: 600px) {
   .globe-stat-grid { grid-template-columns: repeat(6, 1fr); }
-  .globe-node-ring { width: 44px; height: 44px; }
-  .globe-node-img  { width: 32px; height: 32px; }
+  .globe-node-ring { width: 56px; height: 56px; }
+  .globe-node-img  { width: 40px; height: 40px; }
   .globe-node-label { font-size: 8px; }
 }
 
@@ -1459,12 +1459,11 @@ body {
   --globe-spoke:      rgba(0,0,0,0.1);
 }
 [data-theme="light"] .globe-map-outer { background: var(--bg-card); }
-[data-theme="light"] .globe-node-ring { background: #fff; border-color: rgba(0,0,0,0.15); }
-[data-theme="light"] .globe-node:hover .globe-node-ring { border-color: rgba(0,0,0,0.3); }
+[data-theme="light"] .globe-node-ring { background: #fff; }
+[data-theme="light"] .globe-node-img  { filter: none; }
 [data-theme="light"] .globe-node-label { color: rgba(40,30,20,0.7); text-shadow: none; }
 [data-theme="light"] .globe-node.globe-node-selected .globe-node-label { color: rgba(40,30,20,1); }
 [data-theme="light"] .globe-node-count { background: #fff; border-color: rgba(0,0,0,0.15); color: #3a3020; }
-[data-theme="light"] .globe-node-img  { filter: none; }
 [data-theme="light"] .globe-center    { background: #f5f0e8; }
 [data-theme="light"] .globe-center-line1 { color: rgba(40,30,20,0.75); }
 [data-theme="light"] .globe-center-line2 { color: rgba(40,30,20,0.45); }

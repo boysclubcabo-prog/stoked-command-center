@@ -4178,7 +4178,7 @@ function computeBrotherhoodTotals(stats) {
 function renderGlobeNodeHtml(arch, idx, stats, userArch) {
   const n = ARCHETYPE_ORDER.length;
   const angle = (idx / n * 360 - 90) * Math.PI / 180;
-  const R = 41;
+  const R = 45;
   const cx = (50 + R * Math.cos(angle)).toFixed(2);
   const cy = (50 + R * Math.sin(angle)).toFixed(2);
   const s    = stats[arch];
@@ -4190,7 +4190,7 @@ function renderGlobeNodeHtml(arch, idx, stats, userArch) {
       style="left:${cx}%;top:${cy}%;--node-clr:${aClr.icon}"
       tabindex="0" role="button"
       aria-label="${escHtml(arch)} archetype, ${s.memberCount} member${s.memberCount !== 1 ? 's' : ''}">
-    <div class="globe-node-ring" style="${isMine ? `border-color:${aClr.icon};box-shadow:0 0 0 1.5px ${aClr.icon}40,0 0 10px ${aClr.icon}28` : ''}">
+    <div class="globe-node-ring" style="border-color:${aClr.icon};${isMine ? `box-shadow:0 0 0 2px ${aClr.icon}40,0 0 12px ${aClr.icon}40` : ''}">
       <img src="${iconSrc}" alt="${escHtml(arch)}" class="globe-node-img">
       <span class="globe-node-count">${s.memberCount}</span>
     </div>
@@ -4510,13 +4510,13 @@ function buildGlobeHtml(stats, profile) {
     const a = (i * 30 - 90) * Math.PI / 180;
     return `${(50 + R * Math.cos(a)).toFixed(2)},${(50 + R * Math.sin(a)).toFixed(2)}`;
   }).join(' ');
-  const outerPts = pts(43);
+  const outerPts = pts(47);
   const innerPts = pts(18);
   // Spokes from center to each outer vertex
   const spokes = Array.from({length: 12}, (_, i) => {
     const a = (i * 30 - 90) * Math.PI / 180;
-    const x = (50 + 43 * Math.cos(a)).toFixed(2);
-    const y = (50 + 43 * Math.sin(a)).toFixed(2);
+    const x = (50 + 47 * Math.cos(a)).toFixed(2);
+    const y = (50 + 47 * Math.sin(a)).toFixed(2);
     return `<line x1="50" y1="50" x2="${x}" y2="${y}" stroke="var(--globe-spoke)" stroke-width="0.4" stroke-dasharray="1.5,1.5"/>`;
   }).join('');
 
