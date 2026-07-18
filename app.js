@@ -9,8 +9,7 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc, addDoc,
          deleteDoc, getDoc, getDocs,
-         query, orderBy, limit, startAfter,
-         serverTimestamp }                         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         query, orderBy, serverTimestamp }          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef,
          uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 import { getMessaging, getToken, onMessage }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
@@ -1375,10 +1374,8 @@ function getBSCategory(score) {
 let brothers    = [];
 let challenges  = [];
 let submissions = [];
-let feedPosts      = [];
-let feedLastDoc    = null;   // last Firestore doc snapshot for pagination
-let feedAllLoaded  = false;  // true when no more older posts exist
-const FEED_PAGE    = 10;     // posts per page
+let feedPosts        = [];
+let feedDisplayCount = 10;  // how many posts to render at once
 let currentUser = null;
 let isAdmin     = false;
 let isMentor    = false;
@@ -1797,39 +1794,31 @@ function showApp() {
     updateChallengesBadge();
   });
 
-  // Subscribe to live call sentinel doc separately
-  onSnapshot(doc(db, 'feed', '_liveCall_'), snap => {
-    const data = snap.exists() ? snap.data() : null;
-    const wasActive = liveCall?.active;
-    liveCall = data;
-    if (data?.active && !wasActive) {
-      showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
-    }
-    renderLiveCallBanner();
-  });
-
-  // Subscribe to latest feed posts (paginated — newest FEED_PAGE posts, live)
+  // Subscribe to social feed
   lastFeedSeen = parseInt(localStorage.getItem(`feedSeen_${currentUser.uid}`) || '0', 10);
   let firstFeedSnap = true;
-  feedPosts = [];
-  feedLastDoc = null;
-  feedAllLoaded = false;
-  const feedQ = query(collection(db, 'feed'), orderBy('createdAt', 'desc'), limit(FEED_PAGE));
-  unsubFeed = onSnapshot(feedQ, snap => {
+  feedDisplayCount = 10;
+  unsubFeed = onSnapshot(collection(db, 'feed'), snap => {
     const prevIds = feedPosts.map(p => p.id);
-    // Replace only the "live window" (newest FEED_PAGE posts); keep any older loaded pages
-    const liveDocs = snap.docs.filter(d => d.id !== '_liveCall_');
-    const livePosts = liveDocs.map(d => ({ id: d.id, ...d.data() }));
-    // Update last doc cursor for "load more"
-    if (liveDocs.length > 0) feedLastDoc = liveDocs[liveDocs.length - 1];
-    if (liveDocs.length < FEED_PAGE) feedAllLoaded = true;
-    // Merge: live window replaces ids already present, older pages stay appended
-    const olderPosts = feedPosts.filter(p => !livePosts.some(lp => lp.id === p.id) && !liveDocs.some(ld => ld.id === p.id));
-    feedPosts = [...livePosts, ...olderPosts];
+    // _liveCall_ is a reserved sentinel doc used to store live call state — not a real post
+    const liveCallDoc = snap.docs.find(d => d.id === '_liveCall_');
+    if (liveCallDoc) {
+      const data = liveCallDoc.data();
+      const wasActive = liveCall?.active;
+      liveCall = data;
+      if (data?.active && !wasActive) {
+        showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
+      }
+      renderLiveCallBanner();
+    }
+    feedPosts = snap.docs
+      .filter(d => d.id !== '_liveCall_')
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
     // Notify members of new feed posts (not on first load)
     if (!firstFeedSnap && currentTab !== 'socialfeed') {
-      const newPosts = livePosts.filter(p => !prevIds.includes(p.id));
+      const newPosts = feedPosts.filter(p => !prevIds.includes(p.id));
       newPosts.forEach(p => {
         if (p.type === 'announcement') {
           showNotif('📣 Coach Posted', p.text?.slice(0, 80) || 'New message on the feed');
@@ -1842,9 +1831,6 @@ function showApp() {
 
     if (currentTab === 'socialfeed') renderSocialFeed();
     updateFeedBadge();
-  }, err => {
-    console.error('feed snapshot error', err);
-    if (currentTab === 'socialfeed') renderSocialFeed();
   });
 
   // Live call state is stored in feed/_liveCall_ (piggybacking on feed's write rules)
@@ -3781,7 +3767,8 @@ function renderSocialFeed() {
     return;
   }
 
-  feedPosts.forEach(post => {
+  const visiblePosts = feedPosts.slice(0, feedDisplayCount);
+  visiblePosts.forEach(post => {
     const ago = timeAgo(post.createdAt);
     const brother = brothers.find(b => b.id === post.brotherId);
     const icon = brother ? archetypeElementIcon(brother.primaryArchetype || brother.archetype, brother.dominantElement, brother.xp) : '';
@@ -3918,7 +3905,7 @@ function renderSocialFeed() {
     }
   });
 
-  if (!feedAllLoaded) {
+  if (feedPosts.length > feedDisplayCount) {
     html += `<button class="btn-load-more-feed" id="loadMoreFeedBtn">Load more posts</button>`;
   }
 
@@ -3989,25 +3976,9 @@ function renderSocialFeed() {
   });
 }
 
-async function loadMoreFeedPosts() {
-  if (feedAllLoaded || !feedLastDoc) return;
-  const btn = document.getElementById('loadMoreFeedBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
-  try {
-    const q = query(collection(db, 'feed'), orderBy('createdAt', 'desc'), startAfter(feedLastDoc), limit(FEED_PAGE));
-    const snap = await getDocs(q);
-    const newDocs = snap.docs.filter(d => d.id !== '_liveCall_');
-    const newPosts = newDocs.map(d => ({ id: d.id, ...d.data() }));
-    if (newDocs.length > 0) feedLastDoc = newDocs[newDocs.length - 1];
-    if (newDocs.length < FEED_PAGE) feedAllLoaded = true;
-    // Append only posts not already loaded
-    const existingIds = new Set(feedPosts.map(p => p.id));
-    feedPosts = [...feedPosts, ...newPosts.filter(p => !existingIds.has(p.id))];
-    renderSocialFeed();
-  } catch (err) {
-    console.error('loadMoreFeedPosts', err);
-    if (btn) { btn.disabled = false; btn.textContent = 'Load more posts'; }
-  }
+function loadMoreFeedPosts() {
+  feedDisplayCount += 10;
+  renderSocialFeed();
 }
 
 function renderComments(comments, profile) {
