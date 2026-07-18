@@ -1364,11 +1364,12 @@ body {
 
 /* Light theme tweaks */
 [data-theme="light"] {
-  --globe-line:       rgba(255,255,255,0.75);
-  --globe-line-inner: rgba(255,255,255,0.35);
-  --globe-spoke:      rgba(255,255,255,0.35);
+  --globe-line:       rgba(40,30,20,0.6);
+  --globe-line-inner: rgba(40,30,20,0.25);
+  --globe-spoke:      rgba(40,30,20,0.2);
 }
-[data-theme="light"] .globe-map-outer { background: var(--bg-card); }
+[data-theme="light"] .globe-node-ring { background: rgba(40,30,20,0.12); }
+[data-theme="light"] .globe-node-img  { filter: brightness(0); }
 [data-theme="light"] .globe-node-label { color: rgba(40,30,20,0.7); text-shadow: none; }
 [data-theme="light"] .globe-node.globe-node-selected .globe-node-label { color: rgba(40,30,20,1); }
 [data-theme="light"] .globe-node-count { background: #fff; border-color: rgba(0,0,0,0.15); color: #3a3020; }
