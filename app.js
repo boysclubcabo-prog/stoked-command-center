@@ -3587,7 +3587,16 @@ function renderLiveCallBanner() {
     return;
   }
 
+  // Check if this user is invited
   const canEnd = isAdmin || isMentor;
+  if (!liveCall.invitedAll && !canEnd) {
+    const myProfile = brothers.find(b => b.email?.toLowerCase() === currentUser?.email?.toLowerCase());
+    const invited = myProfile && liveCall.invitedBrothers?.includes(myProfile.id);
+    if (!invited) {
+      banner.classList.add('hidden');
+      return;
+    }
+  }
   banner.innerHTML = `
     <div class="live-call-pulse"></div>
     <div class="live-call-info">
@@ -3606,13 +3615,54 @@ function renderLiveCallBanner() {
   banner.querySelector('#endCallBtn')?.addEventListener('click', endBrotherhoodCall);
 }
 
-function startBrotherhoodCall(profile) {
-  // Show a sheet for the host to paste any meeting link
+function startBrotherhoodCall(hostProfile) {
   let sheet = document.getElementById('startCallSheet');
-  if (sheet) { sheet.remove(); }
+  if (sheet) sheet.remove();
   sheet = document.createElement('div');
   sheet.id = 'startCallSheet';
   sheet.className = 'start-call-sheet';
+
+  // Track selected brother IDs; null = everyone
+  const selectedIds = new Set();
+  let inviteAll = true;
+
+  const brotherList = brothers
+    .filter(b => b.name)
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  const renderBrotherPicker = () => {
+    const pickerEl = sheet.querySelector('#callBrotherPicker');
+    if (!pickerEl) return;
+    pickerEl.innerHTML = brotherList.map(b => {
+      const sel = !inviteAll && selectedIds.has(b.id);
+      const initials = (b.name || '?')[0].toUpperCase();
+      return `<button class="call-brother-chip${sel ? ' selected' : ''}" data-brid="${b.id}">
+        <span class="call-brother-avatar">${initials}</span>
+        <span class="call-brother-name">${escHtml(b.name)}</span>
+        ${sel ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>` : ''}
+      </button>`;
+    }).join('');
+    pickerEl.querySelectorAll('[data-brid]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        inviteAll = false;
+        const id = btn.dataset.brid;
+        if (selectedIds.has(id)) selectedIds.delete(id);
+        else selectedIds.add(id);
+        sheet.querySelector('#callAllToggle').classList.remove('active');
+        renderBrotherPicker();
+        updateGoLabel();
+      });
+    });
+  };
+
+  const updateGoLabel = () => {
+    const goBtn = sheet.querySelector('#startCallGo');
+    if (!goBtn) return;
+    if (inviteAll) goBtn.textContent = `Go Live — All Brothers`;
+    else if (selectedIds.size === 0) goBtn.textContent = `Select brothers above`;
+    else goBtn.textContent = `Go Live — ${selectedIds.size} Brother${selectedIds.size > 1 ? 's' : ''}`;
+  };
+
   sheet.innerHTML = `
     <div class="start-call-backdrop" id="startCallBackdrop"></div>
     <div class="start-call-panel">
@@ -3620,25 +3670,49 @@ function startBrotherhoodCall(profile) {
         <span class="start-call-title">Start Brotherhood Call</span>
         <button class="start-call-close" id="startCallClose">${IC.xmark}</button>
       </div>
-      <p class="start-call-hint">Open <strong>meet.google.com</strong>, start a new meeting, copy the link, and paste it below. Brothers will get a notification and a Join button.</p>
+      <p class="start-call-hint">Open <strong>meet.google.com</strong>, start a new meeting, copy the link, and paste it below.</p>
       <input class="start-call-input" id="startCallLinkInput" placeholder="https://meet.google.com/abc-defg-hij" type="url" />
-      <button class="btn btn-primary start-call-go" id="startCallGo">Go Live</button>
+      <div class="call-invite-section">
+        <div class="call-invite-label">Invite</div>
+        <div class="call-invite-row">
+          <button class="call-all-toggle active" id="callAllToggle">Everyone</button>
+          <div class="call-brother-picker" id="callBrotherPicker"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary start-call-go" id="startCallGo">Go Live — All Brothers</button>
     </div>`;
   document.body.appendChild(sheet);
+
+  renderBrotherPicker();
+
+  sheet.querySelector('#callAllToggle').addEventListener('click', () => {
+    inviteAll = true;
+    selectedIds.clear();
+    sheet.querySelector('#callAllToggle').classList.add('active');
+    renderBrotherPicker();
+    updateGoLabel();
+  });
 
   const close = () => sheet.remove();
   sheet.querySelector('#startCallBackdrop').addEventListener('click', close);
   sheet.querySelector('#startCallClose').addEventListener('click', close);
-  sheet.querySelector('#startCallInput')?.focus();
 
   sheet.querySelector('#startCallGo').addEventListener('click', async () => {
+    if (!inviteAll && selectedIds.size === 0) return;
     const link = sheet.querySelector('#startCallLinkInput').value.trim();
     if (!link || !link.startsWith('http')) {
       sheet.querySelector('#startCallLinkInput').focus();
       return;
     }
-    const hostName = isAdmin ? 'Coach' : (profile?.name || 'Mentor');
-    const callData = { active: true, meetLink: link, startedByName: hostName, startedAt: Date.now() };
+    const hostName = isAdmin ? 'Coach' : (hostProfile?.name || 'Mentor');
+    const callData = {
+      active: true,
+      meetLink: link,
+      startedByName: hostName,
+      startedAt: Date.now(),
+      invitedAll: inviteAll,
+      invitedBrothers: inviteAll ? [] : [...selectedIds],
+    };
     liveCall = callData;
     try {
       await setDoc(doc(db, 'feed', '_liveCall_'), callData);

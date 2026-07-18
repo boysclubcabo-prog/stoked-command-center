@@ -128,13 +128,21 @@ exports.onNewDM = onDocumentCreated('dms/{convoId}/messages/{msgId}', async even
   );
 });
 
-// ── TRIGGER: Live call started → notify all brothers ──
+// ── TRIGGER: Live call started → notify invited brothers ──
 exports.onLiveCallStarted = onDocumentUpdated('feed/_liveCall_', async event => {
   const before = event.data.before.data();
   const after  = event.data.after.data();
-  // Only fire when transitioning to active
   if (!after.active || before.active === true) return;
-  const tokens = await getAllTokens();
+
+  let tokens;
+  if (after.invitedAll || !after.invitedBrothers?.length) {
+    tokens = await getAllTokens();
+  } else {
+    const allTokens = await Promise.all(
+      after.invitedBrothers.map(id => getTokensForBrother(id))
+    );
+    tokens = [...new Set(allTokens.flat())];
+  }
   await sendToTokens(
     tokens,
     '📹 Brotherhood Call Live',

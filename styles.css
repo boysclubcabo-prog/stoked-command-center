@@ -5374,6 +5374,79 @@ body {
   transition: border-color 0.15s;
 }
 .start-call-input:focus { border-color: var(--accent, #C4693A); }
+.call-invite-section {
+  margin-bottom: 14px;
+}
+.call-invite-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.call-invite-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+}
+.call-all-toggle {
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.call-all-toggle.active {
+  background: rgba(196,105,58,0.12);
+  border-color: var(--accent, #C4693A);
+  color: var(--accent, #C4693A);
+}
+.call-brother-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.call-brother-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px 5px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.call-brother-chip.selected {
+  background: rgba(196,105,58,0.12);
+  border-color: var(--accent, #C4693A);
+  color: var(--accent, #C4693A);
+}
+.call-brother-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.call-brother-name { max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .start-call-go {
   width: 100%;
   padding: 14px;
