@@ -2172,6 +2172,13 @@ function renderMemberView() {
         </div>`}
       </div>
 
+      ${(profile.stokeStreak > 0) ? `
+        <div class="stoke-streak-row">
+          <span class="stoke-streak-fire">🔥</span>
+          <span class="stoke-streak-num">${profile.stokeStreak}</span>
+          <span class="stoke-streak-lbl">day stoke streak</span>
+        </div>` : ''}
+
       ${(profile.currentStreak > 0) ? `
         <div class="streak-member">
           <span class="streak-flame">${IC.flame}</span>
@@ -3744,6 +3751,7 @@ function renderSocialFeed() {
     <div style="display:flex;gap:8px;align-items:center">
       ${(isAdmin || isMentor) && !callActive ? `<button class="btn-start-call" id="startCallBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Start Call</button>` : ''}
       ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">${IC.megaphone} Post</button>` : ''}
+      ${!isAdmin && !isMentor && profile ? `<button class="btn-share-stoke" id="openStokeBtn">🔥 Share Your Stoke</button>` : ''}
     </div>
   </div>`;
 
@@ -3805,6 +3813,40 @@ function renderSocialFeed() {
           <button class="sf-comment-send" data-comment-send="${post.id}">${IC.send}</button>
         </div>
       </div>`;
+    } else if (post.type === 'stoke') {
+      const stokeLevel = post.stokeLevel ?? 100;
+      const activityTag = post.activityTag || '';
+      const tagline = post.tagline || '';
+      html += `<div class="sf-post sf-stoke-post" data-post-id="${post.id}">
+        <div class="sf-stoke-media-wrap">
+          ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-stoke-photo" alt="" />` : ''}
+          <div class="sf-stoke-overlay">
+            ${tagline ? `<div class="sf-stoke-tagline">${escHtml(tagline)}</div>` : ''}
+            ${activityTag ? `<div class="sf-stoke-activity-tag">${escHtml(activityTag)}</div>` : ''}
+            <img src="/stoked-command-center/stoked-watermark.png" class="sf-stoke-watermark" alt="STOKED." />
+          </div>
+          <div class="sf-stoke-bar-wrap">
+            <div class="sf-stoke-bar" style="width:${stokeLevel}%"></div>
+          </div>
+        </div>
+        <div class="sf-post-header sf-stoke-meta">
+          <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
+          <div class="sf-post-meta">
+            <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}</div>
+            <div class="sf-post-time">${ago}</div>
+          </div>
+          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
+        </div>
+        <div class="sf-post-footer">
+          <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
+          <div class="sf-footer-right"><span class="sf-stoke-level-label">🔥 ${stokeLevel}%</span></div>
+        </div>
+        <div class="sf-comments" data-post-id="${post.id}">${renderComments(post.comments || [], profile)}</div>
+        <div class="sf-comment-form hidden" data-comment-form="${post.id}">
+          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Add a comment…" maxlength="300" />
+          <button class="sf-comment-send" data-comment-send="${post.id}">${IC.send}</button>
+        </div>
+      </div>`;
     } else {
       const tagColor = post.challengeTag && CHALLENGE_TAGS[post.challengeTag] ? CHALLENGE_TAGS[post.challengeTag].color : '#888';
       const alreadyDone = post.challengeId && profile ? submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id) : null;
@@ -3854,6 +3896,7 @@ function renderSocialFeed() {
   if (isAdmin || isMentor) bindAnnouncementBtn(el);
 
   document.getElementById('startCallBtn')?.addEventListener('click', () => startBrotherhoodCall(profile));
+  document.getElementById('openStokeBtn')?.addEventListener('click', () => openStokeSheet(profile));
 
   // Tap feed photo to open fullscreen
   el.querySelectorAll('.sf-photo').forEach(img => {
@@ -3922,6 +3965,134 @@ async function postComment(postId, el, profile) {
   const updated = [...(post.comments || []), { authorName, text, createdAt: Date.now() }];
   input.value = '';
   await updateDoc(doc(db, 'feed', postId), { comments: updated });
+}
+
+const STOKE_ACTIVITY_TAGS = ['SURFED','HIKED','TRAINED','BUILT','PLAYED','TRAVELED','SKIED','DROVE','CLIMBED','SHOT'];
+
+async function openStokeSheet(profile) {
+  // Check daily limit
+  const today = new Date().toDateString();
+  const todayPost = feedPosts.find(p => p.type === 'stoke' && p.brotherId === profile?.id && new Date(p.createdAt).toDateString() === today);
+  if (todayPost) {
+    alert('You already shared your stoke today — come back tomorrow!');
+    return;
+  }
+
+  const existing = document.getElementById('stokeSheet');
+  if (existing) { existing.remove(); return; }
+
+  const sheet = document.createElement('div');
+  sheet.id = 'stokeSheet';
+  sheet.className = 'stoke-sheet';
+  sheet.innerHTML = `
+    <div class="stoke-sheet-backdrop"></div>
+    <div class="stoke-sheet-panel">
+      <div class="stoke-sheet-header">
+        <span class="stoke-sheet-title">Share Your Stoke</span>
+        <button class="stoke-sheet-close" id="stokeSheetClose">✕</button>
+      </div>
+
+      <div class="stoke-photo-preview-wrap" id="stokePhotoPreview">
+        <label class="stoke-photo-upload-label" for="stokePhotoInput">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          <span>Tap to add photo</span>
+        </label>
+        <input type="file" id="stokePhotoInput" accept="image/*" style="display:none" />
+      </div>
+
+      <input class="stoke-tagline-input" id="stokeTagline" placeholder="Short tagline… (max 6 words)" maxlength="60" />
+
+      <div class="stoke-section-label">What are you doing?</div>
+      <div class="stoke-activity-tags">
+        ${STOKE_ACTIVITY_TAGS.map(t => `<button class="stoke-activity-chip" data-tag="${t}">${t}</button>`).join('')}
+      </div>
+
+      <div class="stoke-section-label">Stoke Level <span id="stokeLevelVal">100</span>%</div>
+      <input type="range" class="stoke-level-slider" id="stokeLevelSlider" min="0" max="100" value="100" />
+
+      <button class="stoke-submit-btn" id="stokeSubmitBtn">🔥 Post Your Stoke</button>
+    </div>`;
+
+  document.body.appendChild(sheet);
+
+  // Photo preview
+  const photoInput = sheet.querySelector('#stokePhotoInput');
+  const previewWrap = sheet.querySelector('#stokePhotoPreview');
+  let photoFile = null;
+  photoInput.addEventListener('change', () => {
+    photoFile = photoInput.files[0];
+    if (!photoFile) return;
+    const url = URL.createObjectURL(photoFile);
+    previewWrap.innerHTML = `<img src="${url}" class="stoke-preview-img" /><label class="stoke-change-photo" for="stokePhotoInput2">Change</label><input type="file" id="stokePhotoInput2" accept="image/*" style="display:none" />`;
+    previewWrap.querySelector('#stokePhotoInput2')?.addEventListener('change', e => {
+      photoFile = e.target.files[0];
+      if (photoFile) previewWrap.querySelector('img').src = URL.createObjectURL(photoFile);
+    });
+  });
+
+  // Tagline word limit
+  const taglineInput = sheet.querySelector('#stokeTagline');
+  taglineInput.addEventListener('input', () => {
+    const words = taglineInput.value.trim().split(/\s+/).filter(Boolean);
+    if (words.length > 6) taglineInput.value = words.slice(0, 6).join(' ');
+  });
+
+  // Activity tag selection
+  let selectedTag = '';
+  sheet.querySelectorAll('.stoke-activity-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      sheet.querySelectorAll('.stoke-activity-chip').forEach(c => c.classList.remove('active'));
+      if (selectedTag === chip.dataset.tag) { selectedTag = ''; } else {
+        chip.classList.add('active');
+        selectedTag = chip.dataset.tag;
+      }
+    });
+  });
+
+  // Stoke level
+  const slider = sheet.querySelector('#stokeLevelSlider');
+  const valLabel = sheet.querySelector('#stokeLevelVal');
+  slider.addEventListener('input', () => { valLabel.textContent = slider.value; });
+
+  // Close
+  sheet.querySelector('#stokeSheetClose').addEventListener('click', () => sheet.remove());
+  sheet.querySelector('.stoke-sheet-backdrop').addEventListener('click', () => sheet.remove());
+
+  // Submit
+  sheet.querySelector('#stokeSubmitBtn').addEventListener('click', async () => {
+    const btn = sheet.querySelector('#stokeSubmitBtn');
+    if (!photoFile) { alert('Add a photo first!'); return; }
+    btn.disabled = true;
+    btn.textContent = 'Uploading…';
+    try {
+      const photoUrl = await uploadPhoto(photoFile, `feed/stoke_${Date.now()}_${photoFile.name}`);
+      await addDoc(collection(db, 'feed'), {
+        type:        'stoke',
+        brotherId:   profile.id,
+        brotherName: profile.name,
+        photoUrl,
+        tagline:     taglineInput.value.trim(),
+        activityTag: selectedTag,
+        stokeLevel:  parseInt(slider.value),
+        comments:    [],
+        createdAt:   Date.now(),
+      });
+      // Update stoke streak on brother doc
+      const lastDate = profile.lastStokeDate;
+      const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+      const streakContinues = lastDate && new Date(lastDate).toDateString() === yesterday.toDateString();
+      const newStreak = streakContinues ? (profile.stokeStreak || 0) + 1 : 1;
+      await updateDoc(doc(db, 'brothers', profile.id), {
+        lastStokeDate: Date.now(),
+        stokeStreak:   newStreak,
+      });
+      sheet.remove();
+    } catch(e) {
+      btn.disabled = false;
+      btn.textContent = '🔥 Post Your Stoke';
+      alert('Could not post: ' + e.message);
+    }
+  });
 }
 
 function bindAnnouncementBtn(el) {

@@ -6389,3 +6389,273 @@ body {
   white-space: nowrap;
 }
 .btn-dm-inbox:hover { border-color: var(--terra); color: var(--terra); }
+
+/* ── SHARE YOUR STOKE ──────────────────────────────────────── */
+.btn-share-stoke {
+  background: var(--terra);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font: 700 13px/1 'Barlow', sans-serif;
+  letter-spacing: 0.04em;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-share-stoke:hover { opacity: 0.85; }
+
+/* Stoke sheet */
+.stoke-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.stoke-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+}
+.stoke-sheet-panel {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 540px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.stoke-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.stoke-sheet-title {
+  font: 700 18px/1 'Bebas Neue','Barlow Condensed',sans-serif;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+.stoke-sheet-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+/* Photo upload area */
+.stoke-photo-preview-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/5;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  border: 2px dashed var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.stoke-photo-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.stoke-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.stoke-change-photo {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* Tagline input */
+.stoke-tagline-input {
+  width: 100%;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font: 600 16px/1 'Barlow',sans-serif;
+  padding: 12px 14px;
+  box-sizing: border-box;
+}
+.stoke-tagline-input::placeholder { color: var(--text-muted); }
+.stoke-tagline-input:focus { outline: none; border-color: var(--terra); }
+
+/* Section label */
+.stoke-section-label {
+  font: 700 11px/1 'Barlow',sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Activity tag chips */
+.stoke-activity-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.stoke-activity-chip {
+  padding: 6px 13px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border-light);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font: 700 12px/1 'Barlow',sans-serif;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.stoke-activity-chip:hover { border-color: var(--terra); color: var(--terra); }
+.stoke-activity-chip.active {
+  background: var(--terra);
+  border-color: var(--terra);
+  color: #fff;
+}
+
+/* Stoke level slider */
+.stoke-level-slider {
+  width: 100%;
+  accent-color: var(--terra);
+}
+
+/* Submit button */
+.stoke-submit-btn {
+  width: 100%;
+  background: var(--terra);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font: 700 15px/1 'Barlow',sans-serif;
+  letter-spacing: 0.05em;
+  padding: 15px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.stoke-submit-btn:hover { opacity: 0.85; }
+.stoke-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Stoke feed card ── */
+.sf-stoke-post {
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.sf-stoke-media-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/5;
+  overflow: hidden;
+  background: #000;
+}
+.sf-stoke-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sf-stoke-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 18px 32px;
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.0) 50%);
+  pointer-events: none;
+}
+.sf-stoke-tagline {
+  font: 700 26px/1.1 'Bebas Neue','Barlow Condensed',sans-serif;
+  letter-spacing: 0.06em;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.sf-stoke-activity-tag {
+  font: 700 11px/1 'Barlow',sans-serif;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.sf-stoke-watermark {
+  height: 22px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.9;
+  filter: brightness(0) invert(1);
+  align-self: flex-start;
+}
+.sf-stoke-bar-wrap {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+}
+.sf-stoke-bar {
+  height: 100%;
+  background: var(--terra);
+  transition: width 0.6s ease;
+}
+.sf-stoke-meta {
+  padding: 12px 16px 0;
+}
+.sf-stoke-level-label {
+  font: 700 12px/1 'Barlow',sans-serif;
+  color: var(--terra);
+  letter-spacing: 0.06em;
+}
+
+/* Stoke streak row on profile */
+.stoke-streak-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--terra) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--terra) 30%, transparent);
+  border-radius: var(--radius-md);
+  margin-bottom: 4px;
+}
+.stoke-streak-fire { font-size: 18px; }
+.stoke-streak-num {
+  font: 700 22px/1 'Bebas Neue','Barlow Condensed',sans-serif;
+  color: var(--terra);
+  letter-spacing: 0.05em;
+}
+.stoke-streak-lbl {
+  font: 600 12px/1 'Barlow',sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
