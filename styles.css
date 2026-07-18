@@ -4945,7 +4945,6 @@ body {
 }
 .sf-post:first-child { border-top: 1px solid var(--border); }
 .sf-announcement {
-  border-left: 3px solid var(--accent);
 }
 .sf-post-header {
   display: flex;
