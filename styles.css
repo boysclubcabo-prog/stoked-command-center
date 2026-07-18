@@ -6442,6 +6442,25 @@ body {
   .btn-share-stoke { width: 100%; margin: 0; padding: 15px 20px; }
 }
 
+/* ── LOAD MORE FEED BUTTON ── */
+.btn-load-more-feed {
+  display: block;
+  width: 100%;
+  margin: 16px 0 24px;
+  padding: 12px;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font: 600 13px/1 'Barlow', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-load-more-feed:hover:not(:disabled) { border-color: var(--terra); color: var(--terra); }
+.btn-load-more-feed:disabled { opacity: 0.5; cursor: default; }
+
 /* Stoke sheet */
 .stoke-sheet {
   position: fixed;

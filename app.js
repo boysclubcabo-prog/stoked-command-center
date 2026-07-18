@@ -9,7 +9,8 @@ import { getAuth, signInWithEmailAndPassword,
 import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc, addDoc,
          deleteDoc, getDoc, getDocs,
-         query, orderBy, serverTimestamp }         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         query, orderBy, limit, startAfter,
+         serverTimestamp, where }                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef,
          uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 import { getMessaging, getToken, onMessage }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
@@ -1374,7 +1375,10 @@ function getBSCategory(score) {
 let brothers    = [];
 let challenges  = [];
 let submissions = [];
-let feedPosts   = [];
+let feedPosts      = [];
+let feedLastDoc    = null;   // last Firestore doc snapshot for pagination
+let feedAllLoaded  = false;  // true when no more older posts exist
+const FEED_PAGE    = 10;     // posts per page
 let currentUser = null;
 let isAdmin     = false;
 let isMentor    = false;
@@ -1793,30 +1797,39 @@ function showApp() {
     updateChallengesBadge();
   });
 
-  // Subscribe to social feed
+  // Subscribe to live call sentinel doc separately
+  onSnapshot(doc(db, 'feed', '_liveCall_'), snap => {
+    const data = snap.exists() ? snap.data() : null;
+    const wasActive = liveCall?.active;
+    liveCall = data;
+    if (data?.active && !wasActive) {
+      showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
+    }
+    renderLiveCallBanner();
+  });
+
+  // Subscribe to latest feed posts (paginated — newest FEED_PAGE posts, live)
   lastFeedSeen = parseInt(localStorage.getItem(`feedSeen_${currentUser.uid}`) || '0', 10);
   let firstFeedSnap = true;
-  unsubFeed = onSnapshot(collection(db, 'feed'), snap => {
+  feedPosts = [];
+  feedLastDoc = null;
+  feedAllLoaded = false;
+  const feedQ = query(collection(db, 'feed'), orderBy('createdAt', 'desc'), limit(FEED_PAGE));
+  unsubFeed = onSnapshot(feedQ, snap => {
     const prevIds = feedPosts.map(p => p.id);
-    // _liveCall_ is a reserved sentinel doc used to store live call state — not a real post
-    const liveCallDoc = snap.docs.find(d => d.id === '_liveCall_');
-    if (liveCallDoc) {
-      const data = liveCallDoc.data();
-      const wasActive = liveCall?.active;
-      liveCall = data;
-      if (data?.active && !wasActive) {
-        showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
-      }
-      renderLiveCallBanner();
-    }
-    feedPosts = snap.docs
-      .filter(d => d.id !== '_liveCall_')
-      .map(d => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    // Replace only the "live window" (newest FEED_PAGE posts); keep any older loaded pages
+    const liveDocs = snap.docs.filter(d => d.id !== '_liveCall_');
+    const livePosts = liveDocs.map(d => ({ id: d.id, ...d.data() }));
+    // Update last doc cursor for "load more"
+    if (liveDocs.length > 0) feedLastDoc = liveDocs[liveDocs.length - 1];
+    if (liveDocs.length < FEED_PAGE) feedAllLoaded = true;
+    // Merge: live window replaces ids already present, older pages stay appended
+    const olderPosts = feedPosts.filter(p => !livePosts.some(lp => lp.id === p.id) && !liveDocs.some(ld => ld.id === p.id));
+    feedPosts = [...livePosts, ...olderPosts];
 
     // Notify members of new feed posts (not on first load)
     if (!firstFeedSnap && currentTab !== 'socialfeed') {
-      const newPosts = feedPosts.filter(p => !prevIds.includes(p.id));
+      const newPosts = livePosts.filter(p => !prevIds.includes(p.id));
       newPosts.forEach(p => {
         if (p.type === 'announcement') {
           showNotif('📣 Coach Posted', p.text?.slice(0, 80) || 'New message on the feed');
@@ -3902,11 +3915,17 @@ function renderSocialFeed() {
     }
   });
 
+  if (!feedAllLoaded) {
+    html += `<button class="btn-load-more-feed" id="loadMoreFeedBtn">Load more posts</button>`;
+  }
+
   el.innerHTML = html;
   if (isAdmin || isMentor) bindAnnouncementBtn(el);
 
   document.getElementById('startCallBtn')?.addEventListener('click', () => startBrotherhoodCall(profile));
   document.getElementById('openStokeBtn')?.addEventListener('click', () => openStokeSheet(profile));
+
+  document.getElementById('loadMoreFeedBtn')?.addEventListener('click', loadMoreFeedPosts);
 
   // Tap feed photo to open fullscreen (overlay-free)
   el.querySelectorAll('.sf-win-media-wrap').forEach(wrap => {
@@ -3967,6 +3986,27 @@ function renderSocialFeed() {
   });
 }
 
+async function loadMoreFeedPosts() {
+  if (feedAllLoaded || !feedLastDoc) return;
+  const btn = document.getElementById('loadMoreFeedBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Loading…'; }
+  try {
+    const q = query(collection(db, 'feed'), orderBy('createdAt', 'desc'), startAfter(feedLastDoc), limit(FEED_PAGE));
+    const snap = await getDocs(q);
+    const newDocs = snap.docs.filter(d => d.id !== '_liveCall_');
+    const newPosts = newDocs.map(d => ({ id: d.id, ...d.data() }));
+    if (newDocs.length > 0) feedLastDoc = newDocs[newDocs.length - 1];
+    if (newDocs.length < FEED_PAGE) feedAllLoaded = true;
+    // Append only posts not already loaded
+    const existingIds = new Set(feedPosts.map(p => p.id));
+    feedPosts = [...feedPosts, ...newPosts.filter(p => !existingIds.has(p.id))];
+    renderSocialFeed();
+  } catch (err) {
+    console.error('loadMoreFeedPosts', err);
+    if (btn) { btn.disabled = false; btn.textContent = 'Load more posts'; }
+  }
+}
+
 function renderComments(comments, profile) {
   if (!comments || !comments.length) return '';
   return comments.map(c => `
@@ -3992,10 +4032,15 @@ async function postComment(postId, el, profile) {
 const STOKE_ACTIVITY_TAGS = ['SURFED','HIKED','TRAINED','BUILT','PLAYED','TRAVELED','SKIED','DROVE','CLIMBED','SHOT'];
 
 async function openStokeSheet(profile) {
-  // Check daily limit
-  const today = new Date().toDateString();
-  const todayPost = feedPosts.find(p => p.type === 'stoke' && p.brotherId === profile?.id && new Date(p.createdAt).toDateString() === today);
-  if (todayPost) {
+  // Check daily limit — query Firestore directly so pagination doesn't affect the check
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const q = query(collection(db, 'feed'),
+    where('type', '==', 'stoke'),
+    where('brotherId', '==', profile?.id),
+    where('createdAt', '>=', todayStart.getTime()),
+    limit(1));
+  const snap = await getDocs(q);
+  if (!snap.empty) {
     alert('You already shared your stoke today — come back tomorrow!');
     return;
   }
