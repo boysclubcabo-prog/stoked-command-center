@@ -1140,6 +1140,97 @@ body {
   gap: 4px;
   z-index: 10;
 }
+
+/* Background picker button */
+.globe-bg-btn {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.15s;
+}
+.globe-bg-btn:hover { background: rgba(0,0,0,0.55); }
+
+/* Background picker sheet */
+.globe-bg-sheet {
+  position: absolute;
+  bottom: 54px;
+  left: 10px;
+  z-index: 20;
+  width: min(320px, calc(100% - 20px));
+}
+.globe-bg-sheet-inner {
+  background: rgba(20,16,12,0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  padding: 14px;
+}
+.globe-bg-sheet-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 10px;
+}
+.globe-bg-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+.globe-bg-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid transparent;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.globe-bg-thumb.active { border-color: #C4693A; }
+.globe-bg-thumb-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 8px;
+  font-weight: 700;
+  text-align: center;
+  padding: 3px 2px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.globe-bg-check {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #C4693A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
 .globe-zoom-btn {
   width: 26px;
   height: 26px;
