@@ -3620,8 +3620,8 @@ function startBrotherhoodCall(profile) {
         <span class="start-call-title">Start Brotherhood Call</span>
         <button class="start-call-close" id="startCallClose">${IC.xmark}</button>
       </div>
-      <p class="start-call-hint">Create a <strong>Google Meet</strong>, <strong>Zoom</strong>, or <strong>FaceTime</strong> link and paste it below. Brothers will get a join button.</p>
-      <input class="start-call-input" id="startCallLinkInput" placeholder="https://meet.google.com/..." type="url" />
+      <p class="start-call-hint">Open <strong>meet.google.com</strong>, start a new meeting, copy the link, and paste it below. Brothers will get a notification and a Join button.</p>
+      <input class="start-call-input" id="startCallLinkInput" placeholder="https://meet.google.com/abc-defg-hij" type="url" />
       <button class="btn btn-primary start-call-go" id="startCallGo">Go Live</button>
     </div>`;
   document.body.appendChild(sheet);
