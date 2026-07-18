@@ -10,7 +10,7 @@ import { getFirestore, collection, doc,
          onSnapshot, setDoc, updateDoc, addDoc,
          deleteDoc, getDoc, getDocs,
          query, orderBy, limit, startAfter,
-         serverTimestamp, where }                  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+         serverTimestamp }                         from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getStorage, ref as storageRef,
          uploadBytes, getDownloadURL }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js';
 import { getMessaging, getToken, onMessage }      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
@@ -1842,6 +1842,9 @@ function showApp() {
 
     if (currentTab === 'socialfeed') renderSocialFeed();
     updateFeedBadge();
+  }, err => {
+    console.error('feed snapshot error', err);
+    if (currentTab === 'socialfeed') renderSocialFeed();
   });
 
   // Live call state is stored in feed/_liveCall_ (piggybacking on feed's write rules)
@@ -4032,15 +4035,9 @@ async function postComment(postId, el, profile) {
 const STOKE_ACTIVITY_TAGS = ['SURFED','HIKED','TRAINED','BUILT','PLAYED','TRAVELED','SKIED','DROVE','CLIMBED','SHOT'];
 
 async function openStokeSheet(profile) {
-  // Check daily limit — query Firestore directly so pagination doesn't affect the check
-  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-  const q = query(collection(db, 'feed'),
-    where('type', '==', 'stoke'),
-    where('brotherId', '==', profile?.id),
-    where('createdAt', '>=', todayStart.getTime()),
-    limit(1));
-  const snap = await getDocs(q);
-  if (!snap.empty) {
+  // Check daily limit using lastStokeDate stored on the brother doc (always in sync via onSnapshot)
+  const today = new Date().toDateString();
+  if (profile?.lastStokeDate && new Date(profile.lastStokeDate).toDateString() === today) {
     alert('You already shared your stoke today — come back tomorrow!');
     return;
   }
