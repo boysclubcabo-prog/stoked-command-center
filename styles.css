@@ -1071,7 +1071,7 @@ body {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(0,0,0,0.45);
+  background: var(--bg-base);
   border: 2.5px solid var(--node-clr, rgba(255,255,255,0.4));
   display: flex;
   align-items: center;
@@ -1368,7 +1368,6 @@ body {
   --globe-line-inner: rgba(40,30,20,0.25);
   --globe-spoke:      rgba(40,30,20,0.2);
 }
-[data-theme="light"] .globe-node-ring { background: rgba(40,30,20,0.12); }
 [data-theme="light"] .globe-node-img  { filter: brightness(0); }
 [data-theme="light"] .globe-node-label { color: rgba(40,30,20,0.7); text-shadow: none; }
 [data-theme="light"] .globe-node.globe-node-selected .globe-node-label { color: rgba(40,30,20,1); }
