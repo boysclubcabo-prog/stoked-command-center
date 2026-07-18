@@ -3824,8 +3824,8 @@ function renderSocialFeed() {
           ${post.photoUrl ? `<img src="${post.photoUrl}" class="sf-stoke-photo" alt="" />` : ''}
           <div class="sf-stoke-overlay">
             ${tagline ? `<div class="sf-stoke-tagline">${escHtml(tagline)}</div>` : ''}
-            ${activityTag ? `<div class="sf-stoke-activity-tag">${escHtml(activityTag)}</div>` : ''}
             <img src="/stoked-command-center/stoked-watermark.png" class="sf-stoke-watermark" alt="STOKED." />
+            ${activityTag ? `<div class="sf-stoke-activity-tag">${escHtml(activityTag)}</div>` : ''}
           </div>
           <div class="sf-stoke-bar-wrap">
             <div class="sf-stoke-bar" style="width:${stokeLevel}%"></div>

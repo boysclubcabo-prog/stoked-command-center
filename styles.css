@@ -6625,33 +6625,35 @@ body {
   inset: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 20px 18px 32px;
-  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.0) 50%);
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.18);
   pointer-events: none;
 }
 .sf-stoke-tagline {
-  font: 700 26px/1.1 'Bebas Neue','Barlow Condensed',sans-serif;
-  letter-spacing: 0.06em;
+  font: 700 22px/1.1 'Bebas Neue','Barlow Condensed',sans-serif;
+  letter-spacing: 0.1em;
   color: #fff;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
-  margin-bottom: 8px;
+  text-shadow: 0 2px 14px rgba(0,0,0,0.6);
   text-transform: uppercase;
+  text-align: center;
+  padding: 0 24px;
+  margin-bottom: 18px;
+}
+.sf-stoke-watermark {
+  height: 32px;
+  width: auto;
+  object-fit: contain;
+  opacity: 0.95;
+  filter: brightness(0) invert(1);
+  margin-bottom: 10px;
 }
 .sf-stoke-activity-tag {
   font: 700 11px/1 'Barlow',sans-serif;
-  letter-spacing: 0.18em;
-  color: rgba(255,255,255,0.75);
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.85);
   text-transform: uppercase;
-  margin-bottom: 12px;
-}
-.sf-stoke-watermark {
-  height: 22px;
-  width: auto;
-  object-fit: contain;
-  opacity: 0.9;
-  filter: brightness(0) invert(1);
-  align-self: flex-start;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5);
 }
 .sf-stoke-bar-wrap {
   position: absolute;
