@@ -1356,18 +1356,6 @@ const ARCHETYPE_CHALLENGES = {
 
 const ARCHETYPE_ORDER = ['Warrior','Monk','Creator','Explorer','Leader','Builder','Protector','Strategist','Visionary','Communicator','Guardian','Sovereign'];
 
-const GLOBE_BACKGROUNDS = [
-  { id: 'ocean',    label: 'Ocean',      url: 'https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=900&q=80' },
-  { id: 'forest',   label: 'Forest',     url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=900&q=80' },
-  { id: 'mountain', label: 'Mountain',   url: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=900&q=80' },
-  { id: 'snow',     label: 'Snow Peak',  url: 'https://images.unsplash.com/photo-1418985991508-e47386d96a71?w=900&q=80' },
-  { id: 'desert',   label: 'Desert',     url: 'https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=900&q=80' },
-  { id: 'canyon',   label: 'Canyon',     url: 'https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?w=900&q=80' },
-  { id: 'night',    label: 'Night Sky',  url: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=900&q=80' },
-  { id: 'fire',     label: 'Volcano',    url: 'https://images.unsplash.com/photo-1560707303-4e980ce876ad?w=900&q=80' },
-  { id: 'jungle',   label: 'Jungle',     url: 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=900&q=80' },
-  { id: 'arctic',   label: 'Arctic',     url: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=900&q=80' },
-];
 
 // ── BROTHERHOOD SCORE ─────────────────────────
 function calcBrotherhoodScore(f, m, d, c, s) {
@@ -4362,12 +4350,6 @@ function initGlobeInteraction(stats, profile) {
     applyTransform();
   });
 
-  // Background picker
-  document.getElementById('globeBgBtn')?.addEventListener('click', e => {
-    e.stopPropagation();
-    openGlobeBgPicker(profile);
-  });
-
   // Mouse wheel zoom
   viewport.addEventListener('wheel', e => {
     e.preventDefault();
@@ -4449,60 +4431,8 @@ function initGlobeInteraction(stats, profile) {
   globeUpdateSelection(globeSelectedArch, stats, profile);
 }
 
-function openGlobeBgPicker(profile) {
-  let sheet = document.getElementById('globeBgSheet');
-  if (sheet) { sheet.remove(); return; }
-  sheet = document.createElement('div');
-  sheet.id = 'globeBgSheet';
-  sheet.className = 'globe-bg-sheet';
-  const currentId = profile?.globeBackground || localStorage.getItem('globeBg') || 'ocean';
-
-  sheet.innerHTML = `
-    <div class="globe-bg-sheet-inner">
-      <div class="globe-bg-sheet-title">Choose Background</div>
-      <div class="globe-bg-grid">
-        ${GLOBE_BACKGROUNDS.map(bg => `
-          <button class="globe-bg-thumb${bg.id === currentId ? ' active' : ''}" data-bgid="${bg.id}"
-                  style="background-image:url('${bg.url}')">
-            <span class="globe-bg-thumb-label">${bg.label}</span>
-            ${bg.id === currentId ? `<span class="globe-bg-check"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>` : ''}
-          </button>`).join('')}
-      </div>
-    </div>`;
-  document.getElementById('globeViewport')?.appendChild(sheet);
-
-  sheet.querySelectorAll('[data-bgid]').forEach(btn => {
-    btn.addEventListener('click', async e => {
-      e.stopPropagation();
-      const bgId = btn.dataset.bgid;
-      const bg = GLOBE_BACKGROUNDS.find(b => b.id === bgId);
-      if (!bg) return;
-      // Apply immediately
-      document.getElementById('globeViewport').style.backgroundImage = `url('${bg.url}')`;
-      localStorage.setItem('globeBg', bgId);
-      // Save to Firestore if user has a profile
-      if (profile?.id) {
-        try { await updateDoc(doc(db, 'brothers', profile.id), { globeBackground: bgId }); } catch (_) {}
-      }
-      sheet.remove();
-    });
-  });
-
-  // Close on outside click
-  setTimeout(() => {
-    const onOutside = e => { if (!sheet.contains(e.target)) { sheet.remove(); document.removeEventListener('click', onOutside); } };
-    document.addEventListener('click', onOutside);
-  }, 50);
-}
-
-function getGlobeBg(profile) {
-  const savedId = profile?.globeBackground || localStorage.getItem('globeBg') || 'ocean';
-  return GLOBE_BACKGROUNDS.find(b => b.id === savedId) || GLOBE_BACKGROUNDS[0];
-}
-
 function buildGlobeHtml(stats, profile) {
   const userArch = profile?.primaryArchetype || profile?.archetype;
-  const bg = getGlobeBg(profile);
   const nodesHtml = ARCHETYPE_ORDER.map((arch, i) => renderGlobeNodeHtml(arch, i, stats, userArch)).join('');
 
   // Dodecagon vertices at R=43 and R=18 (inner), center=(50,50), starting at top (-90°)
@@ -4521,8 +4451,7 @@ function buildGlobeHtml(stats, profile) {
   }).join('');
 
   return `<div class="globe-wrap">
-    <div class="globe-map-outer" id="globeViewport" aria-label="Archetype map. Drag to pan, scroll to zoom."
-         style="background-image:url('${bg.url}');background-size:cover;background-position:center">
+    <div class="globe-map-outer" id="globeViewport" aria-label="Archetype map. Drag to pan, scroll to zoom.">
       <div class="globe-map-canvas" id="globeCanvas">
         <div class="globe-canvas-inner" id="globeInner">
           <svg class="globe-dodecagon-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -4542,9 +4471,6 @@ function buildGlobeHtml(stats, profile) {
         <button class="globe-zoom-btn" id="globeZoomReset" aria-label="Reset view">◎</button>
         <button class="globe-zoom-btn" id="globeZoomOut" aria-label="Zoom out">−</button>
       </div>
-      <button class="globe-bg-btn" id="globeBgBtn" title="Change background">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      </button>
     </div>
     <div class="globe-stats-panel" id="globeStatsPanel"></div>
     <div class="globe-detail-panel" id="globeDetailPanel" style="display:none"></div>
