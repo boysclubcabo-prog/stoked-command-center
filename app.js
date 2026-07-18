@@ -3784,6 +3784,7 @@ function renderSocialFeed() {
     const icon = brother ? archetypeElementIcon(brother.primaryArchetype || brother.archetype, brother.dominantElement, brother.xp) : '';
     const commentCount = (post.comments || []).length;
     const commentLabel = commentCount ? `${commentCount}` : '';
+    const mentorTag = (b) => b?.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : '';
 
     if (post.type === 'announcement') {
       const posterName = post.authorName || 'Coach';
@@ -3800,7 +3801,7 @@ function renderSocialFeed() {
         <div class="sf-post-header">
           <div class="sf-avatar sf-avatar-coach">${posterIconHtml}</div>
           <div class="sf-post-meta">
-            <div class="sf-post-author">${escHtml(posterName)}</div>
+            <div class="sf-post-author">${escHtml(posterName)}${mentorTag(posterBrother)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
           ${canDelete ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
@@ -3839,7 +3840,7 @@ function renderSocialFeed() {
         <div class="sf-post-header">
           <div class="sf-avatar sf-avatar-coach">${IC.megaphone}</div>
           <div class="sf-post-meta">
-            <div class="sf-post-author">${escHtml(post.authorName || 'Coach')}</div>
+            <div class="sf-post-author">${escHtml(post.authorName || 'Coach')}${mentorTag(brothers.find(b => b.id === post.authorId))}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
           ${canDelete ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
@@ -3890,7 +3891,7 @@ function renderSocialFeed() {
         <div class="sf-post-header sf-stoke-meta">
           <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
           <div class="sf-post-meta">
-            <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}</div>
+            <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}${mentorTag(brother)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
           ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
@@ -3912,7 +3913,7 @@ function renderSocialFeed() {
         <div class="sf-post-header">
           <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
           <div class="sf-post-meta">
-            <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}</div>
+            <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}${mentorTag(brother)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
           ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
