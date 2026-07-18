@@ -6700,3 +6700,27 @@ body {
   letter-spacing: 0.1em;
   color: var(--text-secondary);
 }
+
+/* ── CHALLENGE COMPLETED overlay on win posts ── */
+.sf-win-media-wrap {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+.sf-win-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: rgba(0,0,0,0.22);
+}
+.sf-win-overlay-text {
+  font: 800 32px/1.1 'Bebas Neue','Barlow Condensed',sans-serif;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+  text-transform: uppercase;
+}

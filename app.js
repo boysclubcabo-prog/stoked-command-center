@@ -3867,11 +3867,19 @@ function renderSocialFeed() {
         </div>
         <div class="sf-challenge-title">${escHtml(post.challengeTitle || '')}</div>
         ${post.caption ? `<div class="sf-caption">${escHtml(post.caption)}</div>` : ''}
-        ${(post.photoUrl || post.photoUrl2) ? `<div class="sf-photos-wrap sf-media-bleed">
+        ${(post.photoUrl || post.photoUrl2) ? `<div class="sf-win-media-wrap sf-media-bleed">
           ${post.photoUrl  ? `<img src="${post.photoUrl}"  class="sf-photo" alt="proof" />` : ''}
           ${post.photoUrl2 ? `<img src="${post.photoUrl2}" class="sf-photo" alt="proof 2" />` : ''}
+          <div class="sf-win-overlay" aria-hidden="true">
+            <div class="sf-win-overlay-text">CHALLENGE<br>COMPLETED</div>
+          </div>
         </div>` : ''}
-        ${post.videoUrl ? `<video class="sf-video sf-media-bleed" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>` : ''}
+        ${post.videoUrl ? `<div class="sf-win-media-wrap sf-media-bleed">
+          <video class="sf-video" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>
+          <div class="sf-win-overlay" aria-hidden="true">
+            <div class="sf-win-overlay-text">CHALLENGE<br>COMPLETED</div>
+          </div>
+        </div>` : ''}
         ${post.audioUrl ? `<audio class="sf-audio" controls src="${post.audioUrl}"></audio>` : ''}
         ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">${IC.link} ${escHtml(post.proofLink)}</a>` : ''}
         <div class="sf-post-footer">
@@ -3900,13 +3908,25 @@ function renderSocialFeed() {
   document.getElementById('startCallBtn')?.addEventListener('click', () => startBrotherhoodCall(profile));
   document.getElementById('openStokeBtn')?.addEventListener('click', () => openStokeSheet(profile));
 
-  // Tap feed photo to open fullscreen
-  el.querySelectorAll('.sf-photo').forEach(img => {
+  // Tap feed photo to open fullscreen (overlay-free)
+  el.querySelectorAll('.sf-win-media-wrap').forEach(wrap => {
+    wrap.addEventListener('click', e => {
+      if (e.target.closest('video') || e.target.closest('.sf-win-overlay')) {
+        // clicking overlay itself also opens lightbox; video handles itself
+        if (e.target.closest('video')) return;
+      }
+      const img = wrap.querySelector('.sf-photo');
+      if (img) {
+        const imgs = Array.from(wrap.querySelectorAll('.sf-photo'));
+        openPhotoLightbox(imgs[0].src, null, '', '', 0, imgs[1]?.src || null, null);
+      }
+    });
+  });
+  el.querySelectorAll('.sf-photo:not(.sf-win-media-wrap .sf-photo)').forEach(img => {
     img.addEventListener('click', () => {
       const wrap = img.closest('.sf-photos-wrap');
       const imgs = wrap ? Array.from(wrap.querySelectorAll('.sf-photo')) : [img];
-      const photoUrl2 = imgs[1]?.src || null;
-      openPhotoLightbox(img.src, null, '', '', 0, photoUrl2, null);
+      openPhotoLightbox(img.src, null, '', '', 0, imgs[1]?.src || null, null);
     });
   });
 
