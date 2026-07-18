@@ -3751,7 +3751,7 @@ function renderSocialFeed() {
     <div style="display:flex;gap:8px;align-items:center">
       ${(isAdmin || isMentor) && !callActive ? `<button class="btn-start-call" id="startCallBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg> Start Call</button>` : ''}
       ${(isAdmin || isMentor) ? `<button class="btn btn-primary btn-sm" id="openAnnouncementBtn">${IC.megaphone} Post</button>` : ''}
-      ${!isAdmin && !isMentor && profile ? `<button class="btn-share-stoke" id="openStokeBtn">🔥 Share Your Stoke</button>` : ''}
+      ${!isAdmin && profile ? `<button class="btn-share-stoke" id="openStokeBtn">🔥 Share Your Stoke</button>` : ''}
     </div>
   </div>`;
 
