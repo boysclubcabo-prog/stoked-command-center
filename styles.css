@@ -428,6 +428,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
   gap: 3px;
   margin-bottom: 12px;
   cursor: pointer;
@@ -1559,6 +1560,8 @@ body {
   text-transform: uppercase;
 }
 
+.scores-row-solo { justify-content: center; }
+.scores-row-solo .score-chip { flex: unset; min-width: 160px; }
 .score-chip.momentum .score-num { color: #5B8AA0; }
 
 .score-chip.weekly {
@@ -2348,8 +2351,9 @@ body {
 
 .member-card-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
 }
 

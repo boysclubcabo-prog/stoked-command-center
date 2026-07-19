@@ -35,21 +35,13 @@ const messaging   = getMessaging(firebaseApp);
 const ADMIN_EMAIL = 'boysclubcabo@gmail.com';
 
 // ── LEVEL SYSTEM ──────────────────────────────
-// xpRequired = XP threshold to ENTER this level
-const LEVELS = [
-  { level: 1,  name: 'Recruit',    xpRequired: 0     },
-  { level: 2,  name: 'Initiate',   xpRequired: 1000  },
-  { level: 3,  name: 'Apprentice', xpRequired: 2000  },
-  { level: 4,  name: 'Challenger', xpRequired: 3000  },
-  { level: 5,  name: 'Pathfinder', xpRequired: 4000  },
-  { level: 6,  name: 'Ascender',   xpRequired: 5000  },
-  { level: 7,  name: 'Vanguard',   xpRequired: 6000  },
-  { level: 8,  name: 'Captain',    xpRequired: 7000  },
-  { level: 9,  name: 'Commander',  xpRequired: 8500  },
-  { level: 10, name: 'King',       xpRequired: 10000 },
-  { level: 11, name: 'Mentor',     xpRequired: 12500 },
-  { level: 12, name: 'Legend',     xpRequired: 15000 },
-];
+// 100 levels, 1000 XP each
+const MAX_LEVEL = 100;
+const XP_PER_LEVEL = 1000;
+const LEVELS = Array.from({ length: MAX_LEVEL }, (_, i) => ({
+  level: i + 1,
+  xpRequired: i * XP_PER_LEVEL,
+}));
 
 const CHALLENGE_TAGS = {
   Physical:   { cardBg: 'rgba(196,105,58,0.07)',  cardBorder: 'rgba(196,105,58,0.4)',  pillBg: 'rgba(196,105,58,0.15)',  color: '#C4693A' }, // terracotta
@@ -1980,20 +1972,16 @@ function updateFeedBadge() {
 }
 
 // ── LEVEL LOGIC ───────────────────────────────
-const MAX_XP = 15000;
+const MAX_XP = MAX_LEVEL * XP_PER_LEVEL;
 
 function getLevelInfo(xp) {
   const clamped = Math.min(Math.max(0, xp), MAX_XP);
-  // Find current level: highest level whose entry threshold is <= xp
-  let idx = 0;
-  for (let i = LEVELS.length - 1; i >= 0; i--) {
-    if (clamped >= LEVELS[i].xpRequired) { idx = i; break; }
-  }
+  const idx     = Math.min(Math.floor(clamped / XP_PER_LEVEL), MAX_LEVEL - 1);
   const current = LEVELS[idx];
-  const next    = idx < LEVELS.length - 1 ? LEVELS[idx + 1] : null;
+  const next    = idx < MAX_LEVEL - 1 ? LEVELS[idx + 1] : null;
   const startXP = current.xpRequired;
   const endXP   = next ? next.xpRequired : MAX_XP;
-  const progress = next ? Math.round(((clamped - startXP) / (endXP - startXP)) * 100) : 100;
+  const progress = next ? Math.round(((clamped - startXP) / XP_PER_LEVEL) * 100) : 100;
   return { current, next, progress: Math.min(100, Math.max(0, progress)), xpNeededForNext: next ? endXP - clamped : 0 };
 }
 
@@ -2138,12 +2126,12 @@ function renderMemberView() {
           <button class="profile-snapshot-toggle" type="button">Profile <span class="snapshot-chevron">▾</span></button>
           <div class="profile-snapshot collapsed">
             ${profile.oneWord ? `<div class="profile-one-word">"${escHtml(profile.oneWord)}"</div>` : ''}
-            ${profile.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(profile.yearlyGoal)}</span></div>` : ''}
-            ${profile.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong</span><span>${escHtml(profile.strengths)}</span></div>` : ''}
-            ${profile.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(profile.struggles)}</span></div>` : ''}
+            ${profile.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">Goal</span><span>${escHtml(profile.yearlyGoal)}</span></div>` : ''}
+            ${profile.strengths ? `<div class="profile-goal"><span class="profile-label">Strong</span><span>${escHtml(profile.strengths)}</span></div>` : ''}
+            ${profile.struggles ? `<div class="profile-goal"><span class="profile-label">Working on</span><span>${escHtml(profile.struggles)}</span></div>` : ''}
             ${profile.interests && profile.interests.length ? `<div class="profile-interests">${profile.interests.map(i => {
               const found = INTERESTS_LIST.find(x => x.label === i);
-              return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
+              return `<span class="profile-interest-tag">${escHtml(i)}</span>`;
             }).join('')}</div>` : ''}
           </div>
         </div>` : ''}
@@ -2155,46 +2143,31 @@ function renderMemberView() {
 
       <div class="level-section">
         <div class="level-row">
-          <span class="level-name">Lvl ${lvl.current.level} — ${lvl.current.name}</span>
+          <span class="level-name">Level ${lvl.current.level}</span>
           <span class="level-pct">${lvl.progress}%</span>
         </div>
         <div class="progress-track">
           <div class="progress-fill ${maxed ? 'maxed' : ''}" style="width:${lvl.progress}%"></div>
         </div>
-        <div class="progress-next">${lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to ${lvl.next.name}` : 'MAX LEVEL ACHIEVED'}</div>
+        <div class="progress-next">${lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to Level ${lvl.next.level}` : 'MAX LEVEL ACHIEVED'}</div>
       </div>
 
-      <div class="scores-row">
-        <div class="score-chip momentum">
-          <div class="score-num">${(profile.momentum??0).toFixed(1)}</div>
-          <div class="score-lbl">Momentum</div>
-        </div>
-        ${profile.brotherhoodScore != null ? (() => {
-          const cat = getBSCategory(profile.brotherhoodScore);
-          return `<div class="score-chip weekly" style="--bs-color:${cat.color}">
+      ${profile.brotherhoodScore != null ? (() => {
+        const cat = getBSCategory(profile.brotherhoodScore);
+        return `<div class="scores-row scores-row-solo">
+          <div class="score-chip weekly" style="--bs-color:${cat.color}">
             <div class="score-num" style="color:${cat.color}">${profile.brotherhoodScore}</div>
             <div class="score-lbl">Daily Score</div>
             <div class="score-cat" style="color:${cat.color}">${cat.label}</div>
-          </div>`;
-        })() : `<div class="score-chip weekly empty">
-          <div class="score-num" style="color:var(--text-muted)">—</div>
-          <div class="score-lbl">Daily Score</div>
-          <div class="score-cat" style="color:var(--text-muted)">No Check-In Today</div>
-        </div>`}
-      </div>
-
-      ${(profile.stokeStreak > 0) ? `
-        <div class="stoke-streak-row">
-          <span class="stoke-streak-fire">🔥</span>
-          <span class="stoke-streak-num">${profile.stokeStreak}</span>
-          <span class="stoke-streak-lbl">day stoke streak</span>
-        </div>` : ''}
+          </div>
+        </div>`;
+      })() : ''}
 
       ${(profile.currentStreak > 0) ? `
         <div class="streak-member">
           <span class="streak-flame">${IC.flame}</span>
           <span class="streak-count">${profile.currentStreak}</span>
-          <span class="streak-label">day streak</span>
+          <span class="streak-label">day login streak</span>
           ${profile.longestStreak > 1 ? `<span class="streak-best">Best: ${profile.longestStreak}</span>` : ''}
         </div>` : ''}
 
@@ -2250,7 +2223,7 @@ function renderCard(brother) {
   const archClr  = ARCHETYPE_COLORS[displayArchetype] || { border:'var(--border)', glow:'transparent', icon:'var(--orange)' };
   const archElColor = ELEMENT_COLORS[brother.dominantElement];
   const maxed   = xp >= MAX_XP;
-  const nextText = lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to ${lvl.next.name}` : 'MAX LEVEL ACHIEVED';
+  const nextText = lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to Level ${lvl.next.level}` : 'MAX LEVEL ACHIEVED';
 
   return `
     <div class="brother-card" id="card-${brother.id}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(brother.dominantElement||'')}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
@@ -2263,7 +2236,7 @@ function renderCard(brother) {
           ${brother.age ? `<div class="card-age">Age ${brother.age}</div>` : ''}
         </div>
         <div class="card-actions">
-          <button class="btn-icon" data-assign-challenge="${brother.id}" title="Assign Personal Challenge">🎯</button>
+          <button class="btn-icon" data-assign-challenge="${brother.id}" title="Assign Personal Challenge">${IC.target}</button>
           <button class="btn-icon" data-edit="${brother.id}" title="Edit">${IC.edit}</button>
           <button class="btn-icon danger" data-delete="${brother.id}" title="Remove">${IC.trash}</button>
         </div>
@@ -2281,12 +2254,12 @@ function renderCard(brother) {
           <button class="profile-snapshot-toggle" type="button">Profile <span class="snapshot-chevron">▾</span></button>
           <div class="profile-snapshot collapsed">
             ${brother.oneWord ? `<div class="profile-one-word">"${escHtml(brother.oneWord)}"</div>` : ''}
-            ${brother.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">🎯 Goal</span><span>${escHtml(brother.yearlyGoal)}</span></div>` : ''}
-            ${brother.strengths ? `<div class="profile-goal"><span class="profile-label">💪 Strong at</span><span>${escHtml(brother.strengths)}</span></div>` : ''}
-            ${brother.struggles ? `<div class="profile-goal"><span class="profile-label">🔥 Working on</span><span>${escHtml(brother.struggles)}</span></div>` : ''}
+            ${brother.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">Goal</span><span>${escHtml(brother.yearlyGoal)}</span></div>` : ''}
+            ${brother.strengths ? `<div class="profile-goal"><span class="profile-label">Strong at</span><span>${escHtml(brother.strengths)}</span></div>` : ''}
+            ${brother.struggles ? `<div class="profile-goal"><span class="profile-label">Working on</span><span>${escHtml(brother.struggles)}</span></div>` : ''}
             ${brother.interests && brother.interests.length ? `<div class="profile-interests">${brother.interests.map(i => {
               const found = INTERESTS_LIST.find(x => x.label === i);
-              return `<span class="profile-interest-tag">${found ? found.emoji : ''} ${escHtml(i)}</span>`;
+              return `<span class="profile-interest-tag">${escHtml(i)}</span>`;
             }).join('')}</div>` : ''}
           </div>
         </div>` : ''}
@@ -2298,7 +2271,7 @@ function renderCard(brother) {
 
       <div class="level-section">
         <div class="level-row">
-          <span class="level-name">Lvl ${lvl.current.level} — ${lvl.current.name}</span>
+          <span class="level-name">Level ${lvl.current.level}</span>
           <span class="level-pct">${lvl.progress}%</span>
         </div>
         <div class="progress-track">
@@ -2307,30 +2280,22 @@ function renderCard(brother) {
         <div class="progress-next">${nextText}</div>
       </div>
 
-      <div class="scores-row">
-        <div class="score-chip momentum">
-          <div class="score-num">${(brother.momentum??0).toFixed(1)}</div>
-          <div class="score-lbl">Momentum</div>
-        </div>
-        ${brother.brotherhoodScore != null ? (() => {
-          const cat = getBSCategory(brother.brotherhoodScore);
-          return `<div class="score-chip weekly" style="--bs-color:${cat.color}">
+      ${brother.brotherhoodScore != null ? (() => {
+        const cat = getBSCategory(brother.brotherhoodScore);
+        return `<div class="scores-row scores-row-solo">
+          <div class="score-chip weekly" style="--bs-color:${cat.color}">
             <div class="score-num" style="color:${cat.color}">${brother.brotherhoodScore}</div>
             <div class="score-lbl">Daily Score</div>
             <div class="score-cat" style="color:${cat.color}">${cat.label}</div>
-          </div>`;
-        })() : `<div class="score-chip weekly empty">
-          <div class="score-num" style="color:var(--text-muted)">—</div>
-          <div class="score-lbl">Daily Score</div>
-          <div class="score-cat" style="color:var(--text-muted)">No Check-In Today</div>
-        </div>`}
-      </div>
+          </div>
+        </div>`;
+      })() : ''}
 
       ${(brother.currentStreak > 0) ? `
         <div class="streak-card">
           <span class="streak-flame">${IC.flame}</span>
           <span class="streak-count">${brother.currentStreak}</span>
-          <span class="streak-label">day streak</span>
+          <span class="streak-label">day login streak</span>
           ${brother.longestStreak > 1 ? `<span class="streak-best">Best: ${brother.longestStreak}</span>` : ''}
         </div>` : ''}
 
