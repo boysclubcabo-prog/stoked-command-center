@@ -1,4 +1,4 @@
-const CACHE = 'stoked-v151';
+const CACHE = 'stoked-v152';
 
 // Only cache static assets — never app.js or index.html
 // so code updates are always picked up immediately
@@ -7,6 +7,8 @@ const STATIC = [
   '/stoked-command-center/logo-mark-dark.png',
   '/stoked-command-center/icon-192.png',
   '/stoked-command-center/icon-512.png',
+  '/stoked-command-center/stoked-watermark-blue.png',
+  '/stoked-command-center/stoked-watermark-yellow.png',
 ];
 
 // These always go network-first so updates land instantly
