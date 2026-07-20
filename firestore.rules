@@ -25,6 +25,10 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/brothers/$(brotherId)) &&
         get(/databases/$(database)/documents/brothers/$(brotherId)).data.get('role','member') in ['admin','mentor','coach'];
 
+      // New members can create their own document during onboarding
+      allow create: if request.auth != null &&
+        request.resource.data.email == request.auth.token.email;
+
       // Members can update their own document — identified by matching email
       allow update: if request.auth != null &&
         resource.data.email == request.auth.token.email &&
@@ -40,6 +44,12 @@ service cloud.firestore {
           'unlockedArchetypes',
           'earnedBadges',
           'currentPathArchetype',
+          // Check-in scores
+          'focusScore',
+          'movementScore',
+          'disciplineScore',
+          'composureScore',
+          'stokeScore',
           // Check-in & streak
           'lastCheckInDate',
           'brotherhoodScore',
@@ -49,6 +59,7 @@ service cloud.firestore {
           'momentum',
           'currentStreak',
           'longestStreak',
+          'lastLoginDate',
           // Assessment
           'primaryArchetype',
           'growthArchetype',
@@ -60,6 +71,8 @@ service cloud.firestore {
           // Presence & notifications
           'lastSeen',
           'fcmToken',
+          // Metadata
+          'updatedAt',
         ]);
     }
 
