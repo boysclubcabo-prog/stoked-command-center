@@ -64,17 +64,13 @@ function challengeTagPill(tag) {
 
 const ARCHETYPE_COLORS = {
   Warrior:      { border: 'rgba(196,105,58,0.5)',  glow: 'rgba(196,105,58,0.06)',  icon: '#C4693A' }, // terracotta
-  Monk:         { border: 'rgba(158,141,114,0.45)', glow: 'rgba(158,141,114,0.06)', icon: '#9e8d72' }, // warm sand
   Creator:      { border: 'rgba(91,138,160,0.45)', glow: 'rgba(91,138,160,0.07)',  icon: '#5B8AA0' }, // ocean blue
   Explorer:     { border: 'rgba(90,140,90,0.45)',  glow: 'rgba(90,140,90,0.06)',   icon: '#5a8c5a' }, // sage green
-  Leader:       { border: 'rgba(212,168,83,0.5)',  glow: 'rgba(212,168,83,0.07)',  icon: '#D4A853' }, // amber gold
   Builder:      { border: 'rgba(130,110,90,0.45)', glow: 'rgba(130,110,90,0.06)',  icon: '#826e5a' }, // warm brown
   Protector:    { border: 'rgba(156,90,66,0.5)',   glow: 'rgba(156,90,66,0.06)',   icon: '#9c5a42' }, // rust
-  Strategist:   { border: 'rgba(93,122,138,0.5)',  glow: 'rgba(93,122,138,0.06)',  icon: '#5d7a8a' }, // slate blue
   Visionary:    { border: 'rgba(122,138,82,0.5)',  glow: 'rgba(122,138,82,0.06)',  icon: '#7a8a52' }, // olive
   Communicator: { border: 'rgba(176,122,74,0.5)',  glow: 'rgba(176,122,74,0.06)',  icon: '#b07a4a' }, // copper
-  Guardian:     { border: 'rgba(122,116,104,0.5)', glow: 'rgba(122,116,104,0.06)', icon: '#7a7468' }, // stone
-  Sovereign:    { border: 'rgba(138,112,48,0.5)',  glow: 'rgba(138,112,48,0.06)',  icon: '#8a7030' }, // deep gold
+  Monk:         { border: 'rgba(158,141,114,0.45)', glow: 'rgba(158,141,114,0.06)', icon: '#9e8d72' }, // warm sand
 };
 
 const ELEMENT_COLORS = {
@@ -117,19 +113,91 @@ const ELEMENT_DESC = {
 
 const ARCHETYPE_DESC = {
   Warrior: {
-    primary: `The Warrior is the man who does not wait for perfect conditions. He trains when he doesn't feel like it, competes when the odds are against him, and gets back up every single time. His growth lives inside difficulty. He understands that pain is not the enemy — softness is. He does not need to be angry to be dangerous. The Warrior is disciplined, focused, and relentless. He is not reckless — he is forged. His weapon is will.`,
-    Fire:   `Fire is the element of ignition. A Warrior with Fire doesn't just fight — he burns. He leads with intensity, acts before others are ready, and refuses to let the moment die. His energy is contagious and his commitment is total. The challenge is learning to direct the flame. Uncontrolled fire destroys. Mastered fire forges.`,
-    Water:  `A Warrior with Water fights from a different place. He is not driven by rage — he is driven by love. Love for his people, his purpose, and the things that matter. He can take a hit and keep moving because he feels deeply and channels it forward. His strength is not hard — it is fluid and relentless, like a river that carves through stone.`,
-    Air:    `A Warrior with Air is the thinking fighter. He doesn't just train his body — he studies the game. He reads people, anticipates outcomes, and moves with strategic precision. Where brute force would fail, his mind wins. He is the man in the room who looks calm and sees everything.`,
-    Earth:  `A Warrior with Earth is the most reliable man in any fight. He shows up. Every day. Without drama. His training is disciplined, his habits are locked in, and his endurance is built on years of consistent work. He doesn't peak — he sustains. He is the man still standing when everyone else has burned out.`,
-    growth: `The Warrior is your blindspot. You have been avoiding the hard things — the physical discipline, the direct confrontation, the uncomfortable challenge — and it is costing you. You may move through life with strategy, creativity, or warmth, but without the Warrior's edge, you will struggle when life demands that you simply endure. Be wary of comfort-seeking, of backing down when things get hard, and of building a life that looks good but hasn't been tested. Developing this will give you backbone that no amount of thinking or feeling can replace.`,
-    gFire:  `Fire is the energy you are least connected to right now — the raw heat of urgency, intensity, and bold action. Without it, you tend to overthink, delay, or soften decisions that need to be made. Learning to act before you feel fully ready, to compete without apology, and to bring intensity to what matters most — this is where a new level of you begins.`,
-    gWater: `Water without the Warrior becomes passive. Your sensitivity and depth are real strengths — but without the edge of discipline and challenge, they can become excuses to avoid what is hard. The work is learning to feel deeply and still push forward. To be soft-hearted and hard-working at the same time. That combination is rare and it will make everything else you do more powerful.`,
-    gAir:   `Air without the Warrior becomes analysis without action. You can think clearly and see the path — but the Warrior asks you to walk it, not just map it. Your growth comes from learning to execute with your body and your will, not just your mind. The discipline of physical challenge will ground your intelligence in a way nothing else can.`,
-    gEarth: `Earth without the Warrior can become comfort disguised as stability. You are consistent — but are you being challenged? Your growth comes from deliberately choosing harder ground. Routine is your strength; now add resistance to it. The version of you that has also been tested will be significantly more capable than the one who has simply maintained.`,
+    primary: `The Warrior is driven by action, courage, competition, and the willingness to confront discomfort. He understands himself through direct experience — he would rather try something difficult than spend too long discussing it. The deeper Warrior quality is not physical strength or aggression. It is the willingness to face what is hard. He moves toward challenge. He does not wait for perfect conditions.`,
+    Fire:   `A Fire Warrior is bold, competitive, and direct. He acts with intensity and leads from the front. He doesn't need momentum — he creates it. His energy is contagious, his commitment is total. The challenge is learning to direct the flame. Uncontrolled fire destroys. Mastered fire forges.`,
+    Water:  `A Water Warrior fights from a different place. He is not driven by rage — he is driven by love. Love for his people, his purpose, and what matters. He can take a hit and keep moving because he feels deeply and channels it forward. His strength is fluid and relentless, like a river that carves through stone.`,
+    Air:    `An Air Warrior is the thinking fighter. He doesn't just train his body — he studies the game. He reads people, anticipates outcomes, and moves with tactical precision. Where brute force would fail, his mind wins. He is the man in the room who looks calm and sees everything.`,
+    Earth:  `An Earth Warrior is the most reliable man in any fight. He shows up. Every day. Without drama. His training is disciplined, his habits are locked in, and his endurance is built on years of consistent work. He doesn't peak — he sustains. He is the man still standing when everyone else has burned out.`,
+    growth: `The Warrior is your blindspot. You have been avoiding the hard things — physical discipline, direct confrontation, uncomfortable challenge — and it is costing you. Without the Warrior's edge, you will struggle when life demands that you simply endure. Be wary of comfort-seeking, of backing down when things get hard, and of building a life that looks good but hasn't been tested. Developing this gives you backbone that no amount of thinking or feeling can replace.`,
+    gFire:  `Fire is the energy you are least connected to right now — the raw heat of urgency, intensity, and bold action. Without it, you tend to overthink, delay, or soften decisions that need to be made. Learning to act before you feel fully ready, to bring intensity to what matters most — this is where a new level of you begins.`,
+    gWater: `Water without the Warrior becomes passive. Your sensitivity and depth are real strengths — but without the edge of challenge, they can become excuses to avoid what is hard. The work is learning to feel deeply and still push forward. Soft-hearted and hard-working at the same time. That combination is rare.`,
+    gAir:   `Air without the Warrior becomes analysis without action. You can think clearly and see the path — but the Warrior asks you to walk it, not just map it. Your growth comes from learning to execute with your body and your will, not just your mind. Physical challenge will ground your intelligence in a way nothing else can.`,
+    gEarth: `Earth without the Warrior can become comfort disguised as stability. You are consistent — but are you being challenged? Your growth comes from deliberately choosing harder ground. Routine is your strength; now add resistance to it. The version of you that has also been tested will be significantly more capable.`,
+  },
+  Creator: {
+    primary: `The Creator is driven by expression, originality, imagination, and making things that did not exist before. He may express himself through music, art, writing, film, fashion, humor, inventions, businesses, performances, or unconventional problem-solving. He sees the world as raw material and his instinct is to shape it into something better than he found it. When he is alive in his gift, the world around him shifts.`,
+    Fire:   `A Fire Creator makes things that move people. He doesn't just build — he ignites. His work carries urgency and conviction. He creates as if the idea will expire if he doesn't get it out. He is the one who starts the movement, breaks the silence. His creative energy is a force, not a hobby.`,
+    Water:  `A Water Creator makes things that heal and connect. His work carries emotional truth. He writes the thing that makes people feel seen. He builds the space where others exhale. His creations reflect sensitivity to beauty, to pain, to nuance. What he makes isn't just impressive — it's meaningful.`,
+    Air:    `An Air Creator lives in the world of ideas and language. He thinks in stories, metaphors, systems of meaning. He can take something complex and make it clear, or take something ordinary and reveal its depth. His creativity is primarily conceptual — he invents ways of thinking, not just things.`,
+    Earth:  `An Earth Creator finishes what he starts. He is not just a dreamer — he is a maker in the truest sense. He brings ideas from imagination into physical reality through discipline, craft, and patience. He builds things that last. His work is tangible, well-made, and built to endure.`,
+    growth: `The Creator is your blindspot. You are more rigid and less expressive than you need to be. You may follow the expected path, execute what has been proven, or stay inside lines drawn by someone else — and in doing so, you are suppressing something real. Be wary of defaulting to the safe option, of dismissing your own ideas before they have a chance, and of mistaking practicality for wisdom. Learning to create — to express, to make, to take the unconventional path — will bring a dimension of originality to your life that discipline alone cannot produce.`,
+    gFire:  `Fire without the Creator's originality can become brute force. You act boldly, but are you creating anything new? Your growth comes from learning to bring creative energy into your intensity — to not just push harder but to push differently. Stop repeating the pattern and start making something that didn't exist before.`,
+    gWater: `Water without the Creator's expression can become emotion without outlet. You feel deeply, but are you making anything from it? The Creator gives your inner life a place to go. Begin expressing what is inside you — through writing, building, speaking, or making — and watch what was trapped inside you start to become something real in the world.`,
+    gAir:   `Air without the Creator becomes theory without form. You see things clearly and think with sophistication — but the Creator challenges you to stop analyzing and start making. Ideas that remain in your head are not yet contributions. Begin expressing them. The gap between a thinker and a creator is simply the willingness to put something imperfect into the world.`,
+    gEarth: `Earth without the Creator can produce a life that is solid but uninspired. You build with discipline, but are you building something original? The Creator's energy asks you to color outside the lines — to try the unconventional approach, to risk making something that might not work. Your reliability will give your creativity staying power.`,
+  },
+  Explorer: {
+    primary: `The Explorer is driven by curiosity, freedom, novelty, adventure, and direct contact with the unknown. He wants to experience life for himself rather than accept someone else's description of it. He doesn't fear the unfamiliar — he is energized by it. The Explorer doesn't wait for life to come to him. He goes after it.`,
+    Fire:   `A Fire Explorer doesn't explore carefully — he charges. He is bold, fast-moving, and willing to go first. He doesn't need a map. He starts the adventure before he has a plan and figures it out in motion. His confidence in motion is contagious. He does not wait for permission.`,
+    Water:  `A Water Explorer moves through the world with emotional curiosity. He doesn't just explore places — he explores people, relationships, inner landscapes. He goes deep as well as wide. His journey is often inward, uncovering truths about himself through experience. He is drawn to depth, mystery, and what's beneath the surface.`,
+    Air:    `An Air Explorer is the idea traveler. He explores through reading, conversation, philosophy, and connection. He collects perspectives the way other men collect gear. His range of thought is wide and his hunger to understand is constant. His mind covers vast territory.`,
+    Earth:  `An Earth Explorer is the adventurer who is also reliable. He goes out, pushes limits, and keeps coming back. He builds a life of adventure without losing his roots. His exploration is purposeful — he doesn't wander, he journeys. He comes home changed and brings what he learned back to the people he loves.`,
+    growth: `The Explorer is your blindspot. You are playing it too safe. You are staying in familiar territory — the same environment, the same patterns, the same version of yourself — and calling it stability when it is actually stagnation. Be wary of turning down opportunities because they feel too risky, of staying in situations that have run their course, and of letting fear of the unknown keep you from the life that is waiting for you.`,
+    gFire:  `Fire without the Explorer's openness can become intensity in a box. You push hard but always in the same direction. Your growth comes from learning to apply your drive to unfamiliar ground. The Explorer's energy will expand what you are capable of by expanding where you are willing to go.`,
+    gWater: `Water without the Explorer can become deep but still — feeling everything within a familiar emotional range without venturing beyond it. Your growth comes from exploring new emotional territory: new relationships, new depths of vulnerability, new experiences that challenge how you see yourself.`,
+    gAir:   `Air without the Explorer becomes thinking without living. You have a sharp mind — but the Explorer asks you to take those ideas into real experience. Go somewhere you haven't been. Do something you haven't done. Your intellect will be sharpened by contact with the unfamiliar in ways that reading alone cannot produce.`,
+    gEarth: `Earth without the Explorer produces a man who is grounded but not growing. Your stability is genuine — but it can become a reason to never move. The Explorer asks you to take one step beyond the edge of your comfort zone, then another. Your rootedness is the greatest asset an explorer can have. Use it as a launchpad, not an anchor.`,
+  },
+  Builder: {
+    primary: `The Builder is driven by usefulness, structure, craftsmanship, consistency, completion, and visible results. He values things that work. He doesn't get excited about ideas — he gets to work. His results speak. He doesn't need to announce what he's building — you can see it. He is defined by follow-through.`,
+    Fire:   `A Fire Builder builds with intensity and urgency. He doesn't just grind — he burns while he works. He starts early, stays late, and brings a competitive edge to everything he constructs. His drive is massive and his output is high. His challenge is learning to build for the long game, not just the next sprint.`,
+    Water:  `A Water Builder builds things that serve others. His motivation is not personal glory — it is the deep satisfaction of creating something that meets a real need. He builds relationships as carefully as he builds projects. What he constructs tends to last because it is grounded in purpose, not ego.`,
+    Air:    `An Air Builder builds systems of thought — ideas, frameworks, communication structures. He designs the strategy, architects the process, and gives the work its clarity. He doesn't just do — he thinks through how to do it right. His contribution is often invisible but everything would fall apart without it.`,
+    Earth:  `An Earth Builder is the most consistent man in the room. He shows up the same way every day. No drama. No shortcuts. He lays the foundation properly and builds upward with patience. He is the man still working while others have already posted about their results. His life is built to last.`,
+    growth: `The Builder is your blindspot. You are starting things and not finishing them — or waiting for the perfect plan before you begin. Without the Builder's discipline of consistent daily execution, your potential stays potential. Be wary of abandoning projects when the excitement fades, and of building a life based on what sounds good rather than what you are actually willing to construct.`,
+    gFire:  `Fire without the Builder's discipline burns fast and leaves ash. Your intensity is real, but without follow-through, it becomes a pattern of starts without finishes. Your growth is learning to stay in the work after the excitement is gone — to build something day by day until it is actually done.`,
+    gWater: `Water without the Builder's structure can become feeling without form. You care deeply and connect genuinely, but caring is not the same as building. Your growth comes from translating your emotional investment into consistent daily action. The people and things you love deserve your follow-through.`,
+    gAir:   `Air without the Builder becomes ideas that never land. You think with clarity and see the path — but thinking is not building. Your growth comes from sitting down and doing the unglamorous work of making something real, brick by brick. The idea is worth nothing until it exists. Start constructing.`,
+    gEarth: `Earth without the Builder can become stability without progress. You maintain well — but are you constructing anything new? Your groundedness is the perfect foundation for building. Use it. Choose one thing to build deliberately over the next season and commit to it without exception.`,
+  },
+  Protector: {
+    primary: `The Protector is driven by loyalty, responsibility, compassion, justice, and defending those who are vulnerable. He is not only someone who physically defends others — he may protect emotional safety, friendships, younger members, communities, or what matters to the people around him. He doesn't ask what he'll get. He asks what's needed.`,
+    Fire:   `A Fire Protector guards with intensity. He is not passive about protection — he is fierce. He will speak loudly, act quickly, and stand between his people and anything that threatens them without hesitation. His protection comes from heat — the burning conviction that these people matter and that he will not let them down.`,
+    Water:  `A Water Protector protects emotionally as much as physically. He creates safety through presence, through listening, through being a steady place where others can fall apart without judgment. His protection is felt before it's seen. The people around him feel safe because he makes them feel understood.`,
+    Air:    `An Air Protector uses his mind to shield the people around him. He anticipates threats before they arrive. He asks the questions others miss and prepares his people for what's coming. His protection is strategic — thinking through consequences so others don't have to suffer them.`,
+    Earth:  `An Earth Protector is unmovable. He is the wall between his people and chaos. He doesn't promise — he proves. Year after year, season after season, he is simply there. His people know he won't leave, won't give up, and won't fail them. That consistency is his greatest act of protection.`,
+    growth: `The Protector is your blindspot. You are not showing up for the people around you the way they need — or you are showing up for yourself so completely that you have little left to give. Be wary of being so consumed by your own journey that others feel unseen, of making promises you don't keep, and of underestimating how much your presence matters to the people around you.`,
+    gFire:  `Fire without the Protector's loyalty burns without regard for who gets hurt. Your intensity needs to be aimed at something beyond yourself — at the people who depend on you, the things worth defending. When your fire is put in service of others, it becomes something genuinely powerful rather than just impressive.`,
+    gWater: `Water without the Protector can become empathy without commitment. You feel what others feel, but do you show up when it's costly? The Protector asks you to move from feeling to covering — to actually be there in the moments that count. That shift from sensing to shielding is where your depth becomes strength.`,
+    gAir:   `Air without the Protector becomes thought without loyalty. You see the situation clearly, but do you stand with anyone in it? Your growth comes from choosing your people deliberately and being unmovable in your commitment to them. Your clarity is a gift — use it to protect, not just to observe.`,
+    gEarth: `Earth without the Protector can become self-sufficiency that isolates. You take care of yourself well — but who are you covering? Your groundedness is exactly the quality the best protectors are built on. Root yourself in the lives of the people who matter and let your steadiness become their security.`,
+  },
+  Visionary: {
+    primary: `The Visionary sees patterns, possibilities, and the path ahead. He is not merely a dreamer — he sees what could happen, detects patterns, anticipates outcomes, and creates a plan around the larger picture. He asks: What is really happening? Where is this going? What are we missing? What could this become? What is the smartest path forward?`,
+    Fire:   `A Fire Visionary doesn't just see the future — he declares it and dares people to join him. He moves toward his vision with urgency and conviction. He is the man who starts movements, launches missions, and pulls others into something they didn't know they needed until he named it. His passion makes the impossible feel inevitable.`,
+    Water:  `A Water Visionary sees the human future — the emotional and relational landscape of what could be. His vision is not about systems or industries — it is about people. He sees who others could become and what a community could look like if it were fully alive. His vision heals and inspires.`,
+    Air:    `An Air Visionary is the truest intellectual of the archetypes. He thinks across disciplines, connects distant ideas, and synthesizes patterns into new understanding. His vision is often ahead of its time. He is reading things others haven't discovered yet, thinking about things others haven't considered yet.`,
+    Earth:  `An Earth Visionary brings his vision down to ground level. He doesn't just dream — he builds the path toward the dream with his own hands. He is practical about the impractical. He takes the impossibly large vision and breaks it into the next brick to lay. He is the reason big ideas actually happen.`,
+    growth: `The Visionary is your blindspot. You are living too small. You have accepted a version of your life that is far below what you are actually capable of seeing — and somewhere in you, you know it. Be wary of settling for what is reasonable when what is possible is right in front of you. Be wary of dismissing your own hunches about the future. Developing this will give everything else you do a sense of direction and meaning it currently lacks.`,
+    gFire:  `Fire without vision burns in circles. Your intensity needs a horizon. The Visionary asks you to lift your eyes past the immediate challenge and ask: what is this all for? Where is this going? When your fire is aimed at something genuinely worth building, it will sustain in a way it never has before.`,
+    gWater: `Water without vision can become depth without direction. Your emotional intelligence and relational gifts are real — but where are you taking them? The Visionary asks you to dream forward. What could your relationships and community look like in ten years if you led them with intention? Give your care a destination.`,
+    gAir:   `Air without vision thinks clearly but not boldly. Your mind is sharp — but are you using it to see further than the immediate? The Visionary's gift is the courage to believe in something that doesn't exist yet. Begin asking bigger questions. Train yourself to think in decades, not days.`,
+    gEarth: `Earth without vision can produce a life that is well-built but uninspired. You work hard and you finish things — but are you building toward something that genuinely matters to you? The Visionary asks you to look up from the work and remember why you are doing it. Purpose is what turns a good life into a great one.`,
+  },
+  Communicator: {
+    primary: `The Communicator is driven by relationships, storytelling, connection, influence, teaching, and bringing people together. He may be outgoing, but does not have to be loud. A quieter Communicator may be an excellent listener, writer, interviewer, or teacher. He doesn't just talk — he connects. When he uses his voice well, rooms shift. Relationships deepen. People feel less alone.`,
+    Fire:   `A Fire Communicator speaks with conviction and boldness. He is the one who says the hard thing directly, who rallies people with his words, and who is not afraid to take up space. His voice carries weight because his conviction is real. He doesn't soften things to be liked — he speaks truth because he cares about what happens when people hear it.`,
+    Water:  `A Water Communicator is the most emotionally intelligent man in the room. He listens at a level others rarely reach. He hears the feeling beneath the words. He can sit with someone in their pain without trying to fix it, and that presence is its own form of power. When he speaks, it is because he has something worth saying.`,
+    Air:    `An Air Communicator moves through words and ideas with natural ease. He articulates complex things clearly, expresses thoughts with precision, and makes people feel understood with language. He is the writer, the teacher, the voice that translates the difficult into the accessible. His gift is clarity — and clarity changes things.`,
+    Earth:  `An Earth Communicator speaks with weight and reliability. His words are grounded. He doesn't exaggerate, doesn't perform, doesn't oversell. When he says something, he means it. People trust what he says because he always does what he said he would. His communication is built over time through consistency.`,
+    growth: `The Communicator is your blindspot. You are not saying what needs to be said — or you are not listening the way the people around you need to be heard. Be wary of using silence as a shield, of letting relationships stay shallow because depth feels risky, and of hoping people will understand you without doing the work of actually being understood. Developing your communication will change every relationship you have.`,
+    gFire:  `Fire without communication becomes force without connection. You act boldly — but do people around you understand why? Your growth comes from learning to speak your conviction clearly, to explain not just what you are doing but what it means and why it matters. The man who can act and articulate is unstoppable.`,
+    gWater: `Water without communication stays internal. Your emotional depth is real, but unspoken depth serves no one. Your growth comes from learning to give your feelings words — not to perform vulnerability, but to build the kind of honest connection that your inner life is capable of creating. Say the true thing.`,
+    gAir:   `Air without communication becomes thought that never reaches anyone. Your clarity and insight deserve an audience. Your growth comes from learning to bring your ideas into conversation — to speak them, share them, and let them be tested. The man who thinks clearly and speaks clearly becomes one of the most valuable people in any room.`,
+    gEarth: `Earth without communication can become reliability without intimacy. People count on you — but do they know you? Your growth comes from learning to let people in through honest conversation. Your steadiness makes you trustworthy. Your willingness to open up will make you irreplaceable.`,
   },
   Monk: {
-    primary: `The Monk is the man who has learned that the greatest battles are fought inside. He is not passive — he is precise. He has trained himself to observe before reacting, to listen before speaking, to be still when everything else is moving. His self-mastery is not weakness — it is the highest form of discipline. He knows who he is because he has sat with himself long enough to find out.`,
+    primary: `The Monk is driven by discipline, self-awareness, inner calm, restraint, reflection, patience, and control over impulses. He is not passive — he is the archetype of internal strength. He wants to understand his thoughts, emotions, habits, attention, and behavior. The greatest battles, he has learned, are fought inside.`,
     Fire:   `A Monk with Fire is rare. He has the discipline of stillness and the intensity of purpose. He doesn't burn hot on the surface — his fire burns at the core. He meditates, but he is not soft. He withdraws, but only to return stronger. He is the man who appears calm but is internally ablaze with commitment.`,
     Water:  `A Monk with Water is the deepest well in the room. He feels everything but shows nothing until the moment is right. His intuition is sharp, his emotional intelligence is high, and his presence creates safety for others. He doesn't need to speak to be heard. His inner world is vast, and what comes from it is precise.`,
     Air:    `A Monk with Air is the philosophical man. He thinks in layers, asks questions others don't consider, and sees patterns in human behavior most miss. His mind is always working even when he appears still. He is the one who walks away from a conversation with insights no one else caught.`,
@@ -140,255 +208,135 @@ const ARCHETYPE_DESC = {
     gAir:   `Air without the Monk becomes scattered. You think well, but do you think deeply? The Monk's practice of sustained attention and inner quiet will slow your mind down enough to produce insight rather than just information. Develop the discipline of focused reflection and your natural intelligence will reach a new level of depth.`,
     gEarth: `Earth without the Monk can become mechanical — doing the work without understanding why. Your consistency is a strength. Now pair it with self-examination. Take time to sit with what you are building and ask whether it is truly aligned with who you are. The Monk's inner work will give your outer discipline a soul.`,
   },
-  Creator: {
-    primary: `The Creator cannot help but make things. He sees the world as raw material — a conversation, a room, a problem, a relationship — and his instinct is to shape it into something better than he found it. He is driven by expression and originates ideas that others follow. His art is not always on a canvas. It is in how he lives, leads, builds, and communicates. When he is alive in his gift, the world around him shifts.`,
-    Fire:   `A Creator with Fire makes things that move people. He doesn't just build — he ignites. His work carries intensity and purpose. He creates with urgency, as if the idea will expire if he doesn't get it out. He is the one who starts the movement, launches the project, breaks the silence. His creative energy is a force, not a hobby.`,
-    Water:  `A Creator with Water makes things that heal and connect. His work carries emotional truth. He writes the thing that makes people feel seen. He builds the space where others exhale. He is sensitive to beauty, to pain, to nuance, and his creations reflect all of it. What he makes isn't just impressive — it's meaningful.`,
-    Air:    `A Creator with Air lives in the world of ideas and language. He thinks in stories, in metaphors, in systems of meaning. He can take something complex and make it clear, or take something ordinary and reveal its depth. His creativity is primarily of the mind — conceptual, philosophical, visionary.`,
-    Earth:  `A Creator with Earth finishes what he starts. He is not just a dreamer — he is a maker in the truest sense. He brings ideas from imagination into physical reality through discipline, craft, and patience. He builds things that last. His work is tangible, well-made, and built to endure.`,
-    growth: `The Creator is your blindspot. You are more rigid and less expressive than you need to be. You may follow the expected path, execute what's been proven, or stay inside lines that were drawn by someone else — and in doing so, you are suppressing something real. Be wary of defaulting to the safe option, of dismissing your own ideas before they have a chance, and of mistaking practicality for wisdom. Learning to create — to express, to make, to take the unconventional path — will bring a dimension of originality to your life that discipline alone cannot produce.`,
-    gFire:  `Fire without the Creator's originality can become brute force. You act boldly, but are you creating anything new? Your growth comes from learning to bring creative energy into your intensity — to not just push harder but to push differently. The Creator asks you to stop repeating the pattern and start making something that didn't exist before.`,
-    gWater: `Water without the Creator's expression can become emotion without outlet. You feel deeply, but are you making anything from it? The Creator gives your inner life a place to go. Begin expressing what is inside you — through writing, building, speaking, or making — and watch what was trapped inside you start to become something real in the world.`,
-    gAir:   `Air without the Creator becomes theory without form. You see things clearly and think with sophistication — but the Creator challenges you to stop analyzing and start making. Ideas that remain in your head are not yet contributions. Begin expressing them. The gap between a thinker and a creator is simply the willingness to put something imperfect into the world.`,
-    gEarth: `Earth without the Creator can produce a life that is solid but uninspired. You build with discipline, but are you building something original? The Creator's energy asks you to color outside the lines — to try the unconventional approach, to risk making something that might not work. Your reliability will give your creativity staying power. Together, they make something remarkable.`,
-  },
-  Explorer: {
-    primary: `The Explorer is the man who was not made for standing still. He is drawn toward the unknown — new places, new ideas, new versions of himself. He doesn't fear the unfamiliar; he's energized by it. The Explorer doesn't wait for life to come to him — he goes after it. His courage is quiet but constant. He is the one who walks into rooms others avoid, tries things others dismiss, and keeps moving when others settle.`,
-    Fire:   `An Explorer with Fire doesn't explore carefully — he charges. He is bold, fast-moving, and willing to go first. He doesn't need a map. He is the man who starts an adventure before he has a plan and figures it out along the way. His confidence in motion is contagious. He does not wait for permission.`,
-    Water:  `An Explorer with Water moves through the world with emotional curiosity. He doesn't just explore places — he explores people, relationships, inner landscapes. He goes deep as well as wide. His journey is often inward, uncovering truths about himself through experience. He is drawn to depth, to mystery, to what's beneath the surface.`,
-    Air:    `An Explorer with Air is the idea traveler. He explores through reading, conversation, philosophy, and connection. He collects perspectives the way other men collect gear. His range of thought is wide and his hunger to understand is constant. He might not travel far physically — but his mind covers vast territory.`,
-    Earth:  `An Explorer with Earth is the adventurer who is also reliable. He goes out, pushes limits, and keeps coming back. He builds a life of adventure without losing his roots. His exploration is purposeful — he doesn't wander, he journeys. He comes home changed, and he brings what he learned back to the people he loves.`,
-    growth: `The Explorer is your blindspot. You are playing it too safe. You are staying in familiar territory — the same environment, the same patterns, the same version of yourself — and calling it stability when it is actually stagnation. Be wary of turning down opportunities because they feel too risky, of staying in situations that have run their course, and of letting fear of the unknown keep you from the life that is waiting for you. Developing the courage to explore — new experiences, new challenges, new versions of yourself — will break you out of ceilings you may not even see yet.`,
-    gFire:  `Fire without the Explorer's openness can become intensity in a box. You push hard but always in the same direction. Your growth comes from learning to apply your drive to unfamiliar ground — to take your intensity somewhere new. The Explorer's energy will expand what you are capable of by expanding where you are willing to go.`,
-    gWater: `Water without the Explorer can become deep but still — feeling everything within a familiar emotional range without ever venturing beyond it. Your growth comes from exploring new emotional territory: new relationships, new depths of vulnerability, new experiences that challenge how you see yourself. Growth requires movement, even for the man who lives in feeling.`,
-    gAir:   `Air without the Explorer becomes thinking without living. You have a rich inner world and a sharp mind — but the Explorer asks you to take those ideas into real experience. Go somewhere you haven't been. Do something you haven't done. Your intellect will be sharpened by contact with the unfamiliar in ways that reading and thinking alone cannot produce.`,
-    gEarth: `Earth without the Explorer produces a man who is grounded but not growing. Your stability is genuine — but it can become a reason to never move. The Explorer asks you to take one step beyond the edge of your comfort zone, then another. Your rootedness is the greatest asset an explorer can have. Use it as a launchpad, not an anchor.`,
-  },
-  Leader: {
-    primary: `The Leader is the man the room reorganizes around when he walks in. He doesn't need a title. He has presence, conviction, and the rare ability to make people believe in something bigger than themselves. His power is in what he inspires, not what he demands. He sees people clearly — their strengths, their limits, their potential — and he calls it out of them. He is not in it for the credit. He is in it for the outcome.`,
-    Fire:   `A Leader with Fire is impossible to ignore. His energy fills the room before he says a word. He moves fast, decides boldly, and rallies people with his conviction. He doesn't wait for momentum — he creates it. His challenge is learning when to slow down, because the people behind him need time to follow.`,
-    Water:  `A Leader with Water leads by feeling. He is deeply attuned to the people around him and earns loyalty through understanding, not authority. He listens with full presence. He notices who is struggling before they say anything. His team follows him not because they have to, but because they trust him completely.`,
-    Air:    `A Leader with Air leads through vision and clarity. He can articulate where they're going better than anyone. He makes complex things simple. He gives people a picture of the future that makes them want to show up. His leadership is persuasive and inspiring — built on ideas and communication more than force.`,
-    Earth:  `A Leader with Earth is the steady hand. He doesn't panic. He doesn't perform. He shows up every day and sets the standard through how he lives, not just what he says. His leadership is earned through consistency. People follow him because he has already proven he will do the work regardless of who is watching.`,
-    growth: `The Leader is your blindspot. You are not stepping up — and people around you are paying for it. Whether through hesitation, self-doubt, or a preference to follow rather than direct, you are leaving influence on the table that belongs to you. Be wary of deferring when you should decide, of shrinking when the room needs someone to stand, and of waiting for permission that is never going to come. Developing your leadership will not just change your outcomes — it will change what the people around you are capable of.`,
-    gFire:  `Fire without leadership becomes intensity with no direction — energy that moves fast but not together. Your growth is learning to point that heat at something larger than yourself and bring others with you. The moment you stop performing and start genuinely leading — even one person — your fire will find its purpose.`,
-    gWater: `Water without leadership can become support that never steps forward. You are emotionally present for others but rarely the one who sets the direction. Your growth comes from learning to lead from your depth — to make the call, name the direction, and trust that your sensitivity to people makes you more qualified to lead, not less.`,
-    gAir:   `Air without leadership becomes ideas without a champion. You see the vision, you understand the strategy — but someone else is always the one who steps up. Your growth comes from owning the room with your clarity. Stop advising and start leading. The insight you've been offering from the side belongs at the front.`,
-    gEarth: `Earth without leadership becomes steadiness that never scales. You hold things together but rarely choose the direction. Your growth comes from stepping into the decision seat — from being not just the reliable one, but the responsible one. Your consistency and groundedness make you exactly the kind of leader people need. Step forward.`,
-  },
-  Builder: {
-    primary: `The Builder is the man who makes things real. He doesn't get excited about ideas — he gets to work. He is defined by follow-through: setting a plan, doing the next thing, and keeping going when the novelty has worn off and the grind is all that's left. His results speak. He doesn't need to announce what he's building — you can see it. He is the architect of his own life and the foundation of every team he's part of.`,
-    Fire:   `A Builder with Fire builds with intensity and urgency. He doesn't just grind — he burns while he works. He starts early, stays late, and brings a competitive edge to everything he constructs. His drive is massive and his output is high. His challenge is learning to build for the long game, not just the next sprint.`,
-    Water:  `A Builder with Water builds things that serve others. His motivation is not personal glory — it is the deep satisfaction of creating something that meets a real need. He builds relationships as carefully as he builds projects. What he constructs tends to last because it is grounded in purpose, not ego.`,
-    Air:    `A Builder with Air builds systems of thought — ideas, frameworks, communication structures. He is the man who designs the strategy, architects the process, and gives the work its clarity. He doesn't just do — he thinks through how to do it right. His contribution is often invisible but everything would fall apart without it.`,
-    Earth:  `A Builder with Earth is the most consistent man in the room. He shows up the same way every day. No drama. No shortcuts. He lays the foundation properly and builds upward with patience. He is the man still working while others have already posted about their results. His life is built to last.`,
-    growth: `The Builder is your blindspot. You are starting things and not finishing them — or you are waiting for the perfect plan before you begin. You may be strong in vision, in feeling, in strategy, but without the Builder's discipline of consistent daily execution, your potential stays potential. Be wary of abandoning projects when the excitement fades, of confusing motion with progress, and of building a life based on what sounds good rather than what you are actually willing to construct. Developing follow-through will close the gap between who you are and who you say you want to be.`,
-    gFire:  `Fire without the Builder's discipline burns fast and leaves ash. Your intensity is real, but without follow-through, it becomes a pattern of starts without finishes. Your growth is learning to stay in the work after the excitement is gone — to build something day by day until it is actually done. Intensity that sustains is the rarest and most powerful combination.`,
-    gWater: `Water without the Builder's structure can become feeling without form. You care deeply and connect genuinely, but caring is not the same as building. Your growth comes from translating your emotional investment into consistent daily action. The people and things you love deserve more than your feeling — they deserve your follow-through.`,
-    gAir:   `Air without the Builder becomes ideas that never land. You think with clarity and see the path — but thinking is not building. Your growth comes from sitting down and doing the unglamorous work of making something real, brick by brick, day after day. The idea is worth nothing until it exists. Start constructing.`,
-    gEarth: `Earth without the Builder can become stability without progress. You maintain well — but are you constructing anything new? Your groundedness is the perfect foundation for building. Use it. Choose one thing to build deliberately over the next season and commit to it without exception. Stability in motion is what the Builder brings.`,
-  },
-  Protector: {
-    primary: `The Protector's identity is built around the people he is responsible for. He doesn't ask what he'll get — he asks what's needed. His loyalty is total and his presence is a form of safety. He is the man who steps between danger and the people he loves without thinking twice. He doesn't seek conflict, but he does not flinch from it when the people he loves are at stake. His strength is not worn for show — it is reserved for the moment it matters.`,
-    Fire:   `A Protector with Fire guards with intensity. He is not passive about protection — he is fierce about it. He will speak loudly, act quickly, and stand between his people and anything that threatens them without hesitation. His protection comes from heat — the burning conviction that these people matter and that he will not let them down.`,
-    Water:  `A Protector with Water protects emotionally as much as physically. He creates safety through presence, through listening, through being a steady place where others can fall apart without judgment. His protection is felt before it's seen. The people around him feel safe because he makes them feel understood.`,
-    Air:    `A Protector with Air uses his mind to shield the people around him. He anticipates threats before they arrive. He sees around corners, asks the questions others miss, and prepares his people for what's coming. His protection is strategic — thinking through consequences so others don't have to suffer them.`,
-    Earth:  `A Protector with Earth is unmovable. He is the wall between his family and chaos. He doesn't promise — he proves. Year after year, season after season, he is simply there. His people know he won't leave, won't give up, and won't fail them. That consistency is his greatest act of protection.`,
-    growth: `The Protector is your blindspot. You are not showing up for the people around you the way they need — or you are showing up for yourself so completely that you have little left to give. You may be self-focused, emotionally unavailable, or simply unaware of the weight others are carrying that you could help carry. Be wary of being so consumed by your own journey that others feel unseen, of making promises you don't keep, and of underestimating how much your presence matters to the people around you. Developing the Protector in you will make you a man others can actually count on.`,
-    gFire:  `Fire without the Protector's loyalty burns without regard for who gets hurt. Your intensity needs to be aimed at something beyond yourself — at the people who depend on you, the things worth defending, the men beside you. When your fire is put in service of others, it becomes something genuinely powerful rather than just impressive.`,
-    gWater: `Water without the Protector can become empathy without commitment. You feel what others feel, but do you show up when it's costly? The Protector asks you to move from feeling to covering — to actually be there, physically and emotionally, in the moments that count. That shift from sensing to shielding is where your depth becomes strength.`,
-    gAir:   `Air without the Protector becomes thought without loyalty. You see the situation clearly, but do you stand with anyone in it? Your growth comes from choosing your people deliberately and being unmovable in your commitment to them. Your clarity is a gift — use it to protect, not just to observe.`,
-    gEarth: `Earth without the Protector can become self-sufficiency that isolates. You take care of yourself well — but who are you covering? Your groundedness is the exact quality the best protectors are built on. Root yourself in the lives of the people who matter and let your steadiness become their security.`,
-  },
-  Strategist: {
-    primary: `The Strategist sees the board three moves ahead. While others react, he analyzes. While others debate, he has already mapped the options. He is not cold — he is precise. He understands that the quality of a decision matters far more than the speed of it, and he does not allow emotion or pressure to push him into a bad move. He is the man others want in the room when things get complicated. He finds the path others miss.`,
-    Fire:   `A Strategist with Fire acts on his analysis with total conviction. He doesn't just plan — he executes boldly. He is the man who thinks it through and then goes hard. He doesn't second-guess once the decision is made. His strategic mind and his fire combine into something rare: a man who is both precise and decisive.`,
-    Water:  `A Strategist with Water uses emotional intelligence as his primary strategic tool. He reads people with precision — their motivations, their fears, what they need. He plans around how humans actually behave, not how they should. His strategy is built on understanding, empathy, and deep observation of the people involved.`,
-    Air:    `A Strategist with Air is the purest version of the archetype. His mind is his domain. He thinks in systems, in probability, in leverage points. He is highly adaptable because he processes information faster than others. He changes the plan when the data changes, without ego. He is always learning, always refining.`,
-    Earth:  `A Strategist with Earth is the long-game player. He doesn't think in days — he thinks in years. He builds his plans with patience and implements them with consistent daily action. He doesn't chase the shortcut. He understands that the real leverage is in doing the unsexy thing, every day, for as long as it takes.`,
-    growth: `The Strategist is your blindspot. You are reacting instead of thinking. You are making decisions from impulse, emotion, or habit rather than from a clear-eyed assessment of what is actually happening and what would actually work. Be wary of jumping to conclusions, of letting urgency replace wisdom, and of confusing decisiveness with clarity. Developing the Strategist's ability to pause, assess, and choose deliberately will stop you from paying the same price for the same avoidable mistakes.`,
-    gFire:  `Fire without the Strategist's mind acts without counting the cost. Your urgency is a strength — but urgency in the wrong direction is expensive. Your growth is learning to think before you ignite. Not to slow down permanently, but to build the habit of a brief, sharp assessment before you act. One clear question before you move: is this the right direction?`,
-    gWater: `Water without the Strategist can become emotional decision-making dressed as intuition. Your feelings are real data — but they are not the only data. Your growth comes from developing the discipline of stepping back from your emotional response to ask: what is actually true here? What is the most intelligent path forward? That distance between feeling and deciding is where wisdom lives.`,
-    gAir:   `Air without the Strategist can be fast thinking that lacks depth. You see things quickly — but are you seeing them fully? The Strategist's practice of slowing down, mapping the situation, and testing assumptions will take your natural sharpness and give it substance. Think slower. Decide better.`,
-    gEarth: `Earth without the Strategist can produce consistency without optimization. You show up every day — but are you doing the right things? Your growth comes from stepping back periodically to assess the entire system: what is working, what is not, and what should change. Your discipline plus strategic clarity will make your effort dramatically more effective.`,
-  },
-  Visionary: {
-    primary: `The Visionary sees what isn't there yet and believes in it anyway. He lives in the possible. His greatest contribution is not what he does today but the picture he paints of what tomorrow could be. He is the man who changes the trajectory of a conversation, a company, or a community by asking "what if?" and meaning it. He is not a dreamer in the passive sense — he is a prophet in the truest sense: a man who sees ahead and moves accordingly.`,
-    Fire:   `A Visionary with Fire doesn't just see the future — he declares it and dares people to join him. He moves toward his vision with urgency and charisma. He is the man who starts movements, launches missions, and pulls others into something they didn't know they needed until he named it. His passion makes the impossible feel inevitable.`,
-    Water:  `A Visionary with Water sees the human future — the emotional and relational landscape of what could be. His vision is not about systems or industries — it is about people. He sees who others could become and what a family, a community, or a generation could look like if it were fully alive. His vision heals and inspires.`,
-    Air:    `A Visionary with Air is the truest intellectual of the archetypes. He thinks across disciplines, connects distant ideas, and synthesizes patterns into new understanding. His vision is often ahead of its time. He is the man reading things others haven't discovered yet, thinking about things others haven't considered yet.`,
-    Earth:  `A Visionary with Earth brings his vision down to ground level. He doesn't just dream — he builds the path toward the dream with his own hands. He is practical about the impractical. He takes the impossibly large vision and breaks it into the next brick to lay. He is the reason big ideas actually happen.`,
-    growth: `The Visionary is your blindspot. You are living too small. You have accepted a version of your life that is far below what you are actually capable of seeing — and somewhere in you, you know it. You may be practical to a fault, afraid to say out loud what you actually want, or simply unaware that a bigger picture is available to you. Be wary of settling for what is reasonable when what is possible is right in front of you. Be wary of dismissing your own hunches about the future. Developing the Visionary in you will give everything else you do a sense of direction and meaning it currently lacks.`,
-    gFire:  `Fire without vision burns in circles. Your intensity needs a horizon. The Visionary asks you to lift your eyes past the immediate challenge and ask: what is this all for? Where is this going? When your fire is aimed at something genuinely worth building, it will sustain in a way it never has before.`,
-    gWater: `Water without vision can become depth without direction. Your emotional intelligence and relational gifts are real — but where are you taking them? The Visionary asks you to dream forward. What could your relationships, your family, your community look like in ten years if you led them with intention? Give your care a destination.`,
-    gAir:   `Air without vision thinks clearly but not boldly. Your mind is sharp — but are you using it to see further than the immediate? The Visionary's gift is not just cleverness — it is the courage to believe in something that doesn't exist yet. Begin asking bigger questions. Train yourself to think in decades, not days.`,
-    gEarth: `Earth without vision can produce a life that is well-built but uninspired. You work hard and you finish things — but are you building toward something that genuinely matters to you? The Visionary asks you to look up from the work and remember why you are doing it. Purpose is what turns a good life into a great one.`,
-  },
-  Communicator: {
-    primary: `The Communicator holds people together through the power of his words and presence. He is the one who says the thing that needed to be said, who hears what others miss, and who builds trust through honest, real conversation. He doesn't just talk — he connects. His ability to articulate what others feel but cannot express is rare and powerful. When he uses his voice well, rooms shift. Relationships deepen. People feel less alone.`,
-    Fire:   `A Communicator with Fire speaks with conviction and boldness. He is the one who says the hard thing directly, who rallies people with his words, and who is not afraid to take up space. His voice carries weight because his conviction is real. He doesn't soften things to be liked — he speaks truth because he cares about what happens when people hear it.`,
-    Water:  `A Communicator with Water is the most emotionally intelligent man in the room. He listens at a level others rarely reach. He hears the feeling beneath the words. He can sit with someone in their pain without trying to fix it, and that presence is its own form of power. When he speaks, it is because he has something worth saying. And people feel it.`,
-    Air:    `A Communicator with Air moves through words and ideas with natural ease. He articulates complex things clearly, expresses thoughts with precision, and makes people feel understood with language. He is the writer, the teacher, the voice that translates the difficult into the accessible. His gift is clarity — and clarity changes things.`,
-    Earth:  `A Communicator with Earth speaks with weight and reliability. His words are grounded. He doesn't exaggerate, doesn't perform, doesn't oversell. When he says something, he means it. His communication is built over time through consistency and follow-through. People trust what he says because he always does what he said he would.`,
-    growth: `The Communicator is your blindspot. You are not saying what needs to be said — or you are not listening the way the people around you need to be heard. You may avoid hard conversations, go quiet when your voice is most needed, or communicate on the surface while keeping your real thoughts and feelings locked away. Be wary of using silence as a shield, of letting relationships stay shallow because depth feels risky, and of hoping people will understand you without doing the work of actually being understood. Developing your communication will change every relationship you have.`,
-    gFire:  `Fire without communication becomes force without connection. You act boldly — but do people around you understand why? Your growth comes from learning to speak your conviction clearly, to explain not just what you are doing but what it means and why it matters. The man who can act and articulate is unstoppable.`,
-    gWater: `Water without communication stays internal. Your emotional depth is real, but unspoken depth serves no one. Your growth comes from learning to give your feelings words — not to perform vulnerability, but to build the kind of honest connection that your inner life is capable of creating. Say the true thing. It will change things.`,
-    gAir:   `Air without communication becomes thought that never reaches anyone. Your clarity and insight deserve an audience. Your growth comes from learning to bring your ideas into conversation — to speak them, share them, and let them be tested. The man who thinks clearly and speaks clearly becomes one of the most valuable people in any room.`,
-    gEarth: `Earth without communication can become reliability without intimacy. People count on you — but do they know you? Your growth comes from learning to let people in through honest conversation. Your steadiness makes you trustworthy. Your willingness to open up will make you irreplaceable.`,
-  },
-  Guardian: {
-    primary: `The Guardian is the man who holds the line. He doesn't need applause or recognition — he needs to know that what he is responsible for is safe, strong, and standing. He is the keeper of standards, the reliable one, the man who shows up without being asked and leaves only when the job is done. His consistency is not a personality trait — it is a discipline he has chosen. He knows that his presence, his integrity, and his dependability are among the greatest gifts he can give.`,
-    Fire:   `A Guardian with Fire protects with passion. He is not a passive presence — he is actively, intensely committed to keeping what he values safe. He will fight for what he guards. He will speak up when things are threatened. He doesn't just hold the line — he draws it boldly and stands on it.`,
-    Water:  `A Guardian with Water keeps people safe through emotional presence. He creates environments where people feel held, heard, and seen. His steadiness is not cold — it is warm and deep. He guards the relational health of those around him with the same care a physical guardian would guard physical safety. He is the emotional anchor.`,
-    Air:    `A Guardian with Air protects through awareness and foresight. He sees problems coming. He pays attention to what others dismiss. His vigilance is mental — he is always thinking about how to maintain what matters and prevent what threatens it. His protection is quiet and anticipatory rather than reactive.`,
-    Earth:  `A Guardian with Earth is the most elemental version of the archetype. He is consistent, grounded, and utterly dependable. He doesn't shift with the mood or bend with the pressure. He is the same man in public that he is in private. His integrity is structural. What he guards, he guards for good.`,
-    growth: `The Guardian is your blindspot. You are inconsistent in ways that are eroding trust — in yourself and in others. You may say one thing and do another, show up sometimes and disappear at others, or maintain your integrity selectively depending on who is watching. Be wary of letting your standards slip when things are comfortable, of making commitments you don't honor, and of building a reputation for reliability without doing the actual work of being reliable. Developing the Guardian in you will make your word mean something, and that changes everything.`,
-    gFire:  `Fire without the Guardian's consistency is enthusiasm with no backbone. You bring energy — but can people count on you when the energy is gone? Your growth is learning to show up the same way when you don't feel like it as when you do. That consistency is what transforms intensity into trust.`,
-    gWater: `Water without the Guardian can become care that cannot be counted on. You feel deeply and show up in the emotional moments — but do you hold the line in the practical ones? Your growth comes from pairing your relational warmth with structural reliability. Be the person who is emotionally present and always does what they said they would.`,
-    gAir:   `Air without the Guardian becomes ideas without follow-through. You can see the right path clearly — now walk it consistently, even when it is boring. Your growth comes from developing the discipline of showing up the same way every day, regardless of how interesting it is. Clarity without consistency is just commentary.`,
-    gEarth: `Earth without the Guardian can feel stable but lack true integrity. You are consistent in your habits — but are you consistent in your word? In your standards? In who you are when no one is watching? The Guardian asks you to hold the same line in every context. That is what turns consistency into character.`,
-  },
-  Sovereign: {
-    primary: `The Sovereign is the man who has taken full ownership of his life. He does not blame, defer, or wait for permission. He has decided what he stands for and he lives accordingly. His authority is not given — it is earned through self-mastery and consistency. He is the man others look to not because of his title but because of how he carries himself. His presence communicates something that cannot be faked: a man who is at home in himself, accountable to his values, and unwilling to compromise his integrity.`,
-    Fire:   `A Sovereign with Fire is commanding. He does not ask for the room — he takes it. His presence is felt immediately. He is bold, self-possessed, and deeply confident without arrogance. He knows what he stands for and he doesn't apologize for it. His authority comes from the inside and radiates outward. People follow him because he is already leading himself.`,
-    Water:  `A Sovereign with Water leads himself through deep self-knowledge. He has sat with his own darkness, his own desires, his own wounds — and he has taken responsibility for all of them. His sovereignty is not loud — it is quiet and total. He is at peace with who he is and who he is not. He doesn't need validation because he has already done the hard work of knowing himself.`,
-    Air:    `A Sovereign with Air governs through clarity of thought and principle. He has built a philosophy by which he lives and he does not deviate from it under pressure. His self-rule is intellectual and ethical. He thinks before he acts, speaks before he reacts, and makes decisions rooted in his values rather than his emotions.`,
-    Earth:  `A Sovereign with Earth has built his authority over years of consistency. He is the man who has shown up day after day, kept his word season after season, and built a life he can stand behind. His sovereignty is not declared — it is demonstrated. It is visible in how he lives. He has earned the right to lead himself, and that earns him the trust of others.`,
-    growth: `The Sovereign is your blindspot. You are giving your power away — to other people's opinions, to circumstances outside your control, or to habits and patterns you haven't yet chosen to break. You may blame your situation, wait for others to change first, or live by a standard that was handed to you rather than one you deliberately chose. Be wary of excuses, of victimhood disguised as awareness, and of knowing what you should do while still not doing it. Developing the Sovereign in you begins with one decision: to take total ownership of your life, starting now.`,
-    gFire:  `Fire without sovereignty becomes reactivity. You burn — but who is in control? Your growth is learning to be the source of your own fire, not just a responder to what ignites you. The Sovereign asks you to decide your direction, your standard, and your identity — and then let your intensity serve that decision rather than override it.`,
-    gWater: `Water without sovereignty can become being shaped by everyone else's emotional current. You are sensitive to others — but whose life are you actually living? Your growth comes from developing the interior clarity to know what you stand for, independent of who you are around. Emotional depth is only as powerful as the self it is rooted in.`,
-    gAir:   `Air without sovereignty becomes perpetual analysis of a life you're not fully owning. You see yourself clearly — but seeing is not deciding. The Sovereign asks you to stop observing your life and start governing it. Take your self-awareness and make it actionable. Decide. Commit. Own the outcome.`,
-    gEarth: `Earth without sovereignty can become following the same path because it has always been the path. Your reliability is real — but is this life yours? The Sovereign asks you to step back and choose deliberately: your values, your direction, your standards. A man who builds with intention on ground he has chosen is a different man entirely.`,
-  },
 };
 
 // ── ARCHETYPE ASSESSMENT ──────────────────────
 const ASSESS_QUESTIONS = [
-  { left: '⚔️ Gladiator — compete, fight, dominate', right: '🎨 Artist — create, express, make your mark', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Creator', el: 'Air' } },
-  { left: '🔥 Just go for it — figure it out as you move', right: '🧠 Think it through — then make your move', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: '🌍 Explorer — new places, new challenges, no limits', right: '🏗️ Builder — plant roots, put in the work, stack it up', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
-  { left: '👑 The one hyping everyone up in the room', right: '🧘 The one quietly watching from the side', leftScore: { arch: 'Leader', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
-  { left: '🧘 Magician — go deep, get still, master yourself', right: '🚀 Captain — step up, get loud, lead the charge', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Leader', el: 'Fire' } },
-  { left: '💪 Beast mode — train hard, get physically strong', right: '🧩 Galaxy brain — out-think, out-plan, outsmart', leftScore: { arch: 'Warrior', el: 'Earth' }, rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: '🏆 Win — whatever it takes', right: '💡 Understand — why things happen the way they do', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: '😤 Earn respect — make people look up to you', right: '🎭 Stay real — be exactly who you are, no mask', leftScore: { arch: 'Sovereign', el: 'Fire' }, rightScore: { arch: 'Creator', el: 'Water' } },
-  { left: '🛡️ Guardian — keep your people safe no matter what', right: '🗺️ Scout — go discover what\'s out there', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Air' } },
-  { left: '📅 Same routine every day — locked in and consistent', right: '🌊 Go with the flow — adapt as life comes at you', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Water' } },
-  { left: '🔨 Build something real you can touch and be proud of', right: '🔭 Dream up something the world hasn\'t seen yet', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: '💪 Level up physically — be harder, faster, stronger', right: '📖 Level up mentally — wisdom, clarity, discipline of mind', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
-  { left: '🗣️ Talk it out with someone you trust', right: '🤫 Sit with it alone until you figure it out', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Strategist', el: 'Air' } },
-  { left: '⚓ Hold it down — steady, reliable, never moves', right: '🌅 Chase what\'s next — always moving toward something bigger', leftScore: { arch: 'Guardian', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Water' } },
-  { left: '🔭 Prophet — see it before everyone else does', right: '🧱 Architect — lay the bricks one by one until it\'s done', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
-  { left: '🛡️ Protector — nobody gets through you to your crew', right: '👑 Sovereign — own your lane, run your world', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Sovereign', el: 'Fire' } },
-  { left: '🎤 Break the rules — do it your way', right: '📏 Keep the standard — hold the line everyone else drops', leftScore: { arch: 'Creator', el: 'Water' }, rightScore: { arch: 'Guardian', el: 'Earth' } },
-  { left: '🎙️ Speaker — move people with your words', right: '🔥 Presence — walk in and the whole energy shifts', leftScore: { arch: 'Communicator', el: 'Air' }, rightScore: { arch: 'Leader', el: 'Fire' } },
-  { left: '🌌 Visionary — obsessed with what\'s coming next', right: '🧘 Monk — master what\'s right in front of you first', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Monk', el: 'Water' } },
-  { left: '🦁 Stand alone if you have to — you answer to yourself', right: '🐺 Stand for your pack — your people come first', leftScore: { arch: 'Sovereign', el: 'Earth' }, rightScore: { arch: 'Protector', el: 'Earth' } },
-  { left: '📢 Say the hard thing — even if the room goes quiet', right: '🪨 Stay silent and steady — let your actions talk', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Guardian', el: 'Earth' } },
-  { left: '🎨 Create something nobody\'s ever seen before', right: '🔥 Ignite a movement — rally people around something real', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Leader', el: 'Fire' } },
-  { left: '🌍 Change the world — go after the big picture', right: '👑 Rule your world first — master your own house', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Sovereign', el: 'Fire' } },
-  { left: '🪨 The rock — people come to you when things fall apart', right: '📣 The voice — people listen when you speak up', leftScore: { arch: 'Guardian', el: 'Earth' }, rightScore: { arch: 'Communicator', el: 'Air' } },
+  { left: 'Just go for it — face it head on and figure it out in motion', right: 'Step back first — get still and understand what is actually happening', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: 'Try something completely new — discover what else is out there', right: 'Go deeper with what you have already started — master the craft', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
+  { left: 'Make something that moves people emotionally', right: 'Design a vision of something that does not exist yet', leftScore: { arch: 'Creator', el: 'Water' }, rightScore: { arch: 'Visionary', el: 'Air' } },
+  { left: 'Be the voice — say what needs to be said in the room', right: 'Be the presence — calm, still, and fully listening', leftScore: { arch: 'Communicator', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: 'Train hard, compete, and test your limits', right: 'Explore deeply — go places and meet people you have never experienced', leftScore: { arch: 'Warrior', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Water' } },
+  { left: 'Build something reliable, step by step, until it is done', right: 'Design the bigger picture first — imagine what it could become', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
+  { left: 'Step in because someone around you needs protecting', right: 'Step in because the challenge is there and needs to be confronted', leftScore: { arch: 'Protector', el: 'Water' }, rightScore: { arch: 'Warrior', el: 'Fire' } },
+  { left: 'Explain an idea so clearly that others understand and believe in it', right: 'Show up for your people consistently, whether or not they ask', leftScore: { arch: 'Communicator', el: 'Air' }, rightScore: { arch: 'Protector', el: 'Earth' } },
+  { left: 'Jump into the adventure before the plan is ready', right: 'Create the plan first — then build it right', leftScore: { arch: 'Explorer', el: 'Fire' }, rightScore: { arch: 'Builder', el: 'Air' } },
+  { left: 'Sit with your thoughts until they become clear', right: 'Put your thoughts into the world in some form', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Creator', el: 'Air' } },
+  { left: 'Defend what matters — stand between your people and what threatens them', right: 'Lead your people toward a future worth building', leftScore: { arch: 'Protector', el: 'Fire' }, rightScore: { arch: 'Visionary', el: 'Air' } },
+  { left: 'Win the competition — prove what you are made of', right: 'Win the trust — make people feel genuinely understood', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Communicator', el: 'Water' } },
+  { left: 'Start with an original idea — even if it breaks the rules', right: 'Start with a proven plan — and execute it without cutting corners', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
+  { left: 'Seek out new experiences — the unfamiliar is where you come alive', right: 'Go deeper with what is already in front of you — depth over breadth', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Monk', el: 'Earth' } },
+  { left: 'Help people feel heard — be the one they open up to', right: 'Be the one people can count on — reliable when it actually matters', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Protector', el: 'Earth' } },
+  { left: 'Think several moves ahead — see what others miss', right: 'Act now — the man who moves first shapes what happens next', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Warrior', el: 'Fire' } },
+  { left: 'Make it work — practical, functional, and built to last', right: 'Make it mean something — express what needs to be expressed', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Creator', el: 'Water' } },
+  { left: 'Observe and understand yourself — your inner world is the real work', right: 'Go out and discover — experience teaches what reflection cannot', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Explorer', el: 'Fire' } },
+  { left: 'Cover your people — loyalty, responsibility, and follow-through', right: 'Connect your people — bring them together through words and understanding', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Communicator', el: 'Air' } },
+  { left: 'Compete and conquer — challenge is where you are most alive', right: 'Envision and design — the real work is seeing what nobody else sees yet', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Visionary', el: 'Air' } },
+  { left: 'Express it boldly and originally — put your voice out there', right: 'Build it quietly and precisely — craftsmanship over performance', leftScore: { arch: 'Creator', el: 'Fire' }, rightScore: { arch: 'Builder', el: 'Earth' } },
+  { left: 'Energize the room — bring people in, make them feel something', right: 'Go out alone — discover what you find when it is just you and the world', leftScore: { arch: 'Communicator', el: 'Fire' }, rightScore: { arch: 'Explorer', el: 'Air' } },
+  { left: 'Master your own mind — discipline and stillness from the inside', right: 'Show up for others — discipline through loyalty and responsibility', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Protector', el: 'Earth' } },
+  { left: 'Dream up something original — imagination is your greatest tool', right: 'See where things are heading — patterns and possibilities over inspiration', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Visionary', el: 'Water' } },
 ];
 
 const SCENARIO_QUESTIONS = [
   {
-    scenario: "Your group can't agree on what to do. No one is stepping up.",
+    scenario: "Your group cannot agree on what to do. No one is stepping up.",
     question:  "What do you naturally do?",
     answers: [
-      { text: "Take charge and make a call — someone has to.",                              scores: { Warrior: 1, Leader: 2, Fire: 2 } },
-      { text: "Suggest something creative that everyone might actually enjoy.",             scores: { Creator: 2, Communicator: 1, Air: 2 } },
-      { text: "Listen to what everyone wants before you say anything.",                     scores: { Communicator: 2, Guardian: 1, Water: 2 } },
-      { text: "Step back, read the room, then speak when you know what to say.",            scores: { Strategist: 2, Monk: 1, Air: 1, Earth: 1 } },
+      { text: "Take charge and make a call — someone has to.",                              scores: { Warrior: 2, Communicator: 1, Fire: 2 } },
+      { text: "Listen to everyone first, then find the words to bring them together.",      scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Step back, assess the situation, then propose the clearest path forward.",   scores: { Visionary: 2, Builder: 1, Air: 2 } },
+      { text: "Try something creative that shifts the energy of the group entirely.",       scores: { Creator: 2, Explorer: 1, Air: 1, Water: 1 } },
     ]
   },
   {
-    scenario: "You hit a serious setback. Something you worked hard for didn't come through.",
-    question:  "What's your first instinct?",
+    scenario: "Something you worked hard for did not come through.",
+    question:  "What is your first instinct?",
     answers: [
-      { text: "Push through. Failure is just the cost of going after something real.",       scores: { Warrior: 2, Leader: 1, Fire: 2 } },
-      { text: "Pull back and rethink your strategy before making another move.",             scores: { Strategist: 2, Builder: 1, Air: 1, Water: 1 } },
-      { text: "Talk to someone you trust. You don't carry things alone.",                   scores: { Communicator: 1, Guardian: 2, Water: 2 } },
-      { text: "Accept it, recalibrate, and adapt. That's how you move.",                    scores: { Explorer: 2, Monk: 1, Earth: 1, Water: 1 } },
+      { text: "Push through. Failure is just the cost of going after something real.",    scores: { Warrior: 2, Builder: 1, Fire: 2 } },
+      { text: "Pull back and rethink before making another move.",                        scores: { Visionary: 2, Monk: 1, Air: 1, Water: 1 } },
+      { text: "Talk to someone — processing it out loud helps you move through it.",      scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Accept it, adapt, and find a new angle. Change of plan is part of it.",   scores: { Explorer: 2, Monk: 1, Earth: 1, Water: 1 } },
     ]
   },
   {
-    scenario: "You have an entire weekend with no obligations and nowhere to be.",
+    scenario: "You have an entire weekend with no obligations.",
     question:  "What do you actually do?",
     answers: [
-      { text: "Start a project you've been putting off. Finally make progress on it.",      scores: { Builder: 2, Warrior: 1, Earth: 2 } },
-      { text: "Go somewhere you've never been. Explore something completely new.",          scores: { Explorer: 2, Creator: 1, Air: 2 } },
-      { text: "Go deep — solitude, prayer, journaling. Recharge from the inside.",         scores: { Monk: 2, Strategist: 1, Water: 2 } },
-      { text: "Invest in the people who matter. Real time, real conversations.",            scores: { Communicator: 1, Protector: 1, Guardian: 1, Water: 2 } },
+      { text: "Get into a project you have been putting off. Make real progress.",        scores: { Builder: 2, Warrior: 1, Earth: 2 } },
+      { text: "Go somewhere new — explore, move, experience something you have not.",     scores: { Explorer: 2, Creator: 1, Fire: 1, Air: 1 } },
+      { text: "Solitude — journaling, reading, prayer. Recharge from the inside out.",   scores: { Monk: 2, Visionary: 1, Water: 2 } },
+      { text: "Real time with the people who matter. Deep conversations, real presence.", scores: { Communicator: 2, Protector: 1, Fire: 1, Water: 1 } },
     ]
   },
   {
-    scenario: "A younger man comes to you and asks for honest life advice.",
+    scenario: "A younger guy comes to you asking for honest life advice.",
     question:  "How do you respond?",
     answers: [
-      { text: "Share hard-earned lessons from your own failures. Keep it real.",            scores: { Sovereign: 2, Warrior: 1, Fire: 2 } },
-      { text: "Ask him questions until he discovers his own answer.",                       scores: { Monk: 2, Communicator: 1, Water: 2 } },
-      { text: "Give him a clear, practical plan he can actually follow.",                   scores: { Builder: 2, Strategist: 1, Earth: 2 } },
-      { text: "Paint a bigger picture of who he could become.",                             scores: { Visionary: 2, Leader: 1, Air: 2 } },
+      { text: "Share hard-earned lessons from your own life. Keep it direct and honest.", scores: { Warrior: 2, Communicator: 1, Fire: 2 } },
+      { text: "Ask him questions until he discovers his own answer.",                     scores: { Monk: 2, Communicator: 1, Water: 2 } },
+      { text: "Give him a clear, practical plan he can actually follow.",                 scores: { Builder: 2, Visionary: 1, Earth: 2 } },
+      { text: "Paint a larger picture of who he could become.",                           scores: { Visionary: 2, Creator: 1, Air: 2 } },
     ]
   },
   {
-    scenario: "You're in a group and every role needs to be filled.",
+    scenario: "Your team needs to fill every role.",
     question:  "Which one do you naturally drift toward?",
     answers: [
-      { text: "Setting the direction. Making the final call when no one else will.",        scores: { Leader: 2, Sovereign: 1, Fire: 2 } },
-      { text: "Keeping everything running. Making sure the work actually gets done.",       scores: { Builder: 2, Guardian: 1, Earth: 2 } },
-      { text: "Bringing the original ideas. Thinking in ways no one else is.",             scores: { Creator: 2, Visionary: 1, Air: 2 } },
-      { text: "Making sure every voice is heard. Holding the group together.",             scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Setting the direction and making the final call.",                         scores: { Warrior: 2, Visionary: 1, Fire: 2 } },
+      { text: "Making sure the work gets done — the systems and follow-through.",         scores: { Builder: 2, Protector: 1, Earth: 2 } },
+      { text: "Generating original ideas — thinking in ways nobody else is.",             scores: { Creator: 2, Visionary: 1, Air: 2 } },
+      { text: "Making sure every voice is heard and the group stays connected.",          scores: { Communicator: 2, Protector: 1, Water: 2 } },
     ]
   },
   {
-    scenario: "There's a specific kind of moment where you feel completely alive.",
-    question:  "Which one is it for you?",
+    scenario: "There is a specific kind of moment where you feel completely alive.",
+    question:  "Which one is it?",
     answers: [
-      { text: "Competing or conquering something physically demanding.",                    scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
-      { text: "Building or creating something that didn't exist before.",                   scores: { Creator: 2, Builder: 1, Air: 1, Earth: 1 } },
-      { text: "A real conversation — the kind where something actually shifts.",            scores: { Communicator: 2, Guardian: 1, Water: 2 } },
-      { text: "Total solitude — a mountain, a trail, a quiet room. Just you.",             scores: { Monk: 2, Explorer: 1, Earth: 1, Water: 1 } },
+      { text: "Competing in something physically demanding and pushing your limits.",     scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
+      { text: "Finishing something you built from scratch.",                              scores: { Builder: 2, Creator: 1, Earth: 2 } },
+      { text: "A real conversation where something genuinely shifts for both of you.",   scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Total solitude — somewhere in nature with just your thoughts.",           scores: { Monk: 2, Explorer: 1, Water: 1, Earth: 1 } },
     ]
   },
   {
     scenario: "Someone you deeply respect makes a decision you believe is wrong.",
     question:  "What do you do?",
     answers: [
-      { text: "Say it directly. Even if the room goes quiet.",                             scores: { Warrior: 1, Sovereign: 2, Fire: 2 } },
-      { text: "Ask questions. Understand their thinking before you react.",                scores: { Strategist: 2, Communicator: 1, Air: 2 } },
-      { text: "Back them publicly. Address it privately when the time is right.",          scores: { Guardian: 2, Protector: 1, Earth: 2 } },
-      { text: "Trust the process. Watch what unfolds before stepping in.",                 scores: { Monk: 2, Builder: 1, Water: 1, Earth: 1 } },
+      { text: "Say it directly — even if the room goes quiet.",                          scores: { Warrior: 2, Monk: 1, Fire: 2 } },
+      { text: "Ask questions and try to understand their thinking first.",               scores: { Visionary: 2, Communicator: 1, Air: 2 } },
+      { text: "Support them publicly, then address it privately when the time is right.",scores: { Protector: 2, Builder: 1, Earth: 2 } },
+      { text: "Watch what unfolds before stepping in. Trust what you observe.",          scores: { Monk: 2, Visionary: 1, Water: 1, Air: 1 } },
     ]
   },
   {
-    scenario: "If it's all said and done and you're remembered for one thing...",
+    scenario: "When it is all said and done, you are remembered for one thing.",
     question:  "What do you want it to be?",
     answers: [
-      { text: "What you built — something lasting that outlives you.",                     scores: { Builder: 2, Sovereign: 1, Earth: 2 } },
-      { text: "How you led — the men you raised up and the fire you lit in them.",        scores: { Leader: 1, Sovereign: 2, Fire: 2 } },
-      { text: "How you made people feel — seen, valued, and not alone.",                  scores: { Communicator: 2, Protector: 1, Water: 2 } },
-      { text: "The life you actually lived — fully, boldly, with no held back.",          scores: { Explorer: 2, Warrior: 1, Air: 1, Fire: 1 } },
+      { text: "What you built — something lasting that outlives you.",                   scores: { Builder: 2, Warrior: 1, Earth: 2 } },
+      { text: "How you made people feel — seen, valued, and not alone.",                 scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "The things you created — work that changed how people see the world.",    scores: { Creator: 2, Visionary: 1, Air: 2 } },
+      { text: "The life you actually lived — fully, boldly, nothing held back.",         scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
     ]
   },
   {
     scenario: "The pressure is at its highest. Everyone around you is rattled.",
     question:  "What happens to you?",
     answers: [
-      { text: "You get sharper. More decisive. Pressure is fuel.",                         scores: { Warrior: 1, Leader: 2, Fire: 2 } },
-      { text: "You go quiet. Calculated. You play the longer game.",                      scores: { Strategist: 2, Sovereign: 1, Water: 1, Air: 1 } },
-      { text: "You become the anchor. Calm and steady while everything shakes.",           scores: { Protector: 2, Guardian: 2, Earth: 2 } },
-      { text: "Something unlocks. Pressure sparks your best ideas.",                      scores: { Creator: 2, Visionary: 1, Air: 2 } },
+      { text: "You get sharper. More decisive. Pressure reveals who you actually are.",  scores: { Warrior: 2, Visionary: 1, Fire: 2 } },
+      { text: "You go quiet. You step back, observe, and find the clearest path.",       scores: { Monk: 2, Visionary: 1, Water: 1, Air: 1 } },
+      { text: "You become the steady one. Calm and grounded while everything shakes.",   scores: { Protector: 2, Builder: 1, Earth: 2 } },
+      { text: "Something unlocks in you. Pressure sparks your most creative thinking.",  scores: { Creator: 2, Explorer: 1, Air: 2 } },
     ]
   },
   {
-    scenario: "A brother in your circle is going through a hard season. He hasn't asked for help.",
+    scenario: "A brother in your circle is struggling. He has not asked for help.",
     question:  "What do you do?",
     answers: [
-      { text: "Show up uninvited. You don't wait for people to ask.",                      scores: { Protector: 2, Guardian: 1, Fire: 1, Earth: 1 } },
-      { text: "Create the right moment — a conversation, a meal, a walk.",                scores: { Communicator: 2, Leader: 1, Water: 2 } },
-      { text: "Find the most practical way to take a burden off him right now.",          scores: { Builder: 2, Guardian: 1, Earth: 2 } },
-      { text: "Hold him in prayer and stay present — sometimes presence is enough.",      scores: { Monk: 2, Protector: 1, Water: 2 } },
+      { text: "Show up uninvited. You do not wait for people to ask.",                   scores: { Protector: 2, Warrior: 1, Fire: 1, Earth: 1 } },
+      { text: "Create the right moment — a conversation, a walk, a meal.",               scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Find the most practical way to lighten his load right now.",              scores: { Builder: 2, Protector: 1, Earth: 2 } },
+      { text: "Hold space and stay present — sometimes presence is enough.",             scores: { Monk: 2, Protector: 1, Water: 2 } },
     ]
   },
 ];
@@ -434,186 +382,186 @@ const PI = {
 
 const PERCEPTION_QUESTIONS = [
   {
-    question: "If you had an entire Saturday to yourself, where would you honestly want to spend it?",
+    question: "If you had a Saturday completely to yourself, where would you honestly want to spend it?",
     answers: [
-      { icon: 'mountain',  label: 'Mountain Peak',     meaning: 'Pushing yourself, earning the view, doing something challenging.', scores: { Explorer: 2, Visionary: 1, Air: 1, Fire: 1 } },
-      { icon: 'forest',    label: 'Quiet Forest',      meaning: 'Slowing down, thinking, and enjoying the peace.',                   scores: { Monk: 2, Guardian: 1, Water: 2 } },
-      { icon: 'workshop',  label: 'Workshop / Garage', meaning: 'Building, fixing, or creating something with your hands.',          scores: { Builder: 2, Creator: 1, Earth: 2 } },
-      { icon: 'boxing',    label: 'Boxing Gym',        meaning: 'Training hard, getting stronger, and pushing your limits.',          scores: { Warrior: 2, Leader: 1, Fire: 2 } },
+      { icon: 'mountain',  label: 'Mountain Peak',     meaning: 'Pushing yourself, earning the view, doing something genuinely hard.', scores: { Explorer: 2, Warrior: 1, Fire: 1, Air: 1 } },
+      { icon: 'forest',    label: 'Quiet Forest',      meaning: 'Slowing down, thinking, and finding peace in the stillness.',         scores: { Monk: 2, Protector: 1, Water: 2 } },
+      { icon: 'workshop',  label: 'Workshop / Garage', meaning: 'Building, fixing, or creating something with your hands.',            scores: { Builder: 2, Creator: 1, Earth: 2 } },
+      { icon: 'boxing',    label: 'Boxing Gym',        meaning: 'Training hard, getting stronger, and testing your limits.',           scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
     ]
   },
   {
-    question: "Which item would you want with you if life got really difficult?",
+    question: "Which item would you want if life got really difficult?",
     answers: [
-      { icon: 'sword',     label: 'Sword',             meaning: 'To remind yourself to face problems with courage.',                  scores: { Warrior: 2, Protector: 1, Fire: 2 } },
-      { icon: 'compass',   label: 'Compass',           meaning: 'To help you stay on the right path even when lost.',                 scores: { Explorer: 2, Visionary: 1, Air: 2 } },
-      { icon: 'brush',     label: 'Paintbrush',        meaning: 'To express yourself and create something meaningful.',               scores: { Creator: 2, Communicator: 1, Air: 2 } },
-      { icon: 'hammer',    label: 'Hammer',            meaning: 'To remind yourself that anything worth having takes work.',          scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+      { icon: 'sword',     label: 'Sword',             meaning: 'To remind yourself to face problems with courage.',                   scores: { Warrior: 2, Protector: 1, Fire: 2 } },
+      { icon: 'compass',   label: 'Compass',           meaning: 'To help you find your direction when you feel lost.',                 scores: { Explorer: 2, Visionary: 1, Air: 2 } },
+      { icon: 'brush',     label: 'Paintbrush',        meaning: 'To express yourself and make something meaningful from the pain.',    scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'hammer',    label: 'Hammer',            meaning: 'To remind yourself that anything worth having takes real work.',      scores: { Builder: 2, Protector: 1, Earth: 2 } },
     ]
   },
   {
     question: "Which animal do you admire the most?",
     answers: [
-      { icon: 'wolf',      label: 'Wolf',              meaning: 'Works with the pack, protects others, and leads when needed.',       scores: { Leader: 2, Protector: 1, Fire: 2 } },
-      { icon: 'owl',       label: 'Owl',               meaning: 'Quiet, observant, and always thinking before acting.',              scores: { Strategist: 2, Monk: 1, Air: 2 } },
-      { icon: 'eagle',     label: 'Eagle',             meaning: "Sees the big picture and isn't afraid to fly alone.",               scores: { Visionary: 2, Explorer: 1, Air: 2 } },
-      { icon: 'bear',      label: 'Bear',              meaning: 'Strong, calm, dependable, and protective of those it loves.',       scores: { Guardian: 2, Builder: 1, Earth: 2 } },
+      { icon: 'wolf',      label: 'Wolf',              meaning: 'Loyal, protective, works with the pack, leads when needed.',         scores: { Protector: 2, Warrior: 1, Earth: 2 } },
+      { icon: 'owl',       label: 'Owl',               meaning: 'Quiet, observant, and always thinking before acting.',               scores: { Visionary: 2, Monk: 1, Air: 2 } },
+      { icon: 'eagle',     label: 'Eagle',             meaning: 'Sees the big picture and is not afraid to fly alone.',               scores: { Explorer: 2, Visionary: 1, Air: 2 } },
+      { icon: 'bear',      label: 'Bear',              meaning: 'Strong, steady, dependable, and protective of what it loves.',       scores: { Builder: 2, Warrior: 1, Earth: 2 } },
     ]
   },
   {
     question: "Which place feels like it has something to teach you?",
     answers: [
-      { icon: 'waves',     label: 'Huge Ocean Waves',  meaning: 'Learning to adapt when life refuses to go as planned.',             scores: { Explorer: 2, Creator: 1, Water: 2 } },
-      { icon: 'campfire',  label: 'Campfire Circle',   meaning: 'Sharing stories, building trust, and finding brotherhood.',         scores: { Communicator: 2, Leader: 1, Fire: 2 } },
-      { icon: 'temple',    label: 'Ancient Temple',    meaning: 'Learning discipline, wisdom, and the patience to go deep.',         scores: { Monk: 2, Strategist: 1, Earth: 2 } },
-      { icon: 'stars',     label: 'Sky Full of Stars', meaning: 'Thinking about your future and how big what is possible is.',       scores: { Visionary: 2, Creator: 1, Air: 2 } },
+      { icon: 'waves',     label: 'Huge Ocean Waves',  meaning: 'Learning to adapt when life refuses to go as planned.',              scores: { Explorer: 2, Creator: 1, Water: 2 } },
+      { icon: 'campfire',  label: 'Campfire Circle',   meaning: 'Sharing stories, building trust, and finding real connection.',      scores: { Communicator: 2, Protector: 1, Fire: 2 } },
+      { icon: 'temple',    label: 'Ancient Temple',    meaning: 'Learning discipline, wisdom, and the patience to go deep.',          scores: { Monk: 2, Visionary: 1, Earth: 2 } },
+      { icon: 'stars',     label: 'Sky Full of Stars', meaning: 'Thinking about your future and the scale of what is possible.',     scores: { Visionary: 2, Creator: 1, Air: 2 } },
     ]
   },
   {
     question: "Which path would you take?",
     answers: [
-      { icon: 'trail',     label: 'Forest Trail',      meaning: 'You like exploring the unknown without knowing where it leads.',     scores: { Explorer: 2, Guardian: 1, Earth: 2 } },
-      { icon: 'mtnpath',   label: 'Mountain Path',     meaning: "You'd rather take the harder road if it helps you grow.",           scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
-      { icon: 'desert',    label: 'Desert Road',       meaning: 'You enjoy being alone and figuring things out on your own terms.',  scores: { Monk: 2, Visionary: 1, Earth: 2 } },
-      { icon: 'coastal',   label: 'Coastal Trail',     meaning: 'You enjoy beauty and the kind of freedom that comes with movement.', scores: { Creator: 2, Communicator: 1, Water: 2 } },
+      { icon: 'trail',     label: 'Forest Trail',      meaning: 'Exploring the unknown without knowing exactly where it leads.',      scores: { Explorer: 2, Monk: 1, Earth: 2 } },
+      { icon: 'mtnpath',   label: 'Mountain Path',     meaning: 'Taking the harder road because it makes you grow.',                  scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
+      { icon: 'desert',    label: 'Desert Road',       meaning: 'Alone, open, and figuring things out entirely on your own terms.',  scores: { Visionary: 2, Monk: 1, Air: 1, Earth: 1 } },
+      { icon: 'coastal',   label: 'Coastal Trail',     meaning: 'Beauty, movement, and the kind of freedom that comes with flow.',   scores: { Creator: 2, Communicator: 1, Water: 2 } },
     ]
   },
   {
     question: "Which room would excite you to spend a full month in?",
     answers: [
-      { icon: 'music',     label: 'Music Studio',      meaning: 'Making songs, creating from scratch, expressing what is inside.',   scores: { Creator: 2, Communicator: 1, Air: 2 } },
-      { icon: 'workshop',  label: 'Workshop',          meaning: 'Building something real and lasting with your own hands.',          scores: { Builder: 2, Guardian: 1, Earth: 2 } },
-      { icon: 'books',     label: 'Library',           meaning: 'Learning things that make you think differently.',                  scores: { Strategist: 2, Monk: 1, Air: 2 } },
-      { icon: 'tent',      label: 'Outdoor Camp',      meaning: 'Survival skills, open sky, and figuring out how to stay alive.',   scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
+      { icon: 'music',     label: 'Music Studio',      meaning: 'Making something from scratch, expressing what is inside you.',      scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'workshop',  label: 'Workshop',          meaning: 'Building something real and lasting with your own hands.',           scores: { Builder: 2, Creator: 1, Earth: 2 } },
+      { icon: 'books',     label: 'Library',           meaning: 'Learning things that make you think differently about everything.',  scores: { Visionary: 2, Monk: 1, Air: 2 } },
+      { icon: 'tent',      label: 'Outdoor Camp',      meaning: 'Survival skills, open sky, and figuring out how to stay alive.',    scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
     ]
   },
   {
     question: "Which symbol feels like something you need more of right now?",
     answers: [
-      { icon: 'mountain',  label: 'Mountain',          meaning: 'More discipline. More consistency. More follow-through.',           scores: { Builder: 2, Warrior: 1, Earth: 2 } },
-      { icon: 'fire',      label: 'Fire',              meaning: 'More courage. More action. More willingness to go for it.',         scores: { Warrior: 2, Leader: 1, Fire: 2 } },
-      { icon: 'wave',      label: 'Wave',              meaning: 'More calm. More patience. More trust in the process.',              scores: { Monk: 2, Explorer: 1, Water: 2 } },
-      { icon: 'feather',   label: 'Feather',           meaning: 'More freedom. More creativity. More permission to imagine.',        scores: { Visionary: 2, Creator: 1, Air: 2 } },
+      { icon: 'mountain',  label: 'Mountain',          meaning: 'More discipline. More consistency. More follow-through.',            scores: { Builder: 2, Warrior: 1, Earth: 2 } },
+      { icon: 'fire',      label: 'Fire',              meaning: 'More courage. More action. More willingness to go for it.',          scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
+      { icon: 'wave',      label: 'Wave',              meaning: 'More calm. More patience. More trust in the process.',               scores: { Monk: 2, Protector: 1, Water: 2 } },
+      { icon: 'feather',   label: 'Feather',           meaning: 'More freedom. More creativity. More permission to imagine.',         scores: { Creator: 2, Visionary: 1, Air: 2 } },
     ]
   },
   {
     question: "Which challenge sounds the most rewarding to you?",
     answers: [
-      { icon: 'mountain',  label: 'Climb a Mountain',  meaning: 'Prove to yourself you can do something genuinely hard.',            scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
-      { icon: 'cabin',     label: 'Build a Cabin',     meaning: 'Create something that lasts long after you leave.',                 scores: { Builder: 2, Guardian: 1, Earth: 2 } },
-      { icon: 'music',     label: 'Write a Song',      meaning: 'Turn your inner world into something other people can actually feel.', scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'mountain',  label: 'Climb a Mountain',  meaning: 'Push yourself physically and prove you can do something hard.',      scores: { Explorer: 2, Warrior: 1, Fire: 1, Earth: 1 } },
+      { icon: 'cabin',     label: 'Build a Cabin',     meaning: 'Create something that lasts long after you are gone.',               scores: { Builder: 2, Protector: 1, Earth: 2 } },
+      { icon: 'music',     label: 'Write a Song',      meaning: 'Turn your inner world into something others can actually feel.',     scores: { Creator: 2, Communicator: 1, Air: 2 } },
       { icon: 'lake',      label: 'Meditate by a Lake', meaning: 'Become genuinely comfortable with silence and your own thoughts.', scores: { Monk: 2, Visionary: 1, Water: 2 } },
     ]
   },
   {
     question: "Which weather feels the most like you lately?",
     answers: [
-      { icon: 'storm',     label: 'Thunderstorm',      meaning: 'Full of energy, intensity, and ready to act.',                      scores: { Warrior: 2, Leader: 1, Fire: 2 } },
-      { icon: 'rain',      label: 'Gentle Rain',       meaning: 'Calm, thoughtful, and quiet in a way people underestimate.',        scores: { Monk: 2, Protector: 1, Water: 2 } },
-      { icon: 'wind',      label: 'Windy Day',         meaning: 'Always generating new ideas, always moving toward something.',      scores: { Creator: 2, Explorer: 1, Air: 2 } },
-      { icon: 'leaf',      label: 'Cool Autumn Morning', meaning: 'Focused, steady, and reliable when others are distracted.',       scores: { Builder: 2, Guardian: 1, Earth: 2 } },
+      { icon: 'storm',     label: 'Thunderstorm',      meaning: 'Full of energy, intensity, and ready to act.',                       scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
+      { icon: 'rain',      label: 'Gentle Rain',       meaning: 'Calm, thoughtful, quiet in a way people tend to underestimate.',     scores: { Monk: 2, Protector: 1, Water: 2 } },
+      { icon: 'wind',      label: 'Windy Day',         meaning: 'Always generating new ideas, always moving toward something.',       scores: { Creator: 2, Explorer: 1, Air: 2 } },
+      { icon: 'leaf',      label: 'Cool Autumn Morning', meaning: 'Focused, steady, and reliable when others are distracted.',        scores: { Builder: 2, Monk: 1, Earth: 2 } },
     ]
   },
   {
-    question: "Imagine sitting around a campfire. Which sounds most like you?",
+    question: "Sitting around a campfire — which one sounds most like you?",
     answers: [
-      { icon: 'solo',      label: 'Thinking Quietly',  meaning: 'You reflect before speaking. Silence is comfortable.',              scores: { Monk: 2, Visionary: 1, Water: 2 } },
-      { icon: 'pair',      label: 'Deep Conversation', meaning: 'One real conversation beats a hundred shallow ones.',               scores: { Protector: 2, Communicator: 1, Water: 2 } },
-      { icon: 'group',     label: 'Making Everyone Laugh', meaning: 'You naturally draw people in and make them feel at ease.',      scores: { Leader: 2, Communicator: 1, Fire: 2 } },
-      { icon: 'map',       label: "Planning Tomorrow's Adventure", meaning: "You're already thinking about what comes next.",        scores: { Explorer: 2, Strategist: 1, Air: 2 } },
+      { icon: 'solo',      label: 'Thinking Quietly',       meaning: 'You reflect before speaking. Silence is comfortable to you.',   scores: { Monk: 2, Visionary: 1, Water: 2 } },
+      { icon: 'pair',      label: 'Deep Conversation',      meaning: 'One real conversation is worth more than a hundred shallow ones.', scores: { Protector: 2, Communicator: 1, Earth: 1, Water: 1 } },
+      { icon: 'group',     label: 'Making Everyone Laugh',  meaning: 'You naturally draw people in and make them feel at ease.',       scores: { Communicator: 2, Explorer: 1, Fire: 2 } },
+      { icon: 'map',       label: "Planning the Next Adventure", meaning: "You are already thinking about what comes next.",          scores: { Visionary: 2, Explorer: 1, Air: 2 } },
     ]
   },
 ];
 
 const VALUES_QUESTIONS = [
   {
-    question: "Which quality do you respect the most in another person?",
+    question: "Which quality do you respect most in another person?",
     answers: [
-      { text: "Courage — Someone who faces difficult things instead of running away.",  scores: { Warrior: 2, Leader: 1, Fire: 1 } },
-      { text: "Wisdom — Someone who stays calm and thinks before acting.",               scores: { Monk: 2, Strategist: 1, Water: 1 } },
-      { text: "Creativity — Someone who sees the world differently and makes new things.", scores: { Creator: 2, Visionary: 1, Air: 1 } },
-      { text: "Reliability — Someone who always keeps their word.",                      scores: { Builder: 2, Guardian: 1, Earth: 1 } },
+      { text: "Courage — someone who faces difficult things without backing down.", scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "Wisdom — someone who stays calm and thinks before acting.",          scores: { Monk: 2, Visionary: 1, Water: 1 } },
+      { text: "Originality — someone who sees the world differently and makes new things.", scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "Reliability — someone who always does what they said they would.",   scores: { Builder: 2, Protector: 1, Earth: 1 } },
     ]
   },
   {
     question: "If people remembered you for one thing, what would you hope it is?",
     answers: [
-      { text: "I gave people courage.",                 scores: { Warrior: 2, Protector: 1, Fire: 1 } },
-      { text: "I helped people feel understood.",       scores: { Protector: 2, Communicator: 1, Water: 1 } },
-      { text: "I inspired people to dream bigger.",     scores: { Visionary: 2, Creator: 1, Air: 1 } },
-      { text: "I built something that lasted.",         scores: { Builder: 2, Guardian: 1, Earth: 1 } },
+      { text: "You gave people courage to face what scared them.", scores: { Warrior: 2, Communicator: 1, Fire: 1 } },
+      { text: "You made people feel seen and not alone.",           scores: { Communicator: 2, Protector: 1, Water: 1 } },
+      { text: "You inspired people to dream bigger.",               scores: { Visionary: 2, Creator: 1, Air: 1 } },
+      { text: "You built something that lasted beyond you.",        scores: { Builder: 2, Protector: 1, Earth: 1 } },
     ]
   },
   {
-    question: "When life gets hard, what do you believe matters most?",
+    question: "When life gets hard, what matters most?",
     answers: [
-      { text: "Keep moving forward.",    scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
-      { text: "Stay calm.",              scores: { Monk: 2, Guardian: 1, Water: 1 } },
-      { text: "Keep learning.",          scores: { Strategist: 2, Visionary: 1, Air: 1 } },
-      { text: "Stay disciplined.",       scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
+      { text: "Keep moving forward — action is the answer.",                      scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "Stay calm — clarity comes from stillness.",                        scores: { Monk: 2, Protector: 1, Water: 1 } },
+      { text: "Keep learning — understanding the situation is how you improve it.", scores: { Visionary: 2, Creator: 1, Air: 1 } },
+      { text: "Stay disciplined — systems and habits carry you through.",          scores: { Builder: 2, Monk: 1, Earth: 1 } },
     ]
   },
   {
-    question: "Which of these feels the most true to you?",
+    question: "Which of these feels most true to you?",
     answers: [
-      { text: "Courage grows when you face fear.",      scores: { Warrior: 2, Leader: 1, Fire: 1 } },
-      { text: "Peace begins within.",                   scores: { Monk: 2, Protector: 1, Water: 1 } },
-      { text: "Creativity changes the world.",          scores: { Creator: 2, Visionary: 1, Air: 1 } },
-      { text: "Small actions build great lives.",       scores: { Builder: 2, Guardian: 1, Earth: 1 } },
+      { text: "Courage grows when you face what scares you.",    scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "Real strength begins inside.",                    scores: { Monk: 2, Protector: 1, Water: 1 } },
+      { text: "Creativity is how the world actually changes.",   scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "Small consistent actions build great lives.",     scores: { Builder: 2, Monk: 1, Earth: 1 } },
     ]
   },
   {
-    question: "Imagine you're 30 years old. What would make you the proudest?",
+    question: "Looking ahead — what would make you proudest?",
     answers: [
-      { text: "Becoming mentally and physically strong.",    scores: { Warrior: 2, Builder: 1, Fire: 1 } },
-      { text: "Having deep, real relationships.",            scores: { Protector: 2, Communicator: 1, Water: 1 } },
-      { text: "Building something meaningful and original.", scores: { Creator: 2, Visionary: 1, Air: 1 } },
-      { text: "Becoming someone others can truly depend on.", scores: { Guardian: 2, Builder: 1, Earth: 1 } },
+      { text: "Becoming physically and mentally strong — someone who can handle anything.", scores: { Warrior: 2, Builder: 1, Fire: 1 } },
+      { text: "Having deep, real relationships built on genuine trust.",                    scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "Building something original and meaningful.",                                scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "Being the person in the room people truly feel safe around.",               scores: { Protector: 2, Communicator: 1, Water: 1 } },
     ]
   },
   {
-    question: "Which of these challenges sounds the hardest for you personally?",
+    question: "Which sounds hardest for you personally?",
     answers: [
-      { text: "Facing your fears.",             scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
-      { text: "Being patient.",                 scores: { Monk: 2, Guardian: 1, Water: 1 } },
-      { text: "Finishing what you start.",      scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
-      { text: "Sharing your ideas with others.", scores: { Creator: 2, Communicator: 1, Air: 1 } },
+      { text: "Facing your fears directly.",                               scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "Being still when everything in you wants to react.",        scores: { Monk: 2, Protector: 1, Water: 1 } },
+      { text: "Finishing something after the excitement is gone.",         scores: { Builder: 2, Warrior: 1, Earth: 1 } },
+      { text: "Sharing what you have made before you think it is ready.", scores: { Creator: 2, Communicator: 1, Air: 1 } },
     ]
   },
   {
-    question: "Which type of person naturally earns your deepest respect?",
+    question: "Which person earns your deepest respect?",
     answers: [
-      { text: "Someone who protects others without being asked.", scores: { Protector: 2, Warrior: 1, Fire: 1 } },
-      { text: "Someone who stays humble even when they're great.", scores: { Monk: 2, Guardian: 1, Water: 1 } },
-      { text: "Someone who thinks in ways nobody else does.",      scores: { Visionary: 2, Strategist: 1, Air: 1 } },
-      { text: "Someone who always follows through on their word.", scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
+      { text: "Someone who protects others without being asked or thanked.",      scores: { Protector: 2, Warrior: 1, Earth: 1 } },
+      { text: "Someone who stays humble even when they are the most capable.",    scores: { Monk: 2, Builder: 1, Water: 1 } },
+      { text: "Someone who sees what is possible before anyone else does.",       scores: { Visionary: 2, Creator: 1, Air: 1 } },
+      { text: "Someone who always follows through, no matter what.",              scores: { Builder: 2, Protector: 1, Earth: 1 } },
     ]
   },
   {
     question: "If you could instantly master one ability, what would it be?",
     answers: [
-      { text: "Staying calm and courageous under pressure.",   scores: { Warrior: 2, Leader: 1, Fire: 1 } },
-      { text: "Understanding what people truly need.",         scores: { Protector: 2, Communicator: 1, Water: 1 } },
-      { text: "Solving problems others can't figure out.",     scores: { Strategist: 2, Visionary: 1, Air: 1 } },
-      { text: "Building anything you put your mind to.",       scores: { Builder: 2, Creator: 1, Earth: 1 } },
+      { text: "Staying calm and decisive under pressure.",           scores: { Warrior: 2, Monk: 1, Fire: 1 } },
+      { text: "Truly understanding what another person needs.",      scores: { Communicator: 2, Protector: 1, Water: 1 } },
+      { text: "Seeing patterns and possibilities others miss.",      scores: { Visionary: 2, Creator: 1, Air: 1 } },
+      { text: "Building anything you commit to.",                    scores: { Builder: 2, Creator: 1, Earth: 1 } },
     ]
   },
   {
-    question: "What do you honestly think the world needs more of?",
+    question: "What does the world need more of?",
     answers: [
-      { text: "Brave people who act even when it's hard.",     scores: { Warrior: 2, Leader: 1, Fire: 1 } },
-      { text: "Kind people who genuinely look out for others.", scores: { Protector: 2, Monk: 1, Water: 1 } },
-      { text: "Curious people who question everything.",        scores: { Explorer: 2, Visionary: 1, Air: 1 } },
-      { text: "Responsible people who do what they say.",       scores: { Guardian: 2, Builder: 1, Earth: 1 } },
+      { text: "Brave people who act even when it costs them.",            scores: { Warrior: 2, Protector: 1, Fire: 1 } },
+      { text: "People who genuinely see and care for others.",            scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "Curious people who question what everyone else accepts.",  scores: { Explorer: 2, Visionary: 1, Air: 1 } },
+      { text: "People who do what they say, every time.",                 scores: { Builder: 2, Monk: 1, Earth: 1 } },
     ]
   },
   {
-    question: "Many years from now, looking back on your life — which sentence would make you smile the most?",
+    question: "Looking back on your life — which sentence would make you smile most?",
     answers: [
-      { text: "\"I never stopped challenging myself.\"",        scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
-      { text: "\"I helped people become better versions of themselves.\"", scores: { Protector: 2, Leader: 1, Water: 1 } },
-      { text: "\"I created things that inspired others.\"",     scores: { Creator: 2, Visionary: 1, Air: 1 } },
-      { text: "\"I built a life I was genuinely proud of.\"",   scores: { Builder: 2, Sovereign: 1, Earth: 1 } },
+      { text: "\"I never stopped challenging myself.\"",                   scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
+      { text: "\"I helped people become better versions of themselves.\"", scores: { Communicator: 2, Protector: 1, Water: 1 } },
+      { text: "\"I created things that inspired others.\"",                scores: { Creator: 2, Visionary: 1, Air: 1 } },
+      { text: "\"I built a life I was genuinely proud of.\"",              scores: { Builder: 2, Warrior: 1, Earth: 1 } },
     ]
   },
 ];
@@ -696,17 +644,13 @@ let selectedInterests = [];
 // Core symbols only — the ring + element motif (above) form the rest of the icon
 const ARCHETYPE_ICONS = {
   Warrior:      `<line x1="12" y1="4" x2="12" y2="18"/><path d="M12 4l-1.3 2.2h2.6L12 4z"/><line x1="9" y1="8" x2="15" y2="8"/>`,
-  Monk:         `<circle cx="12" cy="8.5" r="1.4"/><path d="M8.7 16c.4-1.8 1.7-2.8 3.3-2.8s2.9 1 3.3 2.8"/><path d="M7.3 14.8c1.4-.7 2.9-1.1 4.7-1.1s3.3.4 4.7 1.1"/>`,
   Creator:      `<path d="M15 8l1 1-6 6-1.5.5.5-1.5 6-6z"/><line x1="13.3" y1="9.7" x2="14.3" y2="10.7"/>`,
   Explorer:     `<path d="M12 3.5l1.6 6.9 6.9 1.6-6.9 1.6-1.6 6.9-1.6-6.9-6.9-1.6 6.9-1.6z"/>`,
-  Leader:       `<path d="M5.5 17V11l3 3 3.5-6 3.5 6 3-3v6z"/><line x1="5.5" y1="17" x2="18.5" y2="17"/>`,
   Builder:      `<path d="M14.3 9.2l1-1 1.4 1.4-1 1z"/><line x1="14.3" y1="9.2" x2="9.8" y2="13.7"/><line x1="9.8" y1="13.7" x2="8.3" y2="15.2"/>`,
   Protector:    `<path d="M12 5l-5 2v4c0 3.6 2.6 5.8 5 6.8 2.4-1 5-3.2 5-6.8V7l-5-2z"/><polyline points="9.7 11.5 11.2 13 14.3 9.8"/>`,
-  Strategist:   `<rect x="9" y="9" width="2.6" height="2.6"/><rect x="12.4" y="9" width="2.6" height="2.6"/><rect x="9" y="12.4" width="2.6" height="2.6"/><rect x="12.4" y="12.4" width="2.6" height="2.6"/>`,
   Visionary:    `<path d="M5 12s3-4.5 7-4.5 7 4.5 7 4.5-3 4.5-7 4.5-7-4.5-7-4.5z"/><circle cx="12" cy="12" r="2"/>`,
   Communicator: `<path d="M17.5 9.8a6 6 0 01-.7 2.8 6.2 6.2 0 01-5.5 3.4 6 6 0 01-2.8-.7L6 16.5l1.4-4.1a6 6 0 01-.7-2.8 6.2 6.2 0 013.4-5.5 6 6 0 012.8-.7h.4a6.2 6.2 0 015.8 5.8v.4z"/>`,
-  Guardian:     `<path d="M12 5.2l-4.5 1.8v3.6c0 3.2 2.3 5.2 4.5 6.2 2.2-1 4.5-3 4.5-6.2V7l-4.5-1.8z"/>`,
-  Sovereign:    `<path d="M5 17l-1-6 3 2.3L9.5 8l2.5 3 2.5-3 2.5 5.3 3-2.3-1 6z"/><path d="M11.3 7.3l.7-1.3.7 1.3-.7.7z"/>`,
+  Monk:         `<circle cx="12" cy="8.5" r="1.4"/><path d="M8.7 16c.4-1.8 1.7-2.8 3.3-2.8s2.9 1 3.3 2.8"/><path d="M7.3 14.8c1.4-.7 2.9-1.1 4.7-1.1s3.3.4 4.7 1.1"/>`,
 };
 
 // ── ICONS ─────────────────────────────────────
@@ -798,20 +742,6 @@ const ARCHETYPE_THEMES = {
       <polygon points="104,6 101,14 104,11 107,14" fill="currentColor" opacity="0.35"/>
     </svg>`,
   },
-  Leader: {
-    trailAccent: '▲',
-    trailBg: 'repeating-linear-gradient(60deg,currentColor 0,currentColor 1px,transparent 0,transparent 30px) 0 0/30px 52px',
-    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="95" cy="32" r="26" stroke="currentColor" stroke-width="0.9" opacity="0.13"/>
-      <circle cx="95" cy="32" r="18" stroke="currentColor" stroke-width="0.7" opacity="0.11"/>
-      <line x1="95" y1="6" x2="95" y2="58" stroke="currentColor" stroke-width="1.2" opacity="0.2"/>
-      <line x1="69" y1="32" x2="121" y2="32" stroke="currentColor" stroke-width="1.2" opacity="0.2"/>
-      <line x1="77" y1="14" x2="113" y2="50" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
-      <line x1="113" y1="14" x2="77" y2="50" stroke="currentColor" stroke-width="0.7" opacity="0.12"/>
-      <polygon points="95,6 91,18 95,14 99,18" fill="currentColor" opacity="0.4"/>
-      <polygon points="121,32 109,28 113,32 109,36" fill="currentColor" opacity="0.25"/>
-    </svg>`,
-  },
   Builder: {
     trailAccent: '■',
     trailBg: 'repeating-linear-gradient(0deg,currentColor 0,currentColor 1px,transparent 0,transparent 24px),repeating-linear-gradient(90deg,currentColor 0,currentColor 1px,transparent 0,transparent 24px) 0 0/24px 24px',
@@ -835,25 +765,6 @@ const ARCHETYPE_THEMES = {
       <path d="M50 60 L50 35 M43 42 L50 28 L57 42" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.14" stroke-linecap="round" stroke-linejoin="round"/>
       <path d="M86 8 L110 8 L118 8 L118 36 L102 52 L86 36Z" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2" stroke-linejoin="round"/>
       <path d="M92 28 L99 36 L116 16" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>`,
-  },
-  Strategist: {
-    trailAccent: '◎',
-    trailBg: 'repeating-linear-gradient(0deg,currentColor 0,currentColor 1px,transparent 0,transparent 16px),repeating-linear-gradient(90deg,currentColor 0,currentColor 1px,transparent 0,transparent 16px) 0 0/16px 16px',
-    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="72" y="4"  width="12" height="12" fill="currentColor" opacity="0.1"/>
-      <rect x="84" y="4"  width="12" height="12" fill="currentColor" opacity="0.07"/>
-      <rect x="72" y="16" width="12" height="12" fill="currentColor" opacity="0.07"/>
-      <rect x="84" y="16" width="12" height="12" fill="currentColor" opacity="0.1"/>
-      <rect x="96" y="4"  width="12" height="12" fill="currentColor" opacity="0.1"/>
-      <rect x="96" y="16" width="12" height="12" fill="currentColor" opacity="0.07"/>
-      <rect x="72" y="28" width="12" height="12" fill="currentColor" opacity="0.1"/>
-      <rect x="84" y="28" width="12" height="12" fill="currentColor" opacity="0.07"/>
-      <rect x="96" y="28" width="12" height="12" fill="currentColor" opacity="0.1"/>
-      <path d="M10 10 L50 10 L50 50 L10 50 Z" stroke="currentColor" stroke-width="1" fill="none" opacity="0.14"/>
-      <line x1="10" y1="30" x2="50" y2="30" stroke="currentColor" stroke-width="0.8" opacity="0.13"/>
-      <line x1="30" y1="10" x2="30" y2="50" stroke="currentColor" stroke-width="0.8" opacity="0.13"/>
-      <circle cx="30" cy="30" r="6" stroke="currentColor" stroke-width="1" fill="none" opacity="0.16"/>
     </svg>`,
   },
   Visionary: {
@@ -885,54 +796,23 @@ const ARCHETYPE_THEMES = {
       <path d="M90 32 Q109 10 109 32 Q109 54 90 32"  stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.14" stroke-linecap="round"/>
     </svg>`,
   },
-  Guardian: {
-    trailAccent: '⬡',
-    trailBg: 'repeating-linear-gradient(60deg,currentColor 0,currentColor 1px,transparent 0,transparent 20px),repeating-linear-gradient(-60deg,currentColor 0,currentColor 1px,transparent 0,transparent 20px) 0 0/20px 34px',
-    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="82" cy="28" r="26" stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.12"/>
-      <circle cx="82" cy="28" r="20" stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.14"/>
-      <circle cx="82" cy="28" r="14" stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.16"/>
-      <circle cx="82" cy="28" r="8"  stroke="currentColor" stroke-width="0.9" fill="none" opacity="0.18"/>
-      <circle cx="82" cy="28" r="3"  fill="currentColor" opacity="0.25"/>
-      <path d="M82 54 Q68 62 56 58" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.15" stroke-linecap="round"/>
-      <path d="M82 54 Q94 62 106 58" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.15" stroke-linecap="round"/>
-      <path d="M10 20 L10 56 M22 14 L22 56 M34 20 L34 56" stroke="currentColor" stroke-width="1.5" opacity="0.13" stroke-linecap="round"/>
-      <path d="M6 20 Q16 6 28 14 Q40 6 40 20" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.14" stroke-linecap="round"/>
-    </svg>`,
-  },
-  Sovereign: {
-    trailAccent: '♔',
-    trailBg: 'repeating-linear-gradient(45deg,currentColor 0,currentColor 1px,transparent 0,transparent 22px),repeating-linear-gradient(-45deg,currentColor 0,currentColor 1px,transparent 0,transparent 22px) 0 0/22px 22px',
-    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M70 38 L76 10 L86 28 L96 4 L106 28 L116 10 L122 38 Z" stroke="currentColor" stroke-width="1.4" fill="none" opacity="0.2" stroke-linejoin="round"/>
-      <line x1="68" y1="42" x2="124" y2="42" stroke="currentColor" stroke-width="1.4" opacity="0.18" stroke-linecap="round"/>
-      <rect x="78" y="42" width="36" height="16" stroke="currentColor" stroke-width="1" fill="none" opacity="0.14"/>
-      <rect x="10" y="18" width="8" height="40" stroke="currentColor" stroke-width="1" fill="none" opacity="0.16" rx="1"/>
-      <rect x="28" y="12" width="8" height="46" stroke="currentColor" stroke-width="1" fill="none" opacity="0.16" rx="1"/>
-      <path d="M6 18 Q14 4 22 12 Q30 4 40 18" stroke="currentColor" stroke-width="1.2" fill="none" opacity="0.18" stroke-linecap="round"/>
-    </svg>`,
-  },
 };
 
 const ARCHETYPE_STAGE_NAMES = {
-  1: ['Iron Will',   'Stillness',  'Spark',     'Wander',    'Lead Yourself', 'Foundation', 'Watch',  'Observe',   'Dream',   'Voice',    'Roots',    'Claim'],
-  2: ['Steel Mind',  'Depth',      'Form',      'Discovery', 'Lead Others',   'Blueprint',  'Guard',  'Plan',      'See',     'Connect',  'Stand',    'Rule'],
-  3: ['Brotherhood', 'Mastery',    'Flow',      'Wild',      'Build a Team',  'Build',      'Serve',  'Execute',   'Create',  'Influence','Preserve', 'Wisdom'],
-  4: ['Sovereign',   'The Sage',   'The Work',  'Pathfinder','The Commander', 'Architect',  'Shield', 'The Master','Prophet', 'Orator',   'The Elder','The King'],
+  1: ['Iron Will',   'Stillness', 'Spark',    'Wander',    'Foundation', 'Watch',  'Dream',  'Voice'],
+  2: ['Steel Mind',  'Depth',     'Form',     'Discovery', 'Blueprint',  'Guard',  'See',    'Connect'],
+  3: ['Brotherhood', 'Mastery',   'Flow',     'Wild',      'Build',      'Serve',  'Create', 'Influence'],
+  4: ['The Warrior', 'The Sage',  'The Work', 'Pathfinder','Architect',  'Shield', 'Prophet','Orator'],
 };
 const ARCHETYPE_STAGE_NAME_MAP = {
-  Warrior:      ['Iron Will','Steel Mind','Brotherhood','Sovereign Warrior'],
+  Warrior:      ['Iron Will','Steel Mind','Brotherhood','The Warrior'],
   Monk:         ['Stillness','Depth','Mastery','The Sage'],
   Creator:      ['Spark','Form','Flow','The Work'],
   Explorer:     ['Wander','Discovery','Wild','The Pathfinder'],
-  Leader:       ['Lead Yourself','Lead Others','Build a Team','The Commander'],
-  Builder:      ['Foundation','Blueprint','Build','The Architect'],
+  Builder:      ['Foundation','Blueprint','Build','Architect'],
   Protector:    ['Watch','Guard','Serve','The Shield'],
-  Strategist:   ['Observe','Plan','Execute','The Master'],
   Visionary:    ['Dream','See','Create','The Prophet'],
   Communicator: ['Voice','Connect','Influence','The Orator'],
-  Guardian:     ['Roots','Stand','Preserve','The Elder'],
-  Sovereign:    ['Claim','Rule','Wisdom','The King'],
 };
 
 const ARCHETYPE_CHALLENGES = {
@@ -1072,40 +952,6 @@ const ARCHETYPE_CHALLENGES = {
       ],
     ],
   },
-  Leader: {
-    motto: 'Lead through action.',
-    symbol: '▲',
-    stages: [
-      [
-        { title: 'Family Game Night',     task: 'Organize a family game night. You plan it. Take one group photo.' },
-        { title: 'Cook Together',         task: 'Cook dinner alongside a parent. Photograph the finished meal.' },
-        { title: 'Lead a Workout',        task: 'Lead a 10-minute workout for at least one other person. Photograph the group.' },
-        { title: 'Plan Tomorrow',         task: 'Write tomorrow\'s full schedule tonight. Photograph your written plan.' },
-        { title: 'Organize Unprompted',   task: 'Organize one room in your home before anyone asks you to. Photograph the result.' },
-      ],
-      [
-        { title: 'Run a Meeting',         task: 'Organize and run a real meeting with an agenda — family, team, or group. Document the outcome.' },
-        { title: 'Delegate',              task: 'Assign a task to someone and trust them to do it. Write what you delegated and the result.' },
-        { title: 'Resolve a Conflict',    task: 'Mediate or resolve a real disagreement between two people. Write how you did it.' },
-        { title: 'Public Speaking',       task: 'Speak in front of 5+ people on any topic. Record a clip or photograph the room.' },
-        { title: 'Accountability Partner',task: 'Make a commitment with someone and hold each other to it for 2 weeks.' },
-      ],
-      [
-        { title: 'Recruit',            task: 'Bring 3+ people together around a shared mission or project. Lead the first meeting.' },
-        { title: 'Feedback Session',   task: 'Ask 3 people who know you well for honest feedback on your leadership. Write what you heard.' },
-        { title: 'Lead Under Pressure',task: 'Take charge in a high-stress situation — solve a real problem others are struggling with.' },
-        { title: 'Vision Cast',        task: 'Present a vision for something you want to build or change to at least 3 people. Document their response.' },
-        { title: 'Develop Someone',    task: 'Intentionally invest in helping one person grow over 30 days. Write their progress.' },
-      ],
-      [
-        { title: 'Complete a Project', task: 'Conceive, plan, and complete a real project with a team. Document every phase.' },
-        { title: 'The Hard Call',      task: 'Make a genuinely difficult leadership decision that affects others. Write your reasoning and the outcome.' },
-        { title: 'Leader\'s Legacy',   task: 'Write what you want to be remembered for as a leader. Share it with your team.' },
-        { title: 'Build the Next Leader', task: 'Identify someone with leadership potential. Spend 30 days actively developing them.' },
-        { title: 'Keynote',            task: 'Give a 10+ minute talk to the largest audience you\'ve ever addressed. Film it.' },
-      ],
-    ],
-  },
   Builder: {
     motto: 'Leave things better than you found them.',
     symbol: '■',
@@ -1171,40 +1017,6 @@ const ARCHETYPE_CHALLENGES = {
         { title: 'The Shield\'s Oath',task: 'Write your personal oath of protection — who you protect, what you stand for, what you will never allow. Share it.' },
         { title: 'Systemic Change',   task: 'Identify one systemic problem in your community. Take a real, documented step towards solving it.' },
         { title: 'Be the Protector',  task: 'In 90 days, be the person your family or community genuinely depends on. Document 5 real moments.' },
-      ],
-    ],
-  },
-  Strategist: {
-    motto: 'Think first.',
-    symbol: '◎',
-    stages: [
-      [
-        { title: 'Solve a Puzzle',  task: 'Solve a puzzle, Rubik\'s cube, or logic challenge. Photograph it completed.' },
-        { title: 'Top 3 Goals',     task: 'Write your top 3 goals for the week. Photograph the list.' },
-        { title: 'Morning Routine', task: 'Write your ideal morning routine in full. Photograph it.' },
-        { title: 'Weekly Calendar', task: 'Plan and organize your calendar for the entire week. Photograph it.' },
-        { title: 'Strategy Game',   task: 'Play one strategy game with a family member. Photograph the game in progress.' },
-      ],
-      [
-        { title: 'SWOT Yourself', task: 'Write a full personal SWOT analysis — strengths, weaknesses, opportunities, threats. Photograph it.' },
-        { title: '90-Day Plan',   task: 'Write a complete 90-day personal development plan with goals, milestones, and actions.' },
-        { title: 'Both Sides',    task: 'Prepare and argue both sides of a complex issue. Write your strongest points for each.' },
-        { title: 'Chess — 10 Games', task: 'Play 10 games of chess or go. Record your wins, losses, and what you learned.' },
-        { title: 'Pre-Mortem',    task: 'Pick one major goal and write every possible way it could fail. Then write how you\'d prevent each.' },
-      ],
-      [
-        { title: 'Execute the Plan',      task: 'Complete the full 90-day plan you designed in Stage II. Document what happened.' },
-        { title: 'War Room',              task: 'Set up a dedicated space for thinking, planning, and strategy. Photograph and document its purpose.' },
-        { title: 'Study a Strategist',    task: 'Spend one week studying Sun Tzu, Napoleon, or another great strategist. Write your 5 biggest lessons.' },
-        { title: 'Solve a Real Problem',  task: 'Identify a real problem in your life or community. Write a complete strategic solution with steps and timeline.' },
-        { title: 'After-Action Review',   task: 'Review the last 90 days of your life in detail — what worked, what failed, what you\'re changing.' },
-      ],
-      [
-        { title: 'The Grand Strategy', task: 'Write your complete life strategy — a 10-year plan covering every domain. Specific and actionable.' },
-        { title: 'Teach Strategy',     task: 'Teach 3+ people how to think and plan strategically. Lead a 1-hour session.' },
-        { title: 'Turn a Loss',        task: 'Take your biggest recent failure and execute a complete strategic reversal within 90 days.' },
-        { title: 'Change the Game',    task: 'Identify one area where you\'re playing the wrong game entirely. Change the game. Document the shift.' },
-        { title: 'Predict and Win',    task: 'Make 5 bold predictions about your life in the next year. Document them now. Check back in 12 months.' },
       ],
     ],
   },
@@ -1276,77 +1088,9 @@ const ARCHETYPE_CHALLENGES = {
       ],
     ],
   },
-  Guardian: {
-    motto: 'Consistency builds trust.',
-    symbol: '⬡',
-    stages: [
-      [
-        { title: 'Make Your Bed — 7 Days',  task: 'Make your bed every morning for 7 consecutive days. Photograph it on Day 7.' },
-        { title: 'Water Plants — 7 Days',   task: 'Water plants consistently for 7 days. Photograph them on Day 7.' },
-        { title: 'Care for a Pet',          task: 'Take full responsibility for feeding and caring for a pet for one week. Photograph on Day 7.' },
-        { title: 'Prepare the Night Before',task: 'Lay out tomorrow\'s clothes and prepare your bag the night before for 5 days. Photograph on Day 5.' },
-        { title: 'Clean a Shared Space',    task: 'Clean one shared space in your home that others use. Photograph the result.' },
-      ],
-      [
-        { title: '30-Day Habit',   task: 'Choose one positive daily habit and execute it every day for 30 days. Log every day.' },
-        { title: 'Keep Your Word', task: 'Make 3 commitments to 3 different people and keep all three without being reminded. Document each.' },
-        { title: 'Reliability Test', task: 'Ask 3 people who know you well: "Can you count on me?" Write what they honestly say.' },
-        { title: 'Own a Responsibility', task: 'Take ownership of one household responsibility. Hold it for 30 days without being reminded.' },
-        { title: 'Ancestors\' Night',    task: 'Learn and document the stories of 3 family members across 2+ generations. Write what you discovered.' },
-      ],
-      [
-        { title: '90-Day Stack',    task: 'Maintain a stack of 3+ daily habits every day for 90 days. Log all 90.' },
-        { title: 'Integrity Audit', task: 'Review the last 30 days: where did you say one thing and do another? Write it honestly and fix one.' },
-        { title: 'Community Pillar',task: 'Become a reliable presence in one community — show up consistently for 30+ days. Document it.' },
-        { title: 'The Family Tree', task: 'Build a documented family tree going back at least 3 generations. Photograph your research.' },
-        { title: 'Protect the Ritual', task: 'Establish a recurring ritual with people you love. Hold it consistently for 30 days.' },
-      ],
-      [
-        { title: 'Guardian\'s Year', task: 'For 12 consecutive months, maintain your core habits, rituals, and commitments without breaking them.' },
-        { title: 'Pass It Down',    task: 'Teach something you know — a skill, a value, a tradition — to someone at least 10 years younger.' },
-        { title: 'Write the Family Story', task: 'Document your family\'s complete story as far back as you can research. Preserve it for the next generation.' },
-        { title: 'Guardian\'s Oath', task: 'Write your personal oath of consistency — what you commit to doing, being, and protecting forever. Share it.' },
-        { title: 'Legacy Ritual',   task: 'Create a ritual you will pass to your children or community. Hold it once and document why it matters.' },
-      ],
-    ],
-  },
-  Sovereign: {
-    motto: 'Serve before you lead.',
-    symbol: '♔',
-    stages: [
-      [
-        { title: 'Cook a Full Meal',       task: 'Cook a full meal for your family from scratch. Photograph the table set and ready.' },
-        { title: 'Family Meeting',         task: 'Organize and lead a family dinner or meeting. Photograph everyone together.' },
-        { title: 'Personal Code',          task: 'Write your personal code — 5 rules you want to live by. Photograph the written page.' },
-        { title: 'Help Someone\'s Goal',   task: 'Help one person make real progress on their goal this week. Photograph the moment or your notes.' },
-        { title: 'Unforgettable Moment',   task: 'Create one unforgettable family moment — a game night, a hike, a dessert evening. Take one photo together.' },
-      ],
-      [
-        { title: 'Lead the Room',   task: 'Take command in a social or professional setting and leave it better than you found it. Write what you did.' },
-        { title: 'Royal Generosity',task: 'Give something significant — time, money, resources — to someone without expecting anything back. Document it.' },
-        { title: 'Own the Outcome', task: 'Take full responsibility for something that went wrong in your life. Write what you did to fix it.' },
-        { title: 'The King\'s Table', task: 'Host a gathering — dinner, event, or meeting — for at least 5 people. You organize everything. Photograph it.' },
-        { title: 'Discipline Check', task: 'Review your daily habits. Where are you acting like a servant of comfort? Fix one thing for 30 days.' },
-      ],
-      [
-        { title: 'Study Great Kings',  task: 'Spend one week studying two great kings or leaders. Write 5 principles you\'re adopting.' },
-        { title: 'Kingdom Audit',      task: 'Audit your life: finances, health, relationships, environment, legacy. Write what needs a king\'s attention.' },
-        { title: 'Mentor Without Credit', task: 'Spend 30 days investing in someone else\'s growth while seeking zero credit or acknowledgment.' },
-        { title: 'Sacrifice',          task: 'Give up something you enjoy for 30 days in service of your bigger mission. Document the impact.' },
-        { title: 'Sovereign Decision', task: 'Make one major decision you\'ve been avoiding. Own it completely. Write your reasoning.' },
-      ],
-      [
-        { title: 'The Kingdom',         task: 'Define your kingdom — the people, places, and domains you are responsible for. Write a complete inventory.' },
-        { title: 'Legacy Speech',       task: 'Write the speech you want delivered at your funeral — to clarify how you must live, not to be morbid.' },
-        { title: 'Rule for Others',     task: 'For 90 days, put someone else\'s growth or success before your own in every decision. Document it.' },
-        { title: 'Crown a Successor',   task: 'Identify someone you are developing to lead after you. Invest 60 days in them. Write their progress.' },
-        { title: 'The Final Trial',     task: 'Face the single hardest thing in your life right now with full sovereignty — no excuses, no escape. Document the outcome.' },
-      ],
-    ],
-  },
 };
 
-const ARCHETYPE_ORDER = ['Warrior','Monk','Creator','Explorer','Leader','Builder','Protector','Strategist','Visionary','Communicator','Guardian','Sovereign'];
+const ARCHETYPE_ORDER = ['Warrior','Monk','Creator','Explorer','Builder','Protector','Visionary','Communicator'];
 
 
 // ── BROTHERHOOD SCORE ─────────────────────────
@@ -4396,14 +4140,10 @@ const ARCHETYPE_VIRTUE = {
   Monk:         'Discipline',
   Creator:      'Expression',
   Explorer:     'Curiosity',
-  Leader:       'Vision',
   Builder:      'Perseverance',
   Protector:    'Loyalty',
-  Strategist:   'Clarity',
   Visionary:    'Intuition',
   Communicator: 'Connection',
-  Guardian:     'Integrity',
-  Sovereign:    'Authority',
 };
 
 const ARCHETYPE_GLOBE_MISSION = {
@@ -4411,14 +4151,10 @@ const ARCHETYPE_GLOBE_MISSION = {
   Monk:         'Eliminate one distraction this week. Go deeper into what matters.',
   Creator:      'Finish one thing you started. Ship it before it is perfect.',
   Explorer:     'Step into unfamiliar territory. Report back what you found.',
-  Leader:       'Take responsibility for one outcome that others avoided.',
   Builder:      'Show up to your highest-priority habit every day this week.',
   Protector:    'Check in on one brother who has gone quiet.',
-  Strategist:   'Identify the single highest-leverage action available to you.',
   Visionary:    'Write down one idea that feels too big. Then take the first step.',
   Communicator: 'Have one honest conversation you have been putting off.',
-  Guardian:     'Hold one boundary that aligns with your values.',
-  Sovereign:    'Make one decision this week without seeking external validation.',
 };
 
 function computeGlobeStats() {
