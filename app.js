@@ -2970,26 +2970,26 @@ async function finishAssessment() {
       Object.assign(local, assessmentData);
     } else {
       // Brand-new brother created during onboarding — add to local array so render() sees it
-      brothers.push({ id: assessBrotherId, email: currentUser.email.toLowerCase(), xp: 0, role: 'member', ...assessmentData });
+      brothers.push({ id: assessBrotherId, email: currentUser?.email?.toLowerCase(), xp: 0, role: 'member', ...assessmentData });
     }
     render();
 
-    // Retry up to 4 times with backoff so slow connections still land
-    let saved = false;
-    for (let attempt = 0; attempt < 4; attempt++) {
-      try {
-        await setDoc(doc(db, 'brothers', assessBrotherId), assessmentData, { merge: true });
-        saved = true;
-        break;
-      } catch (err) {
-        console.warn('assessment save attempt', attempt + 1, 'failed:', err);
-        if (attempt < 3) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+    // Save in background — don't block the UI
+    (async () => {
+      for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+          await setDoc(doc(db, 'brothers', assessBrotherId), assessmentData, { merge: true });
+          return;
+        } catch (err) {
+          console.warn('assessment save attempt', attempt + 1, 'failed:', err);
+          if (attempt < 3) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+        }
       }
-    }
-    if (!saved) showToast('Results shown but failed to save — check your connection and retake.', 'info');
+      console.error('assessment failed to save after 4 attempts');
+    })();
   }
 
-  // Store archetype results for final display, then go to profile questions
+  // Store archetype results for final display, then go to profile questions immediately
   profileAnswers._archetype = { primaryArchetype, growthArchetype, dominantElement, growthElement };
   profileIndex = 0;
   renderProfileQuestion();
@@ -3071,7 +3071,7 @@ function renderProfileQuestion() {
   }
 }
 
-async function finishProfile() {
+function finishProfile() {
   const { primaryArchetype, growthArchetype, dominantElement, growthElement } = profileAnswers._archetype || {};
 
   if (assessBrotherId) {
@@ -3092,18 +3092,19 @@ async function finishProfile() {
         try { localStorage.setItem('pendingProfile_' + currentUser.uid, JSON.stringify({ ...JSON.parse(pending), ...profileSaveData })); } catch (_) {}
       }
     }
-    let saved = false;
-    for (let attempt = 0; attempt < 4; attempt++) {
-      try {
-        await setDoc(doc(db, 'brothers', assessBrotherId), profileSaveData, { merge: true });
-        saved = true;
-        break;
-      } catch (err) {
-        console.warn('profile save attempt', attempt + 1, 'failed:', err);
-        if (attempt < 3) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+    // Save in background — show results immediately
+    (async () => {
+      for (let attempt = 0; attempt < 4; attempt++) {
+        try {
+          await setDoc(doc(db, 'brothers', assessBrotherId), profileSaveData, { merge: true });
+          return;
+        } catch (err) {
+          console.warn('profile save attempt', attempt + 1, 'failed:', err);
+          if (attempt < 3) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+        }
       }
-    }
-    if (!saved) console.error('Failed to save profile after retries');
+      console.error('Failed to save profile after retries');
+    })();
   }
 
   renderAssessResults(primaryArchetype, growthArchetype, dominantElement, growthElement);
