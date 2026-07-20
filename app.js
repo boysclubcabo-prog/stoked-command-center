@@ -2909,13 +2909,14 @@ function renderValuesQuestion() {
 }
 
 async function finishAssessment() {
+  try {
   const archetypeScores = {};
   Object.keys(ARCHETYPE_DESC).forEach(a => archetypeScores[a] = 0);
   const elementScores = { Fire: 0, Water: 0, Air: 0, Earth: 0 };
 
   ASSESS_QUESTIONS.forEach((q, i) => {
     const v = assessAnswers[i];
-    if (v == null) return;
+    if (v == null || !q.leftScore || !q.rightScore) return;
     if (v === 1) { archetypeScores[q.leftScore.arch] += 5; elementScores[q.leftScore.el] += 5; }
     else if (v === 2) { archetypeScores[q.leftScore.arch] += 3; elementScores[q.leftScore.el] += 3; }
     else if (v === 3) { archetypeScores[q.leftScore.arch] += 1; elementScores[q.leftScore.el] += 1; archetypeScores[q.rightScore.arch] += 1; elementScores[q.rightScore.el] += 1; }
@@ -2928,6 +2929,7 @@ async function finishAssessment() {
     const choiceIdx = scenarioAnswers[i];
     if (choiceIdx == null) return;
     const chosen = q.answers[choiceIdx];
+    if (!chosen?.scores) return;
     Object.entries(chosen.scores).forEach(([key, pts]) => {
       if (key in archetypeScores) archetypeScores[key] += pts;
       else if (key in elementScores) elementScores[key] += pts;
@@ -2939,6 +2941,7 @@ async function finishAssessment() {
     const choiceIdx = valuesAnswers[i];
     if (choiceIdx == null) return;
     const chosen = q.answers[choiceIdx];
+    if (!chosen?.scores) return;
     Object.entries(chosen.scores).forEach(([key, pts]) => {
       if (key in archetypeScores) archetypeScores[key] += pts;
       else if (key in elementScores) elementScores[key] += pts;
@@ -2950,6 +2953,7 @@ async function finishAssessment() {
     const choiceIdx = perceptionAnswers[i];
     if (choiceIdx == null) return;
     const chosen = q.answers[choiceIdx];
+    if (!chosen?.scores) return;
     Object.entries(chosen.scores).forEach(([key, pts]) => {
       if (key in archetypeScores) archetypeScores[key] += pts;
       else if (key in elementScores) elementScores[key] += pts;
@@ -2993,6 +2997,11 @@ async function finishAssessment() {
   profileAnswers._archetype = { primaryArchetype, growthArchetype, dominantElement, growthElement };
   profileIndex = 0;
   renderProfileQuestion();
+
+  } catch (err) {
+    console.error('finishAssessment error:', err);
+    showToast('Something went wrong scoring the assessment — please try again.', 'info');
+  }
 }
 
 function renderProfileQuestion() {
