@@ -1587,10 +1587,10 @@ async function maybeShowOnboarding() {
       // Create brother document
       let newBrotherId = null;
       newBrotherId = 'br_' + Date.now().toString(36);
-      // Fire-and-forget — don't block the UI waiting for Firestore server confirmation.
-      // Firestore queues the write and syncs when the connection is available.
-      setDoc(doc(db, 'brothers', newBrotherId), {
+
+      const brotherDoc = {
         ...profileData,
+        id:                   newBrotherId,
         email:                currentUser.email.toLowerCase(),
         xp:                   0,
         role:                 'member',
@@ -1598,7 +1598,25 @@ async function maybeShowOnboarding() {
         onboardingAcceptedAt: new Date().toISOString(),
         createdAt:            new Date().toISOString(),
         updatedAt:            new Date().toISOString(),
-      }, { merge: true }).catch(err => console.error('profile save error:', err));
+      };
+
+      // Save to localStorage immediately so the card shows even if Firestore is slow
+      localStorage.setItem('pendingProfile_' + currentUser.uid, JSON.stringify(brotherDoc));
+
+      // Fire-and-forget with background retry — don't block the UI
+      (async () => {
+        for (let attempt = 0; attempt < 5; attempt++) {
+          try {
+            await setDoc(doc(db, 'brothers', newBrotherId), brotherDoc, { merge: true });
+            localStorage.removeItem('pendingProfile_' + currentUser.uid);
+            return;
+          } catch (err) {
+            console.warn('profile save attempt', attempt + 1, 'failed:', err);
+            await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+          }
+        }
+        console.error('profile save failed after 5 attempts');
+      })();
 
       // Mark onboarding complete in localStorage immediately so we never re-show it
       localStorage.setItem(key, '1');
@@ -1746,6 +1764,11 @@ function showApp() {
   unsubBrothers = onSnapshot(collection(db, 'brothers'), snap => {
     const firstLoad = brothers.length === 0;
     brothers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Clear localStorage fallback once Firestore confirms the profile is there
+    if (currentUser) {
+      const confirmed = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+      if (confirmed) localStorage.removeItem('pendingProfile_' + currentUser.uid);
+    }
     if (firstLoad) pingPresence();
 
     // Notify member when their XP goes up (submission approved)
@@ -2049,7 +2072,19 @@ function renderGrid() {
 
 function renderMemberView() {
   // Find this member's profile by matching email
-  const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+  let profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+
+  // Firestore hasn't confirmed the write yet — use localStorage fallback
+  if (!profile && currentUser) {
+    const pending = localStorage.getItem('pendingProfile_' + currentUser.uid);
+    if (pending) {
+      try {
+        profile = JSON.parse(pending);
+        // Inject into brothers array so roster also shows this member
+        if (!brothers.find(b => b.id === profile.id)) brothers.push(profile);
+      } catch (_) {}
+    }
+  }
 
   if (!profile) {
     memberHero.innerHTML = `
@@ -2939,12 +2974,19 @@ async function finishAssessment() {
     }
     render();
 
-    try {
-      await setDoc(doc(db, 'brothers', assessBrotherId), assessmentData, { merge: true });
-    } catch (err) {
-      console.error('Failed to save assessment results:', err);
-      showToast('Results shown but failed to save — check your connection and retake.', 'info');
+    // Retry up to 4 times with backoff so slow connections still land
+    let saved = false;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        await setDoc(doc(db, 'brothers', assessBrotherId), assessmentData, { merge: true });
+        saved = true;
+        break;
+      } catch (err) {
+        console.warn('assessment save attempt', attempt + 1, 'failed:', err);
+        if (attempt < 3) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+      }
     }
+    if (!saved) showToast('Results shown but failed to save — check your connection and retake.', 'info');
   }
 
   // Store archetype results for final display, then go to profile questions
@@ -3033,28 +3075,35 @@ async function finishProfile() {
   const { primaryArchetype, growthArchetype, dominantElement, growthElement } = profileAnswers._archetype || {};
 
   if (assessBrotherId) {
-    try {
-      await setDoc(doc(db, 'brothers', assessBrotherId), {
-        yearlyGoal:  profileAnswers.yearlyGoal  || '',
-        strengths:   profileAnswers.strengths   || '',
-        struggles:   profileAnswers.struggles   || '',
-        interests:   profileAnswers.interests   || [],
-        oneWord:     profileAnswers.oneWord      || '',
-        profileCompletedAt: new Date().toISOString(),
-      }, { merge: true });
-      const local = brothers.find(b => b.id === assessBrotherId);
-      const profileData = {
-        yearlyGoal:  profileAnswers.yearlyGoal  || '',
-        strengths:   profileAnswers.strengths   || '',
-        struggles:   profileAnswers.struggles   || '',
-        interests:   profileAnswers.interests   || [],
-        oneWord:     profileAnswers.oneWord      || '',
-      };
-      if (local) Object.assign(local, profileData);
-    } catch (err) {
-      console.error('Failed to save profile:', err);
-      showToast('Profile shown but failed to save — check connection.', 'info');
+    const profileSaveData = {
+      yearlyGoal:  profileAnswers.yearlyGoal  || '',
+      strengths:   profileAnswers.strengths   || '',
+      struggles:   profileAnswers.struggles   || '',
+      interests:   profileAnswers.interests   || [],
+      oneWord:     profileAnswers.oneWord      || '',
+      profileCompletedAt: new Date().toISOString(),
+    };
+    const local = brothers.find(b => b.id === assessBrotherId);
+    if (local) Object.assign(local, profileSaveData);
+    // Update localStorage fallback too so the card reflects profile answers
+    if (currentUser) {
+      const pending = localStorage.getItem('pendingProfile_' + currentUser.uid);
+      if (pending) {
+        try { localStorage.setItem('pendingProfile_' + currentUser.uid, JSON.stringify({ ...JSON.parse(pending), ...profileSaveData })); } catch (_) {}
+      }
     }
+    let saved = false;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        await setDoc(doc(db, 'brothers', assessBrotherId), profileSaveData, { merge: true });
+        saved = true;
+        break;
+      } catch (err) {
+        console.warn('profile save attempt', attempt + 1, 'failed:', err);
+        if (attempt < 3) await new Promise(r => setTimeout(r, (attempt + 1) * 2000));
+      }
+    }
+    if (!saved) console.error('Failed to save profile after retries');
   }
 
   renderAssessResults(primaryArchetype, growthArchetype, dominantElement, growthElement);
