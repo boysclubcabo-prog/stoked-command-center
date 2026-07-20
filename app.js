@@ -1598,7 +1598,7 @@ async function maybeShowOnboarding() {
         onboardingAcceptedAt: new Date().toISOString(),
         createdAt:            new Date().toISOString(),
         updatedAt:            new Date().toISOString(),
-      }).catch(err => console.error('profile save error:', err));
+      }, { merge: true }).catch(err => console.error('profile save error:', err));
 
       // Mark onboarding complete in localStorage immediately so we never re-show it
       localStorage.setItem(key, '1');
@@ -2940,7 +2940,7 @@ async function finishAssessment() {
     render();
 
     try {
-      await updateDoc(doc(db, 'brothers', assessBrotherId), assessmentData);
+      await setDoc(doc(db, 'brothers', assessBrotherId), assessmentData, { merge: true });
     } catch (err) {
       console.error('Failed to save assessment results:', err);
       showToast('Results shown but failed to save — check your connection and retake.', 'info');
@@ -3034,14 +3034,14 @@ async function finishProfile() {
 
   if (assessBrotherId) {
     try {
-      await updateDoc(doc(db, 'brothers', assessBrotherId), {
+      await setDoc(doc(db, 'brothers', assessBrotherId), {
         yearlyGoal:  profileAnswers.yearlyGoal  || '',
         strengths:   profileAnswers.strengths   || '',
         struggles:   profileAnswers.struggles   || '',
         interests:   profileAnswers.interests   || [],
         oneWord:     profileAnswers.oneWord      || '',
         profileCompletedAt: new Date().toISOString(),
-      });
+      }, { merge: true });
       const local = brothers.find(b => b.id === assessBrotherId);
       const profileData = {
         yearlyGoal:  profileAnswers.yearlyGoal  || '',
