@@ -1577,6 +1577,7 @@ function switchTab(tab) {
   }
   if (isRoster) renderRoster();
   if (isMyPath)  renderMyPath();
+  if (isMain && !isAdmin) renderMemberView();
 }
 
 function updateChallengesBadge() {
