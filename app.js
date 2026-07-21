@@ -1909,8 +1909,11 @@ function renderMemberView() {
   const hasReflection = profile.weeklyWin || profile.weeklyChallenge || profile.weeklyCommitment;
 
   const nameInitial = (profile.name || '?')[0].toUpperCase();
-  const squadLabel  = profile.squad ? `${escHtml(profile.squad)} · Rank` : 'Rank';
   const pct = totalBros > 0 ? Math.round(brosCompletedToday / totalBros * 100) : 0;
+  const bsScore = profile.brotherhoodScore ?? null;
+  const bsCat   = bsScore != null ? getBSCategory(bsScore) : null;
+  const lvlPct  = lvl.progress;
+  const nextLvl = lvl.next ? lvl.next.level : null;
 
   memberHero.innerHTML = `
     <div class="mhv2">
@@ -1932,14 +1935,26 @@ function renderMemberView() {
         </div>
       </div>
 
-      <!-- Rank section -->
-      <div class="mhv2-rank-section">
-        <div class="mhv2-rank-eyebrow">${squadLabel}</div>
-        <div class="mhv2-rank-row">
-          <div class="mhv2-rank-num">#${myRank}</div>
-          <div class="mhv2-rank-of">of ${totalBros} brothers</div>
+      <!-- Daily check-in score -->
+      <div class="mhv2-score-section">
+        <div class="mhv2-rank-eyebrow">Daily Check-In Score</div>
+        ${bsScore != null
+          ? `<div class="mhv2-rank-row">
+               <div class="mhv2-rank-num" style="color:${bsCat.color}">${bsScore}</div>
+               <div class="mhv2-rank-of">${bsCat.label}</div>
+             </div>`
+          : `<div class="mhv2-no-score">No check-in yet today</div>`}
+      </div>
+
+      <!-- Level + gold progress bar -->
+      <div class="mhv2-level-section">
+        <div class="mhv2-level-row">
+          <span class="mhv2-level-label">Level ${lvl.current.level}${displayArchetype ? ' · ' + escHtml(displayArchetype) : ''}</span>
+          <span class="mhv2-level-pct">${lvlPct}%${nextLvl ? ' to Lvl ' + nextLvl : ''}</span>
         </div>
-        <div class="mhv2-podium-row">${podiumHtml}</div>
+        <div class="mhv2-level-track">
+          <div class="mhv2-level-fill" style="width:${lvlPct}%"></div>
+        </div>
       </div>
 
       <!-- Today's Mission card — dark -->
