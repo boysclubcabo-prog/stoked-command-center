@@ -6834,9 +6834,12 @@ body {
 
 
 /* ═══════════════════════════════════════════════════════════════════════
-   REBRAND — WARM CREAM LIGHT THEME
+   REBRAND — WARM CREAM LIGHT THEME (default) + dark mode restore
    ═══════════════════════════════════════════════════════════════════════ */
-:root {
+
+/* Light palette — default (no data-theme set, or explicitly light) */
+:root,
+[data-theme="light"] {
   --bg-base:      #f0ede6;
   --bg-card:      #ffffff;
   --bg-elevated:  #f5f2eb;
@@ -6860,9 +6863,36 @@ body {
   --shadow-card:   0 1px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05);
   --shadow-modal:  0 16px 48px rgba(0,0,0,0.18);
 }
-body { background: var(--bg-base); color: #111; }
+
+/* Dark palette — restore original dark values */
+[data-theme="dark"] {
+  --bg-base:       #111009;
+  --bg-card:       #181510;
+  --bg-elevated:   #1f1c15;
+  --bg-input:      #1c1916;
+  --border:        #2a2620;
+  --border-light:  #342f28;
+  --text-primary:  #E8E2D8;
+  --text-secondary:#8A7E6E;
+  --text-muted:    #524b40;
+  --orange:        #D4B85C;
+  --orange-dim:    rgba(212,184,92,0.12);
+  --orange-glow:   rgba(212,184,92,0.10);
+  --blue:          #527A8E;
+  --blue-dim:      #182830;
+  --blue-glow:     rgba(82,122,142,0.10);
+  --terra:         #D4B85C;
+  --terra-dim:     rgba(212,184,92,0.12);
+  --accent:        #D4B85C;
+  --yellow:        #D4B85C;
+  --red:           #b03c32;
+  --shadow-card:   0 1px 4px rgba(0,0,0,0.4);
+  --shadow-modal:  0 16px 48px rgba(0,0,0,0.7);
+}
+
+body { background: var(--bg-base); color: var(--text-primary); }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.25); }
 
 /* ── Header ── */
 .header { background: var(--bg-base); border-bottom: 1px solid rgba(0,0,0,0.08); }
@@ -7491,3 +7521,95 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   gap: 8px;
 }
 .mhv2-mission-text { font-size: clamp(17px, 4.5vw, 22px); }
+
+/* ── Dark mode overrides for rebrand components ── */
+[data-theme="dark"] body { background: var(--bg-base); color: var(--text-primary); }
+[data-theme="dark"] .header { background: var(--bg-base); border-color: var(--border); }
+[data-theme="dark"] .header-icon-btn { color: var(--text-primary); }
+[data-theme="dark"] .header-icon-btn:hover { background: var(--bg-elevated); }
+[data-theme="dark"] .tab-bar { background: var(--bg-card); border-top: 1px solid var(--border); box-shadow: none; }
+[data-theme="dark"] .tab-btn { color: var(--text-muted); }
+[data-theme="dark"] .tab-btn:hover { color: var(--text-secondary); }
+[data-theme="dark"] .feed-title { color: var(--text-primary); }
+[data-theme="dark"] .brother-card,
+[data-theme="dark"] .challenge-card,
+[data-theme="dark"] .sub-card,
+[data-theme="dark"] .streak-card { background: var(--bg-card); border-color: var(--border); box-shadow: none; }
+[data-theme="dark"] .brother-card::before { background: var(--border); }
+[data-theme="dark"] .card-name { color: var(--text-primary); }
+[data-theme="dark"] .card-age  { color: var(--text-muted); }
+[data-theme="dark"] .ch-title  { color: var(--text-primary); }
+[data-theme="dark"] .ch-desc   { color: var(--text-secondary); }
+[data-theme="dark"] .sf-post   { background: var(--bg-card); border-color: var(--border) !important; box-shadow: none; }
+[data-theme="dark"] .sf-post:first-child { border-top-color: var(--border) !important; }
+[data-theme="dark"] .sf-avatar { background: var(--bg-elevated); border: 1.5px solid var(--border); color: var(--text-secondary); }
+[data-theme="dark"] .sf-post-author { color: var(--text-primary); text-transform: none; letter-spacing: 0; }
+[data-theme="dark"] .sf-post-footer { border-top-color: var(--border); color: var(--text-muted); }
+[data-theme="dark"] .sf-comment-toggle { color: var(--text-muted); }
+[data-theme="dark"] .roster-card { background: var(--bg-card); border-color: var(--border); box-shadow: none; }
+[data-theme="dark"] .roster-card:first-child { background: var(--bg-elevated); border-color: var(--border); }
+[data-theme="dark"] .roster-card:first-child .roster-name { color: var(--text-primary); }
+[data-theme="dark"] .roster-name { color: var(--text-primary); }
+[data-theme="dark"] .roster-rank { color: var(--text-muted); }
+[data-theme="dark"] .roster-xp-num { color: var(--text-primary); }
+[data-theme="dark"] .roster-progress-track { background: var(--border); }
+[data-theme="dark"] .btn-dm-inbox { background: var(--bg-elevated); border-color: var(--border); color: var(--text-secondary); }
+[data-theme="dark"] .filter-pill { background: var(--bg-elevated); border-color: var(--border); color: var(--text-secondary); }
+[data-theme="dark"] .filter-pill.active { background: var(--orange-dim); border-color: var(--orange); color: var(--orange); }
+[data-theme="dark"] .btn-primary { background: var(--blue); color: #fff; }
+[data-theme="dark"] .btn-ghost { background: var(--bg-elevated); border-color: var(--border); color: var(--text-secondary); }
+[data-theme="dark"] .btn-icon  { background: var(--bg-elevated); border-color: var(--border); color: var(--text-secondary); }
+[data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select { background: var(--bg-input); border-color: var(--border); color: var(--text-primary); }
+[data-theme="dark"] .modal-overlay .modal, [data-theme="dark"] .modal-content { background: var(--bg-card); color: var(--text-primary); border-color: var(--border); }
+[data-theme="dark"] .modal-close { background: var(--bg-elevated); color: var(--text-secondary); }
+[data-theme="dark"] .progress-track { background: var(--border); }
+[data-theme="dark"] .progress-fill  { background: var(--blue); }
+[data-theme="dark"] .xp-hero-num { color: var(--text-primary); }
+[data-theme="dark"] .level-name  { color: var(--text-primary); }
+[data-theme="dark"] .streak-count { color: var(--text-primary); }
+[data-theme="dark"] .btn-share-stoke { background: var(--blue); }
+[data-theme="dark"] .mhv2 { background: var(--bg-card); color: var(--text-primary); }
+[data-theme="dark"] .mhv2-avatar { background: var(--bg-elevated); color: var(--text-primary); }
+[data-theme="dark"] .mhv2-name { color: var(--text-primary); }
+[data-theme="dark"] .mhv2-rank-eyebrow { color: var(--text-muted); }
+[data-theme="dark"] .mhv2-rank-of { color: var(--text-muted); }
+[data-theme="dark"] .mhv2-level-label { color: var(--text-secondary); }
+[data-theme="dark"] .mhv2-level-pct   { color: var(--text-muted); }
+[data-theme="dark"] .mhv2-level-track { background: var(--border); }
+[data-theme="dark"] .mhv2-no-score { color: var(--text-muted); }
+[data-theme="dark"] .mhv2-podium-pill { background: var(--bg-elevated); border-color: var(--border); color: var(--text-secondary); }
+[data-theme="dark"] .mhv2-r-val { color: var(--text-secondary); }
+[data-theme="dark"] .mhv2-r-lbl { color: var(--text-muted); }
+[data-theme="dark"] .mhv2-reflection { background: var(--bg-elevated); }
+[data-theme="dark"] .member-no-profile { background: var(--bg-card); border-color: var(--border); }
+[data-theme="dark"] .member-no-profile h2 { color: var(--text-primary); }
+[data-theme="dark"] .member-no-profile p  { color: var(--text-secondary); }
+
+/* ── Center the Share Your Stoke button text ── */
+.btn-share-stoke {
+  justify-content: center;
+  gap: 10px;
+}
+.btn-share-stoke::after { content: '→'; }
+
+/* ── Button color consistency: blue or gold only ── */
+/* Primary actions → stoked blue */
+.btn-primary,
+.btn-add-xp,
+.btn-checkin,
+.btn-checkin-member,
+.btn-login,
+.btn-assess-cta,
+.btn-checkin-submit,
+.sf-comment-send,
+.challenge-card .btn-primary {
+  background: var(--blue) !important;
+  color: #fff !important;
+  border: none !important;
+}
+/* Orange/accent accents → gold */
+.btn-orange { background: var(--orange) !important; color: #111 !important; border: none !important; }
+/* mhv2 CTAs stay terracotta (brand identity) */
+.mhv2-complete-btn,
+.mhv2-checkin-btn:not(.done),
+.mhv2-assess-btn { background: #c04a2e !important; color: #fff !important; }
