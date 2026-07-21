@@ -69,7 +69,6 @@ const ARCHETYPE_COLORS = {
   Builder:      { border: 'rgba(130,110,90,0.45)', glow: 'rgba(130,110,90,0.06)',  icon: '#826e5a' }, // warm brown
   Protector:    { border: 'rgba(156,90,66,0.5)',   glow: 'rgba(156,90,66,0.06)',   icon: '#9c5a42' }, // rust
   Visionary:    { border: 'rgba(122,138,82,0.5)',  glow: 'rgba(122,138,82,0.06)',  icon: '#7a8a52' }, // olive
-  Communicator: { border: 'rgba(176,122,74,0.5)',  glow: 'rgba(176,122,74,0.06)',  icon: '#b07a4a' }, // copper
   Monk:         { border: 'rgba(158,141,114,0.45)', glow: 'rgba(158,141,114,0.06)', icon: '#9e8d72' }, // warm sand
 };
 
@@ -96,12 +95,12 @@ function archetypeElementIcon(archetype, element, xp) {
   const elemClass = element ? `elem-${element.toLowerCase()}` : '';
   const style = `--ring-clr:${clr.icon};--ring-glow:${clr.glow.replace(/[\d.]+\)$/, '0.55)')};--ring-border:${clr.border}`;
   const aura = '<div class="elem-aura"></div>';
-  if (archetype && element) {
-    const key = `${archetype.toLowerCase()}-${element.toLowerCase()}`;
-    return `<div class="arch-icon-wrap ${ringClass} ${archClass} ${elemClass}" style="${style}">${aura}<img src="icons/${key}.png" alt="${escHtml(archetype)} ${escHtml(element)}" class="arch-icon-img"></div>`;
+  // Use new flat PNG icons — no elemental variants
+  const imgSrc = archetype ? `/stoked-command-center/${archetype.toLowerCase()}-icon.png` : '';
+  if (imgSrc) {
+    return `<div class="arch-icon-wrap ${ringClass} ${archClass} ${elemClass}" style="${style}">${aura}<img src="${imgSrc}" alt="${escHtml(archetype||'')}" class="arch-icon-img"></div>`;
   }
-  const core = ARCHETYPE_ICONS[archetype] || '';
-  return `<div class="arch-icon-wrap ${ringClass} ${archClass} ${elemClass}" style="${style}">${aura}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${core}</svg></div>`;
+  return `<div class="arch-icon-wrap ${ringClass} ${archClass} ${elemClass}" style="${style}">${aura}</div>`;
 }
 
 const ELEMENT_DESC = {
@@ -183,18 +182,6 @@ const ARCHETYPE_DESC = {
     gWater: `Water without vision can become depth without direction. Your emotional intelligence and relational gifts are real — but where are you taking them? The Visionary asks you to dream forward. What could your relationships and community look like in ten years if you led them with intention? Give your care a destination.`,
     gAir:   `Air without vision thinks clearly but not boldly. Your mind is sharp — but are you using it to see further than the immediate? The Visionary's gift is the courage to believe in something that doesn't exist yet. Begin asking bigger questions. Train yourself to think in decades, not days.`,
     gEarth: `Earth without vision can produce a life that is well-built but uninspired. You work hard and you finish things — but are you building toward something that genuinely matters to you? The Visionary asks you to look up from the work and remember why you are doing it. Purpose is what turns a good life into a great one.`,
-  },
-  Communicator: {
-    primary: `The Communicator is driven by relationships, storytelling, connection, influence, teaching, and bringing people together. He may be outgoing, but does not have to be loud. A quieter Communicator may be an excellent listener, writer, interviewer, or teacher. He doesn't just talk — he connects. When he uses his voice well, rooms shift. Relationships deepen. People feel less alone.`,
-    Fire:   `A Fire Communicator speaks with conviction and boldness. He is the one who says the hard thing directly, who rallies people with his words, and who is not afraid to take up space. His voice carries weight because his conviction is real. He doesn't soften things to be liked — he speaks truth because he cares about what happens when people hear it.`,
-    Water:  `A Water Communicator is the most emotionally intelligent man in the room. He listens at a level others rarely reach. He hears the feeling beneath the words. He can sit with someone in their pain without trying to fix it, and that presence is its own form of power. When he speaks, it is because he has something worth saying.`,
-    Air:    `An Air Communicator moves through words and ideas with natural ease. He articulates complex things clearly, expresses thoughts with precision, and makes people feel understood with language. He is the writer, the teacher, the voice that translates the difficult into the accessible. His gift is clarity — and clarity changes things.`,
-    Earth:  `An Earth Communicator speaks with weight and reliability. His words are grounded. He doesn't exaggerate, doesn't perform, doesn't oversell. When he says something, he means it. People trust what he says because he always does what he said he would. His communication is built over time through consistency.`,
-    growth: `The Communicator is your blindspot. You are not saying what needs to be said — or you are not listening the way the people around you need to be heard. Be wary of using silence as a shield, of letting relationships stay shallow because depth feels risky, and of hoping people will understand you without doing the work of actually being understood. Developing your communication will change every relationship you have.`,
-    gFire:  `Fire without communication becomes force without connection. You act boldly — but do people around you understand why? Your growth comes from learning to speak your conviction clearly, to explain not just what you are doing but what it means and why it matters. The man who can act and articulate is unstoppable.`,
-    gWater: `Water without communication stays internal. Your emotional depth is real, but unspoken depth serves no one. Your growth comes from learning to give your feelings words — not to perform vulnerability, but to build the kind of honest connection that your inner life is capable of creating. Say the true thing.`,
-    gAir:   `Air without communication becomes thought that never reaches anyone. Your clarity and insight deserve an audience. Your growth comes from learning to bring your ideas into conversation — to speak them, share them, and let them be tested. The man who thinks clearly and speaks clearly becomes one of the most valuable people in any room.`,
-    gEarth: `Earth without communication can become reliability without intimacy. People count on you — but do they know you? Your growth comes from learning to let people in through honest conversation. Your steadiness makes you trustworthy. Your willingness to open up will make you irreplaceable.`,
   },
   Monk: {
     primary: `The Monk is driven by discipline, self-awareness, inner calm, restraint, reflection, patience, and control over impulses. He is not passive — he is the archetype of internal strength. He wants to understand his thoughts, emotions, habits, attention, and behavior. The greatest battles, he has learned, are fought inside.`,
@@ -643,14 +630,13 @@ let selectedInterests = [];
 
 // Core symbols only — the ring + element motif (above) form the rest of the icon
 const ARCHETYPE_ICONS = {
-  Warrior:      `<line x1="12" y1="4" x2="12" y2="18"/><path d="M12 4l-1.3 2.2h2.6L12 4z"/><line x1="9" y1="8" x2="15" y2="8"/>`,
-  Creator:      `<path d="M15 8l1 1-6 6-1.5.5.5-1.5 6-6z"/><line x1="13.3" y1="9.7" x2="14.3" y2="10.7"/>`,
-  Explorer:     `<path d="M12 3.5l1.6 6.9 6.9 1.6-6.9 1.6-1.6 6.9-1.6-6.9-6.9-1.6 6.9-1.6z"/>`,
-  Builder:      `<path d="M14.3 9.2l1-1 1.4 1.4-1 1z"/><line x1="14.3" y1="9.2" x2="9.8" y2="13.7"/><line x1="9.8" y1="13.7" x2="8.3" y2="15.2"/>`,
-  Protector:    `<path d="M12 5l-5 2v4c0 3.6 2.6 5.8 5 6.8 2.4-1 5-3.2 5-6.8V7l-5-2z"/><polyline points="9.7 11.5 11.2 13 14.3 9.8"/>`,
-  Visionary:    `<path d="M5 12s3-4.5 7-4.5 7 4.5 7 4.5-3 4.5-7 4.5-7-4.5-7-4.5z"/><circle cx="12" cy="12" r="2"/>`,
-  Communicator: `<path d="M17.5 9.8a6 6 0 01-.7 2.8 6.2 6.2 0 01-5.5 3.4 6 6 0 01-2.8-.7L6 16.5l1.4-4.1a6 6 0 01-.7-2.8 6.2 6.2 0 013.4-5.5 6 6 0 012.8-.7h.4a6.2 6.2 0 015.8 5.8v.4z"/>`,
-  Monk:         `<circle cx="12" cy="8.5" r="1.4"/><path d="M8.7 16c.4-1.8 1.7-2.8 3.3-2.8s2.9 1 3.3 2.8"/><path d="M7.3 14.8c1.4-.7 2.9-1.1 4.7-1.1s3.3.4 4.7 1.1"/>`,
+  Warrior:   '/stoked-command-center/warrior-icon.png',
+  Creator:   '/stoked-command-center/creator-icon.png',
+  Explorer:  '/stoked-command-center/explorer-icon.png',
+  Builder:   '/stoked-command-center/builder-icon.png',
+  Protector: '/stoked-command-center/protector-icon.png',
+  Visionary: '/stoked-command-center/visionary-icon.png',
+  Monk:      '/stoked-command-center/monk-icon.png',
 };
 
 // ── ICONS ─────────────────────────────────────
@@ -781,28 +767,13 @@ const ARCHETYPE_THEMES = {
       <circle cx="125" cy="10" r="1.5" fill="currentColor" opacity="0.35"/>
     </svg>`,
   },
-  Communicator: {
-    trailAccent: '◇',
-    trailBg: 'repeating-linear-gradient(90deg,currentColor 0,currentColor 1px,transparent 0,transparent 20px) 0 0/20px 20px',
-    decorSvg: `<svg viewBox="0 0 130 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="44" y="18" width="10" height="18" rx="5" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.24"/>
-      <path d="M39 32 Q39 46 49 46 Q59 46 59 32" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.24" stroke-linecap="round"/>
-      <line x1="49" y1="46" x2="49" y2="54" stroke="currentColor" stroke-width="1.5" opacity="0.22" stroke-linecap="round"/>
-      <line x1="43" y1="54" x2="55" y2="54" stroke="currentColor" stroke-width="1.5" opacity="0.2" stroke-linecap="round"/>
-      <path d="M70 32 Q80 20 80 32 Q80 44 70 32" stroke="currentColor" stroke-width="1.3" fill="none" opacity="0.28" stroke-linecap="round"/>
-      <path d="M65 32 Q84 14 84 32 Q84 50 65 32" stroke="currentColor" stroke-width="1"   fill="none" opacity="0.2"  stroke-linecap="round"/>
-      <path d="M60 32 Q88 8 88 32 Q88 56 60 32"  stroke="currentColor" stroke-width="0.7" fill="none" opacity="0.14" stroke-linecap="round"/>
-      <path d="M95 32 Q105 20 105 32 Q105 44 95 32" stroke="currentColor" stroke-width="1.3" fill="none" opacity="0.22" stroke-linecap="round"/>
-      <path d="M90 32 Q109 10 109 32 Q109 54 90 32"  stroke="currentColor" stroke-width="0.8" fill="none" opacity="0.14" stroke-linecap="round"/>
-    </svg>`,
-  },
 };
 
 const ARCHETYPE_STAGE_NAMES = {
-  1: ['Iron Will',   'Stillness', 'Spark',    'Wander',    'Foundation', 'Watch',  'Dream',  'Voice'],
-  2: ['Steel Mind',  'Depth',     'Form',     'Discovery', 'Blueprint',  'Guard',  'See',    'Connect'],
-  3: ['Brotherhood', 'Mastery',   'Flow',     'Wild',      'Build',      'Serve',  'Create', 'Influence'],
-  4: ['The Warrior', 'The Sage',  'The Work', 'Pathfinder','Architect',  'Shield', 'Prophet','Orator'],
+  1: ['Iron Will',   'Stillness', 'Spark',    'Wander',    'Foundation', 'Watch',  'Dream'],
+  2: ['Steel Mind',  'Depth',     'Form',     'Discovery', 'Blueprint',  'Guard',  'See'],
+  3: ['Brotherhood', 'Mastery',   'Flow',     'Wild',      'Build',      'Serve',  'Create'],
+  4: ['The Warrior', 'The Sage',  'The Work', 'Pathfinder','Architect',  'Shield', 'Prophet'],
 };
 const ARCHETYPE_STAGE_NAME_MAP = {
   Warrior:      ['Iron Will','Steel Mind','Brotherhood','The Warrior'],
@@ -812,7 +783,6 @@ const ARCHETYPE_STAGE_NAME_MAP = {
   Builder:      ['Foundation','Blueprint','Build','Architect'],
   Protector:    ['Watch','Guard','Serve','The Shield'],
   Visionary:    ['Dream','See','Create','The Prophet'],
-  Communicator: ['Voice','Connect','Influence','The Orator'],
 };
 
 const ARCHETYPE_CHALLENGES = {
@@ -1054,43 +1024,9 @@ const ARCHETYPE_CHALLENGES = {
       ],
     ],
   },
-  Communicator: {
-    motto: 'Connect honestly.',
-    symbol: '◇',
-    stages: [
-      [
-        { title: '20-Minute Talk',    task: 'Have a real 20-minute conversation with a parent. Take a selfie together after.' },
-        { title: 'Thank-You Note',    task: 'Write a genuine thank-you note to someone. Photograph it before giving it.' },
-        { title: 'Ask a Grandparent', task: 'Ask a grandparent or elder about their childhood. Photograph together or photograph your notes.' },
-        { title: '3 Compliments',     task: 'Give three genuine, specific compliments today. Write the names and photograph the list.' },
-        { title: 'Interview Someone', task: 'Interview someone you admire with at least 5 questions. Photograph your notes.' },
-      ],
-      [
-        { title: 'Cold Outreach',    task: 'Reach out to someone you\'ve never met but admire. Write what happened.' },
-        { title: 'Public Speaking',  task: 'Speak in front of 10+ people on any topic. Record the moment.' },
-        { title: 'Write and Send',   task: 'Write a letter or message to someone who changed your life. Send it.' },
-        { title: 'Active Listening', task: 'Spend one full conversation only listening — no advice, no stories about yourself. Write what you heard.' },
-        { title: 'Clear the Air',    task: 'Have an honest conversation that resolves something unresolved. Write the outcome.' },
-      ],
-      [
-        { title: 'Give a Talk',      task: 'Give a 10-minute prepared talk to a real audience on something you care about. Film it.' },
-        { title: 'Publish',          task: 'Publish something — an essay, a post, an article — that expresses a real opinion. Share it.' },
-        { title: 'Deep Listen Week', task: 'Spend one full week prioritizing listening in every conversation. Journal what changed.' },
-        { title: 'Build a Bridge',   task: 'Connect two people who need to know each other. Write what happened.' },
-        { title: 'Hard Feedback',    task: 'Deliver difficult feedback to someone in a way that strengthens rather than damages the relationship.' },
-      ],
-      [
-        { title: 'Keynote',         task: 'Deliver a keynote or major talk to the largest audience you\'ve ever addressed. Film the whole thing.' },
-        { title: 'Publish Your Voice', task: 'Create and publish a body of work — a series, a podcast, a blog — over 30 days. Document the reach.' },
-        { title: 'Mediate',         task: 'Mediate a real, serious conflict between two parties. Write the outcome and what you learned.' },
-        { title: 'Communicator\'s Code', task: 'Write your personal code of communication — how you speak, listen, and connect. Share it with the Brotherhood.' },
-        { title: 'Change the Room', task: 'Enter a situation where people are confused or arguing and change the energy through words alone.' },
-      ],
-    ],
-  },
 };
 
-const ARCHETYPE_ORDER = ['Warrior','Monk','Creator','Explorer','Builder','Protector','Visionary','Communicator'];
+const ARCHETYPE_ORDER = ['Warrior','Monk','Creator','Explorer','Builder','Protector','Visionary'];
 
 
 // ── BROTHERHOOD SCORE ─────────────────────────
@@ -1902,8 +1838,8 @@ function renderMemberView() {
   const lastCI2    = profile.lastCheckInDate ? new Date(profile.lastCheckInDate).toDateString() : null;
   const checkInDone = lastCI2 === todayStr2;
 
-  // Archetype icon SVG path for background
-  const bgIconPath = ARCHETYPE_ICONS[displayArchetype] || '';
+  // Archetype icon PNG for background
+  const bgIconSrc = displayArchetype ? `/stoked-command-center/${displayArchetype.toLowerCase()}-icon.png` : '';
 
   // Weekly reflection
   const hasReflection = profile.weeklyWin || profile.weeklyChallenge || profile.weeklyCommitment;
@@ -1920,7 +1856,7 @@ function renderMemberView() {
 
       <!-- Ghost archetype icon background -->
       <div class="mhv2-arch-bg" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">${bgIconPath}</svg>
+        ${bgIconSrc ? `<img src="${bgIconSrc}" alt="">` : ''}
       </div>
 
       <!-- Header: avatar + name + mentor badge -->
@@ -4172,7 +4108,6 @@ const ARCHETYPE_VIRTUE = {
   Builder:      'Perseverance',
   Protector:    'Loyalty',
   Visionary:    'Intuition',
-  Communicator: 'Connection',
 };
 
 const ARCHETYPE_GLOBE_MISSION = {
@@ -4183,7 +4118,6 @@ const ARCHETYPE_GLOBE_MISSION = {
   Builder:      'Show up to your highest-priority habit every day this week.',
   Protector:    'Check in on one brother who has gone quiet.',
   Visionary:    'Write down one idea that feels too big. Then take the first step.',
-  Communicator: 'Have one honest conversation you have been putting off.',
 };
 
 function computeGlobeStats() {
