@@ -7613,3 +7613,17 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .mhv2-complete-btn,
 .mhv2-checkin-btn:not(.done),
 .mhv2-assess-btn { background: #c04a2e !important; color: #fff !important; }
+
+/* ── Share Your Stoke — truly centered text with absolute arrow ── */
+.btn-share-stoke {
+  position: relative;
+  justify-content: center !important;
+}
+.btn-share-stoke::after {
+  content: '→';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+}
