@@ -6832,157 +6832,143 @@ body {
   text-transform: uppercase;
 }
 
-/* ─── My Card v2 (Nike-style) ─────────────────────────────────────── */
+
+/* ─── My Card v2 (Nike-style reference) ──────────────────────────── */
 .mhv2 {
   position: relative;
   overflow: hidden;
-  border-radius: 18px;
-  background: #0e0c08;
-  border: 1px solid rgba(255,255,255,0.06);
-  padding: 24px 20px 20px;
+  border-radius: 20px;
+  background: #f0ede6;
+  padding: 22px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   margin-bottom: 16px;
+  color: #111;
 }
 
+/* Ghost icon — large, right side, light gray */
 .mhv2-arch-bg {
   position: absolute;
-  top: -10%;
-  left: -8%;
-  width: 52%;
+  top: -4%;
+  right: -6%;
+  width: 58%;
   aspect-ratio: 1;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.06;
-  color: var(--mhv2-accent, #527A8E);
+  opacity: 0.10;
+  color: #888;
 }
 .mhv2-arch-bg svg {
   width: 100%;
   height: 100%;
   fill: currentColor;
-  stroke: none;
 }
 
-/* everything inside stacks above bg icon */
+/* All direct children sit above ghost icon */
 .mhv2 > * { position: relative; z-index: 1; }
 
-/* Header */
+/* Header row */
 .mhv2-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 .mhv2-name {
-  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
-  font-size: 36px;
+  font-family: 'Bebas Neue','Barlow Condensed',Impact,sans-serif;
+  font-size: clamp(38px, 10vw, 52px);
   font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #fff;
+  letter-spacing: 0.03em;
+  color: #111;
   line-height: 1;
-}
-.mhv2-arch-line {
-  font-size: 12px;
-  color: rgba(255,255,255,0.45);
-  letter-spacing: 0.05em;
-  margin-top: 4px;
-  text-transform: uppercase;
 }
 .mhv2-header-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 5px;
   flex-shrink: 0;
+  padding-top: 4px;
 }
 .mhv2-role-badge {
-  background: #fff;
-  color: #0e0c08;
-  font-size: 10px;
+  background: #111;
+  color: #fff;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 3px 9px;
+  padding: 4px 10px;
   border-radius: 4px;
 }
 .mhv2-retake-btn {
   background: none;
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.5);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  border: 1px solid rgba(0,0,0,0.2);
+  color: rgba(0,0,0,0.4);
+  font-size: 11px;
   padding: 3px 8px;
   border-radius: 4px;
   cursor: pointer;
 }
-.mhv2-retake-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+.mhv2-retake-btn:hover { border-color: rgba(0,0,0,0.5); color: #111; }
 
-/* XP Rank */
-.mhv2-rank {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.mhv2-rank-eyebrow {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-}
-.mhv2-rank-row {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.mhv2-rank-num {
+/* Archetype + level line */
+.mhv2-arch-line {
   font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
-  font-size: 56px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(0,0,0,0.45);
+  text-transform: uppercase;
+  margin-top: -8px;
+}
+
+/* Giant rank number */
+.mhv2-rank-num {
+  font-family: 'Bebas Neue','Barlow Condensed',Impact,sans-serif;
+  font-size: clamp(72px, 22vw, 110px);
   font-weight: 900;
-  line-height: 1;
-  color: var(--mhv2-accent, #D4B85C);
-  letter-spacing: -0.01em;
+  color: rgba(0,0,0,0.14);
+  line-height: 0.85;
+  letter-spacing: -0.02em;
+  margin-top: -4px;
+  margin-bottom: -4px;
 }
-.mhv2-rank-of {
-  font-size: 13px;
-  color: rgba(255,255,255,0.4);
-  padding-bottom: 4px;
-}
+
+/* Podium pills */
 .mhv2-podium-row {
   display: flex;
-  gap: 6px;
+  gap: 7px;
   flex-wrap: wrap;
-  margin-top: 6px;
 }
 .mhv2-podium-pill {
   display: flex;
   align-items: center;
   gap: 5px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.07);
+  border: 1px solid rgba(0,0,0,0.1);
   border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 12px;
-  color: rgba(255,255,255,0.6);
+  padding: 5px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(0,0,0,0.55);
   white-space: nowrap;
 }
 .mhv2-podium-pill.is-me {
-  background: rgba(212,184,92,0.12);
+  background: #D4B85C;
   border-color: #D4B85C;
-  color: #D4B85C;
-  font-weight: 700;
+  color: #111;
+  font-weight: 800;
 }
 
-/* Mission */
+/* Today's Mission card */
 .mhv2-mission {
-  background: #181510;
-  border-radius: 12px;
+  background: #c9c5bc;
+  border-radius: 14px;
   padding: 14px 14px 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 .mhv2-mission-top {
   display: flex;
@@ -6991,139 +6977,73 @@ body {
 }
 .mhv2-mission-label {
   font-size: 10px;
-  letter-spacing: 0.12em;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
+  color: #D4B85C;
 }
 .mhv2-mission-count {
   font-size: 11px;
-  color: var(--mhv2-accent, #D4B85C);
-  font-weight: 600;
+  font-weight: 700;
+  color: rgba(0,0,0,0.45);
+  letter-spacing: 0.04em;
 }
 .mhv2-mission-text {
-  font-size: 14px;
-  color: rgba(255,255,255,0.85);
-  line-height: 1.45;
+  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
+  font-size: clamp(22px, 6vw, 28px);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: #111;
+  line-height: 1.1;
 }
 .mhv2-mission-empty {
-  font-size: 13px;
-  color: rgba(255,255,255,0.3);
+  font-size: 14px;
+  color: rgba(0,0,0,0.4);
   font-style: italic;
-}
-.mhv2-mission-bar-track {
-  height: 3px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.mhv2-mission-bar-fill {
-  height: 100%;
-  background: var(--mhv2-accent, #D4B85C);
-  border-radius: 2px;
-  transition: width 0.6s ease;
 }
 .mhv2-mission-social {
   font-size: 12px;
-  color: rgba(255,255,255,0.4);
+  color: rgba(0,0,0,0.5);
+  font-weight: 500;
 }
-.mhv2-complete-btn {
-  width: 100%;
-  background: #fff;
-  color: #0e0c08;
-  border: none;
-  border-radius: 8px;
-  padding: 13px;
-  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-.mhv2-complete-btn:hover { opacity: 0.88; }
-.mhv2-set-btn {
-  width: 100%;
-  background: none;
-  color: rgba(255,255,255,0.5);
-  border: 1px dashed rgba(255,255,255,0.2);
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-.mhv2-set-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
 .mhv2-mission-done-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(212,184,92,0.1);
+  background: rgba(212,184,92,0.2);
   border: 1px solid #D4B85C;
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 13px;
   font-weight: 700;
-  color: #D4B85C;
-  width: 100%;
+  color: #7a6520;
   justify-content: center;
 }
-
-/* Stats row */
-.mhv2-stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+.mhv2-set-btn {
+  width: 100%;
+  background: rgba(0,0,0,0.08);
+  color: rgba(0,0,0,0.5);
+  border: 1px dashed rgba(0,0,0,0.2);
+  border-radius: 8px;
+  padding: 9px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
-.mhv2-stat-card {
-  background: #181510;
-  border-radius: 10px;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.mhv2-stat-num {
-  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
-  font-size: 26px;
-  font-weight: 900;
-  color: #fff;
-  line-height: 1;
-}
-.mhv2-stat-lbl {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.35);
-  text-align: center;
-}
+.mhv2-set-btn:hover { background: rgba(0,0,0,0.12); }
 
 /* Reflection */
 .mhv2-reflection {
-  background: #181510;
+  background: rgba(0,0,0,0.05);
   border-radius: 10px;
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-.mhv2-r-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.mhv2-r-lbl {
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
-}
-.mhv2-r-val {
-  font-size: 13px;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.4;
-}
+.mhv2-r-row { display: flex; flex-direction: column; gap: 2px; }
+.mhv2-r-lbl { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,0,0,0.35); }
+.mhv2-r-val { font-size: 13px; color: rgba(0,0,0,0.7); line-height: 1.4; }
 
 /* Coach note */
 .mhv2-coach-note {
@@ -7132,72 +7052,73 @@ body {
   border-radius: 0 8px 8px 0;
   padding: 10px 14px;
 }
-.mhv2-coach-from {
-  font-size: 10px;
-  letter-spacing: 0.08em;
+.mhv2-coach-from { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #527A8E; margin-bottom: 4px; }
+.mhv2-coach-text { font-size: 13px; color: rgba(0,0,0,0.65); line-height: 1.45; font-style: italic; }
+
+/* Complete Mission — primary CTA, stoked blue */
+.mhv2-complete-btn {
+  width: 100%;
+  background: #527A8E;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #527A8E;
-  margin-bottom: 4px;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
-.mhv2-coach-text {
-  font-size: 13px;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.45;
-  font-style: italic;
-}
+.mhv2-complete-btn:hover { opacity: 0.88; }
 
 /* Check-in button */
 .mhv2-checkin-btn {
   width: 100%;
-  background: none;
-  border: 1px solid rgba(255,255,255,0.18);
-  border-radius: 8px;
-  color: rgba(255,255,255,0.7);
-  padding: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.mhv2-checkin-btn:hover {
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(255,255,255,0.35);
+  background: #527A8E;
   color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
+.mhv2-checkin-btn:hover { opacity: 0.88; }
 .mhv2-checkin-btn.done {
-  border-color: rgba(212,184,92,0.4);
-  color: #D4B85C;
-  background: rgba(212,184,92,0.05);
+  background: rgba(0,0,0,0.07);
+  color: rgba(0,0,0,0.4);
   cursor: default;
 }
+.mhv2-checkin-btn.done:hover { opacity: 1; }
 
 /* Assessment CTA */
 .mhv2-assess-cta {
-  background: #181510;
+  background: rgba(0,0,0,0.05);
   border-radius: 12px;
-  padding: 20px 16px;
+  padding: 18px 16px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 .mhv2-assess-title {
   font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
-  font-size: 22px;
+  font-size: 20px;
   letter-spacing: 0.08em;
-  color: #fff;
+  color: #111;
   text-transform: uppercase;
 }
-.mhv2-assess-sub {
-  font-size: 13px;
-  color: rgba(255,255,255,0.4);
-  line-height: 1.4;
-}
+.mhv2-assess-sub { font-size: 12px; color: rgba(0,0,0,0.45); line-height: 1.4; }
 .mhv2-assess-btn {
-  background: var(--mhv2-accent, #D4B85C);
-  color: #0e0c08;
+  background: #527A8E;
+  color: #fff;
   border: none;
   border-radius: 8px;
   padding: 11px 24px;

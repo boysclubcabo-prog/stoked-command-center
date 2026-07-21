@@ -1909,74 +1909,52 @@ function renderMemberView() {
   // Weekly reflection
   const hasReflection = profile.weeklyWin || profile.weeklyChallenge || profile.weeklyCommitment;
 
+  const archetypeStage = displayArchetype
+    ? `${displayArchetype.toUpperCase()} LVL ${lvl.current.level}`
+    : `LVL ${lvl.current.level}`;
+  const pct = totalBros > 0 ? Math.round(brosCompletedToday / totalBros * 100) : 0;
+
   memberHero.innerHTML = `
-    <div class="mhv2" style="--mhv2-accent:${clr.icon}">
+    <div class="mhv2">
 
-      <!-- Large ghost archetype icon in background -->
+      <!-- Ghost archetype icon — large, right side background -->
       <div class="mhv2-arch-bg" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-          ${bgIconPath}
-        </svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">${bgIconPath}</svg>
       </div>
 
-      <!-- Header: name + role -->
+      <!-- Header row: name + mentor badge -->
       <div class="mhv2-header">
-        <div>
-          <div class="mhv2-name">${escHtml(profile.name)}</div>
-          ${displayArchetype ? `<div class="mhv2-arch-line">${escHtml(displayArchetype)}${profile.dominantElement ? ' · ' + escHtml(profile.dominantElement) : ''}</div>` : ''}
-        </div>
+        <div class="mhv2-name">${escHtml((profile.name || '').toUpperCase())}</div>
         <div class="mhv2-header-right">
-          ${profile.role === 'mentor' ? '<div class="mhv2-role-badge">Mentor</div>' : ''}
-          ${profile.primaryArchetype ? `<button class="mhv2-retake-btn" data-take-assessment="${profile.id}" title="Retake Assessment">${IC.clock}</button>` : ''}
+          ${profile.role === 'mentor' ? '<div class="mhv2-role-badge">MENTOR</div>' : ''}
+          ${profile.primaryArchetype ? `<button class="mhv2-retake-btn" data-take-assessment="${profile.id}" title="Retake">${IC.clock}</button>` : ''}
         </div>
       </div>
 
-      <!-- XP Rank -->
-      <div class="mhv2-rank">
-        <div class="mhv2-rank-eyebrow">XP Rank</div>
-        <div class="mhv2-rank-row">
-          <div class="mhv2-rank-num">#${myRank}</div>
-          <div class="mhv2-rank-of">of ${totalBros} brothers</div>
-        </div>
-        ${podiumSlots.length > 0 ? `<div class="mhv2-podium-row">${podiumHtml}</div>` : ''}
-      </div>
+      <!-- Archetype + level line -->
+      <div class="mhv2-arch-line">${archetypeStage}</div>
 
-      <!-- Today's Mission -->
+      <!-- Big rank number -->
+      <div class="mhv2-rank-num">${myRank}</div>
+
+      <!-- Podium pills -->
+      <div class="mhv2-podium-row">${podiumHtml}</div>
+
+      <!-- Today's Mission card -->
       <div class="mhv2-mission">
         <div class="mhv2-mission-top">
-          <span class="mhv2-mission-label">Today's Mission</span>
-          <span class="mhv2-mission-count">${brosCompletedToday} / ${totalBros} done</span>
+          <span class="mhv2-mission-label">TODAY'S MISSION</span>
+          <span class="mhv2-mission-count">${brosCompletedToday}/${totalBros} done</span>
         </div>
         ${dcText
           ? `<div class="mhv2-mission-text">${escHtml(dcText)}</div>`
-          : `<div class="mhv2-mission-empty">No mission set yet</div>`}
-        <div class="mhv2-mission-bar-track">
-          <div class="mhv2-mission-bar-fill" style="width:${totalBros > 0 ? Math.round(brosCompletedToday / totalBros * 100) : 0}%"></div>
-        </div>
-        ${brosCompletedToday > 0 ? `<div class="mhv2-mission-social">🔥 ${brosCompletedToday} ${brosCompletedToday === 1 ? 'brother' : 'brothers'} already completed</div>` : ''}
-        ${dcText && !dcDone ? `<button class="mhv2-complete-btn" data-dc-complete="1">Complete Mission →</button>` : ''}
+          : `<div class="mhv2-mission-empty">No mission set yet.</div>`}
+        ${brosCompletedToday > 0 ? `<div class="mhv2-mission-social">${brosCompletedToday} ${brosCompletedToday === 1 ? 'brother' : 'brothers'} already completed</div>` : ''}
         ${!dcText ? `<button class="mhv2-set-btn" data-dc-set="1">Set Today's Mission</button>` : ''}
         ${dcDone ? `<div class="mhv2-mission-done-badge">✓ Mission Complete · +50 XP</div>` : ''}
       </div>
 
-      <!-- Stats row: streak · XP · level -->
-      <div class="mhv2-stats-row">
-        <div class="mhv2-stat-card">
-          <div class="mhv2-stat-num">${profile.currentStreak || 0}</div>
-          <div class="mhv2-stat-lbl">Day Streak</div>
-        </div>
-        <div class="mhv2-stat-card">
-          <div class="mhv2-stat-num">${xp >= 1000 ? (xp/1000).toFixed(1)+'K' : xp}</div>
-          <div class="mhv2-stat-lbl">Total XP</div>
-        </div>
-        <div class="mhv2-stat-card">
-          <div class="mhv2-stat-num">Lvl ${lvl.current.level}</div>
-          <div class="mhv2-stat-lbl">${lvl.progress}% to next</div>
-        </div>
-      </div>
-
       ${hasReflection ? `
-      <!-- Weekly reflection -->
       <div class="mhv2-reflection">
         ${profile.weeklyWin        ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Win</span><span class="mhv2-r-val">${escHtml(profile.weeklyWin)}</span></div>` : ''}
         ${profile.weeklyChallenge  ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Challenge</span><span class="mhv2-r-val">${escHtml(profile.weeklyChallenge)}</span></div>` : ''}
@@ -1989,16 +1967,18 @@ function renderMemberView() {
         <div class="mhv2-coach-text">${escHtml(profile.coachNote)}</div>
       </div>` : ''}
 
-      <!-- Check-in CTA -->
-      <button class="mhv2-checkin-btn${checkInDone ? ' done' : ''}" data-checkin="${profile.id}">
-        ${checkInDone ? '✓ Checked In Today' : '✓ Daily Check-In'}
-      </button>
+      <!-- Primary CTA -->
+      ${dcText && !dcDone
+        ? `<button class="mhv2-complete-btn" data-dc-complete="1">COMPLETE MISSION</button>`
+        : `<button class="mhv2-checkin-btn${checkInDone ? ' done' : ''}" data-checkin="${profile.id}">
+             ${checkInDone ? '✓ CHECKED IN TODAY' : '✓ DAILY CHECK-IN'}
+           </button>`}
 
       ${!profile.primaryArchetype ? `
       <div class="mhv2-assess-cta">
         <div class="mhv2-assess-title">Discover Your Archetype</div>
         <div class="mhv2-assess-sub">29 questions · ~6 minutes · Reveals your archetype and element</div>
-        <button class="mhv2-assess-btn" data-take-assessment="${profile.id}">Begin Assessment →</button>
+        <button class="mhv2-assess-btn" data-take-assessment="${profile.id}">BEGIN ASSESSMENT →</button>
       </div>` : ''}
 
     </div>`;
