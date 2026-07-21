@@ -7131,3 +7131,405 @@ body {
   margin-top: 4px;
 }
 .mhv2-assess-btn:hover { opacity: 0.88; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REBRAND — WARM CREAM LIGHT THEME (overrides dark defaults above)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg-base:       #f0ede6;
+  --bg-card:       #ffffff;
+  --bg-elevated:   #f5f2eb;
+  --bg-input:      #f0ede6;
+  --border:        rgba(0,0,0,0.08);
+  --border-light:  rgba(0,0,0,0.05);
+
+  --text-primary:  #111111;
+  --text-secondary:#555555;
+  --text-muted:    #999999;
+
+  --orange:        #D4B85C;
+  --orange-dim:    rgba(212,184,92,0.15);
+  --orange-glow:   rgba(212,184,92,0.12);
+
+  --blue:          #527A8E;
+  --blue-dim:      rgba(82,122,142,0.12);
+  --blue-glow:     rgba(82,122,142,0.10);
+
+  --terra:         #D4B85C;
+  --terra-dim:     rgba(212,184,92,0.12);
+  --terra-glow:    rgba(212,184,92,0.20);
+  --accent:        #D4B85C;
+  --accent-dim:    rgba(212,184,92,0.12);
+  --accent-glow:   rgba(212,184,92,0.20);
+
+  --cream:         #f0ede6;
+  --yellow:        #D4B85C;
+  --red:           #c04a2e;
+
+  --shadow-card:   0 1px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05);
+  --shadow-modal:  0 16px 48px rgba(0,0,0,0.18);
+
+  /* Rebrand CTA: terracotta for complete/primary actions */
+  --cta-bg:        #c04a2e;
+  --cta-color:     #ffffff;
+}
+
+/* ── Base ── */
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+}
+
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+
+/* ── Header ── */
+.header {
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border);
+}
+.header-icon-btn { color: var(--text-primary); }
+.header-icon-btn:hover { background: rgba(0,0,0,0.06); }
+
+/* ── Section page titles ── */
+.feed-title,
+.page-title,
+.section-title {
+  font-family: 'Bebas Neue','Barlow Condensed',Impact,sans-serif;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #111;
+  text-transform: uppercase;
+}
+.feed-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: rgba(0,0,0,0.35);
+}
+
+/* ── Tab bar ── */
+.tab-bar {
+  background: #fff;
+  border-top: 1px solid rgba(0,0,0,0.08);
+}
+.tab-btn { color: rgba(0,0,0,0.3); }
+.tab-btn:hover { color: rgba(0,0,0,0.55); }
+.tab-btn.tab-active {
+  color: var(--blue);
+  border-top-color: var(--blue);
+}
+
+/* ── Cards ── */
+.brother-card,
+.challenge-card,
+.sub-card,
+.streak-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+.brother-card::before,
+.challenge-card::before { background: rgba(0,0,0,0.07); }
+.brother-card:hover { border-color: rgba(0,0,0,0.14); }
+
+/* ── Brother card text ── */
+.card-name { color: #111; }
+.card-age  { color: rgba(0,0,0,0.45); }
+.mentor-badge {
+  background: rgba(212,184,92,0.15);
+  color: #7a6010;
+  border-color: rgba(212,184,92,0.4);
+}
+
+/* ── Brother rank / leaderboard section ── */
+.brothers-list-row,
+.rank-row {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+.brothers-list-row.rank-1,
+.rank-row.rank-1 {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+.brothers-list-row.rank-1 .rank-name,
+.rank-row.rank-1 .rank-name { color: #fff; }
+.brothers-list-row.rank-1 .rank-num,
+.rank-row.rank-1 .rank-num  { color: var(--orange); }
+
+/* XP bar in brothers */
+.xp-bar-track { background: rgba(0,0,0,0.08); }
+
+/* ── Buttons ── */
+.btn-primary,
+.btn-orange {
+  background: var(--blue);
+  color: #fff;
+  border: none;
+}
+.btn-primary:hover,
+.btn-orange:hover { opacity: 0.88; background: var(--blue); }
+
+.btn {
+  border-radius: 10px;
+}
+.btn-ghost {
+  background: rgba(0,0,0,0.06);
+  border: 1px solid rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.6);
+}
+.btn-ghost:hover { background: rgba(0,0,0,0.10); }
+
+/* Add XP / check-in buttons */
+.btn-add-xp,
+.btn-checkin,
+.btn-checkin-member {
+  background: var(--blue);
+  color: #fff;
+  border: none;
+}
+.btn-add-xp:hover,
+.btn-checkin:hover,
+.btn-checkin-member:hover { opacity: 0.88; }
+
+/* Complete challenge / primary CTA → terracotta */
+.btn-complete-challenge,
+.ch-complete-btn {
+  background: var(--cta-bg) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* ── Challenge cards ── */
+.challenge-card {
+  background: #f7f5f0;
+}
+.ch-tag {
+  background: rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.5);
+}
+.ch-title  { color: #111; font-size: 18px; font-weight: 800; }
+.ch-desc   { color: rgba(0,0,0,0.5); }
+.ch-xp-pill {
+  background: transparent;
+  border: none;
+  color: #c04a2e;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 0;
+}
+.ch-meta { color: rgba(0,0,0,0.4); }
+.coach-challenge { border-color: var(--orange); }
+.coach-challenge-badge { color: #7a6010; }
+
+/* ── Feed ── */
+.feed-action-icon {
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: rgba(0,0,0,0.5);
+}
+.feed-action-icon:hover { border-color: var(--blue); color: var(--blue); }
+
+/* Share your win button */
+.feed-share-btn,
+.btn-share-win {
+  background: var(--blue);
+  color: #fff;
+  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 20px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* Feed post cards */
+.win-card,
+.activity-card,
+.feed-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.07);
+  border-radius: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.win-card-header,
+.feed-card-header {
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.win-card-footer,
+.feed-card-footer {
+  padding: 10px 16px 14px;
+  display: flex;
+  gap: 16px;
+  color: rgba(0,0,0,0.5);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Avatar initials */
+.avatar-initial,
+.brother-avatar {
+  background: #111;
+  color: #fff;
+  font-weight: 800;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* Activity / XP notification rows */
+.activity-row,
+.xp-row {
+  background: #f5f2eb;
+  border-radius: 10px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  font-size: 14px;
+  color: #111;
+  margin-bottom: 8px;
+}
+.activity-xp,
+.xp-row-val { color: #c04a2e; font-weight: 800; }
+
+/* ── Forms / inputs ── */
+input, textarea, select {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.12);
+  color: #111;
+}
+input::placeholder, textarea::placeholder { color: rgba(0,0,0,0.3); }
+input:focus, textarea:focus, select:focus {
+  border-color: var(--blue);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(82,122,142,0.15);
+}
+
+/* ── Modals ── */
+.modal-content,
+.modal-body,
+.modal-overlay .modal {
+  background: #fff;
+  color: #111;
+  border: 1px solid rgba(0,0,0,0.07);
+}
+.modal-header,
+.modal-footer {
+  border-color: rgba(0,0,0,0.07);
+}
+.modal-title { color: #111; }
+.modal-close {
+  color: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.06);
+  border: none;
+}
+.modal-close:hover { background: rgba(0,0,0,0.10); color: #111; }
+
+/* Form labels */
+.form-label, label { color: rgba(0,0,0,0.55); }
+
+/* ── Streak card ── */
+.streak-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.07);
+}
+.streak-count { color: #111; }
+.streak-label { color: rgba(0,0,0,0.45); }
+.streak-best  { color: rgba(0,0,0,0.35); }
+
+/* ── Stats bar ── */
+.stats-bar { background: transparent; border: none; }
+.stat-value { color: #111; }
+.stat-label { color: rgba(0,0,0,0.4); }
+.stat-divider { background: rgba(0,0,0,0.1); }
+
+/* ── Filter pills ── */
+.filter-pill,
+.chip {
+  background: rgba(0,0,0,0.07);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: rgba(0,0,0,0.5);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 99px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+.filter-pill.active,
+.chip.active {
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+
+/* ── Assessment / path screens ── */
+.assess-card,
+.path-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+
+/* ── Progress bars (general) ── */
+.progress-bar-track { background: rgba(0,0,0,0.08); }
+.progress-bar-fill  { background: var(--blue); }
+
+/* ── Archetype ring colors stay vivid; bg tweaks ── */
+.arch-icon { background: rgba(0,0,0,0.06); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar-track { background: var(--bg-base); }
+
+/* ── Empty states ── */
+.empty-icon svg { color: rgba(0,0,0,0.15); }
+.feed-empty     { color: rgba(0,0,0,0.3); }
+
+/* ── btn-icon (card action icons) ── */
+.btn-icon {
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: rgba(0,0,0,0.45);
+}
+.btn-icon:hover { background: rgba(0,0,0,0.1); color: #111; border-color: rgba(0,0,0,0.15); }
+.btn-icon.danger:hover { background: rgba(192,74,46,0.1); color: var(--red); border-color: rgba(192,74,46,0.3); }
+
+/* ── Approve / reject in submissions ── */
+.btn-approve { background: rgba(82,122,142,0.12); color: var(--blue); border: 1px solid rgba(82,122,142,0.25); }
+.btn-reject  { background: rgba(192,74,46,0.08); color: var(--red); border: 1px solid rgba(192,74,46,0.2); }
+
+/* ── Login screen ── */
+.login-container { background: var(--bg-base); }
+.login-card { background: #fff; border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+.btn-login  { background: var(--blue); color: #fff; }
+
+/* ── Accent text helpers ── */
+.accent-orange { color: var(--orange) !important; }
+.accent-blue   { color: var(--blue)   !important; }
