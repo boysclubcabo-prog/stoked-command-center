@@ -1872,106 +1872,135 @@ function renderMemberView() {
   const maxed = xp >= MAX_XP;
   const displayArchetype = profile.primaryArchetype || profile.archetype;
   const clr   = ARCHETYPE_COLORS[displayArchetype] || ARCHETYPE_COLORS.Warrior;
-  const icon  = archetypeElementIcon(displayArchetype, profile.dominantElement, profile.xp);
   const elColor = ELEMENT_COLORS[profile.dominantElement];
 
+  // Rank among all brothers
+  const sortedByXp   = brothers.slice().sort((a, b) => (b.xp || 0) - (a.xp || 0));
+  const myRankIdx    = sortedByXp.findIndex(b => b.id === profile.id);
+  const myRank       = myRankIdx >= 0 ? myRankIdx + 1 : sortedByXp.length + 1;
+  const totalBros    = Math.max(sortedByXp.length, 1);
+
+  // Podium: show up to 3 slots — always include user
+  const medals = ['🥇','🥈','🥉'];
+  const top3   = sortedByXp.slice(0, 3);
+  const inTop3 = myRank <= 3;
+  // Build podium pills: if user outside top 3, replace last slot with user
+  const podiumSlots = inTop3 ? top3 : [...sortedByXp.slice(0, 2), profile];
+  const podiumRanks = inTop3 ? [1,2,3].slice(0, top3.length) : [1, 2, myRank];
+  const podiumHtml  = podiumSlots.map((b, i) => {
+    const isMe = b.id === profile.id;
+    const label = isMe ? 'YOU' : escHtml((b.name || '').split(' ')[0]);
+    return `<div class="mhv2-podium-pill${isMe ? ' is-me' : ''}">${medals[i] || '#' + podiumRanks[i]} ${label}</div>`;
+  }).join('');
+
+  // Community: how many brothers completed daily challenge today
+  const brosCompletedToday = brothers.filter(b => isDailyChallengeCompleted(b)).length;
+  const dcText = profile.dailyChallenge || '';
+  const dcDone = isDailyChallengeCompleted(profile);
+
+  // Check-in done today
+  const todayStr2  = new Date().toDateString();
+  const lastCI2    = profile.lastCheckInDate ? new Date(profile.lastCheckInDate).toDateString() : null;
+  const checkInDone = lastCI2 === todayStr2;
+
+  // Archetype icon SVG path for background
+  const bgIconPath = ARCHETYPE_ICONS[displayArchetype] || '';
+
+  // Weekly reflection
+  const hasReflection = profile.weeklyWin || profile.weeklyChallenge || profile.weeklyCommitment;
+
   memberHero.innerHTML = `
-    <div class="member-card" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(profile.dominantElement||'')}" style="--arch-border:${clr.border};--arch-glow:${clr.glow};--arch-icon:${clr.icon}">
-      <div class="member-card-top">
+    <div class="mhv2" style="--mhv2-accent:${clr.icon}">
+
+      <!-- Large ghost archetype icon in background -->
+      <div class="mhv2-arch-bg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          ${bgIconPath}
+        </svg>
+      </div>
+
+      <!-- Header: name + role -->
+      <div class="mhv2-header">
         <div>
-          <div class="member-name">${escHtml(profile.name)}${profile.role === 'mentor' ? ' <span class="mentor-badge">Mentor</span>' : ''}</div>
-          ${profile.age ? `<div class="card-age">Age ${profile.age}</div>` : ''}
+          <div class="mhv2-name">${escHtml(profile.name)}</div>
+          ${displayArchetype ? `<div class="mhv2-arch-line">${escHtml(displayArchetype)}${profile.dominantElement ? ' · ' + escHtml(profile.dominantElement) : ''}</div>` : ''}
         </div>
-        ${displayArchetype ? `
-          <div>
-            <div class="archetype-pill">
-              <span class="arch-icon">${icon}</span>
-              <span class="arch-label">${escHtml(displayArchetype)}</span>
-            </div>
-            ${profile.dominantElement ? `<span class="element-pill" style="--el-color:${elColor};--el-border:${elColor}55;--el-bg:${elColor}15">${profile.dominantElement}</span>` : ''}
-            ${profile.primaryArchetype ? `<button class="archetype-retake" data-take-assessment="${profile.id}" title="Retake Assessment">${IC.clock}</button>` : ''}
-          </div>` : ''}
+        <div class="mhv2-header-right">
+          ${profile.role === 'mentor' ? '<div class="mhv2-role-badge">Mentor</div>' : ''}
+          ${profile.primaryArchetype ? `<button class="mhv2-retake-btn" data-take-assessment="${profile.id}" title="Retake Assessment">${IC.clock}</button>` : ''}
+        </div>
       </div>
 
-      ${!profile.primaryArchetype ? `
-        <div class="assess-cta">
-          <div class="assess-cta-title">Discover Your Archetype</div>
-          <div class="assess-cta-text">29 questions to discover your archetype, element, and build your personal profile. Takes about 6 minutes.</div>
-          <button class="btn-assess-cta" data-take-assessment="${profile.id}">Take Assessment</button>
-        </div>` : ''}
-
-      ${profile.yearlyGoal || profile.oneWord || (profile.interests && profile.interests.length) ? `
-        <div class="profile-snapshot-wrap">
-          <button class="profile-snapshot-toggle" type="button">Profile <span class="snapshot-chevron">▾</span></button>
-          <div class="profile-snapshot collapsed">
-            ${profile.oneWord ? `<div class="profile-one-word">"${escHtml(profile.oneWord)}"</div>` : ''}
-            ${profile.yearlyGoal ? `<div class="profile-goal"><span class="profile-label">Goal</span><span>${escHtml(profile.yearlyGoal)}</span></div>` : ''}
-            ${profile.strengths ? `<div class="profile-goal"><span class="profile-label">Strong</span><span>${escHtml(profile.strengths)}</span></div>` : ''}
-            ${profile.struggles ? `<div class="profile-goal"><span class="profile-label">Working on</span><span>${escHtml(profile.struggles)}</span></div>` : ''}
-            ${profile.interests && profile.interests.length ? `<div class="profile-interests">${profile.interests.map(i => {
-              const found = INTERESTS_LIST.find(x => x.label === i);
-              return `<span class="profile-interest-tag">${escHtml(i)}</span>`;
-            }).join('')}</div>` : ''}
-          </div>
-        </div>` : ''}
-
-      <div class="xp-hero">
-        <div class="xp-hero-num ${maxed ? 'maxed' : ''}">${xp.toLocaleString()}</div>
-        <div class="xp-hero-label">TOTAL XP</div>
+      <!-- XP Rank -->
+      <div class="mhv2-rank">
+        <div class="mhv2-rank-eyebrow">XP Rank</div>
+        <div class="mhv2-rank-row">
+          <div class="mhv2-rank-num">#${myRank}</div>
+          <div class="mhv2-rank-of">of ${totalBros} brothers</div>
+        </div>
+        ${podiumSlots.length > 0 ? `<div class="mhv2-podium-row">${podiumHtml}</div>` : ''}
       </div>
 
-      <div class="level-section">
-        <div class="level-row">
-          <span class="level-name">Level ${lvl.current.level}</span>
-          <span class="level-pct">${lvl.progress}%</span>
+      <!-- Today's Mission -->
+      <div class="mhv2-mission">
+        <div class="mhv2-mission-top">
+          <span class="mhv2-mission-label">Today's Mission</span>
+          <span class="mhv2-mission-count">${brosCompletedToday} / ${totalBros} done</span>
         </div>
-        <div class="progress-track">
-          <div class="progress-fill ${maxed ? 'maxed' : ''}" style="width:${lvl.progress}%"></div>
+        ${dcText
+          ? `<div class="mhv2-mission-text">${escHtml(dcText)}</div>`
+          : `<div class="mhv2-mission-empty">No mission set yet</div>`}
+        <div class="mhv2-mission-bar-track">
+          <div class="mhv2-mission-bar-fill" style="width:${totalBros > 0 ? Math.round(brosCompletedToday / totalBros * 100) : 0}%"></div>
         </div>
-        <div class="progress-next">${lvl.next ? `${lvl.xpNeededForNext.toLocaleString()} XP to Level ${lvl.next.level}` : 'MAX LEVEL ACHIEVED'}</div>
+        ${brosCompletedToday > 0 ? `<div class="mhv2-mission-social">🔥 ${brosCompletedToday} ${brosCompletedToday === 1 ? 'brother' : 'brothers'} already completed</div>` : ''}
+        ${dcText && !dcDone ? `<button class="mhv2-complete-btn" data-dc-complete="1">Complete Mission →</button>` : ''}
+        ${!dcText ? `<button class="mhv2-set-btn" data-dc-set="1">Set Today's Mission</button>` : ''}
+        ${dcDone ? `<div class="mhv2-mission-done-badge">✓ Mission Complete · +50 XP</div>` : ''}
       </div>
 
-      ${profile.brotherhoodScore != null ? (() => {
-        const cat = getBSCategory(profile.brotherhoodScore);
-        return `<div class="scores-row scores-row-solo">
-          <div class="score-chip weekly" style="--bs-color:${cat.color}">
-            <div class="score-num" style="color:${cat.color}">${profile.brotherhoodScore}</div>
-            <div class="score-lbl">Daily Score</div>
-            <div class="score-cat" style="color:${cat.color}">${cat.label}</div>
-          </div>
-        </div>`;
-      })() : ''}
+      <!-- Stats row: streak · XP · level -->
+      <div class="mhv2-stats-row">
+        <div class="mhv2-stat-card">
+          <div class="mhv2-stat-num">${profile.currentStreak || 0}</div>
+          <div class="mhv2-stat-lbl">Day Streak</div>
+        </div>
+        <div class="mhv2-stat-card">
+          <div class="mhv2-stat-num">${xp >= 1000 ? (xp/1000).toFixed(1)+'K' : xp}</div>
+          <div class="mhv2-stat-lbl">Total XP</div>
+        </div>
+        <div class="mhv2-stat-card">
+          <div class="mhv2-stat-num">Lvl ${lvl.current.level}</div>
+          <div class="mhv2-stat-lbl">${lvl.progress}% to next</div>
+        </div>
+      </div>
 
-      ${(profile.currentStreak > 0) ? `
-        <div class="streak-member">
-          <span class="streak-flame">${IC.flame}</span>
-          <span class="streak-count">${profile.currentStreak}</span>
-          <span class="streak-label">day login streak</span>
-          ${profile.longestStreak > 1 ? `<span class="streak-best">Best: ${profile.longestStreak}</span>` : ''}
-        </div>` : ''}
-
-      ${profile.goal ? `
-        <div class="card-goal">
-          <div class="goal-label">Main Goal</div>
-          <div class="goal-text">${escHtml(profile.goal)}</div>
-        </div>` : ''}
-
-      ${profile.commitment ? `
-        <div class="card-goal">
-          <div class="goal-label">Weekly Commitment</div>
-          <div class="goal-text">${escHtml(profile.commitment)}</div>
-        </div>` : ''}
+      ${hasReflection ? `
+      <!-- Weekly reflection -->
+      <div class="mhv2-reflection">
+        ${profile.weeklyWin        ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Win</span><span class="mhv2-r-val">${escHtml(profile.weeklyWin)}</span></div>` : ''}
+        ${profile.weeklyChallenge  ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Challenge</span><span class="mhv2-r-val">${escHtml(profile.weeklyChallenge)}</span></div>` : ''}
+        ${profile.weeklyCommitment ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Commitment</span><span class="mhv2-r-val">${escHtml(profile.weeklyCommitment)}</span></div>` : ''}
+      </div>` : ''}
 
       ${profile.coachNote ? `
-        <div class="coach-note-member">
-          <div class="coach-note-member-label">— Note from ${escHtml(profile.coachNoteAuthor || 'Coach')} —</div>
-          <div class="coach-note-member-text">${escHtml(profile.coachNote)}</div>
-          ${profile.coachNoteDate ? `<div class="coach-note-member-date">${new Date(profile.coachNoteDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>` : ''}
-        </div>` : ''}
+      <div class="mhv2-coach-note">
+        <div class="mhv2-coach-from">— ${escHtml(profile.coachNoteAuthor || 'Coach')} —</div>
+        <div class="mhv2-coach-text">${escHtml(profile.coachNote)}</div>
+      </div>` : ''}
 
-      ${dailyChallengeCardHtml(profile, true)}
+      <!-- Check-in CTA -->
+      <button class="mhv2-checkin-btn${checkInDone ? ' done' : ''}" data-checkin="${profile.id}">
+        ${checkInDone ? '✓ Checked In Today' : '✓ Daily Check-In'}
+      </button>
 
-      <button class="btn-checkin-member" data-checkin="${profile.id}">✓ Daily Check-In</button>
+      ${!profile.primaryArchetype ? `
+      <div class="mhv2-assess-cta">
+        <div class="mhv2-assess-title">Discover Your Archetype</div>
+        <div class="mhv2-assess-sub">29 questions · ~6 minutes · Reveals your archetype and element</div>
+        <button class="mhv2-assess-btn" data-take-assessment="${profile.id}">Begin Assessment →</button>
+      </div>` : ''}
+
     </div>`;
 
   // Wire member check-in button
