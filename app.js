@@ -1881,16 +1881,15 @@ function renderMemberView() {
   const totalBros    = Math.max(sortedByXp.length, 1);
 
   // Podium: show up to 3 slots — always include user
-  const medals = ['🥇','🥈','🥉'];
   const top3   = sortedByXp.slice(0, 3);
   const inTop3 = myRank <= 3;
-  // Build podium pills: if user outside top 3, replace last slot with user
   const podiumSlots = inTop3 ? top3 : [...sortedByXp.slice(0, 2), profile];
   const podiumRanks = inTop3 ? [1,2,3].slice(0, top3.length) : [1, 2, myRank];
   const podiumHtml  = podiumSlots.map((b, i) => {
     const isMe = b.id === profile.id;
     const label = isMe ? 'YOU' : escHtml((b.name || '').split(' ')[0]);
-    return `<div class="mhv2-podium-pill${isMe ? ' is-me' : ''}">${medals[i] || '#' + podiumRanks[i]} ${label}</div>`;
+    const bXp = b.xp || 0;
+    return `<div class="mhv2-podium-pill${isMe ? ' is-me' : ''}">${isMe ? archetypeElementIcon(displayArchetype, profile.dominantElement, xp) : ''} ${label}${!isMe ? ` <span class="mhv2-pill-xp">${bXp.toLocaleString()}</span>` : ''}</div>`;
   }).join('');
 
   // Community: how many brothers completed daily challenge today
@@ -1909,38 +1908,41 @@ function renderMemberView() {
   // Weekly reflection
   const hasReflection = profile.weeklyWin || profile.weeklyChallenge || profile.weeklyCommitment;
 
-  const archetypeStage = displayArchetype
-    ? `${displayArchetype.toUpperCase()} LVL ${lvl.current.level}`
-    : `LVL ${lvl.current.level}`;
+  const nameInitial = (profile.name || '?')[0].toUpperCase();
+  const squadLabel  = profile.squad ? `${escHtml(profile.squad)} · Rank` : 'Rank';
   const pct = totalBros > 0 ? Math.round(brosCompletedToday / totalBros * 100) : 0;
 
   memberHero.innerHTML = `
     <div class="mhv2">
 
-      <!-- Ghost archetype icon — large, right side background -->
+      <!-- Ghost archetype icon background -->
       <div class="mhv2-arch-bg" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">${bgIconPath}</svg>
       </div>
 
-      <!-- Header row: name + mentor badge -->
+      <!-- Header: avatar + name + mentor badge -->
       <div class="mhv2-header">
-        <div class="mhv2-name">${escHtml((profile.name || '').toUpperCase())}</div>
+        <div class="mhv2-header-left">
+          <div class="mhv2-avatar">${nameInitial}</div>
+          <div class="mhv2-name">${escHtml(profile.name || '')}</div>
+        </div>
         <div class="mhv2-header-right">
           ${profile.role === 'mentor' ? '<div class="mhv2-role-badge">MENTOR</div>' : ''}
           ${profile.primaryArchetype ? `<button class="mhv2-retake-btn" data-take-assessment="${profile.id}" title="Retake">${IC.clock}</button>` : ''}
         </div>
       </div>
 
-      <!-- Archetype + level line -->
-      <div class="mhv2-arch-line">${archetypeStage}</div>
+      <!-- Rank section -->
+      <div class="mhv2-rank-section">
+        <div class="mhv2-rank-eyebrow">${squadLabel}</div>
+        <div class="mhv2-rank-row">
+          <div class="mhv2-rank-num">#${myRank}</div>
+          <div class="mhv2-rank-of">of ${totalBros} brothers</div>
+        </div>
+        <div class="mhv2-podium-row">${podiumHtml}</div>
+      </div>
 
-      <!-- Big rank number -->
-      <div class="mhv2-rank-num">${myRank}</div>
-
-      <!-- Podium pills -->
-      <div class="mhv2-podium-row">${podiumHtml}</div>
-
-      <!-- Today's Mission card -->
+      <!-- Today's Mission card — dark -->
       <div class="mhv2-mission">
         <div class="mhv2-mission-top">
           <span class="mhv2-mission-label">TODAY'S MISSION</span>
@@ -1949,7 +1951,10 @@ function renderMemberView() {
         ${dcText
           ? `<div class="mhv2-mission-text">${escHtml(dcText)}</div>`
           : `<div class="mhv2-mission-empty">No mission set yet.</div>`}
-        ${brosCompletedToday > 0 ? `<div class="mhv2-mission-social">${brosCompletedToday} ${brosCompletedToday === 1 ? 'brother' : 'brothers'} already completed</div>` : ''}
+        <div class="mhv2-mission-bar-track">
+          <div class="mhv2-mission-bar-fill" style="width:${pct}%"></div>
+        </div>
+        ${brosCompletedToday > 0 ? `<div class="mhv2-mission-social">🔥 ${brosCompletedToday} ${brosCompletedToday === 1 ? 'brother' : 'brothers'} already completed</div>` : ''}
         ${!dcText ? `<button class="mhv2-set-btn" data-dc-set="1">Set Today's Mission</button>` : ''}
         ${dcDone ? `<div class="mhv2-mission-done-badge">✓ Mission Complete · +50 XP</div>` : ''}
       </div>
@@ -1967,9 +1972,9 @@ function renderMemberView() {
         <div class="mhv2-coach-text">${escHtml(profile.coachNote)}</div>
       </div>` : ''}
 
-      <!-- Primary CTA -->
+      <!-- Primary CTA: terracotta -->
       ${dcText && !dcDone
-        ? `<button class="mhv2-complete-btn" data-dc-complete="1">COMPLETE MISSION</button>`
+        ? `<button class="mhv2-complete-btn" data-dc-complete="1">COMPLETE MISSION →</button>`
         : `<button class="mhv2-checkin-btn${checkInDone ? ' done' : ''}" data-checkin="${profile.id}">
              ${checkInDone ? '✓ CHECKED IN TODAY' : '✓ DAILY CHECK-IN'}
            </button>`}
