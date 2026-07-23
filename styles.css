@@ -7222,7 +7222,8 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   position: relative;
   overflow: hidden;
   border-radius: 20px;
-  background: #f0ede6;
+  background: #ffffff;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.05);
   padding: 20px 18px 18px;
   display: flex;
   flex-direction: column;
