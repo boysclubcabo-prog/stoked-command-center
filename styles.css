@@ -7244,7 +7244,7 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 }
 .mhv2-arch-bg svg { width: 100%; height: 100%; fill: currentColor; }
 .mhv2-arch-bg img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.mhv2 > * { position: relative; z-index: 1; }
+.mhv2 > *:not(.mhv2-arch-bg) { position: relative; z-index: 1; }
 
 /* Header: avatar + name | mentor badge */
 .mhv2-header {
