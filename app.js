@@ -1758,8 +1758,10 @@ function renderMemberView() {
   }
 }
 function _renderMemberView() {
+  console.log('[RMV] called, brothers:', brothers.length, 'currentUser:', currentUser?.email);
   // Find this member's profile by matching email
   let profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
+  console.log('[RMV] profile found:', !!profile, profile?.assessmentCompletedAt ? 'assessed' : 'not assessed');
 
   // Firestore hasn't confirmed the write yet — use localStorage fallback
   if (!profile && currentUser) {
@@ -1858,6 +1860,7 @@ function _renderMemberView() {
   const lvlPct  = lvl.progress;
   const nextLvl = lvl.next ? lvl.next.level : null;
 
+  console.log('[RMV] setting memberHero.innerHTML, lvl:', lvl?.current?.level);
   memberHero.innerHTML = `
     <div class="mhv2">
 
