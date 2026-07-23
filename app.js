@@ -4182,7 +4182,7 @@ function renderGlobeNodeHtml(arch, idx, stats, userArch) {
   const s    = stats[arch];
   const aClr = ARCHETYPE_COLORS[arch] || { icon: '#888', glow: 'transparent' };
   const isMine = arch === userArch;
-  const iconSrc = `icons/${arch.toLowerCase()}-fire.png`;
+  const iconSrc = `/stoked-command-center/${arch.toLowerCase()}-icon.png`;
   return `<div class="globe-node${isMine ? ' globe-node-mine' : ''}"
       data-arch="${escHtml(arch)}"
       style="left:${cx}%;top:${cy}%;--node-clr:${aClr.icon}"
@@ -4272,7 +4272,7 @@ function renderGlobeDetail(arch, s, aClr) {
   const virtue  = ARCHETYPE_VIRTUE[arch] || '';
   const mission = ARCHETYPE_GLOBE_MISSION[arch] || '';
   const desc    = (ARCHETYPE_DESC[arch]?.primary || '').split('.')[0] + '.';
-  const iconSrc = `icons/${arch.toLowerCase()}-fire.png`;
+  const iconSrc = `/stoked-command-center/${arch.toLowerCase()}-icon.png`;
   const membersHtml = s.recentMembers.length
     ? s.recentMembers.map(m => `<div class="globe-detail-member">
         <span class="globe-detail-member-name">${escHtml(m.name)}</span>

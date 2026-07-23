@@ -1135,11 +1135,16 @@ body {
 .globe-node-img {
   width: 42px;
   height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: 0;
+  object-fit: contain;
   display: block;
   pointer-events: none;
-  filter: brightness(0) invert(1);
+  /* Dark mode: white PNGs are visible on dark --bg-base circle */
+}
+/* Light mode: invert white icons to dark so they show on cream circle */
+[data-theme="light"] .globe-node-img { filter: invert(1) brightness(0.15); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .globe-node-img { filter: invert(1) brightness(0.15); }
 }
 
 .globe-node-count {
