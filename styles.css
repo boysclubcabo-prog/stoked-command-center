@@ -462,8 +462,10 @@ body {
   filter: var(--arch-icon-filter, none);
 }
 
-:root:not([data-theme="light"]) .arch-icon-img {
-  --arch-icon-filter: invert(1) brightness(1.15);
+/* Light mode: PNGs are white/light — invert to black so they show on cream background */
+[data-theme="light"] .arch-icon-img { --arch-icon-filter: invert(1) brightness(0.15); }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .arch-icon-img { --arch-icon-filter: invert(1) brightness(0.15); }
 }
 
 /* ── Level rings ──────────────────────────────────────────── */
@@ -7246,10 +7248,10 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .mhv2-arch-bg img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .mhv2 > *:not(.mhv2-arch-bg) { position: relative; z-index: 1; }
 
-/* Light mode — slightly lower opacity so it blends on cream/white card */
-[data-theme="light"] .mhv2-arch-bg { opacity: 0.14; }
+/* Light mode — invert white icon to dark so it shows on white card */
+[data-theme="light"] .mhv2-arch-bg { opacity: 0.12; filter: invert(1) brightness(0.2); }
 @media (prefers-color-scheme: light) {
-  :root:not([data-theme]) .mhv2-arch-bg { opacity: 0.14; }
+  :root:not([data-theme]) .mhv2-arch-bg { opacity: 0.12; filter: invert(1) brightness(0.2); }
 }
 
 /* Header: avatar + name | mentor badge */
