@@ -1752,6 +1752,12 @@ function renderGrid() {
 }
 
 function renderMemberView() {
+  try { _renderMemberView(); } catch(err) {
+    console.error('renderMemberView crash:', err);
+    if (memberHero) memberHero.innerHTML = `<div style="padding:24px;color:red;font-size:13px">Card error: ${err.message}</div>`;
+  }
+}
+function _renderMemberView() {
   // Find this member's profile by matching email
   let profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
 
