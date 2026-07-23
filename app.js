@@ -1557,7 +1557,7 @@ function switchTab(tab) {
 
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
 
-  document.querySelector('.main').classList.toggle('hidden', !isMain);
+  document.querySelector('.main').classList.toggle('hidden', !isMain || !isAdmin);
   statsBar.classList.toggle('hidden', !isMain || !isAdmin);
   memberHero.classList.toggle('hidden', !isMain || isAdmin);
   document.getElementById('socialFeedSection').classList.toggle('hidden', !isSocialFeed);
