@@ -1,4 +1,4 @@
-const CACHE = 'stoked-v170';
+const CACHE = 'stoked-v171';
 
 // Only cache static assets — never app.js or index.html
 // so code updates are always picked up immediately
@@ -33,7 +33,12 @@ self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    ).then(() => self.clients.claim()).then(() => {
+      // Tell all open windows to reload so they pick up the new app code
+      self.clients.matchAll({ type: 'window' }).then(list =>
+        list.forEach(c => c.postMessage({ type: 'SW_UPDATED' }))
+      );
+    })
   );
 });
 
