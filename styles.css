@@ -2335,7 +2335,7 @@ body {
 
 /* ── MEMBER HERO ── */
 .member-hero {
-  padding: 32px;
+  padding: 48px 32px 32px;
   max-width: 560px;
   margin: 0 auto;
 }
@@ -4697,7 +4697,7 @@ body {
   .login-box { max-width: 100%; }
 
   /* Member hero */
-  .member-hero { padding: 20px 16px; }
+  .member-hero { padding: 36px 16px 20px; }
 }
 
 /* ══════════════════════════════════════════
@@ -7239,12 +7239,18 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   aspect-ratio: 1;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.09;
+  opacity: 0.18;
   color: #888;
 }
 .mhv2-arch-bg svg { width: 100%; height: 100%; fill: currentColor; }
 .mhv2-arch-bg img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .mhv2 > *:not(.mhv2-arch-bg) { position: relative; z-index: 1; }
+
+/* Light mode — slightly lower opacity so it blends on cream/white card */
+[data-theme="light"] .mhv2-arch-bg { opacity: 0.14; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .mhv2-arch-bg { opacity: 0.14; }
+}
 
 /* Header: avatar + name | mentor badge */
 .mhv2-header {
