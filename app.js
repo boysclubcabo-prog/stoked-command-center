@@ -202,25 +202,25 @@ const ASSESS_QUESTIONS = [
   { left: 'Just go for it — face it head on and figure it out in motion', right: 'Step back first — get still and understand what is actually happening', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
   { left: 'Try something completely new — discover what else is out there', right: 'Go deeper with what you have already started — master the craft', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
   { left: 'Make something that moves people emotionally', right: 'Design a vision of something that does not exist yet', leftScore: { arch: 'Creator', el: 'Water' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: 'Be the voice — say what needs to be said in the room', right: 'Be the presence — calm, still, and fully listening', leftScore: { arch: 'Communicator', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: 'Be the voice — say what needs to be said in the room', right: 'Be the presence — calm, still, and fully listening', leftScore: { arch: 'Protector', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
   { left: 'Train hard, compete, and test your limits', right: 'Explore deeply — go places and meet people you have never experienced', leftScore: { arch: 'Warrior', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Water' } },
   { left: 'Build something reliable, step by step, until it is done', right: 'Design the bigger picture first — imagine what it could become', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
   { left: 'Step in because someone around you needs protecting', right: 'Step in because the challenge is there and needs to be confronted', leftScore: { arch: 'Protector', el: 'Water' }, rightScore: { arch: 'Warrior', el: 'Fire' } },
-  { left: 'Explain an idea so clearly that others understand and believe in it', right: 'Show up for your people consistently, whether or not they ask', leftScore: { arch: 'Communicator', el: 'Air' }, rightScore: { arch: 'Protector', el: 'Earth' } },
+  { left: 'Explain an idea so clearly that others understand and believe in it', right: 'Show up for your people consistently, whether or not they ask', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Protector', el: 'Earth' } },
   { left: 'Jump into the adventure before the plan is ready', right: 'Create the plan first — then build it right', leftScore: { arch: 'Explorer', el: 'Fire' }, rightScore: { arch: 'Builder', el: 'Air' } },
   { left: 'Sit with your thoughts until they become clear', right: 'Put your thoughts into the world in some form', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Creator', el: 'Air' } },
   { left: 'Defend what matters — stand between your people and what threatens them', right: 'Lead your people toward a future worth building', leftScore: { arch: 'Protector', el: 'Fire' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: 'Win the competition — prove what you are made of', right: 'Win the trust — make people feel genuinely understood', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Communicator', el: 'Water' } },
+  { left: 'Win the competition — prove what you are made of', right: 'Win the trust — make people feel genuinely understood', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Protector', el: 'Water' } },
   { left: 'Start with an original idea — even if it breaks the rules', right: 'Start with a proven plan — and execute it without cutting corners', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
   { left: 'Seek out new experiences — the unfamiliar is where you come alive', right: 'Go deeper with what is already in front of you — depth over breadth', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Monk', el: 'Earth' } },
-  { left: 'Help people feel heard — be the one they open up to', right: 'Be the one people can count on — reliable when it actually matters', leftScore: { arch: 'Communicator', el: 'Water' }, rightScore: { arch: 'Protector', el: 'Earth' } },
+  { left: 'Help people feel heard — be the one they open up to', right: 'Be the one people can count on — reliable when it actually matters', leftScore: { arch: 'Protector', el: 'Water' }, rightScore: { arch: 'Builder', el: 'Earth' } },
   { left: 'Think several moves ahead — see what others miss', right: 'Act now — the man who moves first shapes what happens next', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Warrior', el: 'Fire' } },
   { left: 'Make it work — practical, functional, and built to last', right: 'Make it mean something — express what needs to be expressed', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Creator', el: 'Water' } },
   { left: 'Observe and understand yourself — your inner world is the real work', right: 'Go out and discover — experience teaches what reflection cannot', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Explorer', el: 'Fire' } },
-  { left: 'Cover your people — loyalty, responsibility, and follow-through', right: 'Connect your people — bring them together through words and understanding', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Communicator', el: 'Air' } },
+  { left: 'Cover your people — loyalty, responsibility, and follow-through', right: 'Connect your people — bring them together through words and understanding', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
   { left: 'Compete and conquer — challenge is where you are most alive', right: 'Envision and design — the real work is seeing what nobody else sees yet', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Visionary', el: 'Air' } },
   { left: 'Express it boldly and originally — put your voice out there', right: 'Build it quietly and precisely — craftsmanship over performance', leftScore: { arch: 'Creator', el: 'Fire' }, rightScore: { arch: 'Builder', el: 'Earth' } },
-  { left: 'Energize the room — bring people in, make them feel something', right: 'Go out alone — discover what you find when it is just you and the world', leftScore: { arch: 'Communicator', el: 'Fire' }, rightScore: { arch: 'Explorer', el: 'Air' } },
+  { left: 'Energize the room — bring people in, make them feel something', right: 'Go out alone — discover what you find when it is just you and the world', leftScore: { arch: 'Creator', el: 'Fire' }, rightScore: { arch: 'Explorer', el: 'Air' } },
   { left: 'Master your own mind — discipline and stillness from the inside', right: 'Show up for others — discipline through loyalty and responsibility', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Protector', el: 'Earth' } },
   { left: 'Dream up something original — imagination is your greatest tool', right: 'See where things are heading — patterns and possibilities over inspiration', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Visionary', el: 'Water' } },
 ];
@@ -230,8 +230,8 @@ const SCENARIO_QUESTIONS = [
     scenario: "Your group cannot agree on what to do. No one is stepping up.",
     question:  "What do you naturally do?",
     answers: [
-      { text: "Take charge and make a call — someone has to.",                              scores: { Warrior: 2, Communicator: 1, Fire: 2 } },
-      { text: "Listen to everyone first, then find the words to bring them together.",      scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Take charge and make a call — someone has to.",                              scores: { Warrior: 2, Protector: 1, Fire: 2 } },
+      { text: "Listen to everyone first, then find the words to bring them together.",      scores: { Protector: 2, Monk: 1, Water: 2 } },
       { text: "Step back, assess the situation, then propose the clearest path forward.",   scores: { Visionary: 2, Builder: 1, Air: 2 } },
       { text: "Try something creative that shifts the energy of the group entirely.",       scores: { Creator: 2, Explorer: 1, Air: 1, Water: 1 } },
     ]
@@ -242,7 +242,7 @@ const SCENARIO_QUESTIONS = [
     answers: [
       { text: "Push through. Failure is just the cost of going after something real.",    scores: { Warrior: 2, Builder: 1, Fire: 2 } },
       { text: "Pull back and rethink before making another move.",                        scores: { Visionary: 2, Monk: 1, Air: 1, Water: 1 } },
-      { text: "Talk to someone — processing it out loud helps you move through it.",      scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Talk to someone — processing it out loud helps you move through it.",      scores: { Protector: 2, Monk: 1, Water: 2 } },
       { text: "Accept it, adapt, and find a new angle. Change of plan is part of it.",   scores: { Explorer: 2, Monk: 1, Earth: 1, Water: 1 } },
     ]
   },
@@ -253,15 +253,15 @@ const SCENARIO_QUESTIONS = [
       { text: "Get into a project you have been putting off. Make real progress.",        scores: { Builder: 2, Warrior: 1, Earth: 2 } },
       { text: "Go somewhere new — explore, move, experience something you have not.",     scores: { Explorer: 2, Creator: 1, Fire: 1, Air: 1 } },
       { text: "Solitude — journaling, reading, prayer. Recharge from the inside out.",   scores: { Monk: 2, Visionary: 1, Water: 2 } },
-      { text: "Real time with the people who matter. Deep conversations, real presence.", scores: { Communicator: 2, Protector: 1, Fire: 1, Water: 1 } },
+      { text: "Real time with the people who matter. Deep conversations, real presence.", scores: { Protector: 2, Creator: 1, Fire: 1, Water: 1 } },
     ]
   },
   {
     scenario: "A younger guy comes to you asking for honest life advice.",
     question:  "How do you respond?",
     answers: [
-      { text: "Share hard-earned lessons from your own life. Keep it direct and honest.", scores: { Warrior: 2, Communicator: 1, Fire: 2 } },
-      { text: "Ask him questions until he discovers his own answer.",                     scores: { Monk: 2, Communicator: 1, Water: 2 } },
+      { text: "Share hard-earned lessons from your own life. Keep it direct and honest.", scores: { Warrior: 2, Protector: 1, Fire: 2 } },
+      { text: "Ask him questions until he discovers his own answer.",                     scores: { Monk: 2, Visionary: 1, Water: 2 } },
       { text: "Give him a clear, practical plan he can actually follow.",                 scores: { Builder: 2, Visionary: 1, Earth: 2 } },
       { text: "Paint a larger picture of who he could become.",                           scores: { Visionary: 2, Creator: 1, Air: 2 } },
     ]
@@ -273,7 +273,7 @@ const SCENARIO_QUESTIONS = [
       { text: "Setting the direction and making the final call.",                         scores: { Warrior: 2, Visionary: 1, Fire: 2 } },
       { text: "Making sure the work gets done — the systems and follow-through.",         scores: { Builder: 2, Protector: 1, Earth: 2 } },
       { text: "Generating original ideas — thinking in ways nobody else is.",             scores: { Creator: 2, Visionary: 1, Air: 2 } },
-      { text: "Making sure every voice is heard and the group stays connected.",          scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Making sure every voice is heard and the group stays connected.",          scores: { Protector: 2, Monk: 1, Water: 2 } },
     ]
   },
   {
@@ -282,7 +282,7 @@ const SCENARIO_QUESTIONS = [
     answers: [
       { text: "Competing in something physically demanding and pushing your limits.",     scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
       { text: "Finishing something you built from scratch.",                              scores: { Builder: 2, Creator: 1, Earth: 2 } },
-      { text: "A real conversation where something genuinely shifts for both of you.",   scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "A real conversation where something genuinely shifts for both of you.",   scores: { Protector: 2, Monk: 1, Water: 2 } },
       { text: "Total solitude — somewhere in nature with just your thoughts.",           scores: { Monk: 2, Explorer: 1, Water: 1, Earth: 1 } },
     ]
   },
@@ -291,7 +291,7 @@ const SCENARIO_QUESTIONS = [
     question:  "What do you do?",
     answers: [
       { text: "Say it directly — even if the room goes quiet.",                          scores: { Warrior: 2, Monk: 1, Fire: 2 } },
-      { text: "Ask questions and try to understand their thinking first.",               scores: { Visionary: 2, Communicator: 1, Air: 2 } },
+      { text: "Ask questions and try to understand their thinking first.",               scores: { Visionary: 2, Monk: 1, Air: 2 } },
       { text: "Support them publicly, then address it privately when the time is right.",scores: { Protector: 2, Builder: 1, Earth: 2 } },
       { text: "Watch what unfolds before stepping in. Trust what you observe.",          scores: { Monk: 2, Visionary: 1, Water: 1, Air: 1 } },
     ]
@@ -301,7 +301,7 @@ const SCENARIO_QUESTIONS = [
     question:  "What do you want it to be?",
     answers: [
       { text: "What you built — something lasting that outlives you.",                   scores: { Builder: 2, Warrior: 1, Earth: 2 } },
-      { text: "How you made people feel — seen, valued, and not alone.",                 scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "How you made people feel — seen, valued, and not alone.",                 scores: { Protector: 2, Creator: 1, Water: 2 } },
       { text: "The things you created — work that changed how people see the world.",    scores: { Creator: 2, Visionary: 1, Air: 2 } },
       { text: "The life you actually lived — fully, boldly, nothing held back.",         scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
     ]
@@ -321,7 +321,7 @@ const SCENARIO_QUESTIONS = [
     question:  "What do you do?",
     answers: [
       { text: "Show up uninvited. You do not wait for people to ask.",                   scores: { Protector: 2, Warrior: 1, Fire: 1, Earth: 1 } },
-      { text: "Create the right moment — a conversation, a walk, a meal.",               scores: { Communicator: 2, Protector: 1, Water: 2 } },
+      { text: "Create the right moment — a conversation, a walk, a meal.",               scores: { Protector: 2, Monk: 1, Water: 2 } },
       { text: "Find the most practical way to lighten his load right now.",              scores: { Builder: 2, Protector: 1, Earth: 2 } },
       { text: "Hold space and stay present — sometimes presence is enough.",             scores: { Monk: 2, Protector: 1, Water: 2 } },
     ]
@@ -382,7 +382,7 @@ const PERCEPTION_QUESTIONS = [
     answers: [
       { icon: 'sword',     label: 'Sword',             meaning: 'To remind yourself to face problems with courage.',                   scores: { Warrior: 2, Protector: 1, Fire: 2 } },
       { icon: 'compass',   label: 'Compass',           meaning: 'To help you find your direction when you feel lost.',                 scores: { Explorer: 2, Visionary: 1, Air: 2 } },
-      { icon: 'brush',     label: 'Paintbrush',        meaning: 'To express yourself and make something meaningful from the pain.',    scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'brush',     label: 'Paintbrush',        meaning: 'To express yourself and make something meaningful from the pain.',    scores: { Creator: 2, Visionary: 1, Air: 2 } },
       { icon: 'hammer',    label: 'Hammer',            meaning: 'To remind yourself that anything worth having takes real work.',      scores: { Builder: 2, Protector: 1, Earth: 2 } },
     ]
   },
@@ -399,7 +399,7 @@ const PERCEPTION_QUESTIONS = [
     question: "Which place feels like it has something to teach you?",
     answers: [
       { icon: 'waves',     label: 'Huge Ocean Waves',  meaning: 'Learning to adapt when life refuses to go as planned.',              scores: { Explorer: 2, Creator: 1, Water: 2 } },
-      { icon: 'campfire',  label: 'Campfire Circle',   meaning: 'Sharing stories, building trust, and finding real connection.',      scores: { Communicator: 2, Protector: 1, Fire: 2 } },
+      { icon: 'campfire',  label: 'Campfire Circle',   meaning: 'Sharing stories, building trust, and finding real connection.',      scores: { Protector: 2, Creator: 1, Fire: 2 } },
       { icon: 'temple',    label: 'Ancient Temple',    meaning: 'Learning discipline, wisdom, and the patience to go deep.',          scores: { Monk: 2, Visionary: 1, Earth: 2 } },
       { icon: 'stars',     label: 'Sky Full of Stars', meaning: 'Thinking about your future and the scale of what is possible.',     scores: { Visionary: 2, Creator: 1, Air: 2 } },
     ]
@@ -410,13 +410,13 @@ const PERCEPTION_QUESTIONS = [
       { icon: 'trail',     label: 'Forest Trail',      meaning: 'Exploring the unknown without knowing exactly where it leads.',      scores: { Explorer: 2, Monk: 1, Earth: 2 } },
       { icon: 'mtnpath',   label: 'Mountain Path',     meaning: 'Taking the harder road because it makes you grow.',                  scores: { Warrior: 2, Explorer: 1, Fire: 2 } },
       { icon: 'desert',    label: 'Desert Road',       meaning: 'Alone, open, and figuring things out entirely on your own terms.',  scores: { Visionary: 2, Monk: 1, Air: 1, Earth: 1 } },
-      { icon: 'coastal',   label: 'Coastal Trail',     meaning: 'Beauty, movement, and the kind of freedom that comes with flow.',   scores: { Creator: 2, Communicator: 1, Water: 2 } },
+      { icon: 'coastal',   label: 'Coastal Trail',     meaning: 'Beauty, movement, and the kind of freedom that comes with flow.',   scores: { Creator: 2, Explorer: 1, Water: 2 } },
     ]
   },
   {
     question: "Which room would excite you to spend a full month in?",
     answers: [
-      { icon: 'music',     label: 'Music Studio',      meaning: 'Making something from scratch, expressing what is inside you.',      scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'music',     label: 'Music Studio',      meaning: 'Making something from scratch, expressing what is inside you.',      scores: { Creator: 2, Visionary: 1, Air: 2 } },
       { icon: 'workshop',  label: 'Workshop',          meaning: 'Building something real and lasting with your own hands.',           scores: { Builder: 2, Creator: 1, Earth: 2 } },
       { icon: 'books',     label: 'Library',           meaning: 'Learning things that make you think differently about everything.',  scores: { Visionary: 2, Monk: 1, Air: 2 } },
       { icon: 'tent',      label: 'Outdoor Camp',      meaning: 'Survival skills, open sky, and figuring out how to stay alive.',    scores: { Explorer: 2, Warrior: 1, Fire: 2 } },
@@ -436,7 +436,7 @@ const PERCEPTION_QUESTIONS = [
     answers: [
       { icon: 'mountain',  label: 'Climb a Mountain',  meaning: 'Push yourself physically and prove you can do something hard.',      scores: { Explorer: 2, Warrior: 1, Fire: 1, Earth: 1 } },
       { icon: 'cabin',     label: 'Build a Cabin',     meaning: 'Create something that lasts long after you are gone.',               scores: { Builder: 2, Protector: 1, Earth: 2 } },
-      { icon: 'music',     label: 'Write a Song',      meaning: 'Turn your inner world into something others can actually feel.',     scores: { Creator: 2, Communicator: 1, Air: 2 } },
+      { icon: 'music',     label: 'Write a Song',      meaning: 'Turn your inner world into something others can actually feel.',     scores: { Creator: 2, Visionary: 1, Air: 2 } },
       { icon: 'lake',      label: 'Meditate by a Lake', meaning: 'Become genuinely comfortable with silence and your own thoughts.', scores: { Monk: 2, Visionary: 1, Water: 2 } },
     ]
   },
@@ -453,8 +453,8 @@ const PERCEPTION_QUESTIONS = [
     question: "Sitting around a campfire — which one sounds most like you?",
     answers: [
       { icon: 'solo',      label: 'Thinking Quietly',       meaning: 'You reflect before speaking. Silence is comfortable to you.',   scores: { Monk: 2, Visionary: 1, Water: 2 } },
-      { icon: 'pair',      label: 'Deep Conversation',      meaning: 'One real conversation is worth more than a hundred shallow ones.', scores: { Protector: 2, Communicator: 1, Earth: 1, Water: 1 } },
-      { icon: 'group',     label: 'Making Everyone Laugh',  meaning: 'You naturally draw people in and make them feel at ease.',       scores: { Communicator: 2, Explorer: 1, Fire: 2 } },
+      { icon: 'pair',      label: 'Deep Conversation',      meaning: 'One real conversation is worth more than a hundred shallow ones.', scores: { Protector: 2, Monk: 1, Earth: 1, Water: 1 } },
+      { icon: 'group',     label: 'Making Everyone Laugh',  meaning: 'You naturally draw people in and make them feel at ease.',       scores: { Creator: 2, Explorer: 1, Fire: 2 } },
       { icon: 'map',       label: "Planning the Next Adventure", meaning: "You are already thinking about what comes next.",          scores: { Visionary: 2, Explorer: 1, Air: 2 } },
     ]
   },
@@ -473,8 +473,8 @@ const VALUES_QUESTIONS = [
   {
     question: "If people remembered you for one thing, what would you hope it is?",
     answers: [
-      { text: "You gave people courage to face what scared them.", scores: { Warrior: 2, Communicator: 1, Fire: 1 } },
-      { text: "You made people feel seen and not alone.",           scores: { Communicator: 2, Protector: 1, Water: 1 } },
+      { text: "You gave people courage to face what scared them.", scores: { Warrior: 2, Protector: 1, Fire: 1 } },
+      { text: "You made people feel seen and not alone.",           scores: { Protector: 2, Monk: 1, Water: 1 } },
       { text: "You inspired people to dream bigger.",               scores: { Visionary: 2, Creator: 1, Air: 1 } },
       { text: "You built something that lasted beyond you.",        scores: { Builder: 2, Protector: 1, Earth: 1 } },
     ]
@@ -501,9 +501,9 @@ const VALUES_QUESTIONS = [
     question: "Looking ahead — what would make you proudest?",
     answers: [
       { text: "Becoming physically and mentally strong — someone who can handle anything.", scores: { Warrior: 2, Builder: 1, Fire: 1 } },
-      { text: "Having deep, real relationships built on genuine trust.",                    scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "Having deep, real relationships built on genuine trust.",                    scores: { Protector: 2, Monk: 1, Water: 1 } },
       { text: "Building something original and meaningful.",                                scores: { Creator: 2, Visionary: 1, Air: 1 } },
-      { text: "Being the person in the room people truly feel safe around.",               scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "Being the person in the room people truly feel safe around.",               scores: { Protector: 2, Monk: 1, Water: 1 } },
     ]
   },
   {
@@ -512,7 +512,7 @@ const VALUES_QUESTIONS = [
       { text: "Facing your fears directly.",                               scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
       { text: "Being still when everything in you wants to react.",        scores: { Monk: 2, Protector: 1, Water: 1 } },
       { text: "Finishing something after the excitement is gone.",         scores: { Builder: 2, Warrior: 1, Earth: 1 } },
-      { text: "Sharing what you have made before you think it is ready.", scores: { Creator: 2, Communicator: 1, Air: 1 } },
+      { text: "Sharing what you have made before you think it is ready.", scores: { Creator: 2, Visionary: 1, Air: 1 } },
     ]
   },
   {
@@ -528,7 +528,7 @@ const VALUES_QUESTIONS = [
     question: "If you could instantly master one ability, what would it be?",
     answers: [
       { text: "Staying calm and decisive under pressure.",           scores: { Warrior: 2, Monk: 1, Fire: 1 } },
-      { text: "Truly understanding what another person needs.",      scores: { Communicator: 2, Protector: 1, Water: 1 } },
+      { text: "Truly understanding what another person needs.",      scores: { Protector: 2, Monk: 1, Water: 1 } },
       { text: "Seeing patterns and possibilities others miss.",      scores: { Visionary: 2, Creator: 1, Air: 1 } },
       { text: "Building anything you commit to.",                    scores: { Builder: 2, Creator: 1, Earth: 1 } },
     ]
@@ -537,7 +537,7 @@ const VALUES_QUESTIONS = [
     question: "What does the world need more of?",
     answers: [
       { text: "Brave people who act even when it costs them.",            scores: { Warrior: 2, Protector: 1, Fire: 1 } },
-      { text: "People who genuinely see and care for others.",            scores: { Protector: 2, Communicator: 1, Water: 1 } },
+      { text: "People who genuinely see and care for others.",            scores: { Protector: 2, Monk: 1, Water: 1 } },
       { text: "Curious people who question what everyone else accepts.",  scores: { Explorer: 2, Visionary: 1, Air: 1 } },
       { text: "People who do what they say, every time.",                 scores: { Builder: 2, Monk: 1, Earth: 1 } },
     ]
@@ -546,7 +546,7 @@ const VALUES_QUESTIONS = [
     question: "Looking back on your life — which sentence would make you smile most?",
     answers: [
       { text: "\"I never stopped challenging myself.\"",                   scores: { Warrior: 2, Explorer: 1, Fire: 1 } },
-      { text: "\"I helped people become better versions of themselves.\"", scores: { Communicator: 2, Protector: 1, Water: 1 } },
+      { text: "\"I helped people become better versions of themselves.\"", scores: { Protector: 2, Monk: 1, Water: 1 } },
       { text: "\"I created things that inspired others.\"",                scores: { Creator: 2, Visionary: 1, Air: 1 } },
       { text: "\"I built a life I was genuinely proud of.\"",              scores: { Builder: 2, Warrior: 1, Earth: 1 } },
     ]
