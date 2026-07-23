@@ -3966,23 +3966,30 @@ body {
 }
 
 .roster-icon {
-  width: 52px;
-  height: 52px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Strip the ring — just show the icon PNG, no circle border */
 .roster-icon .arch-icon-wrap {
-  width: 52px;
-  height: 52px;
+  background: none !important;
+  padding: 0 !important;
+  outline: none !important;
+  animation: none !important;
+  width: 64px;
+  height: 64px;
 }
+.roster-icon .arch-icon-wrap::before,
+.roster-icon .arch-icon-wrap::after { display: none !important; }
 
 .roster-icon .arch-icon-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  width: 64px;
+  height: 64px;
+  border-radius: 0;
 }
 
 .roster-info {
