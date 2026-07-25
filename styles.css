@@ -7390,6 +7390,94 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   color: #fff;
 }
 .mhv2-mission-top { display: flex; justify-content: space-between; align-items: center; }
+.mhv2-mission-top-right { display: flex; align-items: center; gap: 8px; }
+.mhv2-challenge-btn {
+  background: rgba(212,184,92,0.15);
+  border: 1px solid rgba(212,184,92,0.3);
+  color: #D4B85C;
+  border-radius: 8px;
+  padding: 3px 8px;
+  font-size: 14px;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s;
+}
+.mhv2-challenge-btn:hover { background: rgba(212,184,92,0.25); }
+
+/* Friend challenge block on My Card */
+.mhv2-friend-challenge {
+  background: linear-gradient(135deg, rgba(212,184,92,0.12), rgba(180,130,50,0.08));
+  border: 1px solid rgba(212,184,92,0.35);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mhv2-fc-top { display: flex; justify-content: space-between; align-items: center; }
+.mhv2-fc-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #D4B85C;
+}
+.mhv2-fc-xp {
+  font-size: 13px;
+  font-weight: 700;
+  color: #D4B85C;
+}
+.mhv2-fc-desc {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+}
+[data-theme="light"] .mhv2-fc-desc { color: #111; }
+@media (prefers-color-scheme: light) { :root:not([data-theme]) .mhv2-fc-desc { color: #111; } }
+.mhv2-fc-complete-btn {
+  width: 100%;
+  background: #D4B85C;
+  color: #111;
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: opacity 0.15s;
+}
+.mhv2-fc-complete-btn:hover { opacity: 0.85; }
+
+/* Friend challenge feed post */
+.sf-friend-challenge-banner { background: rgba(212,184,92,0.12) !important; border-color: rgba(212,184,92,0.25) !important; }
+.sf-friend-challenge-banner .sf-win-label { color: #C9A84C !important; }
+.sf-fc-context {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
+.sf-fc-challenger-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
+
+/* Proof modal challenge text */
+.fc-proof-challenge-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
 .mhv2-mission-label {
   font-size: 10px;
   font-weight: 800;

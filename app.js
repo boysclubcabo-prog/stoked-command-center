@@ -1054,10 +1054,12 @@ let isMentor    = false;
 let editingId   = null;
 let deletingId  = null;
 let currentTab  = 'brothers';
-let unsubBrothers    = null;
-let unsubChallenges  = null;
-let unsubSubmissions = null;
-let unsubFeed        = null;
+let unsubBrothers          = null;
+let unsubChallenges        = null;
+let unsubSubmissions       = null;
+let unsubFeed              = null;
+let unsubFriendChallenges  = null;
+let activeFriendChallenges = []; // challenges directed at current user
 let streakUpdatedThisSession = false;
 let reviewingSubId = null;
 let challengeFilter = 'All';
@@ -1221,9 +1223,10 @@ function friendlyAuthError(code) {
 function showLogin() {
   document.getElementById('authSplash')?.classList.add('hidden');
   stopPresence();
-  if (unsubBrothers)    { unsubBrothers();    unsubBrothers    = null; }
-  if (unsubChallenges)  { unsubChallenges();  unsubChallenges  = null; }
-  if (unsubSubmissions) { unsubSubmissions(); unsubSubmissions = null; }
+  if (unsubBrothers)         { unsubBrothers();         unsubBrothers         = null; }
+  if (unsubChallenges)       { unsubChallenges();       unsubChallenges       = null; }
+  if (unsubSubmissions)      { unsubSubmissions();      unsubSubmissions      = null; }
+  if (unsubFriendChallenges) { unsubFriendChallenges(); unsubFriendChallenges = null; }
   liveCall = null;
   streakUpdatedThisSession = false;
   currentTab = 'brothers';
@@ -1539,6 +1542,27 @@ function showApp() {
 
   // Live call state is stored in feed/_liveCall_ (piggybacking on feed's write rules)
   // The feed onSnapshot listener handles liveCall updates — no separate listener needed
+
+  // Friend challenges directed at current user
+  if (!isAdmin && currentUser) {
+    const myProfile = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+    if (myProfile) {
+      unsubFriendChallenges = onSnapshot(
+        query(collection(db, 'friendChallenges'), orderBy('createdAt', 'desc')),
+        snap => {
+          const prev = activeFriendChallenges.map(c => c.id);
+          activeFriendChallenges = snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .filter(c => c.toUid === myProfile.id && c.status === 'pending');
+          const newOnes = activeFriendChallenges.filter(c => !prev.includes(c.id));
+          newOnes.forEach(c => {
+            showNotif(`⚡ ${c.fromName} challenged you!`, `${c.description} · +${c.xp} XP`);
+          });
+          if (currentTab === 'brothers') renderMemberView();
+        }
+      );
+    }
+  }
 
   // Tab bar
   document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1901,11 +1925,25 @@ function _renderMemberView() {
         </div>
       </div>
 
+      <!-- Incoming friend challenges -->
+      ${activeFriendChallenges.length ? activeFriendChallenges.map(fc => `
+      <div class="mhv2-friend-challenge" data-fc-id="${fc.id}">
+        <div class="mhv2-fc-top">
+          <span class="mhv2-fc-label">⚡ CHALLENGED BY ${escHtml(fc.fromName.toUpperCase())}</span>
+          <span class="mhv2-fc-xp">+${fc.xp} XP</span>
+        </div>
+        <div class="mhv2-fc-desc">${escHtml(fc.description)}</div>
+        <button class="mhv2-fc-complete-btn" data-fc-complete="${fc.id}">COMPLETE CHALLENGE →</button>
+      </div>`).join('') : ''}
+
       <!-- Today's Mission card — dark -->
       <div class="mhv2-mission">
         <div class="mhv2-mission-top">
           <span class="mhv2-mission-label">TODAY'S MISSION</span>
-          <span class="mhv2-mission-count">${brosCompletedToday}/${totalBros} done</span>
+          <div class="mhv2-mission-top-right">
+            <span class="mhv2-mission-count">${brosCompletedToday}/${totalBros} done</span>
+            <button class="mhv2-challenge-btn" data-open-challenge="1" title="Challenge a Brother">⚡</button>
+          </div>
         </div>
         ${dcText
           ? `<div class="mhv2-mission-text">${escHtml(dcText)}</div>`
@@ -1954,6 +1992,14 @@ function _renderMemberView() {
   // Wire daily challenge buttons
   memberHero.querySelector('[data-dc-set]')?.addEventListener('click', () => openDailyChallengeModal(profile));
   memberHero.querySelector('[data-dc-complete]')?.addEventListener('click', () => completeDailyChallenge(profile));
+
+  // Wire challenge-a-brother button
+  memberHero.querySelector('[data-open-challenge]')?.addEventListener('click', () => openFriendChallengeModal(profile));
+
+  // Wire friend challenge complete buttons
+  memberHero.querySelectorAll('[data-fc-complete]').forEach(btn => {
+    btn.addEventListener('click', () => completeFriendChallenge(btn.dataset.fcComplete, profile));
+  });
 
   // Wire profile snapshot toggles in hero
   memberHero.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
@@ -3677,6 +3723,44 @@ function renderSocialFeed() {
           <button class="sf-comment-send" data-comment-send="${post.id}">${IC.send}</button>
         </div>
       </div>`;
+    } else if (post.type === 'friend_challenge_win') {
+      const challBrother = brothers.find(b => b.id === post.challengerId);
+      const challIcon = challBrother ? archetypeElementIcon(challBrother.primaryArchetype || challBrother.archetype, challBrother.dominantElement, challBrother.xp) : '⚡';
+      html += `<div class="sf-post sf-friend-challenge-post">
+        <div class="sf-post-header">
+          <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
+          <div class="sf-post-meta">
+            <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}${mentorTag(brother)}</div>
+            <div class="sf-post-time">${ago}</div>
+          </div>
+          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
+        </div>
+        <div class="sf-win-banner sf-friend-challenge-banner">
+          <span class="sf-win-label">⚡ Friend Challenge Complete</span>
+        </div>
+        <div class="sf-fc-context">
+          <span class="sf-fc-challenger-icon">${challIcon}</span>
+          <span class="sf-fc-context-text"><strong>${escHtml(post.challengerName)}</strong> challenged <strong>${escHtml(post.brotherName)}</strong></span>
+        </div>
+        <div class="sf-challenge-title">"${escHtml(post.description || '')}"</div>
+        ${post.caption ? `<div class="sf-caption">${escHtml(post.caption)}</div>` : ''}
+        ${post.photoUrl ? `<div class="sf-win-media-wrap sf-media-bleed">
+          <img src="${post.photoUrl}" class="sf-photo" alt="proof" />
+          <div class="sf-win-overlay" aria-hidden="true">
+            <div class="sf-win-overlay-text">CHALLENGE<br>COMPLETED</div>
+          </div>
+        </div>` : ''}
+        ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">${IC.link} ${escHtml(post.proofLink)}</a>` : ''}
+        <div class="sf-post-footer">
+          <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
+          <span class="sf-xp-badge">+${post.xpAwarded} XP</span>
+        </div>
+        <div class="sf-comments" data-post-id="${post.id}">${renderComments(post.comments || [], profile)}</div>
+        <div class="sf-comment-form hidden" data-comment-form="${post.id}">
+          <input class="sf-comment-input" data-comment-post="${post.id}" placeholder="Add a comment…" maxlength="300" />
+          <button class="sf-comment-send" data-comment-send="${post.id}">${IC.send}</button>
+        </div>
+      </div>`;
     } else {
       const tagColor = post.challengeTag && CHALLENGE_TAGS[post.challengeTag] ? CHALLENGE_TAGS[post.challengeTag].color : '#888';
       const alreadyDone = post.challengeId && profile ? submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id) : null;
@@ -4126,6 +4210,189 @@ async function completeDailyChallenge(profile) {
   } catch (err) {
     showToast('Could not save — check connection.', 'info');
   }
+}
+
+// ── FRIEND CHALLENGES ─────────────────────────
+
+function openFriendChallengeModal(profile) {
+  const othBrothers = brothers.filter(b => b.id !== profile.id && b.name);
+
+  let overlay = document.getElementById('fcModal');
+  if (overlay) overlay.remove();
+
+  overlay = document.createElement('div');
+  overlay.id = 'fcModal';
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal modal-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 class="modal-title">⚡ Challenge a Brother</h2>
+        <button class="modal-close" id="fcModalClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Who are you challenging?</label>
+          <select id="fcTarget" class="form-control">
+            <option value="">— pick a brother —</option>
+            ${othBrothers.map(b => `<option value="${b.id}">${escHtml(b.name)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">The challenge</label>
+          <textarea id="fcDesc" class="form-control" rows="3" maxlength="200" placeholder="e.g. 50 push-ups before midnight"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">XP reward</label>
+          <select id="fcXp" class="form-control">
+            <option value="25">25 XP</option>
+            <option value="50" selected>50 XP</option>
+            <option value="100">100 XP</option>
+            <option value="150">150 XP</option>
+            <option value="200">200 XP</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="fcCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="fcSendBtn">Send Challenge ⚡</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById('fcModalClose').addEventListener('click', () => closeModal(overlay));
+  document.getElementById('fcCancelBtn').addEventListener('click', () => closeModal(overlay));
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay); });
+
+  document.getElementById('fcSendBtn').addEventListener('click', async () => {
+    const toUid = document.getElementById('fcTarget').value;
+    const desc  = document.getElementById('fcDesc').value.trim();
+    const xp    = parseInt(document.getElementById('fcXp').value);
+    if (!toUid) { showToast('Pick a brother first.', 'info'); return; }
+    if (!desc)  { showToast('Write the challenge first.', 'info'); return; }
+    const toProfile = brothers.find(b => b.id === toUid);
+    const btn = document.getElementById('fcSendBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    try {
+      await addDoc(collection(db, 'friendChallenges'), {
+        fromUid:  profile.id,
+        fromName: profile.name,
+        toUid,
+        toName:   toProfile?.name || 'Brother',
+        description: desc,
+        xp,
+        status:    'pending',
+        createdAt: Date.now(),
+      });
+      closeModal(overlay);
+      showToast(`Challenge sent to ${toProfile?.name || 'Brother'}! ⚡`, 'success');
+    } catch (err) {
+      showToast('Could not send — check connection.', 'info');
+      btn.disabled = false;
+      btn.textContent = 'Send Challenge ⚡';
+    }
+  });
+
+  openModal(overlay);
+}
+
+async function completeFriendChallenge(fcId, profile) {
+  const fc = activeFriendChallenges.find(c => c.id === fcId);
+  if (!fc) return;
+
+  // Open proof modal
+  let overlay = document.getElementById('fcProofModal');
+  if (overlay) overlay.remove();
+  overlay = document.createElement('div');
+  overlay.id = 'fcProofModal';
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal modal-sm" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 class="modal-title">Complete Challenge</h2>
+        <button class="modal-close" id="fcProofClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="fc-proof-challenge-text">"${escHtml(fc.description)}"</div>
+        <p style="font-size:13px;color:var(--text-secondary);margin:0 0 16px">Upload proof — photo, video, or a link.</p>
+        <div class="form-group">
+          <label class="form-label">Photo / Video</label>
+          <input type="file" id="fcProofFile" accept="image/*,video/*" class="form-control">
+        </div>
+        <div class="form-group">
+          <label class="form-label">or Link (YouTube, etc.)</label>
+          <input type="url" id="fcProofLink" class="form-control" placeholder="https://…">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Caption (optional)</label>
+          <input type="text" id="fcProofCaption" class="form-control" maxlength="200" placeholder="Say something…">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="fcProofCancel">Cancel</button>
+        <button class="btn btn-primary" id="fcProofSubmit">Submit Proof ⚡</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  document.getElementById('fcProofClose').addEventListener('click', () => closeModal(overlay));
+  document.getElementById('fcProofCancel').addEventListener('click', () => closeModal(overlay));
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay); });
+
+  document.getElementById('fcProofSubmit').addEventListener('click', async () => {
+    const file    = document.getElementById('fcProofFile').files[0];
+    const link    = document.getElementById('fcProofLink').value.trim();
+    const caption = document.getElementById('fcProofCaption').value.trim();
+    if (!file && !link) { showToast('Add a photo, video, or link.', 'info'); return; }
+
+    const btn = document.getElementById('fcProofSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Uploading…';
+
+    try {
+      let proofUrl = null;
+      if (file) {
+        proofUrl = await uploadPhoto(file, `friendChallenges/${fcId}_${Date.now()}_${file.name}`);
+      }
+
+      // Award XP
+      const newXp = Math.min(MAX_XP, (profile.xp || 0) + fc.xp);
+      await updateDoc(doc(db, 'brothers', profile.id), { xp: newXp });
+
+      // Mark challenge completed
+      await updateDoc(doc(db, 'friendChallenges', fcId), {
+        status: 'completed',
+        completedAt: Date.now(),
+        proofUrl: proofUrl || null,
+        proofLink: link || null,
+      });
+
+      // Post to feed
+      await addDoc(collection(db, 'feed'), {
+        type:          'friend_challenge_win',
+        brotherId:     profile.id,
+        brotherName:   profile.name,
+        challengerId:  fc.fromUid,
+        challengerName: fc.fromName,
+        description:   fc.description,
+        xpAwarded:     fc.xp,
+        photoUrl:      proofUrl || null,
+        proofLink:     link || null,
+        caption:       caption || null,
+        comments:      [],
+        createdAt:     Date.now(),
+      });
+
+      closeModal(overlay);
+      showToast(`Challenge complete! +${fc.xp} XP 🔥`, 'success');
+    } catch (err) {
+      showToast('Error: ' + err.message, 'info');
+      btn.disabled = false;
+      btn.textContent = 'Submit Proof ⚡';
+    }
+  });
+
+  openModal(overlay);
 }
 
 // ── ROSTER (member view of all brothers) ──────

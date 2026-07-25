@@ -184,3 +184,28 @@ exports.onXPUpdated = onDocumentUpdated('brothers/{brotherId}', async event => {
     );
   }
 });
+
+// ── TRIGGER: Friend challenge created → notify challenged brother ──
+exports.onFriendChallenge = onDocumentCreated('friendChallenges/{chalId}', async event => {
+  const fc = event.data.data();
+  if (!fc || fc.status !== 'pending') return;
+  const tokens = await getTokensForBrother(fc.toUid);
+  await sendToTokens(
+    tokens,
+    `⚡ ${fc.fromName} challenged you!`,
+    `${fc.description} · +${fc.xp} XP — complete it on your card`
+  );
+});
+
+// ── TRIGGER: Friend challenge completed → notify challenger ──
+exports.onFriendChallengeCompleted = onDocumentUpdated('friendChallenges/{chalId}', async event => {
+  const before = event.data.before.data();
+  const after  = event.data.after.data();
+  if (before.status === after.status || after.status !== 'completed') return;
+  const tokens = await getTokensForBrother(after.fromUid);
+  await sendToTokens(
+    tokens,
+    `🔥 ${after.toName} completed your challenge!`,
+    `"${after.description}" — check the feed 💪`
+  );
+});

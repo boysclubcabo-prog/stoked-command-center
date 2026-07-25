@@ -122,5 +122,12 @@ service cloud.firestore {
     match /fcmTokens/{tokenId} {
       allow read, write: if request.auth != null;
     }
+
+    // ── Friend Challenges ───────────────────────────────────────────
+    match /friendChallenges/{chalId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null;
+    }
   }
 }
