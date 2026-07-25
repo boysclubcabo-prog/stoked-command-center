@@ -19,7 +19,7 @@
   <!-- SEO / social -->
   <meta name="description" content="Stoked Brotherhood Command Center — mentorship tracking for brothers." />
 
-  <link rel="stylesheet" href="styles.css?v=182" />
+  <link rel="stylesheet" href="styles.css?v=183" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700;800&family=Barlow+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -750,7 +750,7 @@
   </div>
 
   <!-- Firebase SDK -->
-  <script type="module" src="app.js?v=182"></script>
+  <script type="module" src="app.js?v=183"></script>
 
   <!-- Service Worker registration -->
   <script>
@@ -759,15 +759,6 @@
         try {
           await navigator.serviceWorker.register('/stoked-command-center/sw.js', { scope: '/stoked-command-center/' });
         } catch(e) {}
-      });
-      // Reload once when a new SW activates so fresh app code loads immediately.
-      // Guard prevents a reload loop if the SW fires multiple times.
-      let _swReloaded = false;
-      navigator.serviceWorker.addEventListener('message', e => {
-        if (e.data?.type === 'SW_UPDATED' && !_swReloaded) {
-          _swReloaded = true;
-          window.location.reload();
-        }
       });
     }
     // Safety net: if Firebase Auth hasn't resolved in 10s, show login screen
