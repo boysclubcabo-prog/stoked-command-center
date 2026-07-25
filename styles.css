@@ -4711,7 +4711,7 @@ body {
   .login-box { max-width: 100%; }
 
   /* Member hero */
-  .member-hero { padding: 36px 16px 20px; }
+  .member-hero { padding: 64px 16px 20px; }
 }
 
 /* ══════════════════════════════════════════
@@ -7250,9 +7250,9 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 }
 .mhv2-arch-bg {
   position: absolute;
-  top: -5%;
-  right: -8%;
-  width: 55%;
+  top: -2%;
+  right: -6%;
+  width: 72%;
   aspect-ratio: 1;
   pointer-events: none;
   z-index: 0;
