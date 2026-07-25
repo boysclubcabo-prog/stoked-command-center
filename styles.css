@@ -7250,14 +7250,15 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 }
 .mhv2-arch-bg {
   position: absolute;
-  top: -2%;
-  right: -6%;
-  width: 72%;
+  top: -5%;
+  right: -10%;
+  width: 90%;
   aspect-ratio: 1;
   pointer-events: none;
   z-index: 0;
   opacity: 0.18;
   color: #888;
+  will-change: transform;
 }
 .mhv2-arch-bg svg { width: 100%; height: 100%; fill: currentColor; }
 .mhv2-arch-bg img { width: 100%; height: 100%; object-fit: contain; display: block; }

@@ -1965,6 +1965,36 @@ function _renderMemberView() {
 
   brothersGrid.innerHTML = '';
   emptyState.classList.add('hidden');
+
+  // Parallax ghost icon — scrolls at 50% speed relative to card
+  initCardParallax();
+}
+
+function initCardParallax() {
+  const bg = memberHero.querySelector('.mhv2-arch-bg');
+  if (!bg) return;
+
+  // Remove any previous listener
+  if (initCardParallax._handler) {
+    window.removeEventListener('scroll', initCardParallax._handler, { passive: true });
+  }
+
+  let ticking = false;
+  const handler = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const rect = memberHero.getBoundingClientRect();
+      // How far the card top has scrolled past the viewport top (negative = scrolled up)
+      const offset = rect.top;
+      // Move icon at half speed (opposite direction to create parallax depth)
+      bg.style.transform = `translateY(${-offset * 0.25}px)`;
+      ticking = false;
+    });
+  };
+
+  initCardParallax._handler = handler;
+  window.addEventListener('scroll', handler, { passive: true });
 }
 
 function renderCard(brother) {
