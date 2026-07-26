@@ -4293,7 +4293,8 @@ function openFriendChallengeModal(profile) {
       closeModal(overlay);
       showToast(`Challenge sent to ${toProfile?.name || 'Brother'}! ⚡`, 'success');
     } catch (err) {
-      showToast('Could not send — check connection.', 'info');
+      console.error('friendChallenge send error:', err);
+      showToast('Error: ' + (err.message || err.code || 'unknown'), 'info');
       btn.disabled = false;
       btn.textContent = 'Send Challenge ⚡';
     }
