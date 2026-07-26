@@ -4467,7 +4467,7 @@ body {
   .tab-bar    { padding-bottom: env(safe-area-inset-bottom); }
   .tab-btn    { font-size: 10px; padding: 10px 8px 8px; }
   .main       { padding: 16px 16px calc(72px + env(safe-area-inset-bottom)); padding-top: calc(52px + env(safe-area-inset-top) + 16px); }
-  .community-inner { padding: 0 0 calc(72px + env(safe-area-inset-bottom)); padding-top: calc(52px + env(safe-area-inset-top)); }
+  .community-inner { padding: 0 16px calc(72px + env(safe-area-inset-bottom)); padding-top: calc(52px + env(safe-area-inset-top) + 16px); }
   .sub-card   { flex-wrap: wrap; }
   .sub-actions { flex-direction: row; width: 100%; }
   .btn-approve, .btn-reject { flex: 1; }
@@ -6461,32 +6461,35 @@ body {
 
 /* ── SHARE YOUR STOKE ──────────────────────────────────────── */
 .btn-share-stoke {
-  display: block;
-  width: calc(100% + 64px);
-  margin: 0 -32px;
-  background: var(--terra);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0 0 20px;
+  background: var(--blue);
   color: #fff;
   border: none;
-  border-radius: 0;
-  font: 800 13px/1 'Barlow', sans-serif;
-  letter-spacing: 0.18em;
+  border-radius: 12px;
+  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 15px 32px;
+  padding: 16px 20px;
   cursor: pointer;
   transition: opacity 0.15s;
-  text-align: left;
+  box-sizing: border-box;
+  gap: 10px;
+  position: relative;
 }
 .btn-share-stoke::after {
   content: '→';
-  float: right;
-  letter-spacing: 0;
+  position: absolute;
+  right: 20px;
+  font-size: 18px;
   font-weight: 300;
-  font-size: 16px;
 }
 .btn-share-stoke:hover { opacity: 0.88; }
-@media (max-width: 599px) {
-  .btn-share-stoke { width: 100%; margin: 0; padding: 15px 20px; }
-}
 
 /* ── POLLS ── */
 .sf-poll-post { }
@@ -7082,12 +7085,13 @@ body { background: var(--bg-base); color: var(--text-primary); }
   border: none;
   border-radius: 12px;
   padding: 16px 20px;
-  width: 100%;
+  width: calc(100% - 0px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
 }
 .btn-share-stoke::after { content: '→'; font-size: 18px; }
 .btn-share-stoke:hover { opacity: 0.88; }
