@@ -1475,6 +1475,27 @@ function showApp() {
     }
     // Re-register FCM token now that brothers are loaded (gets correct brotherId)
     if (Notification.permission === 'granted') registerFCMToken();
+
+    // Wire friend-challenge listener once we know this member's profile ID
+    if (!isAdmin && currentUser && !unsubFriendChallenges) {
+      const myProfile = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+      if (myProfile) {
+        unsubFriendChallenges = onSnapshot(
+          query(collection(db, 'friendChallenges'), orderBy('createdAt', 'desc')),
+          snap => {
+            const prev = activeFriendChallenges.map(c => c.id);
+            activeFriendChallenges = snap.docs
+              .map(d => ({ id: d.id, ...d.data() }))
+              .filter(c => c.toUid === myProfile.id && c.status === 'pending');
+            const newOnes = activeFriendChallenges.filter(c => !prev.includes(c.id));
+            newOnes.forEach(c => {
+              showNotif(`⚡ ${c.fromName} challenged you!`, `${c.description} · +${c.xp} XP`);
+            });
+            if (currentTab === 'brothers') renderMemberView();
+          }
+        );
+      }
+    }
   });
 
   // Subscribe to challenges
@@ -1542,27 +1563,6 @@ function showApp() {
 
   // Live call state is stored in feed/_liveCall_ (piggybacking on feed's write rules)
   // The feed onSnapshot listener handles liveCall updates — no separate listener needed
-
-  // Friend challenges directed at current user
-  if (!isAdmin && currentUser) {
-    const myProfile = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
-    if (myProfile) {
-      unsubFriendChallenges = onSnapshot(
-        query(collection(db, 'friendChallenges'), orderBy('createdAt', 'desc')),
-        snap => {
-          const prev = activeFriendChallenges.map(c => c.id);
-          activeFriendChallenges = snap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .filter(c => c.toUid === myProfile.id && c.status === 'pending');
-          const newOnes = activeFriendChallenges.filter(c => !prev.includes(c.id));
-          newOnes.forEach(c => {
-            showNotif(`⚡ ${c.fromName} challenged you!`, `${c.description} · +${c.xp} XP`);
-          });
-          if (currentTab === 'brothers') renderMemberView();
-        }
-      );
-    }
-  }
 
   // Tab bar
   document.querySelectorAll('.tab-btn').forEach(btn => {
