@@ -7390,19 +7390,37 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   color: #fff;
 }
 .mhv2-mission-top { display: flex; justify-content: space-between; align-items: center; }
-.mhv2-mission-top-right { display: flex; align-items: center; gap: 8px; }
-.mhv2-challenge-btn {
-  background: rgba(212,184,92,0.15);
-  border: 1px solid rgba(212,184,92,0.3);
+/* Challenge a Brother block — same dark card as mission */
+.mhv2-challenge-block {
+  background: #111;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #fff;
+}
+.mhv2-challenge-block-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.4;
+}
+.mhv2-challenge-block-btn {
+  width: 100%;
+  background: transparent;
   color: #D4B85C;
-  border-radius: 8px;
-  padding: 3px 8px;
-  font-size: 14px;
+  border: 1px solid rgba(212,184,92,0.45);
+  border-radius: 10px;
+  padding: 13px;
+  font-family: 'Bebas Neue','Barlow Condensed',sans-serif;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   cursor: pointer;
-  line-height: 1;
   transition: background 0.15s;
 }
-.mhv2-challenge-btn:hover { background: rgba(212,184,92,0.25); }
+.mhv2-challenge-block-btn:hover { background: rgba(212,184,92,0.1); }
 
 /* Friend challenge block on My Card */
 .mhv2-friend-challenge {

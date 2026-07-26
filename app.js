@@ -1940,10 +1940,7 @@ function _renderMemberView() {
       <div class="mhv2-mission">
         <div class="mhv2-mission-top">
           <span class="mhv2-mission-label">TODAY'S MISSION</span>
-          <div class="mhv2-mission-top-right">
-            <span class="mhv2-mission-count">${brosCompletedToday}/${totalBros} done</span>
-            <button class="mhv2-challenge-btn" data-open-challenge="1" title="Challenge a Brother">⚡</button>
-          </div>
+          <span class="mhv2-mission-count">${brosCompletedToday}/${totalBros} done</span>
         </div>
         ${dcText
           ? `<div class="mhv2-mission-text">${escHtml(dcText)}</div>`
@@ -1954,6 +1951,15 @@ function _renderMemberView() {
         ${brosCompletedToday > 0 ? `<div class="mhv2-mission-social">🔥 ${brosCompletedToday} ${brosCompletedToday === 1 ? 'brother' : 'brothers'} already completed</div>` : ''}
         ${!dcText ? `<button class="mhv2-set-btn" data-dc-set="1">Set Today's Mission</button>` : ''}
         ${dcDone ? `<div class="mhv2-mission-done-badge">✓ Mission Complete · +50 XP</div>` : ''}
+      </div>
+
+      <!-- Challenge a Brother block -->
+      <div class="mhv2-challenge-block">
+        <div class="mhv2-mission-top">
+          <span class="mhv2-mission-label">CHALLENGE A BROTHER</span>
+        </div>
+        <div class="mhv2-challenge-block-sub">Call out a brother. Set the task. Hold each other accountable.</div>
+        <button class="mhv2-challenge-block-btn" data-open-challenge="1">⚡ SEND A CHALLENGE</button>
       </div>
 
       ${hasReflection ? `
