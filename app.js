@@ -1480,17 +1480,17 @@ function showApp() {
     if (!isAdmin && currentUser && !unsubFriendChallenges) {
       const myProfile = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
       if (myProfile) {
-        console.log('[FC] Setting up friend challenge listener for', myProfile.name, 'id:', myProfile.id);
+        const myEmail = currentUser.email.toLowerCase();
         unsubFriendChallenges = onSnapshot(
           query(collection(db, 'friendChallenges'), orderBy('createdAt', 'desc')),
           snap => {
-            console.log('[FC] snapshot docs:', snap.docs.map(d => ({ id: d.id, toUid: d.data().toUid, status: d.data().status })));
-            console.log('[FC] my id:', myProfile.id);
             const prev = activeFriendChallenges.map(c => c.id);
             activeFriendChallenges = snap.docs
               .map(d => ({ id: d.id, ...d.data() }))
-              .filter(c => c.toUid === myProfile.id && c.status === 'pending');
-            console.log('[FC] active challenges for me:', activeFriendChallenges.length);
+              .filter(c => c.status === 'pending' && (
+                c.toUid === myProfile.id ||
+                c.toEmail?.toLowerCase() === myEmail
+              ));
             const newOnes = activeFriendChallenges.filter(c => !prev.includes(c.id));
             newOnes.forEach(c => {
               showNotif(`⚡ ${c.fromName} challenged you!`, `${c.description} · +${c.xp} XP`);
@@ -4282,10 +4282,12 @@ function openFriendChallengeModal(profile) {
     btn.textContent = 'Sending…';
     try {
       await addDoc(collection(db, 'friendChallenges'), {
-        fromUid:  profile.id,
-        fromName: profile.name,
+        fromUid:   profile.id,
+        fromName:  profile.name,
+        fromEmail: profile.email?.toLowerCase() || '',
         toUid,
-        toName:   toProfile?.name || 'Brother',
+        toName:    toProfile?.name || 'Brother',
+        toEmail:   toProfile?.email?.toLowerCase() || '',
         description: desc,
         xp,
         status:    'pending',
