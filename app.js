@@ -5399,7 +5399,7 @@ function renderRoster() {
         const bsCat = b.brotherhoodScore != null ? getBSCategory(b.brotherhoodScore) : null;
         const hidden = rosterActiveFilter !== 'All' && displayArchetype !== rosterActiveFilter ? 'style="display:none"' : '';
         return `
-          <div class="roster-card ${isMe ? 'roster-card-me' : ''}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(b.dominantElement||'')}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}" ${hidden}>
+          <div class="roster-card ${isMe ? 'roster-card-me' : ''}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(b.dominantElement||'')}" data-bro-id="${b.id}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}" ${hidden}>
             <div class="roster-rank">#${i + 1}</div>
             <div class="roster-icon">${icon}</div>
             <div class="roster-info">
@@ -5438,11 +5438,112 @@ function renderRoster() {
     });
   });
 
+  // Clickable roster cards — open profile view (not for own card)
+  container.querySelectorAll('.roster-card:not(.roster-card-me)').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', e => {
+      if (e.target.closest('[data-dm]')) return;
+      const match = sorted.find(b => b.id === card.dataset.broId);
+      if (match) openBrotherProfile(match);
+    });
+  });
+
   // Wire DM buttons
   container.querySelectorAll('[data-dm]').forEach(btn => {
     btn.addEventListener('click', () => openDM(btn.dataset.dm));
   });
   document.getElementById('dmInboxBtn')?.addEventListener('click', openDMInbox);
+}
+
+function openBrotherProfile(b) {
+  const xp    = b.xp || 0;
+  const lvl   = getLevelInfo(xp);
+  const displayArchetype = b.primaryArchetype || b.archetype;
+  const clr   = ARCHETYPE_COLORS[displayArchetype] || { border: 'var(--border)', glow: 'transparent', icon: 'var(--orange)' };
+  const elColor = ELEMENT_COLORS[b.dominantElement] || 'var(--text-muted)';
+  const nameInitial = (b.name || '?')[0].toUpperCase();
+  const bgIconSrc = displayArchetype ? `/stoked-command-center/${displayArchetype.toLowerCase()}-icon.png` : '';
+  const bsCat = b.brotherhoodScore != null ? getBSCategory(b.brotherhoodScore) : null;
+  const dcDone = isDailyChallengeCompleted(b);
+  const sortedByXp = brothers.slice().sort((a, bb) => (bb.xp || 0) - (a.xp || 0));
+  const rank = sortedByXp.findIndex(bb => bb.id === b.id) + 1;
+  const hasReflection = b.weeklyWin || b.weeklyChallenge || b.weeklyCommitment;
+
+  let overlay = document.getElementById('brotherProfileModal');
+  if (overlay) overlay.remove();
+
+  overlay = document.createElement('div');
+  overlay.id = 'brotherProfileModal';
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal bro-profile-modal" role="dialog" aria-modal="true">
+      <div class="bro-profile-arch-bg" aria-hidden="true">
+        ${bgIconSrc ? `<img src="${bgIconSrc}" alt="">` : ''}
+      </div>
+      <button class="modal-close bro-profile-close" id="broProfileClose">✕</button>
+
+      <div class="bro-profile-header">
+        <div class="bro-profile-avatar" style="--arch-icon:${clr.icon}">${nameInitial}</div>
+        <div class="bro-profile-name">${escHtml(b.name || '')}</div>
+        ${b.role === 'mentor' ? '<div class="mhv2-role-badge">MENTOR</div>' : ''}
+        <div class="bro-profile-arch-row">
+          ${displayArchetype ? `<span class="bro-profile-arch" style="color:${clr.icon}">${escHtml(displayArchetype)}</span>` : ''}
+          ${b.dominantElement ? `<span class="bro-profile-el" style="color:${elColor}">${escHtml(b.dominantElement)}</span>` : ''}
+        </div>
+        <div class="bro-profile-rank">#${rank} in Brotherhood · ${xp.toLocaleString()} XP</div>
+      </div>
+
+      <div class="bro-profile-level">
+        <div class="bro-profile-level-row">
+          <span>Level ${lvl.current.level}</span>
+          <span>${lvl.progress}%${lvl.next ? ' to Lvl ' + lvl.next.level : ' · MAX'}</span>
+        </div>
+        <div class="bro-profile-track">
+          <div class="bro-profile-fill" style="width:${lvl.progress}%;background:${clr.icon}"></div>
+        </div>
+      </div>
+
+      ${bsCat ? `
+      <div class="bro-profile-section">
+        <div class="bro-profile-section-label">Daily Check-In Score</div>
+        <div class="bro-profile-score" style="color:${bsCat.color}">${b.brotherhoodScore} <span class="bro-profile-score-cat">${bsCat.label}</span></div>
+      </div>` : ''}
+
+      <div class="bro-profile-section">
+        <div class="bro-profile-section-label">Today's Mission</div>
+        ${b.dailyChallenge
+          ? `<div class="bro-profile-mission-text">${escHtml(b.dailyChallenge)}</div>
+             <div class="bro-profile-mission-status ${dcDone ? 'done' : 'pending'}">${dcDone ? '✓ Completed' : '⏳ In Progress'}</div>`
+          : `<div class="bro-profile-mission-empty">No mission set today</div>`}
+      </div>
+
+      ${b.currentStreak ? `
+      <div class="bro-profile-section bro-profile-streak">
+        <span>🔥 ${b.currentStreak}-day streak</span>
+        ${b.longestStreak > 1 ? `<span class="bro-profile-streak-best">Best: ${b.longestStreak}</span>` : ''}
+      </div>` : ''}
+
+      ${hasReflection ? `
+      <div class="bro-profile-section">
+        <div class="bro-profile-section-label">Weekly Reflection</div>
+        ${b.weeklyWin        ? `<div class="bro-profile-r-row"><span class="bro-profile-r-lbl">Win</span><span class="bro-profile-r-val">${escHtml(b.weeklyWin)}</span></div>` : ''}
+        ${b.weeklyChallenge  ? `<div class="bro-profile-r-row"><span class="bro-profile-r-lbl">Challenge</span><span class="bro-profile-r-val">${escHtml(b.weeklyChallenge)}</span></div>` : ''}
+        ${b.weeklyCommitment ? `<div class="bro-profile-r-row"><span class="bro-profile-r-lbl">Commitment</span><span class="bro-profile-r-val">${escHtml(b.weeklyCommitment)}</span></div>` : ''}
+      </div>` : ''}
+
+      <button class="bro-profile-dm-btn" data-dm="${b.id}">💬 Send Message</button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('open'));
+
+  const close = () => {
+    overlay.classList.remove('open');
+    overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+  };
+  document.getElementById('broProfileClose').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+  overlay.querySelector('[data-dm]').addEventListener('click', () => { close(); openDM(b.id); });
 }
 
 // ── PRIVATE DM CHAT ──────────────────────────

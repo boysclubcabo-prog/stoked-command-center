@@ -3941,6 +3941,215 @@ body {
   font-weight: 600;
 }
 
+/* ── BROTHER PROFILE MODAL ── */
+.bro-profile-modal {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  max-width: 400px;
+  width: 100%;
+}
+
+.bro-profile-arch-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bro-profile-arch-bg img {
+  position: absolute;
+  width: 75%;
+  top: -8%;
+  right: -12%;
+  opacity: 0.07;
+  filter: invert(1);
+}
+
+[data-theme="light"] .bro-profile-arch-bg img {
+  filter: invert(1) brightness(0.15);
+  opacity: 0.06;
+}
+
+.bro-profile-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+}
+
+.bro-profile-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px 20px;
+  text-align: center;
+  gap: 6px;
+}
+
+.bro-profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--arch-icon, var(--orange));
+  color: #fff;
+  font-size: 26px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.bro-profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+}
+
+.bro-profile-arch-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bro-profile-el::before { content: '·'; margin-right: 10px; opacity: 0.4; }
+
+.bro-profile-rank {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.bro-profile-level {
+  position: relative;
+  z-index: 1;
+  padding: 0 24px 16px;
+}
+
+.bro-profile-level-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.bro-profile-track {
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.bro-profile-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.bro-profile-section {
+  position: relative;
+  z-index: 1;
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.bro-profile-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.bro-profile-score {
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.bro-profile-score-cat {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.8;
+  margin-left: 4px;
+}
+
+.bro-profile-mission-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.bro-profile-mission-status {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.bro-profile-mission-status.done   { color: #5aab5a; }
+.bro-profile-mission-status.pending { color: var(--text-muted); }
+.bro-profile-mission-empty { font-size: 13px; color: var(--text-muted); }
+
+.bro-profile-streak {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.bro-profile-streak-best {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.bro-profile-r-row {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.bro-profile-r-lbl {
+  font-weight: 700;
+  color: var(--text-muted);
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.bro-profile-r-val { color: var(--text-primary); }
+
+.bro-profile-dm-btn {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: calc(100% - 48px);
+  margin: 16px 24px;
+  padding: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.bro-profile-dm-btn:hover { background: var(--border); }
+
 /* ── ROSTER FILTERS ── */
 .roster-filters {
   display: flex;
