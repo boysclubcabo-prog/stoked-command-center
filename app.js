@@ -3102,8 +3102,7 @@ function updateBSPreview() {
 }
 
 // ── STOKE CORE ─────────────────────────────────────────────────────────────
-// Sacred-geometric Canvas 2D visualization of the five check-in dimensions.
-// No external dependencies — pure math + requestAnimationFrame.
+// Orb with inner flame. No external dependencies.
 class StokeCore {
   constructor(canvas) {
     this.canvas = canvas;
@@ -3114,9 +3113,6 @@ class StokeCore {
     // Current displayed values (interpolated toward targets)
     this.current  = { movement: 5, composure: 5, focus: 5, discipline: 5, stoke: 5 };
     this.target   = { movement: 5, composure: 5, focus: 5, discipline: 5, stoke: 5 };
-
-    // Sparks
-    this.sparks = [];
 
     // Timing
     this.t          = 0;            // continuous time counter
@@ -3156,7 +3152,6 @@ class StokeCore {
       this.highlightDim = highlightDim;
       this.highlightEnd = this.t + 1.8; // seconds
     }
-    this._spawnSparks(vals.stoke || this.current.stoke);
   }
 
   triggerFormAnimation() {
@@ -3197,378 +3192,168 @@ class StokeCore {
       if (this.formT > 2.5) this.forming = false;
     }
 
-    this._updateSparks(dt);
     this._draw();
     this.raf = requestAnimationFrame(this._loop);
   }
 
-  // ── Spark system ───────────────────────────────
-  _spawnSparks(stokeVal) {
-    const count = Math.floor((stokeVal / 10) * 4);
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 20 + Math.random() * 30;
-      this.sparks.push({
-        x: this.cx, y: this.cy,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 40,
-        life: 1, decay: 0.6 + Math.random() * 0.6,
-        size: 1 + Math.random() * 1.5,
-      });
-    }
-    if (this.sparks.length > 40) this.sparks = this.sparks.slice(-40);
-  }
-
-  _updateSparks(dt) {
-    if (this.reducedMotion) { this.sparks = []; return; }
-    for (const sp of this.sparks) {
-      sp.x   += sp.vx * dt;
-      sp.y   += sp.vy * dt;
-      sp.vy  += 60 * dt; // gravity
-      sp.life -= sp.decay * dt;
-    }
-    this.sparks = this.sparks.filter(s => s.life > 0);
-  }
-
-  // ── Main draw ──────────────────────────────────
+  // ── Main draw — simple orb + inner flame ─────
   _draw() {
     const { ctx, cx, cy, size, t } = this;
-    const v = this.current;
-    const mv = v.movement   / 10;
-    const cp = v.composure  / 10;
-    const fc = v.focus      / 10;
-    const di = v.discipline / 10;
-    const st = v.stoke      / 10;
-    const overall = (mv + cp + fc + di + st) / 5;
+    const v  = this.current;
+    const st = v.stoke      / 10;  // flame intensity
+    const mv = v.movement   / 10;  // animation speed
+    const cp = v.composure  / 10;  // pulse smoothness
+    const fc = v.focus      / 10;  // sharpness/definition
+    const di = v.discipline / 10;  // orb edge clarity
 
-    // Speed modifier from Movement
-    const speed = this.reducedMotion ? 0 : (0.15 + mv * 0.55);
+    const overall = (st + mv + cp + fc + di) / 5;
+    const speed   = this.reducedMotion ? 0 : (0.3 + mv * 0.7);
 
-    // Base radius scales with overall score
-    const baseR = size * (0.14 + overall * 0.18);
+    // Breathing pulse — composure controls how stable/slow it is
+    const pulseFq = 0.5 + cp * 0.8;
+    const pulseAmp = 0.04 - cp * 0.025; // calm = less breathing
+    const pulse = 1 + pulseAmp * Math.sin(t * pulseFq * Math.PI * 2);
+
+    const orbR = size * 0.38 * pulse;
 
     ctx.clearRect(0, 0, size, size);
 
-    // ── Background vignette ──────────────────────
-    const vigGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.7);
-    vigGrad.addColorStop(0,   'rgba(255,255,255,0)');
-    vigGrad.addColorStop(1,   'rgba(0,0,0,0.18)');
-    ctx.fillStyle = vigGrad;
-    ctx.fillRect(0, 0, size, size);
-
-    // ── Central flame / ember ───────────────────
-    this._drawFlame(v, st, overall, speed);
-
-    // ── Sacred geometry rings (Discipline) ──────
-    this._drawGeometryRings(v, di, fc, cp, overall, speed);
-
-    // ── Orbital paths (Movement) ─────────────────
-    this._drawOrbitals(v, mv, cp, fc, di, overall, speed);
-
-    // ── Toroidal contour field (Focus+Composure) ─
-    this._drawContourField(v, fc, cp, di, overall, speed);
-
-    // ── Central axis lines (Focus) ───────────────
-    this._drawAxisLines(fc, cp, overall);
-
-    // ── Sparks ───────────────────────────────────
-    this._drawSparks(st);
-
-    // ── Highlight pulse ───────────────────────────
-    if (this.highlightDim && t < this.highlightEnd) {
-      this._drawHighlight(this.highlightDim, (this.highlightEnd - t) / 1.8);
-    }
-
-    // ── Core Formed animation ────────────────────
-    if (this.forming) {
-      this._drawFormAnimation(this.formT);
-    }
-  }
-
-  _drawFlame(v, st, overall, speed) {
-    const { ctx, cx, cy, size, t } = this;
-    const flameH = size * (0.08 + st * 0.18);
-    const flameW = size * (0.04 + st * 0.06);
-    const pulseFq = 1.2 + (v.composure / 10) * 0.8; // composure → stable pulse
-    const pulse = 1 + 0.08 * Math.sin(t * pulseFq * Math.PI * 2) * (1 - (v.composure / 10) * 0.5);
-    const turbulence = (1 - v.composure / 10) * 0.06;
-
-    // Outer glow
-    const g1 = ctx.createRadialGradient(cx, cy, 0, cx, cy, flameH * 2.5 * pulse);
-    g1.addColorStop(0,   `rgba(255,200,80,${0.06 + st * 0.14})`);
-    g1.addColorStop(0.3, `rgba(220,100,30,${0.04 + st * 0.08})`);
-    g1.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = g1;
+    // ── Orb base (dark glass sphere) ────────────
+    const orbGrad = ctx.createRadialGradient(
+      cx - orbR * 0.2, cy - orbR * 0.25, orbR * 0.05,
+      cx, cy, orbR
+    );
+    orbGrad.addColorStop(0,   'rgba(28,22,18,0.95)');
+    orbGrad.addColorStop(0.7, 'rgba(10,8,6,0.98)');
+    orbGrad.addColorStop(1,   'rgba(0,0,0,1)');
     ctx.beginPath();
-    ctx.arc(cx, cy, flameH * 2.5 * pulse, 0, Math.PI * 2);
+    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
+    ctx.fillStyle = orbGrad;
     ctx.fill();
 
-    // Flame shape — elongated vertical teardrop with turbulence
-    const steps = 32;
+    // ── Outer glow (stoke-driven, clipped outside orb) ──
+    const glowR  = orbR * (1.3 + st * 0.5);
+    const glowG  = ctx.createRadialGradient(cx, cy, orbR * 0.7, cx, cy, glowR);
+    const glowA  = 0.04 + st * 0.18 + overall * 0.06;
+    glowG.addColorStop(0,   `rgba(255,140,30,${glowA})`);
+    glowG.addColorStop(0.5, `rgba(200,70,10,${glowA * 0.4})`);
+    glowG.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = glowG;
+    ctx.beginPath();
+    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── Clip everything below to inside the orb ──
     ctx.save();
-    ctx.globalAlpha = 0.7 + st * 0.3;
-
-    const innerG = ctx.createRadialGradient(cx, cy - flameH * 0.2, 0, cx, cy, flameH * pulse);
-    innerG.addColorStop(0,   `rgba(255,240,180,${0.9 + st * 0.1})`);
-    innerG.addColorStop(0.3, `rgba(255,160,40,${0.7 + st * 0.2})`);
-    innerG.addColorStop(0.7, `rgba(200,60,10,${0.3 + st * 0.2})`);
-    innerG.addColorStop(1,   'rgba(0,0,0,0)');
-
     ctx.beginPath();
-    for (let i = 0; i <= steps; i++) {
-      const theta = (i / steps) * Math.PI * 2;
-      // Flame: wider at equator, pointed at top
-      const r = flameW * pulse * Math.abs(Math.sin(theta / 2))
-        * (1 + turbulence * Math.sin(t * 3.7 + theta * 3))
-        * (1 + 0.3 * Math.sin(theta)); // lean upward
-      const tx = turbulence * size * 0.03 * Math.sin(t * 2.1 + theta);
-      const x = cx + r * Math.cos(theta) + tx;
-      const y = cy + (r * Math.sin(theta) - flameH * pulse * 0.5) * (0.8 - 0.3 * Math.cos(theta));
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fillStyle = innerG;
-    ctx.fill();
-    ctx.restore();
+    ctx.arc(cx, cy, orbR * 0.98, 0, Math.PI * 2);
+    ctx.clip();
 
-    // Central bright point
-    const pointG = ctx.createRadialGradient(cx, cy - flameH * 0.1, 0, cx, cy, flameH * 0.6 * pulse);
-    pointG.addColorStop(0,   `rgba(255,255,230,${0.95})`);
-    pointG.addColorStop(0.2, `rgba(255,220,100,${0.8})`);
-    pointG.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = pointG;
-    ctx.beginPath();
-    ctx.arc(cx, cy - flameH * 0.05, flameH * 0.55 * pulse, 0, Math.PI * 2);
-    ctx.fill();
-  }
+    // ── Inner ambient warmth (overall energy) ────
+    const warmG = ctx.createRadialGradient(cx, cy + orbR * 0.1, 0, cx, cy, orbR);
+    warmG.addColorStop(0,   `rgba(255,120,20,${0.05 + overall * 0.12})`);
+    warmG.addColorStop(0.5, `rgba(180,60,10,${0.02 + overall * 0.05})`);
+    warmG.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = warmG;
+    ctx.fillRect(cx - orbR, cy - orbR, orbR * 2, orbR * 2);
 
-  _drawGeometryRings(v, di, fc, cp, overall, speed) {
-    const { ctx, cx, cy, size, t } = this;
-    // Number of rings = discipline (2 to 8)
-    const ringCount = Math.round(2 + di * 6);
-    const maxR      = size * (0.22 + overall * 0.2);
-    const minR      = size * 0.06;
+    // ── Inner flame ──────────────────────────────
+    // Flame lives in bottom-center, rising upward
+    const flameH   = orbR * (0.3 + st * 0.65);  // taller with stoke
+    const flameW   = orbR * (0.18 + st * 0.14);
+    const flameY   = cy + orbR * 0.22;           // anchored near bottom of orb
+    const turbAmt  = (1 - cp) * 0.12;            // composure = stability
 
-    for (let ri = 0; ri < ringCount; ri++) {
-      const frac = (ri + 1) / ringCount;
-      const r    = minR + (maxR - minR) * frac;
+    // Draw several flame layers (outer to inner)
+    const flameLayers = [
+      { wMult: 1.4, hMult: 1.0, color: [200, 60, 10],  a: 0.25 + st * 0.3  },
+      { wMult: 1.0, hMult: 1.05,color: [240, 120, 20], a: 0.4 + st * 0.35  },
+      { wMult: 0.6, hMult: 1.1, color: [255, 200, 60], a: 0.6 + st * 0.35  },
+      { wMult: 0.3, hMult: 1.15,color: [255, 240, 180],a: 0.85 + st * 0.15 },
+    ];
 
-      // Gap in ring based on discipline (high = complete, low = broken)
-      const completeness = Math.min(1, di + frac * 0.3);
-      const gapAngle = (1 - completeness) * Math.PI * 0.7;
+    for (const layer of flameLayers) {
+      const fw = flameW * layer.wMult;
+      const fh = flameH * layer.hMult;
+      const steps = 24;
 
-      // Rotate slowly — speed from movement
-      const rotOffset = t * speed * (0.2 + ri * 0.07) * (ri % 2 === 0 ? 1 : -1);
-
-      // Sharpness from focus
-      const lineW = 0.3 + fc * 1.0;
-      const alpha = (0.12 + frac * 0.18 + di * 0.12 + overall * 0.1) * (0.5 + fc * 0.5);
-
-      // Composure: turbulence on radius
-      const turbR = (1 - cp) * size * 0.012 * Math.sin(t * 1.7 + ri * 1.3);
-
-      ctx.save();
-      ctx.strokeStyle = `rgba(255,255,255,${Math.min(alpha, 0.55)})`;
-      ctx.lineWidth   = lineW;
-      ctx.setLineDash(completeness < 0.85 ? [4, 6 - completeness * 4] : []);
       ctx.beginPath();
-      if (gapAngle > 0.02) {
-        ctx.arc(cx, cy, r + turbR, rotOffset + gapAngle / 2, rotOffset + Math.PI * 2 - gapAngle / 2);
-      } else {
-        ctx.arc(cx, cy, r + turbR, 0, Math.PI * 2);
-      }
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Sacred-geometry tick marks on outer rings (discipline)
-      if (ri >= ringCount - 3 && di > 0.4) {
-        const tickCount = 6 + Math.round(di * 6);
-        ctx.strokeStyle = `rgba(255,255,255,${alpha * 0.6})`;
-        ctx.lineWidth   = lineW * 0.5;
-        for (let ti = 0; ti < tickCount; ti++) {
-          const a = rotOffset + (ti / tickCount) * Math.PI * 2;
-          const inner = r * 0.92;
-          const outer = r * 1.07;
-          ctx.beginPath();
-          ctx.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
-          ctx.lineTo(cx + Math.cos(a) * outer, cy + Math.sin(a) * outer);
-          ctx.stroke();
-        }
-      }
-      ctx.restore();
-    }
-  }
-
-  _drawOrbitals(v, mv, cp, fc, di, overall, speed) {
-    const { ctx, cx, cy, size, t } = this;
-    // 3 orbital paths; count visible based on overall+movement
-    const pathCount = Math.round(1 + overall * 2.5);
-    const maxR      = size * (0.28 + overall * 0.14);
-
-    const isHighlit = this.highlightDim === 'movement' && t < this.highlightEnd;
-    const hlBoost   = isHighlit ? 1.8 : 1;
-
-    for (let pi = 0; pi < Math.min(pathCount, 4); pi++) {
-      const frac    = (pi + 1) / 4;
-      const rx      = maxR * (0.55 + frac * 0.45);
-      const ry      = rx * (0.3 + cp * 0.45); // composure → more circular ellipse
-      const tiltOff = (pi * Math.PI) / 4 + t * speed * (0.15 + mv * 0.2) * (pi % 2 === 0 ? 1 : -1);
-
-      // Dot on orbital
-      const dotAlpha = (0.5 + mv * 0.5) * hlBoost;
-      const dotR     = 1.5 + mv * 2;
-
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(tiltOff * 0.4);
-
-      // Draw ellipse path
-      ctx.beginPath();
-      ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
-      const lineAlpha = (0.06 + mv * 0.1 + di * 0.06) * (0.5 + fc * 0.5) * hlBoost;
-      ctx.strokeStyle = `rgba(255,255,255,${Math.min(lineAlpha, 0.4)})`;
-      ctx.lineWidth   = 0.5 + fc * 0.5;
-      ctx.setLineDash(di < 0.5 ? [3, 5] : []);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Dot position on ellipse
-      const dotAngle = t * speed * (1.5 + pi * 0.5);
-      const dx = Math.cos(dotAngle) * rx;
-      const dy = Math.sin(dotAngle) * ry;
-      const dotGrad = ctx.createRadialGradient(dx, dy, 0, dx, dy, dotR * 2.5);
-      dotGrad.addColorStop(0,   `rgba(255,220,120,${dotAlpha})`);
-      dotGrad.addColorStop(1,   'rgba(0,0,0,0)');
-      ctx.fillStyle = dotGrad;
-      ctx.beginPath();
-      ctx.arc(dx, dy, dotR * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.restore();
-    }
-  }
-
-  _drawContourField(v, fc, cp, di, overall, speed) {
-    const { ctx, cx, cy, size, t } = this;
-    // Toroidal contour lines — more lines at high focus+discipline
-    const lineCount = Math.round(2 + fc * 5 + di * 3);
-    const maxR      = size * (0.32 + overall * 0.12);
-
-    const isHighlit = this.highlightDim === 'focus' && t < this.highlightEnd;
-    const hlBoost   = isHighlit ? 1.6 : 1;
-
-    for (let li = 0; li < Math.min(lineCount, 10); li++) {
-      const frac = li / Math.max(lineCount - 1, 1);
-      const r    = size * 0.03 + maxR * frac;
-
-      // Number of angular points — more = more symmetric = more focus
-      const pts  = 48 + Math.round(fc * 64);
-      const alpha = (0.04 + frac * 0.10 + fc * 0.08) * (0.5 + di * 0.5) * hlBoost;
-
-      ctx.save();
-      ctx.strokeStyle = `rgba(255,255,255,${Math.min(alpha, 0.35)})`;
-      ctx.lineWidth   = 0.4 + fc * 0.6;
-      ctx.beginPath();
-
-      for (let i = 0; i <= pts; i++) {
-        const theta = (i / pts) * Math.PI * 2;
-        // Composure: deformation amount
-        const turbAmt = (1 - cp) * size * 0.018;
-        const turb    = turbAmt * (
-          Math.sin(t * 1.3 + theta * 3 + frac * 5) * 0.6 +
-          Math.sin(t * 0.7 + theta * 5 + frac * 2) * 0.4
-        );
-        // Focus: secondary frequency ripple
-        const focusRipple = fc * size * 0.006 * Math.sin(theta * 7 + t * speed * 2 + frac * 3);
-        const rr = r + turb + focusRipple;
-        const x  = cx + rr * Math.cos(theta);
-        const y  = cy + rr * Math.sin(theta);
+      for (let i = 0; i <= steps; i++) {
+        const ang = (i / steps) * Math.PI * 2;
+        // Teardrop: wide bottom, pointed top
+        // r(θ): large at π/2 (bottom), zero at -π/2 (top)
+        const baseR = fw * Math.max(0, Math.sin(ang * 0.5 + Math.PI * 0.25));
+        const turb  = turbAmt * fw * Math.sin(t * speed * 2.3 + ang * 4 + layer.wMult * 5);
+        const r     = (baseR + turb) * Math.abs(Math.cos(ang * 0.5));
+        const tx    = turbAmt * fw * 0.4 * Math.sin(t * speed * 1.7 + i * 0.8);
+        const x     = cx + r * Math.cos(ang) + tx;
+        // Squeeze vertically to make teardrop taller than wide
+        const yScale = fh / fw;
+        const y     = flameY - fh * 0.5 + r * Math.sin(ang) * yScale * 0.55;
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
       }
       ctx.closePath();
-      ctx.stroke();
-      ctx.restore();
-    }
-  }
 
-  _drawAxisLines(fc, cp, overall) {
-    const { ctx, cx, cy, size, t } = this;
-    // Radial spokes — 6 at full focus, fewer at low
-    const spokeCount = Math.round(3 + fc * 9);
-    const r          = size * (0.1 + overall * 0.22);
-    const alpha      = 0.06 + fc * 0.18;
-
-    const isHighlit = this.highlightDim === 'focus' && t < this.highlightEnd;
-    const hlBoost   = isHighlit ? 2.0 : 1;
-
-    ctx.save();
-    ctx.strokeStyle = `rgba(255,255,255,${Math.min(alpha * hlBoost, 0.5)})`;
-    ctx.lineWidth   = 0.5 + fc * 0.8;
-    for (let i = 0; i < spokeCount; i++) {
-      const a = (i / spokeCount) * Math.PI * 2 - Math.PI / 2;
-      const wobble = (1 - cp) * 0.04 * Math.sin(t * 1.1 + i);
-      const ax = cx + Math.cos(a + wobble) * (r * 0.18);
-      const ay = cy + Math.sin(a + wobble) * (r * 0.18);
-      const bx = cx + Math.cos(a + wobble) * r;
-      const by = cy + Math.sin(a + wobble) * r;
-      ctx.beginPath();
-      ctx.moveTo(ax, ay);
-      ctx.lineTo(bx, by);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-
-  _drawSparks(st) {
-    const { ctx } = this;
-    for (const sp of this.sparks) {
-      const a = sp.life * (0.5 + st * 0.5);
-      ctx.fillStyle = `rgba(255,200,80,${a})`;
-      ctx.beginPath();
-      ctx.arc(sp.x, sp.y, sp.size * sp.life, 0, Math.PI * 2);
+      const [r, g, b] = layer.color;
+      const fgGrad = ctx.createRadialGradient(cx, flameY - fh * 0.2, 0, cx, flameY, fh);
+      fgGrad.addColorStop(0,   `rgba(${r},${g},${b},${layer.a})`);
+      fgGrad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+      ctx.fillStyle = fgGrad;
       ctx.fill();
     }
-  }
 
-  _drawHighlight(dim, strength) {
-    const { ctx, cx, cy, size } = this;
-    // Briefly pulse the area relevant to the changed dimension
-    const labels = {
-      movement:   'MOVEMENT',
-      composure:  'COMPOSURE',
-      focus:      'FOCUS',
-      discipline: 'DISCIPLINE',
-      stoke:      'STOKE',
-    };
-    const alpha = Math.min(strength * 0.18, 0.18);
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.45);
-    grad.addColorStop(0,   `rgba(255,200,80,${alpha})`);
-    grad.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, size, size);
-  }
+    // ── Hot core point ───────────────────────────
+    const coreR = orbR * (0.04 + st * 0.07);
+    const coreG = ctx.createRadialGradient(cx, flameY - flameH * 0.35, 0, cx, flameY - flameH * 0.35, coreR * 3);
+    coreG.addColorStop(0,   `rgba(255,255,220,${0.7 + st * 0.3})`);
+    coreG.addColorStop(0.4, `rgba(255,200,80,${0.4 + st * 0.3})`);
+    coreG.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = coreG;
+    ctx.beginPath();
+    ctx.arc(cx, flameY - flameH * 0.35, coreR * 3, 0, Math.PI * 2);
+    ctx.fill();
 
-  _drawFormAnimation(formT) {
-    const { ctx, cx, cy, size } = this;
-    // Expanding ring that fades out
-    if (formT < 1.5) {
-      const p     = formT / 1.5;
-      const r     = size * 0.1 + p * size * 0.38;
-      const alpha = (1 - p) * 0.6;
+    ctx.restore(); // end orb clip
+
+    // ── Orb rim highlight (focus = sharper rim) ──
+    const rimAlpha = 0.06 + fc * 0.12 + di * 0.08;
+    const rimGrad  = ctx.createRadialGradient(
+      cx - orbR * 0.3, cy - orbR * 0.35, orbR * 0.5,
+      cx, cy, orbR
+    );
+    rimGrad.addColorStop(0,   'rgba(255,255,255,0)');
+    rimGrad.addColorStop(0.82,'rgba(255,255,255,0)');
+    rimGrad.addColorStop(0.9, `rgba(255,255,255,${rimAlpha})`);
+    rimGrad.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
+    ctx.fillStyle = rimGrad;
+    ctx.fill();
+
+    // ── Specular top-left glint ───────────────────
+    const glintX = cx - orbR * 0.28;
+    const glintY = cy - orbR * 0.32;
+    const glintR = orbR * (0.08 + fc * 0.06);
+    const glintG = ctx.createRadialGradient(glintX, glintY, 0, glintX, glintY, glintR);
+    glintG.addColorStop(0,   `rgba(255,255,255,${0.12 + fc * 0.15})`);
+    glintG.addColorStop(1,   'rgba(255,255,255,0)');
+    ctx.fillStyle = glintG;
+    ctx.beginPath();
+    ctx.arc(glintX, glintY, glintR, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── Core Formed animation ────────────────────
+    if (this.forming) {
+      const p     = Math.min(this.formT / 1.2, 1);
+      const ringR = orbR * (0.3 + p * 0.8);
+      const alpha = (1 - p) * 0.7;
       ctx.save();
-      ctx.strokeStyle = `rgba(255,220,100,${alpha})`;
-      ctx.lineWidth   = 2 - p * 1.5;
+      ctx.strokeStyle = `rgba(255,200,60,${alpha})`;
+      ctx.lineWidth   = 2 * (1 - p * 0.6);
       ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
-    }
-    // Flash brighten
-    if (formT < 0.4) {
-      const p = formT / 0.4;
-      const a = (1 - p) * 0.15;
-      ctx.fillStyle = `rgba(255,240,180,${a})`;
-      ctx.fillRect(0, 0, size, size);
     }
   }
 
