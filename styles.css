@@ -7474,14 +7474,10 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .sf-friend-challenge-banner { background: rgba(212,184,92,0.12) !important; border-color: rgba(212,184,92,0.25) !important; }
 .sf-friend-challenge-banner .sf-win-label { color: #C9A84C !important; }
 .sf-fc-context {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-size: 13px;
   color: var(--text-secondary);
   margin-bottom: 2px;
 }
-.sf-fc-challenger-icon { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; }
 
 /* Proof modal challenge text */
 .fc-proof-challenge-text {

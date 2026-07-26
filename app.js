@@ -3730,8 +3730,6 @@ function renderSocialFeed() {
         </div>
       </div>`;
     } else if (post.type === 'friend_challenge_win') {
-      const challBrother = brothers.find(b => b.id === post.challengerId);
-      const challIcon = challBrother ? archetypeElementIcon(challBrother.primaryArchetype || challBrother.archetype, challBrother.dominantElement, challBrother.xp) : '⚡';
       html += `<div class="sf-post sf-friend-challenge-post">
         <div class="sf-post-header">
           <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
@@ -3745,8 +3743,7 @@ function renderSocialFeed() {
           <span class="sf-win-label">⚡ Friend Challenge Complete</span>
         </div>
         <div class="sf-fc-context">
-          <span class="sf-fc-challenger-icon">${challIcon}</span>
-          <span class="sf-fc-context-text"><strong>${escHtml(post.challengerName)}</strong> challenged <strong>${escHtml(post.brotherName)}</strong></span>
+          <strong>${escHtml(post.challengerName)}</strong>&nbsp;challenged&nbsp;<strong>${escHtml(post.brotherName)}</strong>
         </div>
         <div class="sf-challenge-title">"${escHtml(post.description || '')}"</div>
         ${post.caption ? `<div class="sf-caption">${escHtml(post.caption)}</div>` : ''}
