@@ -7433,6 +7433,30 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   gap: 8px;
 }
 .mhv2-fc-top { display: flex; justify-content: space-between; align-items: center; }
+.mhv2-fc-top-right { display: flex; align-items: center; gap: 8px; }
+.mhv2-fc-dismiss-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.35);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.mhv2-fc-dismiss-btn:hover { color: rgba(255,255,255,0.7); }
+.confirm-msg { font-size: 15px; color: var(--text-primary); line-height: 1.4; margin: 0; }
+.btn-danger {
+  background: #c04a2e;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-danger:hover { opacity: 0.85; }
 .mhv2-fc-label {
   font-size: 10px;
   font-weight: 800;

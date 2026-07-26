@@ -1936,7 +1936,10 @@ function _renderMemberView() {
       <div class="mhv2-friend-challenge" data-fc-id="${fc.id}">
         <div class="mhv2-fc-top">
           <span class="mhv2-fc-label">⚡ CHALLENGED BY ${escHtml(fc.fromName.toUpperCase())}</span>
-          <span class="mhv2-fc-xp">+${fc.xp} XP</span>
+          <div class="mhv2-fc-top-right">
+            <span class="mhv2-fc-xp">+${fc.xp} XP</span>
+            <button class="mhv2-fc-dismiss-btn" data-fc-dismiss="${fc.id}" title="Decline challenge">✕</button>
+          </div>
         </div>
         <div class="mhv2-fc-desc">${escHtml(fc.description)}</div>
         <button class="mhv2-fc-complete-btn" data-fc-complete="${fc.id}">COMPLETE CHALLENGE →</button>
@@ -2011,6 +2014,11 @@ function _renderMemberView() {
   // Wire friend challenge complete buttons
   memberHero.querySelectorAll('[data-fc-complete]').forEach(btn => {
     btn.addEventListener('click', () => completeFriendChallenge(btn.dataset.fcComplete, profile));
+  });
+
+  // Wire friend challenge dismiss buttons
+  memberHero.querySelectorAll('[data-fc-dismiss]').forEach(btn => {
+    btn.addEventListener('click', () => dismissFriendChallenge(btn.dataset.fcDismiss));
   });
 
   // Wire profile snapshot toggles in hero
@@ -4405,6 +4413,48 @@ async function completeFriendChallenge(fcId, profile) {
   });
 
   openModal(overlay);
+}
+
+async function dismissFriendChallenge(fcId) {
+  const confirmed = await showConfirm('Decline this challenge? This can\'t be undone.');
+  if (!confirmed) return;
+  try {
+    await updateDoc(doc(db, 'friendChallenges', fcId), { status: 'declined' });
+  } catch (err) {
+    showToast('Could not remove — try again.', 'info');
+  }
+}
+
+function showConfirm(message) {
+  return new Promise(resolve => {
+    let overlay = document.getElementById('confirmModal');
+    if (overlay) overlay.remove();
+    overlay = document.createElement('div');
+    overlay.id = 'confirmModal';
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal modal-sm confirm-modal" role="dialog" aria-modal="true">
+        <div class="modal-body" style="padding:24px 20px 8px">
+          <p class="confirm-msg">${escHtml(message)}</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="confirmNo">Cancel</button>
+          <button class="btn btn-danger" id="confirmYes">Yes, remove it</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const cleanup = (result) => {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      overlay.remove();
+      resolve(result);
+    };
+    document.getElementById('confirmYes').addEventListener('click', () => cleanup(true));
+    document.getElementById('confirmNo').addEventListener('click',  () => cleanup(false));
+    overlay.addEventListener('click', e => { if (e.target === overlay) cleanup(false); });
+  });
 }
 
 // ── ROSTER (member view of all brothers) ──────
