@@ -5357,6 +5357,8 @@ document.getElementById('missionSubmitBtn').addEventListener('click', async () =
   }
 });
 
+let rosterActiveFilter = 'All';
+
 function renderRoster() {
   const container = document.getElementById('rosterContainer');
   if (!container) return;
@@ -5368,11 +5370,23 @@ function renderRoster() {
     return;
   }
 
+  // Collect archetypes that exist in the roster
+  const presentArchetypes = [...new Set(
+    sorted.map(b => b.primaryArchetype || b.archetype).filter(Boolean)
+  )].sort();
+
+  const chips = ['All', ...presentArchetypes].map(a => {
+    const clr = a === 'All' ? null : (ARCHETYPE_COLORS[a] || null);
+    const isActive = rosterActiveFilter === a;
+    return `<button class="roster-filter-chip ${isActive ? 'active' : ''}" data-archetype="${a}" ${clr ? `style="--chip-arch-color:${clr.icon}"` : ''}>${escHtml(a)}</button>`;
+  }).join('');
+
   container.innerHTML = `
     <div class="feed-header">
       <h2 class="feed-title">The Brotherhood</h2>
       <button class="btn-dm-inbox" id="dmInboxBtn">💬 Messages</button>
     </div>
+    <div class="roster-filters">${chips}</div>
     <div class="roster-list">
       ${sorted.map((b, i) => {
         const xp  = b.xp || 0;
@@ -5383,8 +5397,9 @@ function renderRoster() {
         const elColor = ELEMENT_COLORS[b.dominantElement];
         const isMe = b.id === me?.id;
         const bsCat = b.brotherhoodScore != null ? getBSCategory(b.brotherhoodScore) : null;
+        const hidden = rosterActiveFilter !== 'All' && displayArchetype !== rosterActiveFilter ? 'style="display:none"' : '';
         return `
-          <div class="roster-card ${isMe ? 'roster-card-me' : ''}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(b.dominantElement||'')}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}">
+          <div class="roster-card ${isMe ? 'roster-card-me' : ''}" data-archetype="${escHtml(displayArchetype||'')}" data-element="${escHtml(b.dominantElement||'')}" style="--arch-border:${archClr.border};--arch-glow:${archClr.glow};--arch-icon:${archClr.icon}" ${hidden}>
             <div class="roster-rank">#${i + 1}</div>
             <div class="roster-icon">${icon}</div>
             <div class="roster-info">
@@ -5409,6 +5424,19 @@ function renderRoster() {
           </div>`;
       }).join('')}
     </div>`;
+
+  // Filter chips
+  container.querySelectorAll('.roster-filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      rosterActiveFilter = chip.dataset.archetype;
+      container.querySelectorAll('.roster-filter-chip').forEach(c => c.classList.toggle('active', c.dataset.archetype === rosterActiveFilter));
+      const cards = container.querySelectorAll('.roster-card');
+      cards.forEach(card => {
+        const match = rosterActiveFilter === 'All' || card.dataset.archetype === rosterActiveFilter;
+        card.style.display = match ? '' : 'none';
+      });
+    });
+  });
 
   // Wire DM buttons
   container.querySelectorAll('[data-dm]').forEach(btn => {

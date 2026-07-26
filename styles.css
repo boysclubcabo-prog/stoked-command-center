@@ -3940,6 +3940,48 @@ body {
   font-weight: 600;
 }
 
+/* ── ROSTER FILTERS ── */
+.roster-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.roster-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.roster-filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.roster-filter-chip[data-archetype].active {
+  background: var(--chip-arch-color, var(--accent));
+  border-color: var(--chip-arch-color, var(--accent));
+  color: #fff;
+}
+
+.roster-filter-chip[data-archetype]:not(.active):hover {
+  border-color: var(--chip-arch-color, var(--border));
+  color: var(--chip-arch-color, var(--text));
+}
+
 /* ── ROSTER ── */
 .roster-list {
   display: flex;
