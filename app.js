@@ -1941,7 +1941,8 @@ function _renderMemberView() {
             <button class="mhv2-fc-dismiss-btn" data-fc-dismiss="${fc.id}" title="Decline challenge">✕</button>
           </div>
         </div>
-        <div class="mhv2-fc-desc">${escHtml(fc.description)}</div>
+        <div class="mhv2-fc-desc mhv2-fc-desc-clamped" data-fc-desc="${fc.id}">${escHtml(fc.description)}</div>
+        ${fc.description.length > 60 ? `<button class="mhv2-fc-readmore" data-fc-readmore="${fc.id}">Read more ↓</button>` : ''}
         <button class="mhv2-fc-complete-btn" data-fc-complete="${fc.id}">COMPLETE CHALLENGE →</button>
       </div>`).join('') : ''}
 
@@ -2019,6 +2020,15 @@ function _renderMemberView() {
   // Wire friend challenge dismiss buttons
   memberHero.querySelectorAll('[data-fc-dismiss]').forEach(btn => {
     btn.addEventListener('click', () => dismissFriendChallenge(btn.dataset.fcDismiss));
+  });
+
+  // Wire read more toggles
+  memberHero.querySelectorAll('[data-fc-readmore]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const desc = memberHero.querySelector(`[data-fc-desc="${btn.dataset.fcReadmore}"]`);
+      const expanded = desc.classList.toggle('mhv2-fc-desc-expanded');
+      btn.textContent = expanded ? 'Read less ↑' : 'Read more ↓';
+    });
   });
 
   // Wire profile snapshot toggles in hero
