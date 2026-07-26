@@ -1485,11 +1485,13 @@ function showApp() {
           query(collection(db, 'friendChallenges'), orderBy('createdAt', 'desc')),
           snap => {
             const prev = activeFriendChallenges.map(c => c.id);
+            const myName = myProfile.name?.toLowerCase() || '';
             activeFriendChallenges = snap.docs
               .map(d => ({ id: d.id, ...d.data() }))
               .filter(c => c.status === 'pending' && (
                 c.toUid === myProfile.id ||
-                c.toEmail?.toLowerCase() === myEmail
+                c.toEmail?.toLowerCase() === myEmail ||
+                c.toName?.toLowerCase() === myName
               ));
             const newOnes = activeFriendChallenges.filter(c => !prev.includes(c.id));
             newOnes.forEach(c => {
