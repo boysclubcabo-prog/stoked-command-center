@@ -3186,100 +3186,118 @@ class StokeCore {
     this.raf = requestAnimationFrame(this._loop);
   }
 
-  // ── Flame — bezier teardrop, transparent bg ─
+  // ── 3D wireframe terrain ─────────────────────
   _draw() {
     const { ctx, cx, cy, size, t } = this;
     const v  = this.current;
-    const st = v.stoke      / 10;
-    const mv = v.movement   / 10;
-    const cp = v.composure  / 10;
-
-    const speed    = this.reducedMotion ? 0 : (0.3 + mv * 0.7);
-    const pulseFq  = 0.4 + cp * 0.5;
-    const pulse    = 1 + (0.06 - cp * 0.04) * Math.sin(t * pulseFq * Math.PI * 2);
-
-    // Flame dimensions — centered in canvas
-    const flameH = size * (0.30 + st * 0.38) * pulse;
-    const flameW = size * (0.13 + st * 0.09);
-    const baseY  = cy + flameH * 0.38;   // bottom anchor, slightly below center
-    const tipY   = baseY - flameH;        // pointed top
-
-    // Lateral sway — composure controls steadiness
-    const sway = (1 - cp) * flameW * 0.35 * Math.sin(t * speed * 1.9);
+    const st = v.stoke      / 10; // peak height / brightness
+    const mv = v.movement   / 10; // rotation + wave speed
+    const cp = v.composure  / 10; // surface smoothness
+    const fc = v.focus      / 10; // peak sharpness + line width
+    const di = v.discipline / 10; // wave regularity
 
     ctx.clearRect(0, 0, size, size);
 
-    // ── Outer diffuse glow ───────────────────────
-    const glowCx = cx + sway * 0.2;
-    const glowCy = cy + flameH * 0.05;
-    const glowR  = flameH * (0.9 + st * 0.3);
-    const glowG  = ctx.createRadialGradient(glowCx, glowCy, 0, glowCx, glowCy, glowR);
-    glowG.addColorStop(0,   `rgba(255,110,20,${0.10 + st * 0.18})`);
-    glowG.addColorStop(0.4, `rgba(200,55,5,${0.05 + st * 0.10})`);
-    glowG.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = glowG;
-    ctx.beginPath();
-    ctx.ellipse(glowCx, glowCy, glowR * 0.7, glowR, 0, 0, Math.PI * 2);
-    ctx.fill();
+    const speed = this.reducedMotion ? 0 : (0.08 + mv * 0.45);
+    const N     = 22; // grid resolution
 
-    // ── Flame layers — bezier teardrop, outermost first ──
-    const layers = [
-      { ws: 1.45, hs: 1.00, r: 150, g: 35,  b: 5,   a: 0.22 + st * 0.28, sw: 1.0  },
-      { ws: 1.05, hs: 1.00, r: 220, g: 80,  b: 10,  a: 0.38 + st * 0.32, sw: 0.75 },
-      { ws: 0.65, hs: 1.02, r: 255, g: 155, b: 25,  a: 0.55 + st * 0.30, sw: 0.5  },
-      { ws: 0.38, hs: 1.04, r: 255, g: 215, b: 70,  a: 0.72 + st * 0.23, sw: 0.3  },
-      { ws: 0.18, hs: 1.05, r: 255, g: 248, b: 200, a: 0.88 + st * 0.12, sw: 0.15 },
-    ];
+    // Camera: slow Y-rotation driven by Movement
+    const rotY  = 0.62 + t * speed * 0.07;
+    const pitch = 0.52;
+    const camD  = 2.4;
+    const fov   = size * 0.52;
+    const vOff  = cy + size * 0.08; // push center down slightly
 
-    for (const L of layers) {
-      const w   = flameW * L.ws;
-      const h   = flameH * L.hs;
-      const bY  = baseY;
-      const tY  = bY - h;
-      const lx  = cx + sway * L.sw;
+    const cosR = Math.cos(rotY), sinR = Math.sin(rotY);
+    const cosP = Math.cos(pitch), sinP = Math.sin(pitch);
 
-      // Vertical linear gradient: transparent at base and tip, opaque in middle
-      const grad = ctx.createLinearGradient(lx, bY, lx, tY);
-      grad.addColorStop(0,    `rgba(${L.r},${L.g},${L.b},0)`);
-      grad.addColorStop(0.15, `rgba(${L.r},${L.g},${L.b},${L.a * 0.6})`);
-      grad.addColorStop(0.55, `rgba(${L.r},${L.g},${L.b},${L.a})`);
-      grad.addColorStop(0.85, `rgba(${L.r},${L.g},${L.b},${L.a * 0.5})`);
-      grad.addColorStop(1,    `rgba(${L.r},${L.g},${L.b},0)`);
+    const project = (wx, wy, wz) => {
+      const rx = wx * cosR - wz * sinR;
+      const rz = wx * sinR + wz * cosR;
+      const py = wy * cosP - rz * sinP;
+      const pz = wy * sinP + rz * cosP;
+      const d  = Math.max(0.3, camD - pz);
+      const sc = fov / d;
+      return { x: cx + rx * sc, y: vOff - py * sc, depth: pz };
+    };
 
-      // Bezier teardrop: wide at base, pointed at tip
-      ctx.beginPath();
-      ctx.moveTo(lx, tY);                                      // tip
-      ctx.bezierCurveTo(lx + w * 0.45, bY - h * 0.62,        // upper-right ctrl
-                        lx + w,        bY - h * 0.12,         // lower-right ctrl
-                        lx,            bY);                     // base
-      ctx.bezierCurveTo(lx - w,        bY - h * 0.12,        // lower-left ctrl
-                        lx - w * 0.45, bY - h * 0.62,        // upper-left ctrl
-                        lx,            tY);                    // back to tip
-      ctx.fillStyle = grad;
-      ctx.fill();
+    // Build height map
+    const G = [];
+    const maxH = 0.5 + st * 0.5; // Stoke → overall peak height (normalized)
+
+    for (let r = 0; r <= N; r++) {
+      G[r] = [];
+      for (let c = 0; c <= N; c++) {
+        const nx   = (c / N - 0.5) * 2;
+        const nz   = (r / N - 0.5) * 2;
+        const dist = Math.sqrt(nx * nx + nz * nz);
+
+        // Focus → sharpness of central peak (narrow spike vs broad mound)
+        const sharp = 1.6 + fc * 8.0;
+        const peak  = Math.exp(-dist * dist * sharp) * maxH;
+
+        // Discipline → concentric wave rings (tight + regular vs loose + sparse)
+        const wFreq = 2.0 + di * 6.0;
+        const wAmp  = (0.015 + di * 0.10) * Math.max(0, 1 - dist * 0.65);
+        const wave  = wAmp * Math.sin(dist * wFreq - t * speed * 5.5);
+
+        // Composure → surface turbulence (smooth vs jagged)
+        const turbAmp = (1 - cp) * 0.07;
+        const turb    = turbAmp * Math.sin(nx * 6.5 + t * speed * 1.3)
+                                * Math.sin(nz * 5.8 - t * speed * 0.85);
+
+        const h    = Math.max(-0.04, peak + wave + turb);
+        G[r][c]    = { h, proj: project(nx, h, nz) };
+      }
     }
 
-    // ── Bright hot core ──────────────────────────
-    const hotY  = baseY - flameH * 0.58;
-    const hotR  = flameW * (0.28 + st * 0.12) * pulse;
-    const hotG  = ctx.createRadialGradient(cx + sway * 0.1, hotY, 0, cx + sway * 0.1, hotY, hotR * 2.2);
-    hotG.addColorStop(0,   `rgba(255,255,235,${0.92 + st * 0.08})`);
-    hotG.addColorStop(0.3, `rgba(255,230,120,${0.6 + st * 0.25})`);
-    hotG.addColorStop(0.7, `rgba(255,140,30,${0.15 + st * 0.15})`);
-    hotG.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = hotG;
+    // Painter's algorithm: sort rows by screen depth (far → near)
+    const rowOrder = Array.from({ length: N + 1 }, (_, r) => r)
+      .sort((a, b) => G[a][Math.floor(N / 2)].proj.depth - G[b][Math.floor(N / 2)].proj.depth);
+
+    const drawSeg = (p1, p2) => {
+      const hf    = Math.max(p1.h, p2.h) / maxH;
+      const alpha = Math.max(0.05, Math.min(0.88, 0.08 + hf * 0.82));
+      // White at base → warm gold at peak
+      const warm  = Math.max(0, (hf - 0.35) / 0.65);
+      ctx.strokeStyle = `rgba(255,${Math.round(255 - warm * 105)},${Math.round(255 - warm * 230)},${alpha})`;
+      ctx.beginPath();
+      ctx.moveTo(p1.proj.x, p1.proj.y);
+      ctx.lineTo(p2.proj.x, p2.proj.y);
+      ctx.stroke();
+    };
+
+    // Focus → line sharpness/weight
+    ctx.lineWidth = 0.45 + fc * 0.65;
+
+    for (const r of rowOrder) {
+      // Horizontal lines along this row
+      for (let c = 0; c < N; c++) drawSeg(G[r][c], G[r][c + 1]);
+      // Vertical lines dropping to next row
+      if (r < N) {
+        for (let c = 0; c <= N; c++) drawSeg(G[r][c], G[r + 1][c]);
+      }
+    }
+
+    // ── Bright glow at peak point ─────────────
+    const peakProj = G[Math.floor(N / 2)][Math.floor(N / 2)].proj;
+    const peakGlow = ctx.createRadialGradient(peakProj.x, peakProj.y, 0, peakProj.x, peakProj.y, size * 0.12);
+    peakGlow.addColorStop(0,   `rgba(255,240,180,${0.35 + st * 0.55})`);
+    peakGlow.addColorStop(0.4, `rgba(255,160,40,${0.10 + st * 0.20})`);
+    peakGlow.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = peakGlow;
     ctx.beginPath();
-    ctx.arc(cx + sway * 0.1, hotY, hotR * 2.2, 0, Math.PI * 2);
+    ctx.arc(peakProj.x, peakProj.y, size * 0.12, 0, Math.PI * 2);
     ctx.fill();
 
-    // ── Core Formed ring animation ────────────────
+    // ── Core Formed ring ─────────────────────
     if (this.forming) {
-      const p = Math.min(this.formT / 1.2, 1);
+      const p = Math.min(this.formT / 1.5, 1);
       ctx.save();
-      ctx.strokeStyle = `rgba(255,200,60,${(1 - p) * 0.7})`;
+      ctx.strokeStyle = `rgba(255,200,60,${(1 - p) * 0.65})`;
       ctx.lineWidth   = 1.5;
       ctx.beginPath();
-      ctx.arc(cx, cy, size * (0.15 + p * 0.3), 0, Math.PI * 2);
+      ctx.arc(cx, cy, size * (0.08 + p * 0.38), 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
