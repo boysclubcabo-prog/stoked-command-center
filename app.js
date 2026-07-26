@@ -2061,17 +2061,8 @@ function _renderMemberView() {
     requestAnimationFrame(() => {
       const miniCanvas = document.getElementById('cardStokeCore');
       if (!miniCanvas) return;
-      // Force a fixed small size
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      miniCanvas.width  = 110 * dpr;
-      miniCanvas.height = 110 * dpr;
-      miniCanvas.style.width  = '110px';
-      miniCanvas.style.height = '110px';
       const mini = new StokeCore(miniCanvas);
-      mini.size = 110;
-      mini.cx   = 55;
-      mini.cy   = 55;
-      mini.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      mini._resize(110); // force 110px regardless of parent width
       mini.reducedMotion = false;
       mini.renderStatic({
         focus:      profile.focusScore      ?? 5,
@@ -3133,9 +3124,8 @@ class StokeCore {
     this._loop = this._loop.bind(this);
   }
 
-  _resize() {
-    const s = this.canvas.parentElement?.clientWidth || 280;
-    const size = Math.min(s, 320);
+  _resize(forceSize) {
+    const size = forceSize || Math.min(this.canvas.parentElement?.clientWidth || 280, 320);
     this.canvas.width  = size * this.dpr;
     this.canvas.height = size * this.dpr;
     this.canvas.style.width  = size + 'px';
@@ -3196,162 +3186,100 @@ class StokeCore {
     this.raf = requestAnimationFrame(this._loop);
   }
 
-  // ── Main draw — simple orb + inner flame ─────
+  // ── Flame — bezier teardrop, transparent bg ─
   _draw() {
     const { ctx, cx, cy, size, t } = this;
     const v  = this.current;
-    const st = v.stoke      / 10;  // flame intensity
-    const mv = v.movement   / 10;  // animation speed
-    const cp = v.composure  / 10;  // pulse smoothness
-    const fc = v.focus      / 10;  // sharpness/definition
-    const di = v.discipline / 10;  // orb edge clarity
+    const st = v.stoke      / 10;
+    const mv = v.movement   / 10;
+    const cp = v.composure  / 10;
 
-    const overall = (st + mv + cp + fc + di) / 5;
-    const speed   = this.reducedMotion ? 0 : (0.3 + mv * 0.7);
+    const speed    = this.reducedMotion ? 0 : (0.3 + mv * 0.7);
+    const pulseFq  = 0.4 + cp * 0.5;
+    const pulse    = 1 + (0.06 - cp * 0.04) * Math.sin(t * pulseFq * Math.PI * 2);
 
-    // Breathing pulse — composure controls how stable/slow it is
-    const pulseFq = 0.5 + cp * 0.8;
-    const pulseAmp = 0.04 - cp * 0.025; // calm = less breathing
-    const pulse = 1 + pulseAmp * Math.sin(t * pulseFq * Math.PI * 2);
+    // Flame dimensions — centered in canvas
+    const flameH = size * (0.30 + st * 0.38) * pulse;
+    const flameW = size * (0.13 + st * 0.09);
+    const baseY  = cy + flameH * 0.38;   // bottom anchor, slightly below center
+    const tipY   = baseY - flameH;        // pointed top
 
-    const orbR = size * 0.38 * pulse;
+    // Lateral sway — composure controls steadiness
+    const sway = (1 - cp) * flameW * 0.35 * Math.sin(t * speed * 1.9);
 
     ctx.clearRect(0, 0, size, size);
 
-    // ── Orb base (dark glass sphere) ────────────
-    const orbGrad = ctx.createRadialGradient(
-      cx - orbR * 0.2, cy - orbR * 0.25, orbR * 0.05,
-      cx, cy, orbR
-    );
-    orbGrad.addColorStop(0,   'rgba(28,22,18,0.95)');
-    orbGrad.addColorStop(0.7, 'rgba(10,8,6,0.98)');
-    orbGrad.addColorStop(1,   'rgba(0,0,0,1)');
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
-    ctx.fillStyle = orbGrad;
-    ctx.fill();
-
-    // ── Outer glow (stoke-driven, clipped outside orb) ──
-    const glowR  = orbR * (1.3 + st * 0.5);
-    const glowG  = ctx.createRadialGradient(cx, cy, orbR * 0.7, cx, cy, glowR);
-    const glowA  = 0.04 + st * 0.18 + overall * 0.06;
-    glowG.addColorStop(0,   `rgba(255,140,30,${glowA})`);
-    glowG.addColorStop(0.5, `rgba(200,70,10,${glowA * 0.4})`);
+    // ── Outer diffuse glow ───────────────────────
+    const glowCx = cx + sway * 0.2;
+    const glowCy = cy + flameH * 0.05;
+    const glowR  = flameH * (0.9 + st * 0.3);
+    const glowG  = ctx.createRadialGradient(glowCx, glowCy, 0, glowCx, glowCy, glowR);
+    glowG.addColorStop(0,   `rgba(255,110,20,${0.10 + st * 0.18})`);
+    glowG.addColorStop(0.4, `rgba(200,55,5,${0.05 + st * 0.10})`);
     glowG.addColorStop(1,   'rgba(0,0,0,0)');
     ctx.fillStyle = glowG;
     ctx.beginPath();
-    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+    ctx.ellipse(glowCx, glowCy, glowR * 0.7, glowR, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // ── Clip everything below to inside the orb ──
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbR * 0.98, 0, Math.PI * 2);
-    ctx.clip();
-
-    // ── Inner ambient warmth (overall energy) ────
-    const warmG = ctx.createRadialGradient(cx, cy + orbR * 0.1, 0, cx, cy, orbR);
-    warmG.addColorStop(0,   `rgba(255,120,20,${0.05 + overall * 0.12})`);
-    warmG.addColorStop(0.5, `rgba(180,60,10,${0.02 + overall * 0.05})`);
-    warmG.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = warmG;
-    ctx.fillRect(cx - orbR, cy - orbR, orbR * 2, orbR * 2);
-
-    // ── Inner flame ──────────────────────────────
-    // Flame lives in bottom-center, rising upward
-    const flameH   = orbR * (0.3 + st * 0.65);  // taller with stoke
-    const flameW   = orbR * (0.18 + st * 0.14);
-    const flameY   = cy + orbR * 0.22;           // anchored near bottom of orb
-    const turbAmt  = (1 - cp) * 0.12;            // composure = stability
-
-    // Draw several flame layers (outer to inner)
-    const flameLayers = [
-      { wMult: 1.4, hMult: 1.0, color: [200, 60, 10],  a: 0.25 + st * 0.3  },
-      { wMult: 1.0, hMult: 1.05,color: [240, 120, 20], a: 0.4 + st * 0.35  },
-      { wMult: 0.6, hMult: 1.1, color: [255, 200, 60], a: 0.6 + st * 0.35  },
-      { wMult: 0.3, hMult: 1.15,color: [255, 240, 180],a: 0.85 + st * 0.15 },
+    // ── Flame layers — bezier teardrop, outermost first ──
+    const layers = [
+      { ws: 1.45, hs: 1.00, r: 150, g: 35,  b: 5,   a: 0.22 + st * 0.28, sw: 1.0  },
+      { ws: 1.05, hs: 1.00, r: 220, g: 80,  b: 10,  a: 0.38 + st * 0.32, sw: 0.75 },
+      { ws: 0.65, hs: 1.02, r: 255, g: 155, b: 25,  a: 0.55 + st * 0.30, sw: 0.5  },
+      { ws: 0.38, hs: 1.04, r: 255, g: 215, b: 70,  a: 0.72 + st * 0.23, sw: 0.3  },
+      { ws: 0.18, hs: 1.05, r: 255, g: 248, b: 200, a: 0.88 + st * 0.12, sw: 0.15 },
     ];
 
-    for (const layer of flameLayers) {
-      const fw = flameW * layer.wMult;
-      const fh = flameH * layer.hMult;
-      const steps = 24;
+    for (const L of layers) {
+      const w   = flameW * L.ws;
+      const h   = flameH * L.hs;
+      const bY  = baseY;
+      const tY  = bY - h;
+      const lx  = cx + sway * L.sw;
 
+      // Vertical linear gradient: transparent at base and tip, opaque in middle
+      const grad = ctx.createLinearGradient(lx, bY, lx, tY);
+      grad.addColorStop(0,    `rgba(${L.r},${L.g},${L.b},0)`);
+      grad.addColorStop(0.15, `rgba(${L.r},${L.g},${L.b},${L.a * 0.6})`);
+      grad.addColorStop(0.55, `rgba(${L.r},${L.g},${L.b},${L.a})`);
+      grad.addColorStop(0.85, `rgba(${L.r},${L.g},${L.b},${L.a * 0.5})`);
+      grad.addColorStop(1,    `rgba(${L.r},${L.g},${L.b},0)`);
+
+      // Bezier teardrop: wide at base, pointed at tip
       ctx.beginPath();
-      for (let i = 0; i <= steps; i++) {
-        const ang = (i / steps) * Math.PI * 2;
-        // Teardrop: wide bottom, pointed top
-        // r(θ): large at π/2 (bottom), zero at -π/2 (top)
-        const baseR = fw * Math.max(0, Math.sin(ang * 0.5 + Math.PI * 0.25));
-        const turb  = turbAmt * fw * Math.sin(t * speed * 2.3 + ang * 4 + layer.wMult * 5);
-        const r     = (baseR + turb) * Math.abs(Math.cos(ang * 0.5));
-        const tx    = turbAmt * fw * 0.4 * Math.sin(t * speed * 1.7 + i * 0.8);
-        const x     = cx + r * Math.cos(ang) + tx;
-        // Squeeze vertically to make teardrop taller than wide
-        const yScale = fh / fw;
-        const y     = flameY - fh * 0.5 + r * Math.sin(ang) * yScale * 0.55;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-
-      const [r, g, b] = layer.color;
-      const fgGrad = ctx.createRadialGradient(cx, flameY - fh * 0.2, 0, cx, flameY, fh);
-      fgGrad.addColorStop(0,   `rgba(${r},${g},${b},${layer.a})`);
-      fgGrad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
-      ctx.fillStyle = fgGrad;
+      ctx.moveTo(lx, tY);                                      // tip
+      ctx.bezierCurveTo(lx + w * 0.45, bY - h * 0.62,        // upper-right ctrl
+                        lx + w,        bY - h * 0.12,         // lower-right ctrl
+                        lx,            bY);                     // base
+      ctx.bezierCurveTo(lx - w,        bY - h * 0.12,        // lower-left ctrl
+                        lx - w * 0.45, bY - h * 0.62,        // upper-left ctrl
+                        lx,            tY);                    // back to tip
+      ctx.fillStyle = grad;
       ctx.fill();
     }
 
-    // ── Hot core point ───────────────────────────
-    const coreR = orbR * (0.04 + st * 0.07);
-    const coreG = ctx.createRadialGradient(cx, flameY - flameH * 0.35, 0, cx, flameY - flameH * 0.35, coreR * 3);
-    coreG.addColorStop(0,   `rgba(255,255,220,${0.7 + st * 0.3})`);
-    coreG.addColorStop(0.4, `rgba(255,200,80,${0.4 + st * 0.3})`);
-    coreG.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = coreG;
+    // ── Bright hot core ──────────────────────────
+    const hotY  = baseY - flameH * 0.58;
+    const hotR  = flameW * (0.28 + st * 0.12) * pulse;
+    const hotG  = ctx.createRadialGradient(cx + sway * 0.1, hotY, 0, cx + sway * 0.1, hotY, hotR * 2.2);
+    hotG.addColorStop(0,   `rgba(255,255,235,${0.92 + st * 0.08})`);
+    hotG.addColorStop(0.3, `rgba(255,230,120,${0.6 + st * 0.25})`);
+    hotG.addColorStop(0.7, `rgba(255,140,30,${0.15 + st * 0.15})`);
+    hotG.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = hotG;
     ctx.beginPath();
-    ctx.arc(cx, flameY - flameH * 0.35, coreR * 3, 0, Math.PI * 2);
+    ctx.arc(cx + sway * 0.1, hotY, hotR * 2.2, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.restore(); // end orb clip
-
-    // ── Orb rim highlight (focus = sharper rim) ──
-    const rimAlpha = 0.06 + fc * 0.12 + di * 0.08;
-    const rimGrad  = ctx.createRadialGradient(
-      cx - orbR * 0.3, cy - orbR * 0.35, orbR * 0.5,
-      cx, cy, orbR
-    );
-    rimGrad.addColorStop(0,   'rgba(255,255,255,0)');
-    rimGrad.addColorStop(0.82,'rgba(255,255,255,0)');
-    rimGrad.addColorStop(0.9, `rgba(255,255,255,${rimAlpha})`);
-    rimGrad.addColorStop(1,   'rgba(255,255,255,0)');
-    ctx.beginPath();
-    ctx.arc(cx, cy, orbR, 0, Math.PI * 2);
-    ctx.fillStyle = rimGrad;
-    ctx.fill();
-
-    // ── Specular top-left glint ───────────────────
-    const glintX = cx - orbR * 0.28;
-    const glintY = cy - orbR * 0.32;
-    const glintR = orbR * (0.08 + fc * 0.06);
-    const glintG = ctx.createRadialGradient(glintX, glintY, 0, glintX, glintY, glintR);
-    glintG.addColorStop(0,   `rgba(255,255,255,${0.12 + fc * 0.15})`);
-    glintG.addColorStop(1,   'rgba(255,255,255,0)');
-    ctx.fillStyle = glintG;
-    ctx.beginPath();
-    ctx.arc(glintX, glintY, glintR, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ── Core Formed animation ────────────────────
+    // ── Core Formed ring animation ────────────────
     if (this.forming) {
-      const p     = Math.min(this.formT / 1.2, 1);
-      const ringR = orbR * (0.3 + p * 0.8);
-      const alpha = (1 - p) * 0.7;
+      const p = Math.min(this.formT / 1.2, 1);
       ctx.save();
-      ctx.strokeStyle = `rgba(255,200,60,${alpha})`;
-      ctx.lineWidth   = 2 * (1 - p * 0.6);
+      ctx.strokeStyle = `rgba(255,200,60,${(1 - p) * 0.7})`;
+      ctx.lineWidth   = 1.5;
       ctx.beginPath();
-      ctx.arc(cx, cy, ringR, 0, Math.PI * 2);
+      ctx.arc(cx, cy, size * (0.15 + p * 0.3), 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
@@ -3369,12 +3297,12 @@ class StokeCore {
 let stokeCore = null;
 
 function getStokeCore() {
+  const canvas = document.getElementById('stokeCoreCanvas');
+  if (!canvas) return null;
   if (!stokeCore) {
-    const canvas = document.getElementById('stokeCoreCanvas');
-    if (!canvas) return null;
     stokeCore = new StokeCore(canvas);
-    stokeCore.start();
   }
+  if (!stokeCore.raf) stokeCore.start(); // restart if stopped
   return stokeCore;
 }
 
