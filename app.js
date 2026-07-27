@@ -3190,114 +3190,164 @@ class StokeCore {
   _draw() {
     const { ctx, cx, cy, size, t } = this;
     const v  = this.current;
-    const st = v.stoke      / 10; // peak height / brightness
-    const mv = v.movement   / 10; // rotation + wave speed
-    const cp = v.composure  / 10; // surface smoothness
-    const fc = v.focus      / 10; // peak sharpness + line width
-    const di = v.discipline / 10; // wave regularity
+    // Normalize each dimension 0→1
+    const st = v.stoke      / 10; // energy intensity + core brightness
+    const mv = v.movement   / 10; // stream flow speed + rotation
+    const cp = v.composure  / 10; // stream smoothness (high=torus arcs, low=wild chaos)
+    const fc = v.focus      / 10; // stream convergence tightness + count
+    const di = v.discipline / 10; // symmetry / regularity of stream pattern
 
     ctx.clearRect(0, 0, size, size);
 
-    const speed = this.reducedMotion ? 0 : (0.08 + mv * 0.45);
-    const N     = 22; // grid resolution
+    const R    = size * 0.44;  // orb radius
+    const spd  = this.reducedMotion ? 0 : (0.4 + mv * 2.2);
 
-    // Camera: slow Y-rotation driven by Movement
-    const rotY  = 0.62 + t * speed * 0.07;
-    const pitch = 0.52;
-    const camD  = 2.4;
-    const fov   = size * 0.52;
-    const vOff  = cy + size * 0.08; // push center down slightly
-
-    const cosR = Math.cos(rotY), sinR = Math.sin(rotY);
-    const cosP = Math.cos(pitch), sinP = Math.sin(pitch);
-
-    const project = (wx, wy, wz) => {
-      const rx = wx * cosR - wz * sinR;
-      const rz = wx * sinR + wz * cosR;
-      const py = wy * cosP - rz * sinP;
-      const pz = wy * sinP + rz * cosP;
-      const d  = Math.max(0.3, camD - pz);
-      const sc = fov / d;
-      return { x: cx + rx * sc, y: vOff - py * sc, depth: pz };
-    };
-
-    // Build height map
-    const G = [];
-    const maxH = 0.5 + st * 0.5; // Stoke → overall peak height (normalized)
-
-    for (let r = 0; r <= N; r++) {
-      G[r] = [];
-      for (let c = 0; c <= N; c++) {
-        const nx   = (c / N - 0.5) * 2;
-        const nz   = (r / N - 0.5) * 2;
-        const dist = Math.sqrt(nx * nx + nz * nz);
-
-        // Focus → sharpness of central peak (narrow spike vs broad mound)
-        const sharp = 1.6 + fc * 8.0;
-        const peak  = Math.exp(-dist * dist * sharp) * maxH;
-
-        // Discipline → concentric wave rings (tight + regular vs loose + sparse)
-        const wFreq = 2.0 + di * 6.0;
-        const wAmp  = (0.015 + di * 0.10) * Math.max(0, 1 - dist * 0.65);
-        const wave  = wAmp * Math.sin(dist * wFreq - t * speed * 5.5);
-
-        // Composure → surface turbulence (smooth vs jagged)
-        const turbAmp = (1 - cp) * 0.07;
-        const turb    = turbAmp * Math.sin(nx * 6.5 + t * speed * 1.3)
-                                * Math.sin(nz * 5.8 - t * speed * 0.85);
-
-        const h    = Math.max(-0.04, peak + wave + turb);
-        G[r][c]    = { h, proj: project(nx, h, nz) };
-      }
-    }
-
-    // Painter's algorithm: sort rows by screen depth (far → near)
-    const rowOrder = Array.from({ length: N + 1 }, (_, r) => r)
-      .sort((a, b) => G[a][Math.floor(N / 2)].proj.depth - G[b][Math.floor(N / 2)].proj.depth);
-
-    const drawSeg = (p1, p2) => {
-      const hf    = Math.max(p1.h, p2.h) / maxH;
-      const alpha = Math.max(0.05, Math.min(0.88, 0.08 + hf * 0.82));
-      // White at base → warm gold at peak
-      const warm  = Math.max(0, (hf - 0.35) / 0.65);
-      ctx.strokeStyle = `rgba(255,${Math.round(255 - warm * 105)},${Math.round(255 - warm * 230)},${alpha})`;
-      ctx.beginPath();
-      ctx.moveTo(p1.proj.x, p1.proj.y);
-      ctx.lineTo(p2.proj.x, p2.proj.y);
-      ctx.stroke();
-    };
-
-    // Focus → line sharpness/weight
-    ctx.lineWidth = 0.45 + fc * 0.65;
-
-    for (const r of rowOrder) {
-      // Horizontal lines along this row
-      for (let c = 0; c < N; c++) drawSeg(G[r][c], G[r][c + 1]);
-      // Vertical lines dropping to next row
-      if (r < N) {
-        for (let c = 0; c <= N; c++) drawSeg(G[r][c], G[r + 1][c]);
-      }
-    }
-
-    // ── Bright glow at peak point ─────────────
-    const peakProj = G[Math.floor(N / 2)][Math.floor(N / 2)].proj;
-    const peakGlow = ctx.createRadialGradient(peakProj.x, peakProj.y, 0, peakProj.x, peakProj.y, size * 0.12);
-    peakGlow.addColorStop(0,   `rgba(255,240,180,${0.35 + st * 0.55})`);
-    peakGlow.addColorStop(0.4, `rgba(255,160,40,${0.10 + st * 0.20})`);
-    peakGlow.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = peakGlow;
+    // ── Orb background sphere ─────────────────────────────────────
+    const orbGrad = ctx.createRadialGradient(cx - R * 0.18, cy - R * 0.18, R * 0.05, cx, cy, R);
+    const coreBright = 0.12 + st * 0.28;
+    orbGrad.addColorStop(0,   `rgba(40,${Math.round(60 + st * 80)},${Math.round(90 + st * 60)},${coreBright})`);
+    orbGrad.addColorStop(0.6, `rgba(10,20,35,${0.55 + st * 0.15})`);
+    orbGrad.addColorStop(1,   `rgba(5,10,20,0.85)`);
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(peakProj.x, peakProj.y, size * 0.12, 0, Math.PI * 2);
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = orbGrad;
+    ctx.fill();
+    ctx.restore();
+
+    // Clip all stream drawing inside the orb
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * 0.995, 0, Math.PI * 2);
+    ctx.clip();
+
+    // ── Helper: draw one energy stream ───────────────────────────
+    // A stream is a parametric curve on the surface of a sphere,
+    // projected to 2D. We vary the inclination angle per stream.
+    // composure  → smoothness of path (low = more harmonic distortion)
+    // focus      → how tightly streams pass through center
+    // discipline → angular spacing regularity
+    // movement   → phase speed
+    // stoke      → color saturation + brightness
+
+    const PI2 = Math.PI * 2;
+    const streamCount = Math.round(4 + fc * 14);  // Focus → more streams
+    const harmonics   = Math.round(1 + di * 4);   // Discipline → petal count
+    const chaos       = (1 - cp) * 2.8;           // Composure → path irregularity
+    const tightness   = 0.15 + fc * 0.7;          // Focus → convergence radius
+
+    // Color palette per stream: hue rotates around the circle
+    // Stoke drives saturation and brightness
+    const sat  = Math.round(55 + st * 45);
+    const lum  = Math.round(45 + st * 40);
+
+    for (let s = 0; s < streamCount; s++) {
+      const frac  = s / streamCount;
+      const hue   = Math.round((frac * 360 + t * spd * 8) % 360);
+      const phase = frac * PI2 + (di > 0.5 ? 0 : (s % 2) * 0.4); // Discipline → phase jitter
+
+      // Build path as series of points
+      const pts = [];
+      const SEG = 180;
+      for (let i = 0; i <= SEG; i++) {
+        const u = (i / SEG) * PI2;
+
+        // Base torus-knot parametric: wraps around sphere with harmonic lobe
+        const theta = u + phase;
+        const phi   = harmonics * u * 0.5 + t * spd * 0.03 + phase * 0.3;
+
+        // Radial distance from center (creates looping paths)
+        const lobeR = tightness + (1 - tightness) * Math.abs(Math.sin(phi));
+
+        // Composure: low composure adds chaotic higher-order harmonics
+        const distort = chaos * 0.08 * Math.sin(theta * 3.7 + t * spd * 0.07)
+                              + chaos * 0.04 * Math.sin(theta * 7.1 - t * spd * 0.11);
+        const r = Math.max(0, lobeR + distort);
+
+        // Convert spherical-ish coords to screen xy (flat projection with depth pseudo-3D)
+        const sinT = Math.sin(theta), cosT = Math.cos(theta);
+        const sinP = Math.sin(phi  * 0.9 + t * spd * 0.015), cosP = Math.cos(phi * 0.9);
+
+        // Project onto sphere surface
+        const x3 = r * cosT * cosP;
+        const y3 = r * sinT;
+        const z3 = r * cosT * sinP;
+
+        // Simple perspective
+        const depth = 1.0 + z3 * 0.35;
+        const px = cx + x3 * R / depth;
+        const py = cy + y3 * R / depth;
+
+        pts.push({ px, py, z3, depth });
+      }
+
+      // Draw stream as polyline segments with alpha based on z-depth
+      ctx.lineWidth = 0.6 + st * 0.8;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p  = pts[i];
+        const p2 = pts[i + 1];
+        // Depth-based alpha: streams facing viewer are brighter
+        const depthA = Math.max(0.03, Math.min(1, (p.z3 + 1) * 0.5));
+        const alpha  = depthA * (0.25 + st * 0.55);
+        ctx.strokeStyle = `hsla(${hue},${sat}%,${lum}%,${alpha.toFixed(2)})`;
+        ctx.beginPath();
+        ctx.moveTo(p.px,  p.py);
+        ctx.lineTo(p2.px, p2.py);
+        ctx.stroke();
+      }
+    }
+
+    ctx.restore(); // end clip
+
+    // ── Bright central nucleus ────────────────────────────────────
+    const glowR = size * (0.04 + st * 0.10);
+    const core  = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR * 3.5);
+    core.addColorStop(0,   `rgba(255,255,255,${0.55 + st * 0.45})`);
+    core.addColorStop(0.2, `rgba(255,230,120,${0.40 + st * 0.40})`);
+    core.addColorStop(0.5, `rgba(255,120,40,${0.18 + st * 0.22})`);
+    core.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = core;
+    ctx.beginPath();
+    ctx.arc(cx, cy, glowR * 3.5, 0, Math.PI * 2);
     ctx.fill();
 
-    // ── Core Formed ring ─────────────────────
+    // ── Glowing orb rim ───────────────────────────────────────────
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    const rimGrad = ctx.createRadialGradient(cx, cy, R * 0.80, cx, cy, R * 1.02);
+    rimGrad.addColorStop(0,   'rgba(0,0,0,0)');
+    rimGrad.addColorStop(0.7, `rgba(80,180,255,${0.06 + st * 0.10})`);
+    rimGrad.addColorStop(1,   `rgba(140,220,255,${0.18 + st * 0.18})`);
+    ctx.strokeStyle = `rgba(100,200,255,${0.15 + st * 0.25})`;
+    ctx.lineWidth   = 1.2 + st * 1.5;
+    ctx.stroke();
+    ctx.fillStyle   = rimGrad;
+    ctx.fill();
+    ctx.restore();
+
+    // ── Particle sparks along streams (Discipline → count) ────────
+    const sparkCount = Math.round(di * 28);
+    for (let i = 0; i < sparkCount; i++) {
+      const angle  = (i / sparkCount) * PI2 + t * spd * 0.05;
+      const rr     = R * (0.2 + Math.abs(Math.sin(angle * harmonics + t * spd * 0.04)) * 0.72);
+      const hue    = Math.round((i / sparkCount * 360 + t * spd * 12) % 360);
+      const px     = cx + Math.cos(angle) * rr;
+      const py     = cy + Math.sin(angle) * rr;
+      ctx.beginPath();
+      ctx.arc(px, py, 1.0 + st * 1.2, 0, PI2);
+      ctx.fillStyle = `hsla(${hue},100%,85%,${0.5 + st * 0.4})`;
+      ctx.fill();
+    }
+
+    // ── Core Formed ring ─────────────────────────────────────────
     if (this.forming) {
       const p = Math.min(this.formT / 1.5, 1);
       ctx.save();
-      ctx.strokeStyle = `rgba(255,200,60,${(1 - p) * 0.65})`;
-      ctx.lineWidth   = 1.5;
+      ctx.strokeStyle = `rgba(255,220,80,${(1 - p) * 0.8})`;
+      ctx.lineWidth   = 2;
       ctx.beginPath();
-      ctx.arc(cx, cy, size * (0.08 + p * 0.38), 0, Math.PI * 2);
+      ctx.arc(cx, cy, R * (0.15 + p * 0.85), 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
