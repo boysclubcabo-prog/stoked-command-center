@@ -1909,26 +1909,15 @@ function _renderMemberView() {
         </div>
       </div>
 
-      <!-- Stoke Core + Daily check-in score -->
-      <div class="mhv2-score-section mhv2-score-with-core">
-        ${bsScore != null ? `
-        <canvas class="mhv2-stoke-core-mini" id="cardStokeCore" width="140" height="140" aria-label="Your Stoke Core" role="img"></canvas>
-        <div class="mhv2-score-right">
-          <div class="mhv2-rank-eyebrow">Stoke Core</div>
-          <div class="mhv2-rank-row">
-            <div class="mhv2-rank-num" style="color:${bsCat.color}">${bsScore}</div>
-            <div class="mhv2-rank-of">${bsCat.label}</div>
-          </div>
-          <div class="mhv2-core-dims">
-            <span>⚡ Focus ${profile.focusScore ?? '—'}</span>
-            <span>🏃 Move ${profile.movementScore ?? '—'}</span>
-            <span>🧠 Disc ${profile.disciplineScore ?? '—'}</span>
-            <span>🧘 Comp ${profile.composureScore ?? '—'}</span>
-            <span>🔥 Stoke ${profile.stokeScore ?? '—'}</span>
-          </div>
-        </div>` : `
-        <div class="mhv2-rank-eyebrow">Stoke Core</div>
-        <div class="mhv2-no-score">No check-in yet today</div>`}
+      <!-- Daily check-in score -->
+      <div class="mhv2-score-section">
+        <div class="mhv2-rank-eyebrow">Daily Check-In Score</div>
+        ${bsScore != null
+          ? `<div class="mhv2-rank-row">
+               <div class="mhv2-rank-num" style="color:${bsCat.color}">${bsScore}</div>
+               <div class="mhv2-rank-of">${bsCat.label}</div>
+             </div>`
+          : `<div class="mhv2-no-score">No check-in yet today</div>`}
       </div>
 
       <!-- Level + gold progress bar -->
@@ -2055,25 +2044,6 @@ function _renderMemberView() {
 
   // Parallax ghost icon — scrolls at 50% speed relative to card
   initCardParallax();
-
-  // Mini Stoke Core on the card
-  if (bsScore != null) {
-    requestAnimationFrame(() => {
-      const miniCanvas = document.getElementById('cardStokeCore');
-      if (!miniCanvas) return;
-      const mini = new StokeCore(miniCanvas);
-      mini._resize(110); // force 110px regardless of parent width
-      mini.reducedMotion = false;
-      mini.renderStatic({
-        focus:      profile.focusScore      ?? 5,
-        movement:   profile.movementScore   ?? 5,
-        discipline: profile.disciplineScore ?? 5,
-        composure:  profile.composureScore  ?? 5,
-        stoke:      profile.stokeScore      ?? 5,
-      });
-      mini.start();
-    });
-  }
 }
 
 function initCardParallax() {
@@ -3063,11 +3033,6 @@ function openCheckInModal(id) {
 
   updateBSPreview();
   openModal(checkInModal);
-  // Boot / sync the Stoke Core
-  setTimeout(() => {
-    const core = getStokeCore();
-    if (core) core.setValues(getCheckInValues());
-  }, 80);
 }
 
 function updateSliderFill(slider) {
@@ -3092,298 +3057,6 @@ function updateBSPreview() {
   ).join('');
 }
 
-// ── STOKE CORE ─────────────────────────────────────────────────────────────
-// Orb with inner flame. No external dependencies.
-class StokeCore {
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.ctx    = canvas.getContext('2d');
-    this.dpr    = Math.min(window.devicePixelRatio || 1, 2);
-    this._resize();
-
-    // Current displayed values (interpolated toward targets)
-    this.current  = { movement: 5, composure: 5, focus: 5, discipline: 5, stoke: 5 };
-    this.target   = { movement: 5, composure: 5, focus: 5, discipline: 5, stoke: 5 };
-
-    // Timing
-    this.t          = 0;            // continuous time counter
-    this.raf        = null;
-    this.lastTime   = null;
-    this.forming    = false;        // "Core Formed" animation
-    this.formT      = 0;
-    this.highlightDim = null;       // briefly lit dimension on slider change
-    this.highlightEnd = 0;
-
-    // Reduced-motion
-    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Visibility pause
-    this._visHandler = () => { if (document.hidden) this._pause(); else this._resume(); };
-    document.addEventListener('visibilitychange', this._visHandler);
-
-    this._loop = this._loop.bind(this);
-  }
-
-  _resize(forceSize) {
-    const size = forceSize || Math.min(this.canvas.parentElement?.clientWidth || 280, 320);
-    this.canvas.width  = size * this.dpr;
-    this.canvas.height = size * this.dpr;
-    this.canvas.style.width  = size + 'px';
-    this.canvas.style.height = size + 'px';
-    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.size = size;
-    this.cx   = size / 2;
-    this.cy   = size / 2;
-  }
-
-  setValues(vals, highlightDim = null) {
-    Object.assign(this.target, vals);
-    if (highlightDim) {
-      this.highlightDim = highlightDim;
-      this.highlightEnd = this.t + 1.8; // seconds
-    }
-  }
-
-  triggerFormAnimation() {
-    this.forming = true;
-    this.formT   = 0;
-  }
-
-  start() {
-    this.lastTime = null;
-    if (!this.raf) this.raf = requestAnimationFrame(this._loop);
-  }
-
-  stop() {
-    if (this.raf) { cancelAnimationFrame(this.raf); this.raf = null; }
-  }
-
-  destroy() {
-    this.stop();
-    document.removeEventListener('visibilitychange', this._visHandler);
-  }
-
-  _pause() { this.stop(); }
-  _resume() { this.start(); }
-
-  _loop(ts) {
-    const dt = this.lastTime ? Math.min((ts - this.lastTime) / 1000, 0.05) : 0.016;
-    this.lastTime = ts;
-    if (!this.reducedMotion) this.t += dt;
-
-    // Smooth interpolation toward target (lerp at ~3/s)
-    const alpha = 1 - Math.pow(0.04, dt); // exp decay
-    for (const k of Object.keys(this.current)) {
-      this.current[k] += (this.target[k] - this.current[k]) * alpha;
-    }
-
-    if (this.forming) {
-      this.formT += dt;
-      if (this.formT > 2.5) this.forming = false;
-    }
-
-    this._draw();
-    this.raf = requestAnimationFrame(this._loop);
-  }
-
-  // ── 3D wireframe terrain ─────────────────────
-  _draw() {
-    const { ctx, cx, cy, size, t } = this;
-    const v  = this.current;
-    // Normalize each dimension 0→1
-    const st = v.stoke      / 10; // energy intensity + core brightness
-    const mv = v.movement   / 10; // stream flow speed + rotation
-    const cp = v.composure  / 10; // stream smoothness (high=torus arcs, low=wild chaos)
-    const fc = v.focus      / 10; // stream convergence tightness + count
-    const di = v.discipline / 10; // symmetry / regularity of stream pattern
-
-    ctx.clearRect(0, 0, size, size);
-
-    const R    = size * 0.44;  // orb radius
-    const spd  = this.reducedMotion ? 0 : (0.4 + mv * 2.2);
-
-    // ── Orb background sphere ─────────────────────────────────────
-    const orbGrad = ctx.createRadialGradient(cx - R * 0.18, cy - R * 0.18, R * 0.05, cx, cy, R);
-    const coreBright = 0.12 + st * 0.28;
-    orbGrad.addColorStop(0,   `rgba(40,${Math.round(60 + st * 80)},${Math.round(90 + st * 60)},${coreBright})`);
-    orbGrad.addColorStop(0.6, `rgba(10,20,35,${0.55 + st * 0.15})`);
-    orbGrad.addColorStop(1,   `rgba(5,10,20,0.85)`);
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.fillStyle = orbGrad;
-    ctx.fill();
-    ctx.restore();
-
-    // Clip all stream drawing inside the orb
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, R * 0.995, 0, Math.PI * 2);
-    ctx.clip();
-
-    // ── Helper: draw one energy stream ───────────────────────────
-    // A stream is a parametric curve on the surface of a sphere,
-    // projected to 2D. We vary the inclination angle per stream.
-    // composure  → smoothness of path (low = more harmonic distortion)
-    // focus      → how tightly streams pass through center
-    // discipline → angular spacing regularity
-    // movement   → phase speed
-    // stoke      → color saturation + brightness
-
-    const PI2 = Math.PI * 2;
-    const streamCount = Math.round(4 + fc * 14);  // Focus → more streams
-    const harmonics   = Math.round(1 + di * 4);   // Discipline → petal count
-    const chaos       = (1 - cp) * 2.8;           // Composure → path irregularity
-    const tightness   = 0.15 + fc * 0.7;          // Focus → convergence radius
-
-    // Color palette per stream: hue rotates around the circle
-    // Stoke drives saturation and brightness
-    const sat  = Math.round(55 + st * 45);
-    const lum  = Math.round(45 + st * 40);
-
-    for (let s = 0; s < streamCount; s++) {
-      const frac  = s / streamCount;
-      const hue   = Math.round((frac * 360 + t * spd * 8) % 360);
-      const phase = frac * PI2 + (di > 0.5 ? 0 : (s % 2) * 0.4); // Discipline → phase jitter
-
-      // Build path as series of points
-      const pts = [];
-      const SEG = 180;
-      for (let i = 0; i <= SEG; i++) {
-        const u = (i / SEG) * PI2;
-
-        // Base torus-knot parametric: wraps around sphere with harmonic lobe
-        const theta = u + phase;
-        const phi   = harmonics * u * 0.5 + t * spd * 0.03 + phase * 0.3;
-
-        // Radial distance from center (creates looping paths)
-        const lobeR = tightness + (1 - tightness) * Math.abs(Math.sin(phi));
-
-        // Composure: low composure adds chaotic higher-order harmonics
-        const distort = chaos * 0.08 * Math.sin(theta * 3.7 + t * spd * 0.07)
-                              + chaos * 0.04 * Math.sin(theta * 7.1 - t * spd * 0.11);
-        const r = Math.max(0, lobeR + distort);
-
-        // Convert spherical-ish coords to screen xy (flat projection with depth pseudo-3D)
-        const sinT = Math.sin(theta), cosT = Math.cos(theta);
-        const sinP = Math.sin(phi  * 0.9 + t * spd * 0.015), cosP = Math.cos(phi * 0.9);
-
-        // Project onto sphere surface
-        const x3 = r * cosT * cosP;
-        const y3 = r * sinT;
-        const z3 = r * cosT * sinP;
-
-        // Simple perspective
-        const depth = 1.0 + z3 * 0.35;
-        const px = cx + x3 * R / depth;
-        const py = cy + y3 * R / depth;
-
-        pts.push({ px, py, z3, depth });
-      }
-
-      // Draw stream as polyline segments with alpha based on z-depth
-      ctx.lineWidth = 0.6 + st * 0.8;
-      for (let i = 0; i < pts.length - 1; i++) {
-        const p  = pts[i];
-        const p2 = pts[i + 1];
-        // Depth-based alpha: streams facing viewer are brighter
-        const depthA = Math.max(0.03, Math.min(1, (p.z3 + 1) * 0.5));
-        const alpha  = depthA * (0.25 + st * 0.55);
-        ctx.strokeStyle = `hsla(${hue},${sat}%,${lum}%,${alpha.toFixed(2)})`;
-        ctx.beginPath();
-        ctx.moveTo(p.px,  p.py);
-        ctx.lineTo(p2.px, p2.py);
-        ctx.stroke();
-      }
-    }
-
-    ctx.restore(); // end clip
-
-    // ── Bright central nucleus ────────────────────────────────────
-    const glowR = size * (0.04 + st * 0.10);
-    const core  = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR * 3.5);
-    core.addColorStop(0,   `rgba(255,255,255,${0.55 + st * 0.45})`);
-    core.addColorStop(0.2, `rgba(255,230,120,${0.40 + st * 0.40})`);
-    core.addColorStop(0.5, `rgba(255,120,40,${0.18 + st * 0.22})`);
-    core.addColorStop(1,   'rgba(0,0,0,0)');
-    ctx.fillStyle = core;
-    ctx.beginPath();
-    ctx.arc(cx, cy, glowR * 3.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ── Glowing orb rim ───────────────────────────────────────────
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    const rimGrad = ctx.createRadialGradient(cx, cy, R * 0.80, cx, cy, R * 1.02);
-    rimGrad.addColorStop(0,   'rgba(0,0,0,0)');
-    rimGrad.addColorStop(0.7, `rgba(80,180,255,${0.06 + st * 0.10})`);
-    rimGrad.addColorStop(1,   `rgba(140,220,255,${0.18 + st * 0.18})`);
-    ctx.strokeStyle = `rgba(100,200,255,${0.15 + st * 0.25})`;
-    ctx.lineWidth   = 1.2 + st * 1.5;
-    ctx.stroke();
-    ctx.fillStyle   = rimGrad;
-    ctx.fill();
-    ctx.restore();
-
-    // ── Particle sparks along streams (Discipline → count) ────────
-    const sparkCount = Math.round(di * 28);
-    for (let i = 0; i < sparkCount; i++) {
-      const angle  = (i / sparkCount) * PI2 + t * spd * 0.05;
-      const rr     = R * (0.2 + Math.abs(Math.sin(angle * harmonics + t * spd * 0.04)) * 0.72);
-      const hue    = Math.round((i / sparkCount * 360 + t * spd * 12) % 360);
-      const px     = cx + Math.cos(angle) * rr;
-      const py     = cy + Math.sin(angle) * rr;
-      ctx.beginPath();
-      ctx.arc(px, py, 1.0 + st * 1.2, 0, PI2);
-      ctx.fillStyle = `hsla(${hue},100%,85%,${0.5 + st * 0.4})`;
-      ctx.fill();
-    }
-
-    // ── Core Formed ring ─────────────────────────────────────────
-    if (this.forming) {
-      const p = Math.min(this.formT / 1.5, 1);
-      ctx.save();
-      ctx.strokeStyle = `rgba(255,220,80,${(1 - p) * 0.8})`;
-      ctx.lineWidth   = 2;
-      ctx.beginPath();
-      ctx.arc(cx, cy, R * (0.15 + p * 0.85), 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-  }
-
-  // ── Static snapshot render (no animation) ────
-  renderStatic(vals) {
-    Object.assign(this.current, vals);
-    Object.assign(this.target, vals);
-    this._draw();
-  }
-}
-
-// ── Singleton for the check-in modal ─────────────
-let stokeCore = null;
-
-function getStokeCore() {
-  const canvas = document.getElementById('stokeCoreCanvas');
-  if (!canvas) return null;
-  if (!stokeCore) {
-    stokeCore = new StokeCore(canvas);
-  }
-  if (!stokeCore.raf) stokeCore.start(); // restart if stopped
-  return stokeCore;
-}
-
-function getCheckInValues() {
-  return {
-    focus:      parseInt(document.getElementById('slider-focus')?.value      || 5),
-    movement:   parseInt(document.getElementById('slider-movement')?.value   || 5),
-    discipline: parseInt(document.getElementById('slider-discipline')?.value || 5),
-    composure:  parseInt(document.getElementById('slider-composure')?.value  || 5),
-    stoke:      parseInt(document.getElementById('slider-stoke')?.value      || 5),
-  };
-}
-
 // Wire slider live updates
 SLIDER_IDS.forEach(key => {
   const slider = document.getElementById(`slider-${key}`);
@@ -3391,17 +3064,6 @@ SLIDER_IDS.forEach(key => {
     document.getElementById(`val-${key}`).textContent = slider.value;
     updateSliderFill(slider);
     updateBSPreview();
-    const core = getStokeCore();
-    if (core) core.setValues(getCheckInValues(), key);
-    // Show highlight label
-    const hl = document.getElementById('stokeCoreHighlight');
-    if (hl) {
-      const names = { focus: 'Focus', movement: 'Movement', discipline: 'Discipline', composure: 'Composure', stoke: 'Stoke' };
-      hl.textContent = names[key] || '';
-      hl.classList.add('active');
-      clearTimeout(hl._hideTimer);
-      hl._hideTimer = setTimeout(() => { hl.classList.remove('active'); hl.textContent = ''; }, 1800);
-    }
   });
 });
 
@@ -3430,26 +3092,16 @@ document.getElementById('checkInForm').addEventListener('submit', async e => {
 
   try {
     await updateDoc(doc(db, 'brothers', id), data);
-    // Trigger Core Formed animation before closing
-    const core = getStokeCore();
-    if (core) {
-      core.triggerFormAnimation();
-      await new Promise(r => setTimeout(r, 900));
-    }
     closeModal(checkInModal);
     const cat = getBSCategory(brotherhoodScore);
-    showToast(`Stoke Core recorded · Brotherhood Score: ${brotherhoodScore}/100 — ${cat.label}`, 'success');
+    showToast(`Daily check-in complete · Brotherhood Score: ${brotherhoodScore}/100 — ${cat.label}`, 'success');
   } catch (err) {
     showToast('Error saving check-in: ' + err.message, 'info');
   }
 });
 
-function closeCheckInModal() {
-  closeModal(checkInModal);
-  if (stokeCore) { stokeCore.stop(); }
-}
-document.getElementById('checkInModalClose').addEventListener('click', closeCheckInModal);
-checkInModal.addEventListener('click', e => { if (e.target === checkInModal) closeCheckInModal(); });
+document.getElementById('checkInModalClose').addEventListener('click', () => closeModal(checkInModal));
+checkInModal.addEventListener('click', e => { if (e.target === checkInModal) closeModal(checkInModal); });
 
 // ── COMMUNITY FEED ────────────────────────────
 function challengeFilterBar(extraFilters = []) {
