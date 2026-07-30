@@ -5512,11 +5512,9 @@ body {
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  padding: 0 2px;
-  opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
+  padding: 0 4px;
+  transition: color 0.15s;
 }
-.sf-comment:hover .sf-comment-delete { opacity: 1; }
 .sf-comment-delete:hover { color: #e05050; }
 .sf-comment-form {
   display: flex;
