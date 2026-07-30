@@ -3929,6 +3929,24 @@ function renderSocialFeed() {
       if (e.key === 'Enter') postComment(input.dataset.commentPost, el, profile);
     });
   });
+
+  // Admin: delete individual comments
+  if (isAdmin) {
+    el.querySelectorAll('[data-comment-del-idx]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const commentDiv = btn.closest('.sf-comment');
+        const postDiv    = btn.closest('[data-post-id]');
+        if (!postDiv) return;
+        const postId = postDiv.dataset.postId;
+        const idx    = parseInt(btn.dataset.commentDelIdx, 10);
+        const post   = feedPosts.find(p => p.id === postId);
+        if (!post) return;
+        const updated = (post.comments || []).filter((_, i) => i !== idx);
+        btn.disabled = true;
+        await updateDoc(doc(db, 'feed', postId), { comments: updated });
+      });
+    });
+  }
 }
 
 function loadMoreFeedPosts() {
@@ -3938,10 +3956,11 @@ function loadMoreFeedPosts() {
 
 function renderComments(comments, profile) {
   if (!comments || !comments.length) return '';
-  return comments.map(c => `
-    <div class="sf-comment">
+  return comments.map((c, i) => `
+    <div class="sf-comment" data-comment-idx="${i}">
       <span class="sf-comment-author">${escHtml(c.authorName || 'Brother')}</span>
       <span class="sf-comment-text">${escHtml(c.text || '')}</span>
+      ${isAdmin ? `<button class="sf-comment-delete" data-comment-del-idx="${i}" title="Remove comment">×</button>` : ''}
     </div>`).join('');
 }
 

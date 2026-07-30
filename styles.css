@@ -5492,12 +5492,32 @@ body {
   font-size: 13.5px;
   line-height: 1.4;
   color: var(--text-secondary);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
 }
 .sf-comment-author {
   font-weight: 700;
   color: var(--text-primary);
   margin-right: 5px;
+  flex-shrink: 0;
 }
+.sf-comment-text { flex: 1; }
+.sf-comment-delete {
+  flex-shrink: 0;
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+.sf-comment:hover .sf-comment-delete { opacity: 1; }
+.sf-comment-delete:hover { color: #e05050; }
 .sf-comment-form {
   display: flex;
   gap: 8px;
