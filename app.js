@@ -3934,16 +3934,27 @@ function renderSocialFeed() {
   if (isAdmin) {
     el.querySelectorAll('[data-comment-del-idx]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const commentDiv = btn.closest('.sf-comment');
-        const postDiv    = btn.closest('[data-post-id]');
+        const postDiv = btn.closest('[data-post-id]');
         if (!postDiv) return;
         const postId = postDiv.dataset.postId;
         const idx    = parseInt(btn.dataset.commentDelIdx, 10);
         const post   = feedPosts.find(p => p.id === postId);
         if (!post) return;
-        const updated = (post.comments || []).filter((_, i) => i !== idx);
         btn.disabled = true;
+        const updated = (post.comments || []).filter((_, i) => i !== idx);
         await updateDoc(doc(db, 'feed', postId), { comments: updated });
+      });
+    });
+
+    // Admin: clear ALL comments on a post
+    el.querySelectorAll('[data-clear-comments]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const postDiv = btn.closest('[data-post-id]');
+        if (!postDiv) return;
+        const postId = postDiv.dataset.postId;
+        if (!confirm('Remove ALL comments on this post?')) return;
+        btn.disabled = true;
+        await updateDoc(doc(db, 'feed', postId), { comments: [] });
       });
     });
   }
@@ -3956,12 +3967,16 @@ function loadMoreFeedPosts() {
 
 function renderComments(comments, profile) {
   if (!comments || !comments.length) return '';
-  return comments.map((c, i) => `
+  const clearAll = isAdmin
+    ? `<button class="sf-comments-clear-all" data-clear-comments>Clear all comments</button>`
+    : '';
+  const rows = comments.map((c, i) => `
     <div class="sf-comment" data-comment-idx="${i}">
       <span class="sf-comment-author">${escHtml(c.authorName || 'Brother')}</span>
       <span class="sf-comment-text">${escHtml(c.text || '')}</span>
       ${isAdmin ? `<button class="sf-comment-delete" data-comment-del-idx="${i}" title="Remove comment">×</button>` : ''}
     </div>`).join('');
+  return clearAll + rows;
 }
 
 async function postComment(postId, el, profile) {
@@ -3971,6 +3986,16 @@ async function postComment(postId, el, profile) {
   if (!text) return;
   const post = feedPosts.find(p => p.id === postId);
   if (!post) return;
+
+  // Rate limit: max 3 comments per user per post (admins exempt)
+  if (!isAdmin && profile) {
+    const myComments = (post.comments || []).filter(c => c.authorName === (profile.name || 'Brother'));
+    if (myComments.length >= 3) {
+      showToast('Max 3 comments per post', 'error');
+      return;
+    }
+  }
+
   const authorName = isAdmin ? 'Coach' : (profile?.name || 'Brother');
   const updated = [...(post.comments || []), { authorName, text, createdAt: Date.now() }];
   input.value = '';

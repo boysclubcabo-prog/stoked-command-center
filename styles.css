@@ -5516,6 +5516,22 @@ body {
   transition: color 0.15s;
 }
 .sf-comment-delete:hover { color: #e05050; }
+.sf-comments-clear-all {
+  display: block;
+  width: 100%;
+  background: none;
+  border: 1px solid rgba(220,60,60,0.35);
+  border-radius: 6px;
+  color: #e05050;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+.sf-comments-clear-all:hover { background: rgba(220,60,60,0.1); }
 .sf-comment-form {
   display: flex;
   gap: 8px;
