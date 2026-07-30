@@ -3777,6 +3777,12 @@ function renderSocialFeed() {
             <div class="sf-win-overlay-text">CHALLENGE<br>COMPLETED</div>
           </div>
         </div>` : ''}
+        ${post.videoUrl ? `<div class="sf-win-media-wrap sf-media-bleed">
+          <video class="sf-video" src="${post.videoUrl}#t=0.001" controls playsinline preload="metadata"></video>
+          <div class="sf-win-overlay" aria-hidden="true">
+            <div class="sf-win-overlay-text">CHALLENGE<br>COMPLETED</div>
+          </div>
+        </div>` : ''}
         ${post.proofLink ? `<a class="sf-link" href="${escHtml(post.proofLink)}" target="_blank" rel="noopener">${IC.link} ${escHtml(post.proofLink)}</a>` : ''}
         <div class="sf-post-footer">
           <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
@@ -4424,9 +4430,18 @@ async function completeFriendChallenge(fcId, profile) {
     btn.textContent = 'Uploading…';
 
     try {
-      let proofUrl = null;
+      let photoUrl = null;
+      let videoUrl = null;
       if (file) {
-        proofUrl = await uploadPhoto(file, `friendChallenges/${fcId}_${Date.now()}_${file.name}`);
+        const isVideo = file.type.startsWith('video/');
+        if (isVideo) {
+          btn.textContent = 'Uploading video…';
+          videoUrl = await uploadVideo(file, `friendChallenges/${fcId}_${Date.now()}_${file.name}`,
+            pct => { btn.textContent = `Uploading video ${pct}%…`; });
+        } else {
+          btn.textContent = 'Uploading…';
+          photoUrl = await uploadPhoto(file, `friendChallenges/${fcId}_${Date.now()}_${file.name}`);
+        }
       }
 
       // Award XP
@@ -4437,24 +4452,26 @@ async function completeFriendChallenge(fcId, profile) {
       await updateDoc(doc(db, 'friendChallenges', fcId), {
         status: 'completed',
         completedAt: Date.now(),
-        proofUrl: proofUrl || null,
+        photoUrl:  photoUrl || null,
+        videoUrl:  videoUrl || null,
         proofLink: link || null,
       });
 
       // Post to feed
       await addDoc(collection(db, 'feed'), {
-        type:          'friend_challenge_win',
-        brotherId:     profile.id,
-        brotherName:   profile.name,
-        challengerId:  fc.fromUid,
+        type:           'friend_challenge_win',
+        brotherId:      profile.id,
+        brotherName:    profile.name,
+        challengerId:   fc.fromUid,
         challengerName: fc.fromName,
-        description:   fc.description,
-        xpAwarded:     fc.xp,
-        photoUrl:      proofUrl || null,
-        proofLink:     link || null,
-        caption:       caption || null,
-        comments:      [],
-        createdAt:     Date.now(),
+        description:    fc.description,
+        xpAwarded:      fc.xp,
+        photoUrl:       photoUrl || null,
+        videoUrl:       videoUrl || null,
+        proofLink:      link || null,
+        caption:        caption || null,
+        comments:       [],
+        createdAt:      Date.now(),
       });
 
       closeModal(overlay);
