@@ -7890,6 +7890,33 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .mhv2-r-lbl  { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(0,0,0,0.35); }
 .mhv2-r-val  { font-size: 13px; color: rgba(0,0,0,0.7); line-height: 1.4; }
 
+/* Completed challenges */
+.mhv2-comp-section { border-top: 1px solid var(--border); }
+.mhv2-comp-toggle {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  background: none; border: none; padding: 12px 0;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-muted); cursor: pointer;
+}
+.mhv2-comp-toggle:hover { color: var(--text-primary); }
+.mhv2-comp-count {
+  margin-left: 4px; background: var(--accent); color: #fff;
+  border-radius: 10px; padding: 1px 7px; font-size: 11px; font-weight: 700;
+}
+.mhv2-comp-chevron { margin-left: auto; font-size: 14px; }
+.mhv2-comp-list { display: flex; flex-direction: column; gap: 1px; padding-bottom: 8px; }
+.mhv2-comp-list.hidden { display: none; }
+.mhv2-comp-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0; border-bottom: 1px solid var(--border);
+}
+.mhv2-comp-row:last-child { border-bottom: none; }
+.mhv2-comp-check { color: #4caf50; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+.mhv2-comp-info { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.mhv2-comp-title { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mhv2-comp-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.mhv2-comp-date { font-size: 11px; color: var(--text-muted); flex-shrink: 0; white-space: nowrap; }
+
 /* Coach note */
 .mhv2-coach-note { background: rgba(82,122,142,0.1); border-left: 3px solid #527A8E; border-radius: 0 8px 8px 0; padding: 10px 14px; }
 .mhv2-coach-from { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #527A8E; margin-bottom: 4px; }

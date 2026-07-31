@@ -1979,6 +1979,38 @@ function _renderMemberView() {
         ${profile.weeklyCommitment ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Commitment</span><span class="mhv2-r-val">${escHtml(profile.weeklyCommitment)}</span></div>` : ''}
       </div>` : ''}
 
+      <!-- Completed Challenges history -->
+      ${(() => {
+        const mySubs = submissions
+          .filter(s => s.brotherId === profile.id && s.status === 'completed')
+          .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+        if (!mySubs.length) return '';
+        const rows = mySubs.map(s => {
+          const ch    = challenges.find(c => c.id === s.challengeId);
+          const title = ch?.title || s.challengeTitle || 'Challenge';
+          const tag   = ch?.tag   || '';
+          const tagColor = tag && CHALLENGE_TAGS[tag] ? CHALLENGE_TAGS[tag].color : '#888';
+          const date  = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+          return `<div class="mhv2-comp-row">
+            <span class="mhv2-comp-check">✓</span>
+            <div class="mhv2-comp-info">
+              <span class="mhv2-comp-title">${escHtml(title)}</span>
+              ${tag ? `<span class="mhv2-comp-tag" style="color:${tagColor}">${escHtml(tag)}</span>` : ''}
+            </div>
+            <span class="mhv2-comp-date">${date}</span>
+          </div>`;
+        }).join('');
+        return `
+        <div class="mhv2-comp-section">
+          <button class="mhv2-comp-toggle" data-comp-toggle>
+            <span>Completed Challenges</span>
+            <span class="mhv2-comp-count">${mySubs.length}</span>
+            <span class="mhv2-comp-chevron">▾</span>
+          </button>
+          <div class="mhv2-comp-list hidden">${rows}</div>
+        </div>`;
+      })()}
+
       ${profile.coachNote ? `
       <div class="mhv2-coach-note">
         <div class="mhv2-coach-from">— ${escHtml(profile.coachNoteAuthor || 'Coach')} —</div>
@@ -2011,6 +2043,14 @@ function _renderMemberView() {
 
   // Wire challenge-a-brother button
   memberHero.querySelector('[data-open-challenge]')?.addEventListener('click', () => openFriendChallengeModal(profile));
+
+  // Wire completed challenges toggle
+  memberHero.querySelector('[data-comp-toggle]')?.addEventListener('click', function() {
+    const list = this.closest('.mhv2-comp-section').querySelector('.mhv2-comp-list');
+    const chevron = this.querySelector('.mhv2-comp-chevron');
+    list.classList.toggle('hidden');
+    chevron.textContent = list.classList.contains('hidden') ? '▾' : '▴';
+  });
 
   // Wire friend challenge complete buttons
   memberHero.querySelectorAll('[data-fc-complete]').forEach(btn => {
