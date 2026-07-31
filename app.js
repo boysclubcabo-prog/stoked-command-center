@@ -1541,7 +1541,12 @@ function showApp() {
       const wasActive = liveCall?.active;
       liveCall = data;
       if (data?.active && !wasActive) {
-        showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
+        // Only notify if this user is invited
+        const myProfile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser?.email?.toLowerCase());
+        const isInvited = data.invitedAll || (myProfile && (data.invitedBrothers || []).includes(myProfile.id));
+        if (isInvited) {
+          showNotif('📹 Brotherhood Call Started', `${data.startedByName || 'Coach'} started a group call — join now!`);
+        }
       }
       renderLiveCallBanner();
     }
