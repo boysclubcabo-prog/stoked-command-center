@@ -3823,7 +3823,10 @@ function renderFeed() {
 function renderFeedAdmin(el) {
   let html = `<div class="feed-header">
     <h2 class="feed-title">Challenges</h2>
-    <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
+      <button class="btn-ghost-sm" id="seedChallengesBtn" title="Add all preset challenges">Seed DB</button>
+    </div>
   </div>
   ${challengeFilterBar(['Personal'])}`;
 
@@ -3902,6 +3905,9 @@ function renderFeedAdmin(el) {
 
   bindChallengeFilterBar(el);
   document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
+  document.getElementById('seedChallengesBtn')?.addEventListener('click', () => {
+    if (confirm(`Add ${CHALLENGE_SEED.length} preset challenges to Firestore? (Duplicates will be skipped.)`)) seedChallengesDB();
+  });
   el.querySelectorAll('.btn-close-challenge').forEach(btn =>
     btn.addEventListener('click', () => archiveChallenge(btn.dataset.closech)));
   el.querySelectorAll('.btn-edit-challenge').forEach(btn =>
@@ -6596,6 +6602,86 @@ challengeModal.addEventListener('click', e => { if (e.target === challengeModal)
 async function archiveChallenge(id) {
   await updateDoc(doc(db, 'challenges', id), { active: false });
   showToast('Challenge archived', 'info');
+}
+
+// ── CHALLENGE SEED DATABASE ────────────────────
+const CHALLENGE_SEED = [
+  // MOVE
+  { title: 'Plank Challenge',       tag: 'Move',        xpReward: 100, repeatType: 'daily',    proofType: 'video',       description: 'Hold a plank as long as you can. Every second past "I want to stop" is the rep that actually counts.' },
+  { title: '40 Jumping Jacks',      tag: 'Move',        xpReward: 100, repeatType: 'daily',    proofType: 'video',       description: '40 jumping jacks, no breaks. Small, boring, every day — that\'s what builds a body that doesn\'t quit.' },
+  { title: 'Skate Concrete Waves',  tag: 'Move',        xpReward: 100, repeatType: 'daily',    proofType: 'photo_video', description: 'Skate the waves. Flow isn\'t given, it\'s earned one fall at a time.' },
+  { title: 'Handstand Challenge',   tag: 'Move',        xpReward:  50, repeatType: 'daily',    proofType: 'video',       description: 'Hold a handstand as long as you can. Being upside down teaches you balance works the same right-side up.' },
+  { title: '20 Push-Ups',           tag: 'Move',        xpReward: 100, repeatType: 'daily',    proofType: 'video',       description: '20 push-ups. Strength you can\'t fake and can\'t skip.' },
+  { title: 'Dead Hang Challenge',   tag: 'Move',        xpReward: 100, repeatType: 'daily',    proofType: 'video',       description: 'Hang from a bar as long as you can. Grip strength is a metaphor you\'ll actually feel — hanging on when it burns.' },
+  { title: 'Spar Challenge',        tag: 'Move',        xpReward: 100, repeatType: 'daily',    proofType: 'video',       description: 'Spar with a parent or friend. Real contact, real respect — you learn control by testing it.' },
+  { title: 'Obstacle Challenge',    tag: 'Move',        xpReward: 200, repeatType: 'daily',    proofType: 'video',       description: 'Build and run your own obstacle course. You built the hard thing, then you beat the hard thing — that\'s the whole game.' },
+  { title: 'Max Pull-Ups Challenge',tag: 'Move',        xpReward: 150, repeatType: 'daily',    proofType: 'video',       description: 'Most pull-ups in 60 seconds. Numbers don\'t lie. Neither does your back off the bar.' },
+  // CREATIVE
+  { title: 'Build Something Challenge',    tag: 'Create', xpReward: 100, repeatType: 'daily',    proofType: 'photo_video', description: 'Build something with your hands that fixes a problem. You made something exist that didn\'t before — that\'s a different kind of confidence.' },
+  { title: 'Draw Something Challenge',     tag: 'Create', xpReward:  50, repeatType: 'daily',    proofType: 'photo',       description: 'Draw something authentic from your own imagination — something you\'ve never drawn before. Nobody can grade your imagination. This one\'s just yours.' },
+  { title: 'Instrument Challenge',         tag: 'Create', xpReward: 100, repeatType: 'daily',    proofType: 'video_audio', description: 'Practice an instrument for 15 minutes — piano, drums, bass, guitar, singing, rapping, whatever. Consistency on an instrument is the same muscle as consistency anywhere else.' },
+  { title: 'Make Your Own Song',           tag: 'Create', xpReward: 350, repeatType: 'daily',    proofType: 'audio',       description: 'Write and record your own song. You made something people can actually listen to — that\'s real output, not a school project.' },
+  { title: 'Fix Something Challenge',      tag: 'Create', xpReward: 100, repeatType: 'daily',    proofType: 'photo',       description: 'Fix something in your house — anything, wherever it\'s needed. You\'re becoming the guy who doesn\'t just wait for someone else to fix it.' },
+  { title: 'Cook a Meal Challenge',        tag: 'Create', xpReward: 100, repeatType: 'daily',    proofType: 'photo_video', description: 'Cook a full meal, entirely by yourself. Feeding yourself and others is a skill, not an accident.' },
+  { title: 'Write Something Challenge',    tag: 'Create', xpReward: 100, repeatType: 'daily',    proofType: 'photo',       description: 'Write a piece of poetry, a story, whatever\'s real to you. Getting it out of your head and onto paper is its own kind of strength.' },
+  { title: 'Make a Short Film',            tag: 'Create', xpReward: 500, repeatType: 'one_time', proofType: 'video',       description: 'Make a short film about something you really love. This is a real finished thing with your name on it — most adults never finish one.' },
+  { title: 'Scratch Challenge',            tag: 'Create', xpReward: 200, repeatType: 'daily',    proofType: 'video',       description: 'Build a simple game in Scratch. Writing real code that actually does something is a different kind of making.' },
+  { title: 'Design Something Challenge',   tag: 'Create', xpReward: 100, repeatType: 'daily',    proofType: 'photo',       description: 'Sketch an invention, logo, or product idea. Getting a vision out of your head and onto paper is the first step to making it real.' },
+  // RESET / REGULATION
+  { title: 'Sunrise Challenge',    tag: 'Reset', xpReward: 200, repeatType: 'daily',    proofType: 'photo', description: 'Wake up early, watch the sunrise. Most people never see this — you\'ll start the day already ahead of everyone still asleep.' },
+  { title: 'Room Reset Challenge', tag: 'Reset', xpReward: 150, repeatType: 'daily',    proofType: 'photo', description: 'Clean and organize your room. Your space is the easiest thing in your control — control it.' },
+  { title: 'Ice Bath Challenge',   tag: 'Reset', xpReward: 400, repeatType: 'one_time', proofType: 'video', description: 'Take a full ice bath. If you can sit still in the cold, you can sit still in anything hard.' },
+  { title: 'Read Challenge',       tag: 'Reset', xpReward: 150, repeatType: 'daily',    proofType: 'photo', description: 'Read a book, then explain why you chose it and what you got from it — photo of the book plus a written reflection.' },
+  { title: 'Plant a Seed Challenge',tag: 'Reset',xpReward: 150, repeatType: 'daily',    proofType: 'photo', description: 'Plant a seed, water it, watch it grow. Something that only grows if you actually show up for it, day after day.' },
+  { title: 'Yoga Challenge',       tag: 'Reset', xpReward: 100, repeatType: 'daily',    proofType: 'video', description: '15 minutes of yoga — don\'t rush, find the relaxation in the effort. Strength isn\'t always pushing. Sometimes it\'s holding still on purpose.' },
+  { title: 'Statue Challenge',     tag: 'Reset', xpReward: 100, repeatType: 'daily',    proofType: 'video', description: 'Sit still, meditate, focus on your breath for 5 minutes. Five minutes of nothing is harder than it sounds — and that\'s the point.' },
+  { title: 'Tai Chi Challenge',    tag: 'Reset', xpReward: 100, repeatType: 'daily',    proofType: 'video', description: 'Practice tai chi for 10 minutes — slower is better, find relaxation in your effort. Control at slow speed is harder than control at full speed.' },
+  // ADVENTURE
+  { title: 'Hiking Challenge',         tag: 'Adventure', xpReward: 150, repeatType: 'daily',    proofType: 'photo_video', description: 'Go for a hike. The trail doesn\'t care how you feel about it — you finish anyway.' },
+  { title: 'Fire Challenge',           tag: 'Adventure', xpReward: 250, repeatType: 'daily',    proofType: 'photo_video', description: 'Build and keep a fire going, with supervision. One of the oldest skills there is — every guy should know how to do this.' },
+  { title: 'Camping Challenge',        tag: 'Adventure', xpReward: 400, repeatType: 'daily',    proofType: 'photo_video', description: 'Go camping. A night outside resets something a night on your phone never will.' },
+  { title: 'Fishing Challenge',        tag: 'Adventure', xpReward: 300, repeatType: 'daily',    proofType: 'photo',       description: 'Catch a fish. Patience with a payoff you can actually hold up and show people.' },
+  { title: 'Surf Challenge',           tag: 'Adventure', xpReward: 200, repeatType: 'daily',    proofType: 'video_photo', description: 'Catch a wave. The ocean doesn\'t negotiate — you adjust to it, not the other way around.' },
+  { title: 'Cook Over Fire Challenge', tag: 'Adventure', xpReward: 200, repeatType: 'daily',    proofType: 'photo_video', description: 'Cook a full meal over an open flame. Same meal, way harder mode — that\'s the whole point.' },
+  { title: 'Shelter Challenge',        tag: 'Adventure', xpReward: 250, repeatType: 'daily',    proofType: 'photo',       description: 'Build a survival shelter or fort. You can build something that keeps you protected — remember that.' },
+  { title: 'Outdoor Shot Challenge',   tag: 'Adventure', xpReward: 100, repeatType: 'daily',    proofType: 'photo',       description: 'Get one genuinely great outdoor photo. Slowing down enough to actually see where you are.' },
+  // FAMILY
+  { title: 'Unasked Chore Challenge',    tag: 'Family', xpReward: 200, repeatType: 'daily',    proofType: 'photo',       description: 'Do a chore nobody asked you to do. Watch how differently your parents treat you when you don\'t have to be told — that\'s earned trust, not given trust.' },
+  { title: 'Family Interview Challenge', tag: 'Family', xpReward: 300, repeatType: 'daily',    proofType: 'video',       description: 'Ask a parent or grandparent about their childhood — rapid-fire, as many questions as you can. You\'ll learn where you actually come from. Most guys never ask.' },
+  { title: 'Game Night Challenge',       tag: 'Family', xpReward: 300, repeatType: 'one_time', proofType: 'photo_video', description: 'Host a game night for your family or friends. You ran the room — that\'s leadership, not just a fun night.' },
+  { title: 'House Project Challenge',    tag: 'Family', xpReward: 150, repeatType: 'daily',    proofType: 'photo',       description: 'Fix something in the house with a parent. Working next to your dad or mom on something real builds a different kind of respect than a conversation does.' },
+  { title: 'Yard Work Challenge',        tag: 'Family', xpReward: 150, repeatType: 'daily',    proofType: 'photo',       description: 'Yard work — mow, rake, whatever needs doing. Nobody sees this one happen. It still counts.' },
+  { title: 'Teach a Parent Challenge',   tag: 'Family', xpReward: 200, repeatType: 'daily',    proofType: 'video',       description: 'Teach a parent something you\'re actually good at. The roles flip for five minutes — that\'s a real moment, not a gimmick.' },
+  // BROTHERHOOD
+  { title: 'Teach a Brother',    tag: 'Brotherhood', xpReward: 200, repeatType: 'daily',    proofType: 'video',       description: 'Teach another brother a skill you have. The best way to lock in knowledge is to pass it on.' },
+  { title: 'Invite a Friend',    tag: 'Brotherhood', xpReward: 150, repeatType: 'daily',    proofType: 'photo',       description: 'Bring someone new into the group — introduce them, vouch for them. Your circle grows when you grow it.' },
+  { title: 'Say It to His Face', tag: 'Brotherhood', xpReward: 150, repeatType: 'daily',    proofType: 'video',       description: 'Tell a brother something real — something you respect about him or something honest he needs to hear. Say it directly, not over text.' },
+  { title: 'Team Challenge',     tag: 'Brotherhood', xpReward: 200, repeatType: 'daily',    proofType: 'photo_video', description: 'Do something together as a team — a workout, a project, a game. Brotherhood isn\'t built in conversations. It\'s built doing things.' },
+  { title: 'Reach Out',         tag: 'Brotherhood', xpReward: 100, repeatType: 'daily',    proofType: 'photo',       description: 'Check in on a brother who\'s been quiet. A real message, not a reaction. You noticed — that already matters.' },
+  { title: 'Accountability Challenge', tag: 'Brotherhood', xpReward: 150, repeatType: 'daily', proofType: 'video',  description: 'Hold a brother accountable to something he said he\'d do. Remind him. Show up for him. That\'s what the brotherhood is for.' },
+  { title: 'Mentor Challenge',   tag: 'Brotherhood', xpReward: 250, repeatType: 'daily',    proofType: 'video',       description: 'Spend real time with someone younger — teach something, listen, be present. What you model matters more than what you say.' },
+  { title: 'Lead the Group',     tag: 'Brotherhood', xpReward: 300, repeatType: 'daily',    proofType: 'video',       description: 'Lead a Brotherhood session, call, or activity. Running something real for others is different than just showing up for it.' },
+  { title: 'Shoutout Challenge', tag: 'Brotherhood', xpReward: 100, repeatType: 'daily',    proofType: 'photo',       description: 'Give a genuine public shoutout to a brother — not a reaction, a real one. Specific, honest, said in front of the group.' },
+  { title: 'Level Up a Brother', tag: 'Brotherhood', xpReward: 200, repeatType: 'daily',    proofType: 'video',       description: 'Help a brother get better at something concrete — a skill, a habit, a challenge. Come back with proof it actually happened.' },
+];
+
+async function seedChallengesDB() {
+  if (!isAdmin) return;
+  const existing = new Set(challenges.map(c => c.title.toLowerCase().trim()));
+  let added = 0, skipped = 0;
+  for (const ch of CHALLENGE_SEED) {
+    if (existing.has(ch.title.toLowerCase().trim())) { skipped++; continue; }
+    const id = 'ch_' + ch.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 30) + '_' + Date.now().toString(36);
+    await setDoc(doc(db, 'challenges', id), {
+      ...ch,
+      photoRequired: true,
+      active: true,
+      createdAt: new Date().toISOString(),
+      createdBy: 'seed',
+    });
+    added++;
+  }
+  showToast(`Seeded ${added} challenges (${skipped} already existed)`, 'success');
 }
 
 // ── SUBMIT PROOF ──────────────────────────────
