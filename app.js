@@ -8031,19 +8031,40 @@ function chessUpdateStatus(gameData) {
   el.textContent = myTurn ? 'Your turn' : 'Opponent\'s turn…';
 }
 
+const CHESS_BOT_XP = { easy: 50, medium: 150, hard: 500 };
+
+async function chessAwardBotWinXP() {
+  if (!currentUser) return;
+  const profile = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+  if (!profile) return;
+  const xpGain = CHESS_BOT_XP[chessBotDiff] || 0;
+  if (!xpGain) return;
+  const newXP = Math.min(MAX_XP, (profile.xp || 0) + xpGain);
+  await updateDoc(doc(db, 'brothers', profile.id), { xp: newXP, updatedAt: new Date().toISOString() });
+  profile.xp = newXP;
+  showToast(`Checkmate! +${xpGain} XP`, 'success');
+}
+
 function chessHandleGameOver() {
   let msg = 'Game over';
+  let playerWonByCheckmate = false;
+
   if (chessInst.isCheckmate()) {
     const winnerIsWhite = chessInst.turn() === 'b';
     if (chessMode === 'bot') {
-      msg = winnerIsWhite ? 'Checkmate — You win!' : 'Checkmate — Bot wins.';
+      const playerWon = winnerIsWhite === (chessPlayerColor === 'w');
+      msg = playerWon ? 'Checkmate — You win! 🏆' : 'Checkmate — Bot wins.';
+      if (playerWon) playerWonByCheckmate = true;
     } else {
-      msg = winnerIsWhite === (chessPlayerColor === 'w') ? 'Checkmate — You win!' : 'Checkmate — Opponent wins.';
+      msg = winnerIsWhite === (chessPlayerColor === 'w') ? 'Checkmate — You win! 🏆' : 'Checkmate — Opponent wins.';
     }
-  } else if (chessInst.isStalemate()) msg = 'Stalemate — Draw!';
-  else if (chessInst.isDraw()) msg = 'Draw!';
+  } else if (chessInst.isStalemate()) msg = 'Stalemate — Draw. (No XP awarded)';
+  else if (chessInst.isDraw()) msg = 'Draw! (No XP awarded)';
+
   const el = document.getElementById('chessStatus');
   if (el) el.textContent = msg;
+
+  if (playerWonByCheckmate) chessAwardBotWinXP();
   chessShowEndButtons();
 }
 
