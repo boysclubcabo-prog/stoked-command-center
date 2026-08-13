@@ -4223,8 +4223,8 @@ body {
 }
 
 .roster-icon {
-  width: 64px;
-  height: 64px;
+  width: 96px;
+  height: 96px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -4237,15 +4237,15 @@ body {
   padding: 0 !important;
   outline: none !important;
   animation: none !important;
-  width: 64px;
-  height: 64px;
+  width: 96px;
+  height: 96px;
 }
 .roster-icon .arch-icon-wrap::before,
 .roster-icon .arch-icon-wrap::after { display: none !important; }
 
 .roster-icon .arch-icon-img {
-  width: 64px;
-  height: 64px;
+  width: 96px;
+  height: 96px;
   border-radius: 0;
 }
 
