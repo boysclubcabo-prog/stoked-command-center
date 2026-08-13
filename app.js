@@ -7530,6 +7530,45 @@ const CHESS_UNICODE = {
 };
 const CHESS_PIECE_VALUES = { p:100, n:320, b:330, r:500, q:900, k:20000 };
 
+// Piece-square tables — white perspective, index = rank*8+file, rank 1 = index 0–7
+// Higher = better square for that piece. Black mirrors vertically.
+const CHESS_PST = {
+  p: [  0,  0,  0,  0,  0,  0,  0,  0,   5, 10, 10,-20,-20, 10, 10,  5,
+        5, -5,-10,  0,  0,-10, -5,  5,   0,  0,  0, 20, 20,  0,  0,  0,
+        5,  5, 10, 25, 25, 10,  5,  5,  10, 10, 20, 30, 30, 20, 10, 10,
+       50, 50, 50, 50, 50, 50, 50, 50,   0,  0,  0,  0,  0,  0,  0,  0 ],
+  n: [-50,-40,-30,-30,-30,-30,-40,-50, -40,-20,  0,  5,  5,  0,-20,-40,
+      -30,  5, 10, 15, 15, 10,  5,-30, -30,  0, 15, 20, 20, 15,  0,-30,
+      -30,  5, 15, 20, 20, 15,  5,-30, -30,  0, 10, 15, 15, 10,  0,-30,
+      -40,-20,  0,  0,  0,  0,-20,-40, -50,-40,-30,-30,-30,-30,-40,-50 ],
+  b: [-20,-10,-10,-10,-10,-10,-10,-20, -10,  5,  0,  0,  0,  0,  5,-10,
+      -10, 10, 10, 10, 10, 10, 10,-10, -10,  0, 10, 10, 10, 10,  0,-10,
+      -10,  5,  5, 10, 10,  5,  5,-10, -10,  0,  5, 10, 10,  5,  0,-10,
+      -10,  0,  0,  0,  0,  0,  0,-10, -20,-10,-10,-10,-10,-10,-10,-20 ],
+  r: [  0,  0,  0,  5,  5,  0,  0,  0,  -5,  0,  0,  0,  0,  0,  0, -5,
+       -5,  0,  0,  0,  0,  0,  0, -5,  -5,  0,  0,  0,  0,  0,  0, -5,
+       -5,  0,  0,  0,  0,  0,  0, -5,  -5,  0,  0,  0,  0,  0,  0, -5,
+        5, 10, 10, 10, 10, 10, 10,  5,   0,  0,  0,  0,  0,  0,  0,  0 ],
+  q: [-20,-10,-10, -5, -5,-10,-10,-20, -10,  0,  5,  0,  0,  0,  0,-10,
+      -10,  5,  5,  5,  5,  5,  0,-10,   0,  0,  5,  5,  5,  5,  0, -5,
+       -5,  0,  5,  5,  5,  5,  0, -5, -10,  0,  5,  5,  5,  5,  0,-10,
+      -10,  0,  0,  0,  0,  0,  0,-10, -20,-10,-10, -5, -5,-10,-10,-20 ],
+  k: [ 20, 30, 10,  0,  0, 10, 30, 20,  20, 20,  0,  0,  0,  0, 20, 20,
+      -10,-20,-20,-20,-20,-20,-20,-10, -20,-30,-30,-40,-40,-30,-30,-20,
+      -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30,
+      -30,-40,-40,-50,-50,-40,-40,-30, -30,-40,-40,-50,-50,-40,-40,-30 ],
+};
+
+// Board skins
+const CHESS_SKINS = {
+  classic:  { name: 'Classic',  light: '#f0d9b5', dark: '#b58863', sel: '#f6f669', tgtL: '#cdd16a', tgtD: '#aaa23a' },
+  ocean:    { name: 'Ocean',    light: '#aedfe8', dark: '#2980a8', sel: '#7ef0f0', tgtL: '#5dc8d8', tgtD: '#1a7090' },
+  forest:   { name: 'Forest',   light: '#d4edda', dark: '#2d6a4f', sel: '#b0e8b0', tgtL: '#80c880', tgtD: '#1e5e3a' },
+  midnight: { name: 'Night',    light: '#5a5a8a', dark: '#1e1e3c', sel: '#9b59b6', tgtL: '#6a3a8a', tgtD: '#3a1a5a' },
+  walnut:   { name: 'Walnut',   light: '#d4b483', dark: '#7a4e2d', sel: '#f0e060', tgtL: '#c8a830', tgtD: '#8a6020' },
+};
+let chessSkin = localStorage.getItem('chess_skin') || 'classic';
+
 let chessInst = null;
 let chessSelected = null;
 let chessPlayerColor = 'w';
@@ -7709,11 +7748,16 @@ function chessWatchGame(gameId) {
 function renderChessGameScreen() {
   const el = document.getElementById('chessGame');
   const modeLabel = chessMode === 'bot' ? `vs Bot · ${chessBotDiff}` : 'vs Brother';
+  const skinSwatches = Object.entries(CHESS_SKINS).map(([key, s]) =>
+    `<button class="chess-skin-swatch${chessSkin === key ? ' active' : ''}" data-skin="${key}" title="${s.name}" style="background:linear-gradient(135deg,${s.light} 50%,${s.dark} 50%)"></button>`
+  ).join('');
+
   el.innerHTML = `
     <div class="chess-game-wrap">
       <div class="chess-game-header">
         <button class="chess-back-btn" id="chessGameBack">← Back</button>
         <div class="chess-game-title">♟ Chess ${modeLabel}</div>
+        <div class="chess-skin-row">${skinSwatches}</div>
       </div>
       <div class="chess-opponent-bar">
         <div class="chess-player-label">${chessPlayerColor === 'w' ? '⬛ Opponent' : '⬜ Opponent'}</div>
@@ -7734,6 +7778,14 @@ function renderChessGameScreen() {
   `;
   el.querySelector('#chessGameBack').addEventListener('click', exitChess);
   el.querySelector('#chessResignBtn').addEventListener('click', chessResign);
+  el.querySelectorAll('.chess-skin-swatch').forEach(btn => {
+    btn.addEventListener('click', () => {
+      chessSkin = btn.dataset.skin;
+      localStorage.setItem('chess_skin', chessSkin);
+      el.querySelectorAll('.chess-skin-swatch').forEach(b => b.classList.toggle('active', b.dataset.skin === chessSkin));
+      chessRenderBoard();
+    });
+  });
   chessRenderBoard();
 }
 
@@ -7762,7 +7814,11 @@ function chessRenderBoard() {
       const isTarget = legalTargets.includes(sq);
       const sym = piece ? CHESS_UNICODE[piece.color + piece.type] : '';
       const pc = piece?.color || '';
-      html += `<div class="chess-sq${isLight ? ' sq-l' : ' sq-d'}${isSel ? ' sq-sel' : ''}${isTarget ? ' sq-tgt' : ''}" data-sq="${sq}">${
+      const skin = CHESS_SKINS[chessSkin] || CHESS_SKINS.classic;
+      let bg = isLight ? skin.light : skin.dark;
+      if (isSel) bg = skin.sel;
+      else if (isTarget) bg = isLight ? skin.tgtL : skin.tgtD;
+      html += `<div class="chess-sq" style="background:${bg}" data-sq="${sq}">${
         sym ? `<span class="chess-pc chess-pc-${pc}">${sym}</span>` : ''
       }${isTarget && !sym ? '<span class="chess-dot"></span>' : ''}${isTarget && sym ? '<span class="chess-cap-ring"></span>' : ''}</div>`;
     }
@@ -7845,52 +7901,77 @@ function chessBotMove() {
   }
 }
 
+function chessMoveScore(move) {
+  // Score moves for ordering: captures first (MVV-LVA), then checks
+  let s = 0;
+  if (move.captured) s += CHESS_PIECE_VALUES[move.captured] * 10 - CHESS_PIECE_VALUES[move.piece];
+  if (move.flags.includes('p')) s += 800; // promotion
+  if (move.san.includes('+')) s += 50;    // check
+  return s;
+}
+
 function chessFindBest(depth) {
+  const moves = chessInst.moves({ verbose: true })
+    .sort((a, b) => chessMoveScore(b) - chessMoveScore(a));
   let best = null, bestScore = -Infinity;
-  for (const move of chessInst.moves({ verbose: true })) {
+  for (const move of moves) {
     chessInst.move(move);
-    const score = -chessAlphaBeta(depth - 1, -Infinity, Infinity, false);
+    const score = -chessNegamax(depth - 1, -Infinity, Infinity);
     chessInst.undo();
     if (score > bestScore) { bestScore = score; best = move; }
   }
   return best;
 }
 
-function chessAlphaBeta(depth, alpha, beta, maximizing) {
-  if (depth === 0 || chessInst.isGameOver()) return chessEval();
-  const moves = chessInst.moves({ verbose: true });
-  if (maximizing) {
-    let max = -Infinity;
-    for (const m of moves) {
-      chessInst.move(m);
-      max = Math.max(max, chessAlphaBeta(depth - 1, alpha, beta, false));
-      chessInst.undo();
-      alpha = Math.max(alpha, max);
-      if (beta <= alpha) break;
-    }
-    return max;
-  } else {
-    let min = Infinity;
-    for (const m of moves) {
-      chessInst.move(m);
-      min = Math.min(min, chessAlphaBeta(depth - 1, alpha, beta, true));
-      chessInst.undo();
-      beta = Math.min(beta, min);
-      if (beta <= alpha) break;
-    }
-    return min;
+function chessNegamax(depth, alpha, beta) {
+  if (depth === 0) return chessQuiesce(alpha, beta);
+  if (chessInst.isGameOver()) return chessEval();
+  const moves = chessInst.moves({ verbose: true })
+    .sort((a, b) => chessMoveScore(b) - chessMoveScore(a));
+  let best = -Infinity;
+  for (const m of moves) {
+    chessInst.move(m);
+    const score = -chessNegamax(depth - 1, -beta, -alpha);
+    chessInst.undo();
+    best = Math.max(best, score);
+    alpha = Math.max(alpha, score);
+    if (alpha >= beta) break;
   }
+  return best;
+}
+
+// Quiescence search — search captures only to avoid horizon blunders
+function chessQuiesce(alpha, beta) {
+  const stand = chessEval();
+  if (stand >= beta) return beta;
+  alpha = Math.max(alpha, stand);
+  const captures = chessInst.moves({ verbose: true }).filter(m => m.captured);
+  for (const m of captures) {
+    chessInst.move(m);
+    const score = -chessQuiesce(-beta, -alpha);
+    chessInst.undo();
+    alpha = Math.max(alpha, score);
+    if (alpha >= beta) return beta;
+  }
+  return alpha;
 }
 
 function chessEval() {
   if (chessInst.isCheckmate()) return chessInst.turn() === 'b' ? 15000 : -15000;
   if (chessInst.isDraw()) return 0;
   let score = 0;
-  for (const row of chessInst.board()) {
-    for (const p of row) {
+  const board = chessInst.board();
+  for (let boardRow = 0; boardRow < 8; boardRow++) {
+    for (let col = 0; col < 8; col++) {
+      const p = board[boardRow][col];
       if (!p) continue;
-      const val = CHESS_PIECE_VALUES[p.type] || 0;
-      score += p.color === 'b' ? val : -val;
+      const base = CHESS_PIECE_VALUES[p.type] || 0;
+      // PST index: white uses rank1=bottom (boardRow 7), black mirrors
+      const pstIdx = p.color === 'w'
+        ? (7 - boardRow) * 8 + col
+        : boardRow * 8 + col;
+      const pst = (CHESS_PST[p.type]?.[pstIdx] || 0);
+      score += p.color === 'b' ? (base + pst) : -(base + pst);
     }
   }
   return score;

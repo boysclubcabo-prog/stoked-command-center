@@ -9654,3 +9654,25 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   text-align: center;
   color: var(--text-secondary);
 }
+
+/* ── Chess skin picker ────────────────────────────────────────────────────── */
+.chess-skin-row {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  align-items: center;
+}
+.chess-skin-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.chess-skin-swatch:hover { transform: scale(1.15); }
+.chess-skin-swatch.active { border-color: var(--orange); transform: scale(1.1); }
+
+/* Remove hardcoded sq-l/sq-d colours — now set inline per skin */
+.sq-l, .sq-d { /* colour set via inline style */ }
