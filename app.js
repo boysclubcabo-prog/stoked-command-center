@@ -1921,7 +1921,7 @@ function _renderMemberView() {
           ? `<div class="mhv2-rank-row">
                <div class="mhv2-rank-num" style="color:${bsCat.color}">${bsScore}</div>
                <div class="mhv2-rank-of">${bsCat.label}</div>
-               <canvas class="mhv2-flame-canvas" id="stokeFlameCanvas" width="64" height="96" aria-hidden="true"></canvas>
+               <canvas class="mhv2-flame-canvas" id="stokeFlameCanvas" width="72" height="104" aria-hidden="true"></canvas>
              </div>`
           : `<div class="mhv2-no-score">No check-in yet today</div>`}
       </div>
@@ -2040,70 +2040,147 @@ function _renderMemberView() {
 
     </div>`;
 
-  // Animate stoke flame
+  // Animate stoke flame — illustrated fire with particles
   if (bsScore != null) {
-    // Cancel any existing flame loop
     if (window._stokeFlameRaf) { cancelAnimationFrame(window._stokeFlameRaf); window._stokeFlameRaf = null; }
-
     const canvas = document.getElementById('stokeFlameCanvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
-      const intensity = Math.max(0.05, Math.min(1, bsScore / 100));
+      const iv = Math.max(0.06, Math.min(1, bsScore / 100)); // intensity 0–1
 
-      const speed     = 0.5 + intensity * 3.0;
-      const maxHeight = 0.32 + intensity * 0.55;
-      const waver     = 0.06 + intensity * 0.26;
+      // Score-driven params
+      const spd    = 0.55 + iv * 2.6;   // animation speed
+      const fuelH  = 0.30 + iv * 0.58;  // max flame height as fraction of H
+      const sway   = 0.055 + iv * 0.22; // horizontal drift
+      const emberN = Math.round(iv * 14); // rising spark count
 
-      // Colors: low=dim blue-grey, mid=orange, high=white-hot
-      const layers = [
-        { hue: intensity < 0.35 ? 210 : 22,  sat: intensity < 0.35 ? 35 : 100, lit: intensity < 0.35 ? 32 : 42, a: 0.55, scale: 1.00 },
-        { hue: intensity < 0.35 ? 205 : 28,  sat: intensity < 0.35 ? 45 : 100, lit: intensity < 0.35 ? 48 : 58, a: 0.70, scale: 0.68 },
-        { hue: intensity < 0.35 ? 195 : 48,  sat: intensity < 0.35 ? 25 : 100, lit: intensity < 0.35 ? 68 : 88, a: 0.90, scale: 0.38 },
-      ];
+      // Ember particles
+      const embers = Array.from({ length: emberN }, (_, i) => ({
+        x: W * 0.2 + Math.random() * W * 0.6,
+        y: H - 8 - Math.random() * H * fuelH * 0.5,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: -(0.5 + Math.random() * 1.8) * (0.4 + iv * 0.6),
+        life: Math.random(),
+        decay: 0.008 + Math.random() * 0.012,
+        r: 1 + Math.random() * 1.8 * iv,
+      }));
 
       let t = 0;
-      function drawFlame() {
+
+      // Draw one flame tongue — the core shape of this fire
+      function tongue(cx, baseY, height, halfW, phase, alpha) {
+        // 4 control-point bezier tongue: wiggles at mid and tip independently
+        const midLean  = Math.sin(t * spd * 0.9 + phase)       * halfW * 0.7;
+        const tipLean  = Math.sin(t * spd * 1.3 + phase + 0.8) * halfW * 0.5;
+        const tipJitter= Math.sin(t * spd * 2.1 + phase + 1.6) * halfW * 0.3;
+        const tipY = baseY - height;
+        const midY = baseY - height * 0.52;
+
+        // gradient: deep crimson base → orange mid → bright yellow tip
+        const grad = ctx.createLinearGradient(cx, baseY, cx + tipLean, tipY);
+        if (iv < 0.35) {
+          // dim: dark red barely alive
+          grad.addColorStop(0,   `rgba(60,10,0,0)`);
+          grad.addColorStop(0.1, `rgba(90,20,0,${alpha * 0.6})`);
+          grad.addColorStop(0.5, `rgba(140,40,10,${alpha * 0.75})`);
+          grad.addColorStop(0.85,`rgba(180,70,20,${alpha * 0.5})`);
+          grad.addColorStop(1,   `rgba(200,100,40,0)`);
+        } else {
+          // vibrant: full fire palette
+          grad.addColorStop(0,   `rgba(120,10,0,0)`);
+          grad.addColorStop(0.08,`rgba(180,20,0,${alpha * 0.85})`);
+          grad.addColorStop(0.3, `rgba(255,70,0,${alpha})`);
+          grad.addColorStop(0.6, `rgba(255,160,0,${alpha * 0.9})`);
+          grad.addColorStop(0.82,`rgba(255,220,60,${alpha * 0.65})`);
+          grad.addColorStop(1,   `rgba(255,245,180,0)`);
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(cx - halfW, baseY);
+        // left side: sweep up to mid then narrow to tip
+        ctx.bezierCurveTo(
+          cx - halfW * 1.2 + midLean * 0.3, midY + height * 0.15,
+          cx + midLean - halfW * 0.45,      midY,
+          cx + tipLean + tipJitter,          tipY
+        );
+        // right side: mirror back down
+        ctx.bezierCurveTo(
+          cx + midLean + halfW * 0.45,       midY,
+          cx + halfW * 1.2 + midLean * 0.3, midY + height * 0.15,
+          cx + halfW, baseY
+        );
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      function drawFrame() {
         ctx.clearRect(0, 0, W, H);
-        const baseY = H - 4;
+        const baseY = H - 3;
+        const cx    = W / 2;
 
-        layers.forEach((lay, li) => {
-          const fH   = H * maxHeight * (1 - li * 0.20);
-          const bW   = W * 0.36 * lay.scale;
-          const cx   = W / 2 + Math.sin(t * speed + li * 1.3) * W * waver;
-          const tipX = cx  + Math.sin(t * speed * 1.5 + li * 0.9) * W * waver * 0.5;
-          const tipY = baseY - fH * (0.85 + Math.sin(t * speed * 0.8 + li) * 0.15);
+        // ── Base coal glow ──────────────────────────────────────
+        const coalR = W * (0.32 + iv * 0.22);
+        const coal  = ctx.createRadialGradient(cx, baseY, 0, cx, baseY, coalR);
+        coal.addColorStop(0,   `rgba(255,${iv < 0.35 ? 40 : 120},0,${0.45 + iv * 0.45})`);
+        coal.addColorStop(0.45,`rgba(255,40,0,${0.12 + iv * 0.18})`);
+        coal.addColorStop(1,   'rgba(0,0,0,0)');
+        ctx.fillStyle = coal;
+        ctx.beginPath();
+        ctx.ellipse(cx, baseY, coalR, coalR * 0.35, 0, 0, Math.PI * 2);
+        ctx.fill();
 
-          const grad = ctx.createLinearGradient(cx, baseY, tipX, tipY);
-          grad.addColorStop(0,    `hsla(${lay.hue},${lay.sat}%,${lay.lit}%,0)`);
-          grad.addColorStop(0.15, `hsla(${lay.hue},${lay.sat}%,${lay.lit}%,${lay.a * 0.7})`);
-          grad.addColorStop(0.65, `hsla(${lay.hue},${lay.sat}%,${Math.min(lay.lit + 20, 96)}%,${lay.a})`);
-          grad.addColorStop(1,    `hsla(${lay.hue},${lay.sat}%,98%,0)`);
+        // ── Flame tongues: outer → mid → inner (back to front) ──
+        const mainH = H * fuelH;
+        const swayX = Math.sin(t * spd * 0.7) * W * sway;
 
+        // Outer wide body — deep colour, wide, slightly leaning
+        tongue(cx + swayX * 0.4, baseY, mainH * 0.88, W * 0.36, 0,           0.72);
+        // Left sub-tongue — narrower, offset left
+        tongue(cx - W * 0.14 + swayX * 0.6, baseY, mainH * 0.65, W * 0.20, 1.1, 0.60);
+        // Right sub-tongue — narrower, offset right, higher phase
+        tongue(cx + W * 0.13 + swayX * 0.5, baseY, mainH * 0.60, W * 0.18, 2.3, 0.58);
+        // Inner bright core — tall narrow, lightest colours
+        tongue(cx + swayX * 0.8, baseY, mainH * 0.78, W * 0.16, 0.5,        0.85);
+
+        // ── Rising embers ────────────────────────────────────────
+        embers.forEach(e => {
+          e.x  += e.vx + Math.sin(t * spd + e.life * 10) * 0.35;
+          e.y  += e.vy;
+          e.life -= e.decay;
+          if (e.life <= 0) {
+            e.x    = W * 0.2 + Math.random() * W * 0.6;
+            e.y    = baseY - Math.random() * mainH * 0.3;
+            e.life = 0.6 + Math.random() * 0.4;
+            e.vx   = (Math.random() - 0.5) * 0.5;
+            e.vy   = -(0.5 + Math.random() * 1.6) * (0.4 + iv * 0.6);
+          }
+          const alpha = e.life * (0.5 + iv * 0.5);
+          const hue   = iv < 0.35 ? 15 : (40 - e.life * 20);
           ctx.beginPath();
-          ctx.moveTo(cx - bW, baseY);
-          ctx.bezierCurveTo(cx - bW * 1.15, baseY - fH * 0.38, tipX - bW * 0.5, tipY + fH * 0.2, tipX, tipY);
-          ctx.bezierCurveTo(tipX + bW * 0.5, tipY + fH * 0.2, cx + bW * 1.15, baseY - fH * 0.38, cx + bW, baseY);
-          ctx.closePath();
-          ctx.fillStyle = grad;
+          ctx.arc(e.x, e.y, e.r * e.life, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${hue},100%,${60 + e.life * 35}%,${alpha})`;
           ctx.fill();
         });
 
-        // Base glow
-        const glowR = W * (0.28 + intensity * 0.30);
-        const glow  = ctx.createRadialGradient(W/2, baseY, 0, W/2, baseY, glowR);
-        glow.addColorStop(0,   `rgba(255,${Math.round(200 - intensity * 120)},0,${0.35 + intensity * 0.50})`);
-        glow.addColorStop(0.6, `rgba(255,80,0,${0.05 + intensity * 0.15})`);
-        glow.addColorStop(1,   'rgba(0,0,0,0)');
-        ctx.fillStyle = glow;
-        ctx.beginPath();
-        ctx.ellipse(W/2, baseY, glowR, glowR * 0.38, 0, 0, Math.PI * 2);
-        ctx.fill();
+        // ── Inner white-hot core (high score only) ───────────────
+        if (iv > 0.55) {
+          const coreH = mainH * 0.38 * (iv - 0.55) / 0.45;
+          const coreG = ctx.createLinearGradient(cx, baseY, cx, baseY - coreH);
+          coreG.addColorStop(0,   `rgba(255,255,220,${(iv - 0.55) * 1.8})`);
+          coreG.addColorStop(0.6, `rgba(255,240,180,${(iv - 0.55) * 0.9})`);
+          coreG.addColorStop(1,   'rgba(255,220,120,0)');
+          ctx.beginPath();
+          ctx.ellipse(cx + swayX * 0.9, baseY - coreH * 0.25, W * 0.09, coreH * 0.65, 0, 0, Math.PI * 2);
+          ctx.fillStyle = coreG;
+          ctx.fill();
+        }
 
-        t += 0.018;
-        window._stokeFlameRaf = requestAnimationFrame(drawFlame);
+        t += 0.016;
+        window._stokeFlameRaf = requestAnimationFrame(drawFrame);
       }
-      drawFlame();
+      drawFrame();
     }
   }
 
