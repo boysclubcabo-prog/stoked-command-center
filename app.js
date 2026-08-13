@@ -65,6 +65,24 @@ const BADGE_CHAINS = {
   },
 };
 
+const BADGE_IMG_BASE = '/stoked-command-center/Badges%20stoked%202/';
+const BADGE_ICONS = {
+  first_challenge:    'firstflame-badge.png',
+  iron_body:          'ironbody-badge.png',
+  monk_mode:          'monkmode-badge.png',
+  creators_mark:      'creatorsmark-badge.png',
+  clear_space:        'clearspace-badge.png',
+  cold_blooded:       'coldblooded-badge.png',
+  sanctuary:          'sanctuary-badge.png',
+  show_your_stoke:    'showyourstoke-badge.png',
+  sixty_day_streak:   '60strong-badge.png',
+};
+function badgeIconHtml(badgeId, size = 40, dimmed = false) {
+  const file = BADGE_ICONS[badgeId];
+  if (file) return `<img src="${BADGE_IMG_BASE}${file}" width="${size}" height="${size}" style="object-fit:contain;${dimmed ? 'opacity:0.25;filter:grayscale(1)' : ''}" alt="">`;
+  return `<span class="badge-icon-glyph">◈</span>`;
+}
+
 // Map badge id → chain id for quick lookup
 const BADGE_CHAIN_MAP = {};
 for (const [chainId, chain] of Object.entries(BADGE_CHAINS)) {
@@ -1859,7 +1877,7 @@ function renderBadgeCard(badge, earned, earnedData, progress, catColor, isMyster
     <div class="badge-card badge-mystery" data-badge-id="${badge.id}">
       <div class="badge-card-summary badge-mystery-summary">
         <div class="badge-icon-wrap badge-icon-mystery">
-          <span class="badge-icon-glyph">◈</span>
+          ${badgeIconHtml(badge.id, 36, true)}
         </div>
         <div class="badge-summary-info">
           <div class="badge-name">${escHtml(badge.name)}</div>
@@ -1904,7 +1922,7 @@ function renderBadgeCard(badge, earned, earnedData, progress, catColor, isMyster
   <div class="badge-card ${statusClass}" data-badge-id="${badge.id}"${earned ? ` style="border-color:${catColor}40;background:${catColor}0a"` : ''}>
     <div class="badge-card-summary">
       <div class="badge-icon-wrap" style="--badge-color:${catColor}${earned ? `;background:${catColor}20;box-shadow:0 0 12px ${catColor}40` : ''}">
-        <span class="badge-icon-glyph"${earned ? ` style="color:${catColor}"` : ''}>◈</span>
+        ${badgeIconHtml(badge.id, 36, false)}
       </div>
       <div class="badge-summary-info">
         <div class="badge-name">${escHtml(badge.name)}</div>
@@ -2043,7 +2061,7 @@ function showBadgeUnlockCelebration(badges) {
   overlay.innerHTML = `
     <div class="badge-celebration-card">
       <div class="badge-cel-glow" style="--cel-color:${color}"></div>
-      <div class="badge-cel-icon" style="color:${color}">◈</div>
+      <div class="badge-cel-icon" style="${BADGE_ICONS[badge.id] ? '' : `color:${color}`}">${badgeIconHtml(badge.id, 80, false)}</div>
       <div class="badge-cel-eyebrow">Congratulations</div>
       <div class="badge-cel-name">${escHtml(badge.name)}</div>
       <div class="badge-cel-desc">${escHtml(badge.description)}</div>
@@ -2550,7 +2568,7 @@ function _renderMemberView() {
               const catData = BADGE_CATEGORIES[b.def.category];
               const color = catData ? catData.color : '#888';
               return `<div class="mhv2-badge-chip" style="border-color:${color}30;background:${color}0d">
-                <span class="mhv2-badge-chip-glyph" style="color:${color}">◈</span>
+                <span class="mhv2-badge-chip-glyph">${badgeIconHtml(b.def.id, 28, false)}</span>
                 <div class="mhv2-badge-chip-info">
                   <span class="mhv2-badge-chip-name">${escHtml(b.def.name)}</span>
                   <span class="mhv2-badge-chip-date">${new Date(b.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
@@ -2806,7 +2824,7 @@ function renderCard(brother) {
                   const catData = BADGE_CATEGORIES[b.def.category];
                   const color = catData ? catData.color : '#888';
                   return `<div class="card-badge-chip" style="border-color:${color}30;background:${color}0d">
-                    <span class="card-badge-glyph" style="color:${color}">◈</span>
+                    <span class="card-badge-glyph">${badgeIconHtml(b.def.id, 28, false)}</span>
                     <div class="card-badge-info">
                       <span class="card-badge-name">${escHtml(b.def.name)}</span>
                       <span class="card-badge-date">${new Date(b.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
