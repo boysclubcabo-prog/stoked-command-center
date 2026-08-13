@@ -1897,10 +1897,10 @@ function renderBadgesScreen() {
           }
 
           return `
-          <div class="badge-card ${statusClass}" data-badge-id="${badge.id}">
+          <div class="badge-card ${statusClass}" data-badge-id="${badge.id}"${earned ? ` style="--badge-color:${catColor};border-color:${catColor}40;background:${catColor}0a"` : ''}>
             <div class="badge-card-summary">
-              <div class="badge-icon-wrap" style="--badge-color:${catColor}">
-                <span class="badge-icon-glyph">◈</span>
+              <div class="badge-icon-wrap" style="--badge-color:${catColor}${earned ? `;background:${catColor}20;box-shadow:0 0 12px ${catColor}40` : ''}">
+                <span class="badge-icon-glyph"${earned ? ` style="color:${catColor}"` : ''}>◈</span>
               </div>
               <div class="badge-summary-info">
                 <div class="badge-name">${escHtml(badge.name)}</div>
@@ -1952,6 +1952,37 @@ function renderBadgesScreen() {
       chev.textContent = detail.classList.contains('hidden') ? '▾' : '▴';
     });
   });
+}
+
+function showBadgeUnlockCelebration(badges) {
+  const badge = badges[0];
+  const catData = BADGE_CATEGORIES[badge.category];
+  const color = catData ? catData.color : '#D4A853';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'badge-celebration-overlay';
+  overlay.innerHTML = `
+    <div class="badge-celebration-card">
+      <div class="badge-cel-glow" style="--cel-color:${color}"></div>
+      <div class="badge-cel-icon" style="color:${color}">◈</div>
+      <div class="badge-cel-eyebrow">Congratulations</div>
+      <div class="badge-cel-name">${escHtml(badge.name)}</div>
+      <div class="badge-cel-desc">${escHtml(badge.description)}</div>
+      <div class="badge-cel-xp" style="color:${color}">+${badge.xpReward} XP</div>
+      <button class="badge-cel-btn" style="background:${color}">Awesome</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('badge-cel-visible'));
+
+  const dismiss = () => {
+    overlay.classList.remove('badge-cel-visible');
+    overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+    // If more badges queued, show next after a short gap
+    if (badges.length > 1) setTimeout(() => showBadgeUnlockCelebration(badges.slice(1)), 400);
+  };
+  overlay.querySelector('.badge-cel-btn').addEventListener('click', dismiss);
+  overlay.addEventListener('click', e => { if (e.target === overlay) dismiss(); });
 }
 
 // ── NOTIFICATIONS ─────────────────────────────
@@ -6541,8 +6572,8 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
     // Check badge eligibility — pass the new sub since memory array may not reflect it yet
     const newSub = { id, challengeId, brotherId: submittingProfile.id, status: 'completed', submittedAt: new Date().toISOString() };
     const newBadges = await checkAndAwardBadges({ ...submittingProfile, xp: newXP }, newSub);
-    for (const badge of newBadges) {
-      setTimeout(() => showToast(`🏅 Badge Unlocked: ${badge.name} (+${badge.xpReward} XP)`, 'success'), 1200);
+    if (newBadges.length) {
+      setTimeout(() => showBadgeUnlockCelebration(newBadges), 1400);
     }
 
     // Post to feed immediately

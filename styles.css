@@ -8548,3 +8548,94 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   color: #C4693A;
   flex-shrink: 0;
 }
+
+/* ── Badge Celebration Modal ── */
+.badge-celebration-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.badge-celebration-overlay.badge-cel-visible {
+  opacity: 1;
+}
+.badge-celebration-card {
+  position: relative;
+  background: var(--bg-primary);
+  border-radius: 20px;
+  padding: 40px 32px 32px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+  overflow: hidden;
+  transform: scale(0.88) translateY(16px);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.badge-cel-visible .badge-celebration-card {
+  transform: scale(1) translateY(0);
+}
+.badge-cel-glow {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--cel-color, #D4A853);
+  opacity: 0.12;
+  filter: blur(40px);
+  pointer-events: none;
+}
+.badge-cel-icon {
+  font-size: 64px;
+  line-height: 1;
+  margin-bottom: 16px;
+  display: block;
+}
+.badge-cel-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.badge-cel-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.06em;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+.badge-cel-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.badge-cel-xp {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 24px;
+}
+.badge-cel-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
