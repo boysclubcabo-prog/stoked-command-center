@@ -7158,39 +7158,14 @@ async function renderGamesHub() {
 
 const SYNC_TOTAL_ROUNDS = 20;
 
-// 3 levels — each has its own timing + red frequency
-// minDelay/maxDelay = wait before shape appears (ms)
-// expireMs = how long shape stays before auto-expiring
-// redPct = probability of red shape each round
-const SYNC_LEVELS = {
-  1: {
-    label: 'Level 1',
-    sublabel: 'Standard',
-    desc: '20 rounds · Steady pace · 30% red',
-    minDelay: 1400, maxDelay: 2400,
-    expireMs: 1100,
-    redPct: 0.30,
-    color: '#4ade80',
-  },
-  2: {
-    label: 'Level 2',
-    sublabel: 'Fast',
-    desc: '20 rounds · Quicker · More random · 45% red',
-    minDelay: 700, maxDelay: 1800,
-    expireMs: 850,
-    redPct: 0.45,
-    color: '#facc15',
-  },
-  3: {
-    label: 'Level 3',
-    sublabel: 'Chaos',
-    desc: '20 rounds · Unpredictable · 60% red · Blink and miss',
-    minDelay: 350, maxDelay: 1300,
-    expireMs: 600,
-    redPct: 0.60,
-    color: '#f87171',
-  },
-};
+// Escalating phases — every 5 rounds gets faster with more red
+// Rounds 16-20: shapes also spawn at random screen positions
+const SYNC_PHASES = [
+  { minDelay: 1400, maxDelay: 2400, redPct: 0.25, expireMs: 1200, roam: false }, // rounds  1–5
+  { minDelay:  900, maxDelay: 1800, redPct: 0.35, expireMs: 1000, roam: false }, // rounds  6–10
+  { minDelay:  600, maxDelay: 1300, redPct: 0.45, expireMs:  850, roam: false }, // rounds 11–15
+  { minDelay:  300, maxDelay:  900, redPct: 0.60, expireMs:  650, roam: true  }, // rounds 16–20
+];
 
 const SYNC_COACH_LINES = [
   { speedOk: true,  ctrlOk: true,  line: 'Locked in — speed and discipline held all the way through.' },
@@ -7199,21 +7174,19 @@ const SYNC_COACH_LINES = [
   { speedOk: false, ctrlOk: false, line: 'Room to grow on both ends. Slower and sloppier than your best — come back sharper.' },
 ];
 
-// Save score to Firestore — keeps each brother's personal best per game+level
-async function submitScore(compositeScore, avgMs, falseTapRate, gameId, level) {
+// Save score to Firestore — keeps each brother's personal best per game
+async function submitScore(compositeScore, avgMs, falseTapRate, gameId) {
   if (!currentUser) return;
   const profile = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
   if (!profile) return;
 
-  const docId = `${gameId}_${profile.id}_lvl${level}`;
+  const docId = `${gameId}_${profile.id}`;
   const existing = await getDoc(doc(db, 'gameScores', docId));
 
-  // Only overwrite if this is a new personal best
   if (existing.exists() && existing.data().score >= compositeScore) return;
 
   await setDoc(doc(db, 'gameScores', docId), {
     gameId,
-    level,
     brotherId:   profile.id,
     brotherName: profile.name,
     score:       compositeScore,
@@ -7263,7 +7236,7 @@ async function loadGamesLeaderboard(gameId) {
           <div class="games-lb-arch">${archIcon}</div>
           <div class="games-lb-info">
             <div class="games-lb-name">${escHtml(s.brotherName)}${isMe ? ' <span class="games-lb-you">YOU</span>' : ''}</div>
-            <div class="games-lb-meta">${s.avgMs} ms speed · ${Math.round(s.falseTapRate * 100)}% false · Lvl ${s.level}</div>
+            <div class="games-lb-meta">${s.avgMs} ms speed · ${Math.round(s.falseTapRate * 100)}% false taps</div>
           </div>
           <div class="games-lb-score">${s.score}</div>
         </div>`;
@@ -7278,55 +7251,20 @@ let syncTimeout = null;
 let syncShapeStart = null;
 
 function syncRand(min, max) {
-  // Extra entropy: occasionally bias toward the extremes to feel more random
-  const r = Math.random();
-  const skewed = Math.random() < 0.25 ? Math.random() * Math.random() : r;
+  const skewed = Math.random() < 0.25 ? Math.random() * Math.random() : Math.random();
   return min + skewed * (max - min);
+}
+
+function syncPhaseForRound(round) {
+  return SYNC_PHASES[Math.min(Math.floor((round - 1) / 5), SYNC_PHASES.length - 1)];
 }
 
 function launchSyncCheck() {
   document.getElementById('syncCheckCard').closest('.games-hub').classList.add('hidden');
   const gameEl = document.getElementById('syncCheckGame');
   gameEl.classList.remove('hidden');
-  syncShowLevelSelect(gameEl);
-}
 
-function syncShowLevelSelect(gameEl) {
-  gameEl.innerHTML = `
-    <div class="sc-wrap">
-      <div class="sc-top-bar">
-        <button class="sc-back-btn" id="scBackBtnLevel">← Games</button>
-        <div class="sc-round-label">Sync Check</div>
-      </div>
-      <div class="sc-level-select">
-        <div class="sc-level-title">Choose Level</div>
-        <div class="sc-level-rules">
-          <span class="sc-inst-go">GREEN</span> — tap fast &nbsp;·&nbsp;
-          <span class="sc-inst-stop">RED</span> — do NOT tap
-        </div>
-        <div class="sc-level-cards">
-          ${Object.entries(SYNC_LEVELS).map(([num, cfg]) => `
-            <button class="sc-level-card" data-level="${num}" style="--lvl-color:${cfg.color}">
-              <div class="sc-level-card-num">${cfg.label}</div>
-              <div class="sc-level-card-sub">${cfg.sublabel}</div>
-              <div class="sc-level-card-desc">${cfg.desc}</div>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-  document.getElementById('scBackBtnLevel').addEventListener('click', exitSyncCheck);
-  gameEl.querySelectorAll('.sc-level-card').forEach(btn => {
-    btn.addEventListener('click', () => syncStartLevel(parseInt(btn.dataset.level), gameEl));
-  });
-}
-
-function syncStartLevel(level, gameEl) {
-  const cfg = SYNC_LEVELS[level];
   syncState = {
-    level,
-    cfg,
     round: 0,
     reactionTimes: [],
     falseCount: 0,
@@ -7340,16 +7278,17 @@ function syncStartLevel(level, gameEl) {
     <div class="sc-wrap">
       <div class="sc-top-bar">
         <button class="sc-back-btn" id="scBackBtn">← Games</button>
-        <div class="sc-round-label" id="scRoundLabel">${cfg.label} · Round 1 / ${SYNC_TOTAL_ROUNDS}</div>
+        <div class="sc-round-label" id="scRoundLabel">Round 1 / ${SYNC_TOTAL_ROUNDS}</div>
       </div>
       <div class="sc-arena" id="scArena">
         <div class="sc-instruction" id="scInstruction">
-          <div class="sc-inst-title" style="color:${cfg.color}">${cfg.sublabel}</div>
+          <div class="sc-inst-title">Sync Check</div>
           <div class="sc-inst-rules">
             <span class="sc-inst-go">GREEN</span> — tap fast<br>
-            <span class="sc-inst-stop">RED</span> — do NOT tap
+            <span class="sc-inst-stop">RED</span> — do NOT tap<br>
+            <span class="sc-inst-roam-hint">Rounds 16–20: watch everywhere</span>
           </div>
-          <button class="sc-start-btn" id="scStartBtn" style="background:${cfg.color};color:#0a0a0a">Go</button>
+          <button class="sc-start-btn" id="scStartBtn">Go</button>
         </div>
         <div class="sc-shape hidden" id="scShape"></div>
         <div class="sc-feedback hidden" id="scFeedback"></div>
@@ -7379,17 +7318,21 @@ function syncNextRound() {
   syncState.currentColor = null;
 
   document.getElementById('scInstruction')?.classList.add('hidden');
-  document.getElementById('scShape').classList.add('hidden');
+  const shape = document.getElementById('scShape');
+  shape.classList.add('hidden');
+  shape.style.removeProperty('left');
+  shape.style.removeProperty('top');
+  shape.style.removeProperty('transform');
+  shape.style.removeProperty('position');
   document.getElementById('scFeedback').classList.add('hidden');
-  document.getElementById('scRoundLabel').textContent =
-    `${syncState.cfg.label} · Round ${syncState.round} / ${SYNC_TOTAL_ROUNDS}`;
+  document.getElementById('scRoundLabel').textContent = `Round ${syncState.round} / ${SYNC_TOTAL_ROUNDS}`;
 
-  const { minDelay, maxDelay, redPct, expireMs } = syncState.cfg;
-  const delay = syncRand(minDelay, maxDelay);
+  const phase = syncPhaseForRound(syncState.round);
+  const delay = syncRand(phase.minDelay, phase.maxDelay);
 
   syncTimeout = setTimeout(() => {
     if (!syncState) return;
-    const isRed = Math.random() < redPct;
+    const isRed = Math.random() < phase.redPct;
     syncState.currentColor = isRed ? 'red' : 'green';
     syncState.shapeVisible = true;
     syncState.waiting = false;
@@ -7397,11 +7340,25 @@ function syncNextRound() {
 
     if (isRed) syncState.redShownCount++;
 
-    const shape = document.getElementById('scShape');
     shape.className = `sc-shape sc-shape-${isRed ? 'red' : 'green'}`;
-    shape.classList.remove('hidden');
 
-    syncTimeout = setTimeout(() => syncExpire(), expireMs);
+    // Rounds 16-20: random position within arena bounds
+    if (phase.roam) {
+      const arena = document.getElementById('scArena');
+      const aw = arena.clientWidth  || 360;
+      const ah = arena.clientHeight || 500;
+      const shapeSize = 120;
+      const pad = 24;
+      const rx = pad + Math.random() * (aw - shapeSize - pad * 2);
+      const ry = pad + Math.random() * (ah - shapeSize - pad * 2);
+      shape.style.position  = 'absolute';
+      shape.style.left      = `${rx}px`;
+      shape.style.top       = `${ry}px`;
+      shape.style.transform = 'none';
+    }
+
+    shape.classList.remove('hidden');
+    syncTimeout = setTimeout(() => syncExpire(), phase.expireMs);
   }, delay);
 }
 
@@ -7465,7 +7422,7 @@ function syncShowResults() {
   clearTimeout(syncTimeout);
   if (!syncState) return;
 
-  const { reactionTimes, falseCount, redShownCount, cfg, level } = syncState;
+  const { reactionTimes, falseCount, redShownCount } = syncState;
   const avgMs = reactionTimes.length
     ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
     : 999;
@@ -7495,14 +7452,14 @@ function syncShowResults() {
     return 'Poor';
   }
 
-  submitScore(composite, avgMs, falseTapRate, 'sync_check', level);
+  submitScore(composite, avgMs, falseTapRate, 'sync_check');
 
   const gameEl = document.getElementById('syncCheckGame');
   gameEl.innerHTML = `
     <div class="sc-wrap">
       <div class="sc-top-bar">
         <button class="sc-back-btn" id="scBackBtnResult">← Games</button>
-        <div class="sc-round-label">Level ${level} · Results</div>
+        <div class="sc-round-label">Sync Check · Results</div>
       </div>
       <div class="sc-results">
         <div class="sc-composite-wrap">
@@ -7527,15 +7484,16 @@ function syncShowResults() {
           ${reactionTimes.length} green hits · ${falseCount} false tap${falseCount !== 1 ? 's' : ''} · ${redShownCount} red shown
         </div>
         <div class="sc-result-btns">
-          <button class="sc-play-again-btn" id="scPlayAgainBtn" style="background:${cfg.color};color:#0a0a0a">Play Again</button>
-          <button class="sc-change-level-btn" id="scChangeLevelBtn">Change Level</button>
+          <button class="sc-play-again-btn" id="scPlayAgainBtn">Play Again</button>
         </div>
       </div>
     </div>
   `;
 
   document.getElementById('scBackBtnResult').addEventListener('click', exitSyncCheck);
-  document.getElementById('scPlayAgainBtn').addEventListener('click', () => syncStartLevel(level, gameEl));
-  document.getElementById('scChangeLevelBtn').addEventListener('click', () => syncShowLevelSelect(gameEl));
+  document.getElementById('scPlayAgainBtn').addEventListener('click', () => {
+    gameEl.innerHTML = '';
+    launchSyncCheck();
+  });
   syncState = null;
 }
