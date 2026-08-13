@@ -7909,15 +7909,26 @@ let _chessDeadline = 0;
 
 function chessMoveScore(move) {
   let s = 0;
-  if (move.captured) s += CHESS_PIECE_VALUES[move.captured] * 10 - CHESS_PIECE_VALUES[move.piece];
-  if (move.flags.includes('p')) s += 800;
-  if (move.san.includes('+')) s += 50;
+  if (move.captured) s += CHESS_PIECE_VALUES[move.captured] * 10 - (CHESS_PIECE_VALUES[move.piece] || 0);
+  if (move.flags && move.flags.includes('p')) s += 800;
+  if (move.san && move.san.includes('+')) s += 50;
   return s;
 }
 
-function chessFindBest(depth) {
-  _chessCutoff = false;
-  _chessDeadline = Date.now() + (chessBotDiff === 'hard' ? 1800 : 1200);
+// Iterative deepening — always return a complete result at some depth
+function chessFindBest(maxDepth) {
+  _chessDeadline = Date.now() + (chessBotDiff === 'hard' ? 2000 : 1400);
+  let bestMove = null;
+  for (let d = 1; d <= maxDepth; d++) {
+    _chessCutoff = false;
+    const move = chessFindBestAtDepth(d);
+    if (!_chessCutoff && move) bestMove = move; // only keep completed searches
+    if (_chessCutoff || Date.now() > _chessDeadline) break;
+  }
+  return bestMove;
+}
+
+function chessFindBestAtDepth(depth) {
   const moves = chessInst.moves({ verbose: true })
     .sort((a, b) => chessMoveScore(b) - chessMoveScore(a));
   let best = moves[0] || null, bestScore = -Infinity;
@@ -7932,9 +7943,9 @@ function chessFindBest(depth) {
 }
 
 function chessNegamax(depth, alpha, beta) {
-  if (Date.now() > _chessDeadline) { _chessCutoff = true; return chessEval(); }
-  if (depth === 0) return chessQuiesce(alpha, beta, 2);
+  if (Date.now() > _chessDeadline) { _chessCutoff = true; return 0; }
   if (chessInst.isGameOver()) return chessEval();
+  if (depth === 0) return chessQuiesce(alpha, beta, 3);
   const moves = chessInst.moves({ verbose: true })
     .sort((a, b) => chessMoveScore(b) - chessMoveScore(a));
   let best = -Infinity;
@@ -7951,12 +7962,12 @@ function chessNegamax(depth, alpha, beta) {
 }
 
 function chessQuiesce(alpha, beta, limit) {
+  // eval() from the side-to-move's perspective
   const stand = chessEval();
   if (stand >= beta || limit <= 0) return stand;
   alpha = Math.max(alpha, stand);
   const captures = chessInst.moves({ verbose: true }).filter(m => m.captured);
   for (const m of captures) {
-    if (_chessCutoff) break;
     chessInst.move(m);
     const score = -chessQuiesce(-beta, -alpha, limit - 1);
     chessInst.undo();
@@ -7966,9 +7977,11 @@ function chessQuiesce(alpha, beta, limit) {
   return alpha;
 }
 
+// IMPORTANT: returns positive = good for the side currently to move (negamax convention)
 function chessEval() {
-  if (chessInst.isCheckmate()) return chessInst.turn() === 'b' ? 15000 : -15000;
+  if (chessInst.isCheckmate()) return -15000; // side to move is mated
   if (chessInst.isDraw()) return 0;
+  const turn = chessInst.turn();
   let score = 0;
   const board = chessInst.board();
   for (let boardRow = 0; boardRow < 8; boardRow++) {
@@ -7976,12 +7989,10 @@ function chessEval() {
       const p = board[boardRow][col];
       if (!p) continue;
       const base = CHESS_PIECE_VALUES[p.type] || 0;
-      // PST index: white uses rank1=bottom (boardRow 7), black mirrors
-      const pstIdx = p.color === 'w'
-        ? (7 - boardRow) * 8 + col
-        : boardRow * 8 + col;
-      const pst = (CHESS_PST[p.type]?.[pstIdx] || 0);
-      score += p.color === 'b' ? (base + pst) : -(base + pst);
+      const pstIdx = p.color === 'w' ? (7 - boardRow) * 8 + col : boardRow * 8 + col;
+      const pst = CHESS_PST[p.type]?.[pstIdx] || 0;
+      // Add if this piece belongs to side-to-move, subtract if opponent
+      score += p.color === turn ? (base + pst) : -(base + pst);
     }
   }
   return score;
