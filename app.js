@@ -7241,7 +7241,7 @@ async function loadGamesLeaderboard(gameId) {
         </div>`;
     }).join('');
   } catch (err) {
-    lbEl.innerHTML = `<div class="games-lb-empty">Scores unavailable.</div>`;
+    lbEl.innerHTML = `<div class="games-lb-empty">Error: ${err.code || err.message}</div>`;
   }
 }
 
