@@ -7634,13 +7634,6 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   align-items: center;
   gap: 10px;
 }
-.mhv2-flame-canvas {
-  display: block;
-  flex-shrink: 0;
-  align-self: flex-end;
-  margin-bottom: 6px;
-  filter: blur(0.5px);
-}
 .mhv2-rank-num {
   font-family: 'Bebas Neue','Barlow Condensed',Impact,sans-serif;
   font-size: clamp(64px, 20vw, 90px);
