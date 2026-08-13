@@ -1696,15 +1696,6 @@ function showApp() {
     if (!isAdmin && !memberDefaultTabSet) {
       memberDefaultTabSet = true;
       switchTab('mypath');
-      // Catch-up badge check — awards any badges already earned before the system existed
-      if (currentUser) {
-        const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
-        if (me) {
-          checkAndAwardBadges(me).then(newBadges => {
-            if (newBadges.length) setTimeout(() => showBadgeUnlockCelebration(newBadges), 1800);
-          });
-        }
-      }
     }
     // Re-register FCM token now that brothers are loaded (gets correct brotherId)
     if (Notification.permission === 'granted') registerFCMToken();
@@ -1755,6 +1746,19 @@ function showApp() {
       const newCompleted = submissions.filter(s => s.status === 'completed' && !prev.includes(s.id));
       newCompleted.forEach(s => showNotif('🔥 Challenge Complete', `${s.brotherName} completed a challenge`));
     }
+
+    // Catch-up badge check — runs once after submissions load so we have both brothers + subs
+    if (!firstSubsSnap && !isAdmin && currentUser) {
+      // already ran
+    } else if (firstSubsSnap && !isAdmin && currentUser) {
+      const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+      if (me) {
+        checkAndAwardBadges(me).then(newBadges => {
+          if (newBadges.length) setTimeout(() => showBadgeUnlockCelebration(newBadges), 1800);
+        });
+      }
+    }
+
     firstSubsSnap = false;
 
     if (currentTab === 'community') renderFeed();
