@@ -1650,11 +1650,7 @@ function showApp() {
   // Show the Brothers roster tab only for non-admin members
   const rosterTabBtn  = document.getElementById('rosterTabBtn');
   if (rosterTabBtn) rosterTabBtn.classList.toggle('hidden', isAdmin);
-  const mypathTabBtn  = document.getElementById('mypathTabBtn');
-  if (mypathTabBtn) mypathTabBtn.classList.remove('hidden');
-
-  // Members land on My Path by default — but wait for first data load
-  if (!isAdmin) switchTab('brothers'); // show skeleton while loading
+  if (!isAdmin) switchTab('brothers');
 
   // Set up notifications (ask permission)
   setupNotifications();
@@ -1695,7 +1691,6 @@ function showApp() {
     // Switch to My Path on first load for members (data is now available)
     if (!isAdmin && !memberDefaultTabSet) {
       memberDefaultTabSet = true;
-      switchTab('mypath');
     }
     // Re-register FCM token now that brothers are loaded (gets correct brotherId)
     if (Notification.permission === 'granted') registerFCMToken();
@@ -1824,8 +1819,7 @@ function switchTab(tab) {
   const isSocialFeed = tab === 'socialfeed';
   const isChallenges = tab === 'community';
   const isRoster     = tab === 'roster';
-  const isMyPath     = tab === 'mypath';
-  const isMain       = !isSocialFeed && !isChallenges && !isRoster && !isMyPath;
+  const isMain       = !isSocialFeed && !isChallenges && !isRoster;
 
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
 
@@ -1835,7 +1829,6 @@ function switchTab(tab) {
   document.getElementById('socialFeedSection').classList.toggle('hidden', !isSocialFeed);
   document.getElementById('communitySection').classList.toggle('hidden', !isChallenges);
   document.getElementById('rosterSection').classList.toggle('hidden', !isRoster);
-  document.getElementById('mypathSection').classList.toggle('hidden', !isMyPath);
 
   if (isSocialFeed) {
     renderSocialFeed();
@@ -1849,7 +1842,6 @@ function switchTab(tab) {
     document.getElementById('communityBadge').classList.add('hidden');
   }
   if (isRoster) renderRoster();
-  if (isMyPath)  renderMyPath();
   if (isMain && !isAdmin) renderMemberView();
 }
 
