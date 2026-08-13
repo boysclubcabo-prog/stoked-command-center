@@ -2047,172 +2047,156 @@ function _renderMemberView() {
     if (canvas) {
       const ctx = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
+      const cx = W / 2;
 
-      // 50 = dead minimum, 100 = max rage. Below 50 clamps to 0.
+      // 50 = dead minimum (iv=0), 100 = max rage (iv=1). Below 50 clamps.
       const iv = Math.max(0, Math.min(1, (bsScore - 50) / 50));
 
-      // Every point on the 0-1 scale drives distinct visual params
-      const spd      = 0.22 + iv * 5.2;               // 50=barely moves, 100=chaotic fast
-      const maxH     = H * (0.16 + iv * 0.76);        // 50=tiny flicker, 100=full height
-      const baseW    = W * (0.20 + iv * 0.22);        // 50=narrow, 100=wide roaring base
-      const turb     = 0.012 + iv * 0.30;             // sway turbulence
-      const emberN   = Math.round(iv * iv * 22);      // quadratic: few until high scores
-      const tongues  = 1 + Math.round(iv * 3.5);      // 50=1 tongue, 100=4-5 tongues
+      const speed  = 0.65 + iv * 4.0;
+      const flameH = H * (0.21 + iv * 0.70);
+      const baseHW = W * (0.21 + iv * 0.21);
+      const sway   = 2.5 + iv * 13;
 
-      // Noise helper: sum of sines at different freqs → pseudo-random organic motion
       const N = (ph, f1, f2, f3) =>
-        Math.sin(t * spd * f1 + ph) * 0.50 +
-        Math.sin(t * spd * f2 + ph * 1.3) * 0.30 +
-        Math.sin(t * spd * f3 + ph * 0.7) * 0.20;
+        Math.sin(t * speed * f1 + ph) * 0.50 +
+        Math.sin(t * speed * f2 + ph * 1.5) * 0.33 +
+        Math.sin(t * speed * f3 + ph * 0.8) * 0.17;
 
-      // Color: maps 0-1 position along flame height + iv → rgba string
-      function flameRGBA(pos, alpha) {
-        // pos 0=base, 1=tip
-        let r, g, b;
-        if (iv < 0.08) {
-          // Score ~50: dark smoldering ember, barely red
-          r = Math.round(55 + pos * 70); g = Math.round(pos * 12); b = 0;
-        } else {
-          // Gradient shifts from dark-red-dominant at iv=0 to yellow-white at iv=1
-          // R channel: always bright in fire range
-          r = Math.round(Math.min(255, 120 + iv * 135));
-          // G channel: 0 at base, grows with iv and pos (yellow needs green)
-          g = Math.round(Math.max(0, Math.min(255,
-            pos * (iv * 220) - (1 - iv) * 40
-          )));
-          // B channel: only at very high iv near the tip (white-hot)
-          b = Math.round(Math.max(0, (iv - 0.75) * 4 * pos * 180));
-        }
-        return `rgba(${r},${g},${b},${alpha})`;
-      }
-
-      // Draw one bezier tongue using additive blending
-      function drawTongue(ox, height, hw, phase, alphaScale) {
-        const baseY = H - 3;
-        const lean1 = N(phase, 0.8, 1.7, 3.1) * hw * 0.9 * turb * 18;
-        const lean2 = N(phase, 1.2, 2.3, 0.9) * hw * 0.6 * turb * 18;
-        const jit   = N(phase, 2.5, 0.6, 1.4) * hw * 0.4 * turb * 15;
-        const midY  = baseY - height * 0.50;
-        const tipX  = ox + lean2 + jit;
-        const tipY  = baseY - height * (0.88 + N(phase, 0.5, 1.1, 2.0) * 0.12);
-
-        const grad = ctx.createLinearGradient(ox, baseY, tipX, tipY);
-        grad.addColorStop(0,    flameRGBA(0,    0));
-        grad.addColorStop(0.05, flameRGBA(0.05, 0.80 * alphaScale));
-        grad.addColorStop(0.25, flameRGBA(0.25, 0.90 * alphaScale));
-        grad.addColorStop(0.55, flameRGBA(0.55, 0.85 * alphaScale));
-        grad.addColorStop(0.80, flameRGBA(0.80, 0.60 * alphaScale));
-        grad.addColorStop(1,    flameRGBA(1,    0));
-
+      // Closed flame silhouette: wide base → lower bulge → narrow neck → pointed tip
+      function flameShape(ox, baseY, hw, h, tipOx, ph) {
+        const tipX = ox + tipOx;
+        const tipY = baseY - h;
+        const lbX  = ox - hw * 1.20 + N(ph,       0.5, 1.1, 2.3) * hw * 0.22;
+        const lbY  = baseY - h * 0.36;
+        const rbX  = ox + hw * 1.20 + N(ph + 1.9, 0.6, 1.3, 2.0) * hw * 0.22;
+        const rbY  = baseY - h * 0.36;
+        const lnX  = tipX - hw * 0.30 + N(ph + 0.7, 0.7, 1.5, 0.9) * hw * 0.16;
+        const lnY  = baseY - h * 0.73;
+        const rnX  = tipX + hw * 0.30 + N(ph + 2.4, 0.8, 1.2, 1.7) * hw * 0.16;
+        const rnY  = baseY - h * 0.73;
         ctx.beginPath();
-        ctx.moveTo(ox - hw, baseY);
-        ctx.bezierCurveTo(
-          ox - hw * 1.25 + lean1 * 0.25,  midY + height * 0.18,
-          tipX - hw * 0.40 + lean1 * 0.15, midY - height * 0.05,
-          tipX, tipY
-        );
-        ctx.bezierCurveTo(
-          tipX + hw * 0.40 + lean1 * 0.15, midY - height * 0.05,
-          ox + hw * 1.25 + lean1 * 0.25,   midY + height * 0.18,
-          ox + hw, baseY
-        );
+        ctx.moveTo(ox - hw * 0.88, baseY);
+        ctx.bezierCurveTo(lbX, lbY, lnX, lnY, tipX, tipY);
+        ctx.bezierCurveTo(rnX, rnY, rbX, rbY, ox + hw * 0.88, baseY);
         ctx.closePath();
-        ctx.fillStyle = grad;
-        ctx.fill();
       }
 
-      // Embers pool
-      const embers = [];
-      for (let i = 0; i < 22; i++) {
-        embers.push({ x: W/2, y: H, life: Math.random(), decay: 0.006 + Math.random() * 0.018,
-          vx: 0, vy: 0, r: 1 + Math.random() * 2 });
-      }
+      const embers = Array.from({ length: 18 }, () => ({
+        x: cx, y: H, life: Math.random(),
+        decay: 0.007 + Math.random() * 0.016,
+        vx: 0, vy: 0, r: 0.8 + Math.random() * 1.8
+      }));
 
       let t = 0;
       function drawFrame() {
         ctx.clearRect(0, 0, W, H);
-        const cx = W / 2, baseY = H - 3;
+        const baseY = H - 4;
+        const tipOx = N(0, 0.55, 1.1, 2.0) * sway;
 
-        // ── Base ember glow (additive so it blooms naturally) ───
+        // Layer 1: base coal glow (additive ellipse)
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        const gr = W * (0.24 + iv * 0.28);
+        const gr = baseHW * (1.55 + iv * 0.55);
         const coal = ctx.createRadialGradient(cx, baseY, 0, cx, baseY, gr);
-        const cg = Math.round(iv * 100);
-        coal.addColorStop(0,    `rgba(255,${cg},0,${0.18 + iv * 0.55})`);
-        coal.addColorStop(0.5,  `rgba(200,${Math.round(cg*0.4)},0,${0.06 + iv * 0.12})`);
+        coal.addColorStop(0,    `rgba(255,${Math.round(70+iv*130)},0,${0.18+iv*0.48})`);
+        coal.addColorStop(0.45, `rgba(200,25,0,${0.04+iv*0.09})`);
         coal.addColorStop(1,    'rgba(0,0,0,0)');
         ctx.fillStyle = coal;
         ctx.beginPath();
-        ctx.ellipse(cx, baseY, gr, gr * 0.32, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx, baseY, gr, gr * 0.36, 0, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        // ── Flame tongues (back-to-front, additive) ────────────
+        // Layer 2: outer flame body — proper silhouette, dark red→orange→yellow
         ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-
-        // Outer soft haze — wide, low alpha
-        if (iv > 0.1) drawTongue(cx + N(0, 0.4, 1.0, 1.9) * W * turb * 12, maxH * 0.82, baseW * 1.30, 0.0,   0.28);
-
-        // Main tongue spread — each offset by angle
-        for (let i = 0; i < tongues; i++) {
-          const fi    = tongues === 1 ? 0 : (i / (tongues - 1) - 0.5);
-          const ox    = cx + fi * baseW * 0.85 + N(i * 1.7, 0.6, 1.4, 2.8) * W * turb * 8;
-          const tH    = maxH * (0.78 + Math.abs(fi) < 0.15 ? 0.18 : -Math.abs(fi) * 0.28);
-          const hw    = baseW * (0.55 - Math.abs(fi) * 0.18);
-          const alpha = 0.72 + (i === Math.floor(tongues / 2) ? 0.20 : 0);
-          drawTongue(ox, tH, hw, i * 2.09, alpha);
-        }
-
-        // Inner hot core — tall, narrow, brighter
-        const coreW = baseW * (0.18 + iv * 0.14);
-        const coreH = maxH * (0.70 + iv * 0.22);
-        drawTongue(cx + N(9, 1.1, 2.2, 0.8) * coreW * 0.5, coreH, coreW, 4.5, 0.90);
-
+        ctx.globalCompositeOperation = 'source-over';
+        flameShape(cx, baseY, baseHW, flameH, tipOx, 0);
+        const og = ctx.createLinearGradient(cx, baseY, cx + tipOx * 0.35, baseY - flameH);
+        og.addColorStop(0,    `rgba(${Math.round(145+iv*65)},6,0,0.97)`);
+        og.addColorStop(0.14, `rgba(255,${Math.round(30+iv*60)},0,0.94)`);
+        og.addColorStop(0.42, `rgba(255,${Math.round(95+iv*100)},0,0.89)`);
+        og.addColorStop(0.70, `rgba(255,${Math.round(170+iv*70)},${Math.round(iv*22)},0.74)`);
+        og.addColorStop(0.88, `rgba(255,${Math.round(215+iv*35)},${Math.round(iv*90)},0.38)`);
+        og.addColorStop(1,    'rgba(255,245,180,0)');
+        ctx.fillStyle = og;
+        ctx.fill();
         ctx.restore();
 
-        // ── White-hot tip core (score > 70) ────────────────────
-        if (iv > 0.4) {
-          const hotIv = (iv - 0.4) / 0.6;
-          const hx = cx + N(5, 0.9, 1.8, 3.2) * coreW * 0.6;
-          const hy = baseY - maxH * (0.30 + hotIv * 0.28);
-          const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, W * (0.06 + hotIv * 0.10));
-          hg.addColorStop(0,   `rgba(255,255,${Math.round(hotIv * 220)},${0.55 + hotIv * 0.40})`);
-          hg.addColorStop(0.5, `rgba(255,220,80,${0.20 + hotIv * 0.25})`);
-          hg.addColorStop(1,   'rgba(0,0,0,0)');
+        // Layer 3: secondary wispy tongue (leans opposite, appears at higher scores)
+        if (iv > 0.42) {
+          const si  = (iv - 0.42) / 0.58;
+          const sH  = flameH * (0.40 + si * 0.40);
+          const sOx = N(3.3, 0.8, 1.6, 0.5) * sway * 0.95;
           ctx.save();
-          ctx.globalCompositeOperation = 'lighter';
-          ctx.fillStyle = hg;
-          ctx.beginPath();
-          ctx.arc(hx, hy, W * (0.06 + hotIv * 0.10), 0, Math.PI * 2);
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.globalAlpha = 0.52 + si * 0.28;
+          flameShape(cx, baseY, baseHW * (0.46 + si * 0.14), sH, sOx * 1.35, 3.5);
+          const sg = ctx.createLinearGradient(cx, baseY, cx + sOx * 0.4, baseY - sH);
+          sg.addColorStop(0,   'rgba(210,22,0,0.92)');
+          sg.addColorStop(0.38,`rgba(255,${Math.round(100+si*90)},0,0.82)`);
+          sg.addColorStop(0.78,`rgba(255,${Math.round(195+si*45)},55,0.42)`);
+          sg.addColorStop(1,   'rgba(255,240,180,0)');
+          ctx.fillStyle = sg;
           ctx.fill();
           ctx.restore();
         }
 
-        // ── Rising embers (only when score warrants) ────────────
-        const activeEmbers = Math.min(emberN, embers.length);
+        // Layer 4: bright inner core — smaller silhouette, additive yellow→white
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        embers.slice(0, activeEmbers).forEach(e => {
-          e.x   += e.vx + N(e.r * 3, 1.2, 2.5, 0.7) * 0.28;
-          e.y   += e.vy;
-          e.life -= e.decay * (0.5 + iv * 0.5);
-          if (e.life <= 0 || e.y < -4) {
-            e.x    = cx + (Math.random() - 0.5) * baseW * 1.2;
-            e.y    = baseY - maxH * (0.1 + Math.random() * 0.4);
-            e.life = 0.5 + Math.random() * 0.5;
-            e.vx   = (Math.random() - 0.5) * (0.4 + iv * 0.8);
-            e.vy   = -(0.8 + Math.random() * 2.2) * (0.3 + iv * 0.7);
-          }
-          const ea = e.life * (0.3 + iv * 0.6);
-          const eg = Math.round(iv * 180 * e.life);
-          ctx.beginPath();
-          ctx.arc(e.x, e.y, e.r * (0.4 + e.life * 0.6), 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255,${eg},0,${ea})`;
-          ctx.fill();
-        });
+        const cH = flameH * (0.66 + iv * 0.24);
+        const cW = baseHW * (0.38 + iv * 0.12);
+        flameShape(cx, baseY, cW, cH, tipOx * 0.62, 1.6);
+        const ig = ctx.createLinearGradient(cx, baseY, cx + tipOx * 0.28, baseY - cH);
+        ig.addColorStop(0,    `rgba(255,${Math.round(110+iv*90)},0,${0.50+iv*0.32})`);
+        ig.addColorStop(0.28, `rgba(255,${Math.round(185+iv*55)},${Math.round(iv*35)},${0.55+iv*0.28})`);
+        ig.addColorStop(0.58, `rgba(255,245,${Math.round(iv*130)},${0.42+iv*0.38})`);
+        ig.addColorStop(0.82, `rgba(255,255,${Math.round(iv*215)},${0.18+iv*0.28})`);
+        ig.addColorStop(1,    'rgba(255,255,255,0)');
+        ctx.fillStyle = ig;
+        ctx.fill();
         ctx.restore();
+
+        // Layer 5: white-hot core bloom — radial glow at base of inner flame
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const bR = baseHW * (0.48 + iv * 0.38);
+        const bY = baseY - flameH * (0.07 + iv * 0.06);
+        const bg = ctx.createRadialGradient(cx, bY, 0, cx, bY, bR);
+        bg.addColorStop(0,    `rgba(255,255,${Math.round(iv*210)},${0.30+iv*0.52})`);
+        bg.addColorStop(0.38, `rgba(255,${Math.round(170+iv*70)},0,${0.10+iv*0.20})`);
+        bg.addColorStop(1,    'rgba(0,0,0,0)');
+        ctx.fillStyle = bg;
+        ctx.beginPath();
+        ctx.ellipse(cx, bY, bR, bR * (0.65 + iv * 0.55), 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Layer 6: rising embers
+        const activeN = Math.min(Math.round(iv * iv * 18), embers.length);
+        if (activeN > 0) {
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          embers.slice(0, activeN).forEach(e => {
+            e.x  += e.vx + N(e.r * 4, 1.1, 2.4, 0.6) * 0.24;
+            e.y  += e.vy;
+            e.life -= e.decay * (0.5 + iv * 0.5);
+            if (e.life <= 0 || e.y < -5) {
+              e.x    = cx + (Math.random() - 0.5) * baseHW * 2;
+              e.y    = baseY - flameH * (0.08 + Math.random() * 0.45);
+              e.life = 0.4 + Math.random() * 0.6;
+              e.vx   = (Math.random() - 0.5) * (0.35 + iv * 0.75);
+              e.vy   = -(0.7 + Math.random() * 2.0) * (0.3 + iv * 0.7);
+            }
+            const ea = e.life * (0.28 + iv * 0.65);
+            const eg = Math.round(iv * 170 * e.life);
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.r * (0.4 + e.life * 0.6), 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255,${eg},0,${ea})`;
+            ctx.fill();
+          });
+          ctx.restore();
+        }
 
         t += 0.016;
         window._stokeFlameRaf = requestAnimationFrame(drawFrame);
