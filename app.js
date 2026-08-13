@@ -6664,6 +6664,7 @@ function resetVideoSlot() {
   document.getElementById('videoPreview')?.classList.add('hidden');
   document.getElementById('videoPlaceholder')?.classList.remove('hidden');
   document.getElementById('videoFileName').textContent = '';
+  document.getElementById('videoPreviewFull')?.classList.add('hidden');
   const vid = document.getElementById('videoPreviewEl');
   if (vid) { vid.src = ''; vid.load(); }
   document.getElementById('videoDurationError')?.classList.add('hidden');
@@ -6680,10 +6681,19 @@ function openSubmitProofModal(challengeId, profile) {
   resetAudioSlot();
   resetVideoSlot();
   document.getElementById('proofLink').value     = '';
+  document.getElementById('proofLinkGroup')?.classList.add('hidden');
   document.getElementById('proofCaption').value  = '';
   document.getElementById('submitProofBtn').disabled = false;
   openModal(submitProofModal);
 }
+
+document.getElementById('proofLinkBtn')?.addEventListener('click', e => {
+  e.preventDefault();
+  const g = document.getElementById('proofLinkGroup');
+  const showing = !g.classList.contains('hidden');
+  g.classList.toggle('hidden', showing);
+  if (!showing) document.getElementById('proofLink').focus();
+});
 
 [1, 2].forEach(n => {
   document.getElementById(`proofPhoto${n}`).addEventListener('change', e => {
@@ -6723,9 +6733,11 @@ document.getElementById('proofVideo').addEventListener('change', e => {
     } else {
       errEl.classList.add('hidden');
       document.getElementById('submitProofBtn').disabled = false;
-      document.getElementById('videoFileName').textContent = file.name;
+      const shortName = file.name.length > 18 ? file.name.slice(0,16) + '…' : file.name;
+      document.getElementById('videoFileName').textContent = shortName;
       document.getElementById('videoPreview').classList.remove('hidden');
       document.getElementById('videoPlaceholder').classList.add('hidden');
+      document.getElementById('videoPreviewFull')?.classList.remove('hidden');
     }
   };
 });

@@ -587,76 +587,79 @@
 
   <!-- SUBMIT PROOF MODAL -->
   <div class="modal-overlay" id="submitProofModal">
-    <div class="modal modal-sm">
-      <div class="modal-header">
-        <h2 class="modal-title">Complete Challenge</h2>
+    <div class="modal proof-modal">
+      <div class="proof-modal-header">
+        <div>
+          <div class="proof-modal-eyebrow">Complete Challenge</div>
+          <div class="proof-modal-title" id="submitChallengeTitle"></div>
+        </div>
         <button class="modal-close" id="submitProofModalClose">✕</button>
       </div>
-      <div class="submit-challenge-title" id="submitChallengeTitle"></div>
       <form class="modal-form" id="submitProofForm">
         <input type="hidden" id="submitChallengeId" />
-        <div class="form-group">
-          <label>Photos (up to 2)</label>
-          <div class="proof-photos-row">
-            <label class="photo-upload-area proof-photo-slot" for="proofPhoto1">
-              <input type="file" id="proofPhoto1" accept="image/*" style="display:none" />
-              <div class="photo-upload-placeholder" id="photoPlaceholder1">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                <span>Photo 1</span>
-              </div>
-              <img id="proofPhotoPreview1" class="photo-preview hidden" alt="Photo 1" />
-            </label>
-            <label class="photo-upload-area proof-photo-slot" for="proofPhoto2">
-              <input type="file" id="proofPhoto2" accept="image/*" style="display:none" />
-              <div class="photo-upload-placeholder" id="photoPlaceholder2">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                <span>Photo 2</span>
-              </div>
-              <img id="proofPhotoPreview2" class="photo-preview hidden" alt="Photo 2" />
-            </label>
-          </div>
+
+        <!-- Photos row -->
+        <div class="proof-photos-row">
+          <label class="proof-photo-slot" for="proofPhoto1">
+            <input type="file" id="proofPhoto1" accept="image/*" style="display:none" />
+            <div class="proof-photo-inner" id="photoPlaceholder1">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>Photo 1</span>
+            </div>
+            <img id="proofPhotoPreview1" class="proof-photo-img hidden" alt="" />
+          </label>
+          <label class="proof-photo-slot" for="proofPhoto2">
+            <input type="file" id="proofPhoto2" accept="image/*" style="display:none" />
+            <div class="proof-photo-inner" id="photoPlaceholder2">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>Photo 2</span>
+            </div>
+            <img id="proofPhotoPreview2" class="proof-photo-img hidden" alt="" />
+          </label>
         </div>
-        <div class="form-group">
-          <label>Video Proof — 30 sec max (optional)</label>
-          <label class="video-upload-area" for="proofVideo" id="proofVideoLabel">
+
+        <!-- Media row: video + audio + link as compact buttons -->
+        <div class="proof-media-row">
+          <label class="proof-media-btn" for="proofVideo" id="proofVideoLabel">
             <input type="file" id="proofVideo" accept="video/*" style="display:none" />
-            <div id="videoPlaceholder">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-              Tap to record or upload video
+            <div id="videoPlaceholder" class="proof-media-btn-inner">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              <span>Video</span>
             </div>
-            <div id="videoPreview" class="hidden">
-              <video id="videoPreviewEl" controls style="width:100%;max-height:160px;border-radius:8px;"></video>
-              <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-                <span id="videoFileName" style="font-size:12px;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-                <button type="button" id="videoRemoveBtn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">✕</button>
-              </div>
+            <div id="videoPreview" class="proof-media-btn-inner hidden">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <span id="videoFileName" class="proof-media-filename"></span>
+              <button type="button" id="videoRemoveBtn" class="proof-media-remove">✕</button>
             </div>
           </label>
-          <p id="videoDurationError" class="hidden" style="color:#e05;font-size:12px;margin-top:4px;">Video must be 30 seconds or less.</p>
-        </div>
-        <div class="form-group">
-          <label>Voice Note or MP3 (optional)</label>
-          <label class="audio-upload-area" for="proofAudio">
+          <label class="proof-media-btn" for="proofAudio">
             <input type="file" id="proofAudio" accept="audio/mpeg,audio/mp3,audio/mp4,audio/m4a,audio/x-m4a,audio/aac,audio/wav,audio/ogg,audio/webm" style="display:none" />
-            <div id="audioPlaceholder">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              Tap to add voice note or MP3
+            <div id="audioPlaceholder" class="proof-media-btn-inner">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              <span>Audio</span>
             </div>
-            <div id="audioPreview" class="hidden">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-              <span id="audioFileName"></span>
-              <button type="button" id="audioRemoveBtn">✕</button>
+            <div id="audioPreview" class="proof-media-btn-inner hidden">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <span id="audioFileName" class="proof-media-filename"></span>
+              <button type="button" id="audioRemoveBtn" class="proof-media-remove">✕</button>
             </div>
           </label>
+          <label class="proof-media-btn proof-media-link-btn" id="proofLinkBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            <span>Link</span>
+          </label>
         </div>
-        <div class="form-group">
-          <label>Link (optional — YouTube, SoundCloud, etc.)</label>
-          <input type="url" id="proofLink" placeholder="https://…" />
+        <p id="videoDurationError" class="hidden" style="color:#e05;font-size:12px;margin-top:-4px;">Video must be 30 seconds or less.</p>
+        <div id="proofLinkGroup" class="hidden">
+          <input type="url" id="proofLink" placeholder="https://…" style="width:100%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;color:var(--text-primary);font-size:14px;padding:10px 14px;box-sizing:border-box;outline:none;" />
         </div>
-        <div class="form-group">
-          <label>Caption (optional)</label>
-          <input type="text" id="proofCaption" placeholder="Tell us about it…" />
+        <div id="videoPreviewFull" class="hidden" style="margin-top:-4px;">
+          <video id="videoPreviewEl" controls style="width:100%;max-height:140px;border-radius:10px;display:block;"></video>
         </div>
+
+        <!-- Caption -->
+        <input type="text" id="proofCaption" placeholder="Add a caption… (optional)" class="proof-caption-input" />
+
         <div class="modal-actions">
           <button type="button" class="btn btn-ghost" id="submitProofCancelBtn">Cancel</button>
           <button type="submit" class="btn btn-primary" id="submitProofBtn">Complete Challenge</button>
