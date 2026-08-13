@@ -7110,7 +7110,7 @@ function linkify(str) {
 // GAMES HUB
 // ─────────────────────────────────────────────────────────────────────────────
 
-function renderGamesHub() {
+async function renderGamesHub() {
   const el = document.getElementById('gamesContainer');
   el.innerHTML = `
     <div class="games-hub">
@@ -7135,10 +7135,23 @@ function renderGamesHub() {
           <button class="btn btn-primary game-play-btn" id="playSyncCheckBtn">Play</button>
         </div>
       </div>
+
+      <!-- Leaderboard -->
+      <div class="games-leaderboard">
+        <div class="games-lb-header">
+          <div class="games-lb-title">Leaderboard</div>
+          <div class="games-lb-game-label">Sync Check · All Levels</div>
+        </div>
+        <div class="games-lb-list" id="gamesLbList">
+          <div class="games-lb-loading">Loading scores…</div>
+        </div>
+      </div>
     </div>
     <div class="sync-check-game hidden" id="syncCheckGame"></div>
   `;
+
   document.getElementById('playSyncCheckBtn').addEventListener('click', launchSyncCheck);
+  await loadGamesLeaderboard('sync_check');
 }
 
 // ── Sync Check — Go/No-Go Reaction Game ──────────────────────────────────────
@@ -7186,9 +7199,78 @@ const SYNC_COACH_LINES = [
   { speedOk: false, ctrlOk: false, line: 'Room to grow on both ends. Slower and sloppier than your best — come back sharper.' },
 ];
 
-// Stub — wire to leaderboard/badge system later
-function submitScore(compositeScore, avgMs, falseTapRate) {
-  console.log('[SyncCheck] score submitted', { compositeScore, avgMs, falseTapRate });
+// Save score to Firestore — keeps each brother's personal best per game+level
+async function submitScore(compositeScore, avgMs, falseTapRate, gameId, level) {
+  if (!currentUser) return;
+  const profile = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+  if (!profile) return;
+
+  const docId = `${gameId}_${profile.id}_lvl${level}`;
+  const existing = await getDoc(doc(db, 'gameScores', docId));
+
+  // Only overwrite if this is a new personal best
+  if (existing.exists() && existing.data().score >= compositeScore) return;
+
+  await setDoc(doc(db, 'gameScores', docId), {
+    gameId,
+    level,
+    brotherId:   profile.id,
+    brotherName: profile.name,
+    score:       compositeScore,
+    avgMs,
+    falseTapRate,
+    submittedAt: new Date().toISOString(),
+  });
+}
+
+async function loadGamesLeaderboard(gameId) {
+  const lbEl = document.getElementById('gamesLbList');
+  if (!lbEl) return;
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'gameScores'),
+      where('gameId', '==', gameId),
+      orderBy('score', 'desc')
+    ));
+
+    if (snap.empty) {
+      lbEl.innerHTML = `<div class="games-lb-empty">No scores yet — be the first to play.</div>`;
+      return;
+    }
+
+    // Keep only each brother's highest score across all levels they played
+    const bestByBrother = {};
+    snap.docs.forEach(d => {
+      const s = d.data();
+      if (!bestByBrother[s.brotherId] || s.score > bestByBrother[s.brotherId].score) {
+        bestByBrother[s.brotherId] = s;
+      }
+    });
+
+    const sorted = Object.values(bestByBrother).sort((a, b) => b.score - a.score);
+    const myId = brothers.find(b => b.email?.toLowerCase() === currentUser?.email?.toLowerCase())?.id;
+
+    lbEl.innerHTML = sorted.map((s, i) => {
+      const isMe = s.brotherId === myId;
+      const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+      const brother = brothers.find(b => b.id === s.brotherId);
+      const archIcon = brother?.primaryArchetype || brother?.archetype
+        ? `<img src="/stoked-command-center/${(brother.primaryArchetype || brother.archetype).toLowerCase()}-icon.png" width="22" height="22" style="object-fit:contain;opacity:0.7" alt="">`
+        : '';
+      return `
+        <div class="games-lb-row${isMe ? ' games-lb-row-me' : ''}">
+          <div class="games-lb-rank">${medal}</div>
+          <div class="games-lb-arch">${archIcon}</div>
+          <div class="games-lb-info">
+            <div class="games-lb-name">${escHtml(s.brotherName)}${isMe ? ' <span class="games-lb-you">YOU</span>' : ''}</div>
+            <div class="games-lb-meta">${s.avgMs} ms speed · ${Math.round(s.falseTapRate * 100)}% false · Lvl ${s.level}</div>
+          </div>
+          <div class="games-lb-score">${s.score}</div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    lbEl.innerHTML = `<div class="games-lb-empty">Scores unavailable.</div>`;
+  }
 }
 
 let syncState  = null;
@@ -7413,7 +7495,7 @@ function syncShowResults() {
     return 'Poor';
   }
 
-  submitScore(composite, avgMs, falseTapRate);
+  submitScore(composite, avgMs, falseTapRate, 'sync_check', level);
 
   const gameEl = document.getElementById('syncCheckGame');
   gameEl.innerHTML = `
