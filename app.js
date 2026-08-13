@@ -3686,7 +3686,7 @@ function bindChallengeFilterBar(el) {
 function applyFilter(list) {
   if (challengeFilter === 'All') return list;
   if (challengeFilter === 'From Coach') return list; // personal list handled separately
-  return list.filter(ch => ch.tag === challengeFilter);
+  return list.filter(ch => normalizeTag(ch.tag) === challengeFilter);
 }
 
 function renderFeed() {
