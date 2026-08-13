@@ -44,11 +44,118 @@ const LEVELS = Array.from({ length: MAX_LEVEL }, (_, i) => ({
 }));
 
 const CHALLENGE_TAGS = {
-  Physical:   { cardBg: 'rgba(196,105,58,0.07)',  cardBorder: 'rgba(196,105,58,0.4)',  pillBg: 'rgba(196,105,58,0.15)',  color: '#C4693A' }, // terracotta
-  Creator:    { cardBg: 'rgba(91,138,160,0.07)',  cardBorder: 'rgba(91,138,160,0.4)',  pillBg: 'rgba(91,138,160,0.15)',  color: '#5B8AA0' }, // ocean
-  Regulation: { cardBg: 'rgba(90,140,90,0.07)',   cardBorder: 'rgba(90,140,90,0.4)',   pillBg: 'rgba(90,140,90,0.15)',   color: '#5a8c5a' }, // sage
-  Special:    { cardBg: 'rgba(212,168,83,0.07)',  cardBorder: 'rgba(212,168,83,0.4)',  pillBg: 'rgba(212,168,83,0.15)',  color: '#D4A853' }, // gold
+  Physical:    { cardBg: 'rgba(196,105,58,0.07)',  cardBorder: 'rgba(196,105,58,0.4)',  pillBg: 'rgba(196,105,58,0.15)',  color: '#C4693A' },
+  Creator:     { cardBg: 'rgba(91,138,160,0.07)',  cardBorder: 'rgba(91,138,160,0.4)',  pillBg: 'rgba(91,138,160,0.15)',  color: '#5B8AA0' },
+  Regulation:  { cardBg: 'rgba(90,140,90,0.07)',   cardBorder: 'rgba(90,140,90,0.4)',   pillBg: 'rgba(90,140,90,0.15)',   color: '#5a8c5a' },
+  Special:     { cardBg: 'rgba(212,168,83,0.07)',  cardBorder: 'rgba(212,168,83,0.4)',  pillBg: 'rgba(212,168,83,0.15)',  color: '#D4A853' },
+  Adventure:   { cardBg: 'rgba(122,138,82,0.07)',  cardBorder: 'rgba(122,138,82,0.4)',  pillBg: 'rgba(122,138,82,0.15)',  color: '#7a8a52' },
+  Family:      { cardBg: 'rgba(158,141,114,0.07)', cardBorder: 'rgba(158,141,114,0.4)', pillBg: 'rgba(158,141,114,0.15)', color: '#9e8d72' },
+  Brotherhood: { cardBg: 'rgba(156,90,66,0.07)',   cardBorder: 'rgba(156,90,66,0.4)',   pillBg: 'rgba(156,90,66,0.15)',   color: '#9c5a42' },
 };
+
+// ── BADGE SYSTEM ──────────────────────────────
+const BADGE_CATEGORIES = {
+  general:     { label: 'General',     color: '#D4A853' },
+  move:        { label: 'Move',        color: '#C4693A', challengeTag: 'Physical' },
+  create:      { label: 'Create',      color: '#5B8AA0', challengeTag: 'Creator' },
+  reset:       { label: 'Reset',       color: '#5a8c5a', challengeTag: 'Regulation' },
+  adventure:   { label: 'Adventure',   color: '#7a8a52', challengeTag: 'Adventure' },
+  family:      { label: 'Family',      color: '#9e8d72', challengeTag: 'Family' },
+  brotherhood: { label: 'Brotherhood', color: '#9c5a42', challengeTag: 'Brotherhood' },
+};
+
+const BADGES = [
+  {
+    id: 'first_flame',
+    name: 'First Flame',
+    category: 'general',
+    description: 'Complete 10 total challenges.',
+    xpReward: 250,
+    verification: 'automatic',
+    requirement: { type: 'total_challenges', count: 10 },
+  },
+  {
+    id: 'momentum',
+    name: 'Momentum',
+    category: 'general',
+    description: 'Complete at least one challenge per week for 4 consecutive weeks.',
+    xpReward: 400,
+    verification: 'automatic',
+    requirement: { type: 'weekly_streak', weeks: 4 },
+  },
+  {
+    id: '60_strong',
+    name: '60 Strong',
+    category: 'general',
+    description: 'Maintain a 60-day login streak.',
+    xpReward: 1000,
+    verification: 'automatic',
+    requirement: { type: 'login_streak', days: 60 },
+  },
+  {
+    id: 'iron_body',
+    name: 'Iron Body',
+    category: 'move',
+    description: 'Complete 25 Move challenges.',
+    xpReward: 750,
+    verification: 'automatic',
+    requirement: { type: 'category_challenges', tag: 'Physical', count: 25 },
+  },
+  {
+    id: 'monk_mode',
+    name: 'Monk Mode',
+    category: 'reset',
+    description: 'Complete 25 Reset challenges.',
+    xpReward: 750,
+    verification: 'automatic',
+    requirement: { type: 'category_challenges', tag: 'Regulation', count: 25 },
+  },
+  {
+    id: 'creators_mark',
+    name: "Creator's Mark",
+    category: 'create',
+    description: 'Complete 25 Create challenges.',
+    xpReward: 750,
+    verification: 'automatic',
+    requirement: { type: 'category_challenges', tag: 'Creator', count: 25 },
+  },
+  {
+    id: 'clear_space',
+    name: 'Clear Space',
+    category: 'reset',
+    description: 'Complete the Room Reset challenge 10 times.',
+    xpReward: 500,
+    verification: 'automatic',
+    requirement: { type: 'specific_challenge_title', titleMatch: 'Room Reset', count: 10 },
+  },
+  {
+    id: 'cold_blooded',
+    name: 'Cold Blooded',
+    category: 'move',
+    description: 'Successfully complete the Ice Bath Challenge.',
+    xpReward: 300,
+    verification: 'automatic',
+    requirement: { type: 'specific_challenge_title', titleMatch: 'Ice Bath', count: 1 },
+  },
+  {
+    id: 'sanctuary',
+    name: 'Sanctuary',
+    category: 'reset',
+    description: 'Create a dedicated personal space at home for focus, meditation, or creativity. Submit a photo — requires mentor approval.',
+    xpReward: 500,
+    verification: 'mentor_approval',
+    requirement: { type: 'mentor_approval' },
+  },
+  {
+    id: 'show_your_stoke',
+    name: 'Show Your Stoke',
+    category: 'brotherhood',
+    description: 'Create something authentic and present it during a Brotherhood call — a song, art, project, business idea, or anything personally meaningful.',
+    xpReward: 750,
+    verification: 'manual_award',
+    requirement: { type: 'manual_award' },
+  },
+];
 
 function challengeCardStyle(tag) {
   if (!tag || !CHALLENGE_TAGS[tag]) return '';
@@ -1086,6 +1193,8 @@ document.getElementById('themeToggleBtn').addEventListener('click', () => {
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('stoked-theme', next);
 });
+document.getElementById('badgesBtn').addEventListener('click', openBadgesOverlay);
+document.getElementById('badgesBack').addEventListener('click', closeBadgesOverlay);
 const userBadge     = document.getElementById('userBadge');
 const statsBar      = document.getElementById('statsBar');
 const memberHero    = document.getElementById('memberHero');
@@ -1634,6 +1743,142 @@ function updateChallengesBadge() {
   }
 }
 
+// ── BADGES SCREEN ─────────────────────────────
+function openBadgesOverlay() {
+  const overlay = document.getElementById('badgesOverlay');
+  if (!overlay) return;
+  overlay.classList.remove('hidden');
+  renderBadgesScreen();
+}
+
+function closeBadgesOverlay() {
+  const overlay = document.getElementById('badgesOverlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+function renderBadgesScreen() {
+  const container = document.getElementById('badgesContainer');
+  if (!container) return;
+  const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser?.email?.toLowerCase());
+  const mySubs = profile ? submissions.filter(s => s.brotherId === profile.id && s.status === 'completed') : [];
+  const earnedArr = profile ? (profile.badges || []) : [];
+  const earnedIds = new Set(earnedArr.map(b => b.id));
+  const activeFilter = container.dataset.filter || 'all';
+
+  const filteredBadges = activeFilter === 'all' ? BADGES : BADGES.filter(b => b.category === activeFilter);
+
+  const filterKeys = ['all', 'general', 'move', 'create', 'reset', 'adventure', 'family', 'brotherhood'];
+  const filterLabels = { all: 'All', general: 'General', move: 'Move', create: 'Create', reset: 'Reset', adventure: 'Adventure', family: 'Family', brotherhood: 'Brotherhood' };
+
+  const earnedCount = BADGES.filter(b => earnedIds.has(b.id)).length;
+
+  container.innerHTML = `
+    <div class="badge-screen">
+      <div class="badge-screen-header">
+        <h1 class="badge-screen-title">BADGES</h1>
+        <p class="badge-screen-sub">Earned through action. Built over time.</p>
+        ${earnedCount > 0 ? `<div class="badge-earned-summary">${earnedCount} / ${BADGES.length} Earned</div>` : ''}
+      </div>
+      <div class="badge-filter-row">
+        ${filterKeys.map(k => `<button class="badge-filter-btn${activeFilter === k ? ' active' : ''}" data-filter="${k}">${filterLabels[k]}</button>`).join('')}
+      </div>
+      <div class="badge-list">
+        ${filteredBadges.map(badge => {
+          const earned = earnedIds.has(badge.id);
+          const earnedData = earnedArr.find(b => b.id === badge.id);
+          const progress = !earned ? getBadgeProgress(badge, profile || {}, mySubs) : null;
+          const catData = BADGE_CATEGORIES[badge.category];
+          const catColor = catData ? catData.color : '#888';
+
+          let statusClass = 'badge-locked';
+          let statusLabel = 'Locked';
+          if (earned) { statusClass = 'badge-earned'; statusLabel = 'Earned'; }
+          else if (progress && progress.current > 0) { statusClass = 'badge-in-progress'; statusLabel = 'In Progress'; }
+          else if (badge.verification === 'mentor_approval') { statusLabel = 'Mentor Approval Required'; }
+          else if (badge.verification === 'manual_award') { statusLabel = 'Mentor Award'; }
+
+          const summaryRight = earned
+            ? `<span class="badge-row-earned-chip">✓ Earned</span>`
+            : progress
+              ? `<span class="badge-row-progress">${progress.current} / ${progress.total}</span>`
+              : `<span class="badge-row-status">${badge.verification === 'automatic' ? 'Locked' : 'Mentor'}</span>`;
+
+          let detailProgressHtml = '';
+          if (!earned) {
+            if (progress) {
+              const pct = Math.min(100, Math.round((progress.current / progress.total) * 100));
+              detailProgressHtml = `
+                <div class="badge-detail-progress">
+                  <div class="badge-progress-row">
+                    <span class="badge-progress-nums">${progress.current} / ${progress.total} ${escHtml(progress.label)}</span>
+                    <span class="badge-progress-pct">${pct}%</span>
+                  </div>
+                  <div class="badge-progress-bar"><div class="badge-progress-fill" style="width:${pct}%;background:${catColor}"></div></div>
+                </div>`;
+            } else {
+              const verif = badge.verification === 'mentor_approval' ? 'Requires mentor approval after proof submission.' : 'Awarded directly by a mentor.';
+              detailProgressHtml = `<div class="badge-detail-verif">${verif}</div>`;
+            }
+          }
+
+          return `
+          <div class="badge-card ${statusClass}" data-badge-id="${badge.id}">
+            <div class="badge-card-summary">
+              <div class="badge-icon-wrap" style="--badge-color:${catColor}">
+                <span class="badge-icon-glyph">◈</span>
+              </div>
+              <div class="badge-summary-info">
+                <div class="badge-name">${escHtml(badge.name)}</div>
+                ${summaryRight}
+              </div>
+              <span class="badge-chevron">▾</span>
+            </div>
+            <div class="badge-card-detail hidden">
+              <div class="badge-detail-desc">${escHtml(badge.description)}</div>
+              ${detailProgressHtml}
+              ${earned ? `
+                <div class="badge-detail-rows">
+                  <div class="badge-detail-row">
+                    <span class="badge-detail-lbl">Earned</span>
+                    <span class="badge-detail-val">${new Date(earnedData.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
+                  </div>
+                  <div class="badge-detail-row">
+                    <span class="badge-detail-lbl">XP Awarded</span>
+                    <span class="badge-detail-val" style="color:#C4693A">+${earnedData.xpAwarded} XP</span>
+                  </div>
+                </div>
+              ` : `
+                <div class="badge-detail-rows">
+                  <div class="badge-detail-row">
+                    <span class="badge-detail-lbl">Reward</span>
+                    <span class="badge-detail-val" style="color:#C4693A">+${badge.xpReward} XP</span>
+                  </div>
+                  <div class="badge-detail-row">
+                    <span class="badge-detail-lbl">Status</span>
+                    <span class="badge-detail-val">${statusLabel}</span>
+                  </div>
+                </div>
+              `}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  container.querySelectorAll('.badge-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => { container.dataset.filter = btn.dataset.filter; renderBadgesScreen(); });
+  });
+  container.querySelectorAll('.badge-card').forEach(card => {
+    card.querySelector('.badge-card-summary').addEventListener('click', () => {
+      const detail = card.querySelector('.badge-card-detail');
+      const chev   = card.querySelector('.badge-chevron');
+      detail.classList.toggle('hidden');
+      chev.textContent = detail.classList.contains('hidden') ? '▾' : '▴';
+    });
+  });
+}
+
 // ── NOTIFICATIONS ─────────────────────────────
 const VAPID_KEY = 'BM-mZg5-MULah6xcJgmfFbtVkGSJ59IhKO-bkVYTkbd9nMbt-vxCP-frE1zp672JTcss8mv8cx5RqYK5J_A296s';
 let fcmSetupDone = false;
@@ -1725,6 +1970,100 @@ function getLevelInfo(xp) {
   return { current, next, progress: Math.min(100, Math.max(0, progress)), xpNeededForNext: next ? endXP - clamped : 0 };
 }
 
+// ── BADGE HELPERS ─────────────────────────────
+
+// Count how many of the last `weeks` weeks had at least one challenge completion
+function countConsecutiveWeeks(subs, weeks) {
+  let count = 0;
+  const now = new Date();
+  for (let w = 0; w < weeks; w++) {
+    const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate() - w * 7);
+    const start = new Date(end.getFullYear(), end.getMonth(), end.getDate() - 7);
+    if (subs.some(s => { const d = new Date(s.submittedAt); return d >= start && d < end; })) count++;
+    else break;
+  }
+  return count;
+}
+
+// Returns { current, total, label } for numeric badges; null for non-numeric
+function getBadgeProgress(badge, profile, mySubs) {
+  const req = badge.requirement;
+  if (req.type === 'total_challenges') {
+    return { current: mySubs.length, total: req.count, label: 'Challenges' };
+  }
+  if (req.type === 'category_challenges') {
+    const count = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.tag === req.tag; }).length;
+    const tagName = req.tag === 'Physical' ? 'Move' : req.tag === 'Regulation' ? 'Reset' : req.tag;
+    return { current: count, total: req.count, label: `${tagName} Challenges` };
+  }
+  if (req.type === 'specific_challenge_title') {
+    const count = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.title.toLowerCase().includes(req.titleMatch.toLowerCase()); }).length;
+    return { current: count, total: req.count, label: req.titleMatch + (req.count > 1 ? 's' : '') };
+  }
+  if (req.type === 'login_streak') {
+    return { current: Math.min(profile.longestStreak || 0, req.days), total: req.days, label: 'Day Streak' };
+  }
+  if (req.type === 'weekly_streak') {
+    return { current: countConsecutiveWeeks(mySubs, req.weeks), total: req.weeks, label: 'Consecutive Weeks' };
+  }
+  return null;
+}
+
+// Check all automatic badges and award any newly earned ones. newSub = just-submitted sub (may not be in memory array yet).
+async function checkAndAwardBadges(profile, newSub = null) {
+  if (!profile || !profile.id) return [];
+  const earnedArr = profile.badges || [];
+  const earnedIds = new Set(earnedArr.map(b => b.id));
+  let mySubs = submissions.filter(s => s.brotherId === profile.id && s.status === 'completed');
+  if (newSub && !mySubs.find(s => s.id === newSub.id)) mySubs = [...mySubs, newSub];
+
+  const toAward = [];
+  for (const badge of BADGES) {
+    if (earnedIds.has(badge.id) || badge.verification !== 'automatic') continue;
+    const req = badge.requirement;
+    let met = false;
+    if (req.type === 'total_challenges') {
+      met = mySubs.length >= req.count;
+    } else if (req.type === 'category_challenges') {
+      met = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.tag === req.tag; }).length >= req.count;
+    } else if (req.type === 'specific_challenge_title') {
+      met = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.title.toLowerCase().includes(req.titleMatch.toLowerCase()); }).length >= req.count;
+    } else if (req.type === 'login_streak') {
+      met = (profile.longestStreak || 0) >= req.days;
+    } else if (req.type === 'weekly_streak') {
+      met = countConsecutiveWeeks(mySubs, req.weeks) >= req.weeks;
+    }
+    if (met) toAward.push(badge);
+  }
+  if (!toAward.length) return [];
+
+  const updatedBadges = [...earnedArr];
+  let xpGain = 0;
+  const now = new Date().toISOString();
+  for (const badge of toAward) {
+    updatedBadges.push({ id: badge.id, earnedAt: now, xpAwarded: badge.xpReward });
+    xpGain += badge.xpReward;
+  }
+  const newXP = Math.min(MAX_XP, (profile.xp || 0) + xpGain);
+  await updateDoc(doc(db, 'brothers', profile.id), { badges: updatedBadges, xp: newXP, updatedAt: now });
+  return toAward;
+}
+
+// Admin manually awards a badge (mentor_approval / manual_award)
+async function awardBadgeManually(brotherId, badgeId) {
+  const profile = brothers.find(b => b.id === brotherId);
+  if (!profile) return;
+  const badge = BADGES.find(b => b.id === badgeId);
+  if (!badge) return;
+  const earnedArr = profile.badges || [];
+  if (earnedArr.find(b => b.id === badgeId)) { showToast('Badge already awarded.', 'error'); return; }
+  const now = new Date().toISOString();
+  const updatedBadges = [...earnedArr, { id: badge.id, earnedAt: now, xpAwarded: badge.xpReward }];
+  const newXP = Math.min(MAX_XP, (profile.xp || 0) + badge.xpReward);
+  await updateDoc(doc(db, 'brothers', brotherId), { badges: updatedBadges, xp: newXP, updatedAt: now });
+  showToast(`${badge.name} awarded to ${profile.name} (+${badge.xpReward} XP)`, 'success');
+}
+
 // ── RENDER ────────────────────────────────────
 function render() {
   if (isAdmin) {
@@ -1778,6 +2117,8 @@ function renderGrid() {
     btn.addEventListener('click', () => openCoachNoteModal(btn.dataset.coachnote)));
   document.querySelectorAll('[data-viewcheckin]').forEach(btn =>
     btn.addEventListener('click', () => openViewCheckInModal(btn.dataset.viewcheckin)));
+  document.querySelectorAll('[data-awardbadge]').forEach(btn =>
+    btn.addEventListener('click', () => openAwardBadgeModal(btn.dataset.awardbadge)));
   document.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();
@@ -2016,6 +2357,36 @@ function _renderMemberView() {
         </div>`;
       })()}
 
+      ${(() => {
+        const myBadges = (profile.badges || [])
+          .map(b => ({ ...b, def: BADGES.find(d => d.id === b.id) }))
+          .filter(b => b.def)
+          .sort((a, b) => new Date(b.earnedAt) - new Date(a.earnedAt));
+        if (!myBadges.length) return '';
+        return `
+        <div class="mhv2-comp-section mhv2-badge-section">
+          <button class="mhv2-comp-toggle" data-badge-toggle>
+            <span>My Badges</span>
+            <span class="mhv2-comp-count">${myBadges.length}</span>
+            <span class="mhv2-comp-chevron">▾</span>
+          </button>
+          <div class="mhv2-badge-list hidden">
+            ${myBadges.map(b => {
+              const catData = BADGE_CATEGORIES[b.def.category];
+              const color = catData ? catData.color : '#888';
+              return `<div class="mhv2-badge-chip" style="border-color:${color}30;background:${color}0d">
+                <span class="mhv2-badge-chip-glyph" style="color:${color}">◈</span>
+                <div class="mhv2-badge-chip-info">
+                  <span class="mhv2-badge-chip-name">${escHtml(b.def.name)}</span>
+                  <span class="mhv2-badge-chip-date">${new Date(b.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
+                </div>
+                <span class="mhv2-badge-chip-xp">+${b.xpAwarded} XP</span>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      })()}
+
       ${profile.coachNote ? `
       <div class="mhv2-coach-note">
         <div class="mhv2-coach-from">— ${escHtml(profile.coachNoteAuthor || 'Coach')} —</div>
@@ -2053,6 +2424,14 @@ function _renderMemberView() {
   // Wire completed challenges toggle
   memberHero.querySelector('[data-comp-toggle]')?.addEventListener('click', function() {
     const list = this.closest('.mhv2-comp-section').querySelector('.mhv2-comp-list');
+    const chevron = this.querySelector('.mhv2-comp-chevron');
+    list.classList.toggle('hidden');
+    chevron.textContent = list.classList.contains('hidden') ? '▾' : '▴';
+  });
+
+  // Wire my badges toggle
+  memberHero.querySelector('[data-badge-toggle]')?.addEventListener('click', function() {
+    const list = this.closest('.mhv2-badge-section').querySelector('.mhv2-badge-list');
     const chevron = this.querySelector('.mhv2-comp-chevron');
     list.classList.toggle('hidden');
     chevron.textContent = list.classList.contains('hidden') ? '▾' : '▴';
@@ -2230,6 +2609,7 @@ function renderCard(brother) {
         <button class="btn-checkin" data-checkin="${brother.id}" title="Weekly Check-In">Check-In</button>
         ${brother.brotherhoodScore != null ? `<button class="btn-view-checkin" data-viewcheckin="${brother.id}" title="View Check-In">📊</button>` : ''}
         <button class="btn-coach-note" data-coachnote="${brother.id}" title="Coach Note">📋</button>
+        <button class="btn-award-badge" data-awardbadge="${brother.id}" title="Award Badge">🏅</button>
       </div>
     </div>`;
 }
@@ -2353,6 +2733,33 @@ document.getElementById('deleteCancelBtn').addEventListener('click', () => {
 });
 
 // ── COACH NOTES ───────────────────────────────
+function openAwardBadgeModal(brotherId) {
+  const b = brothers.find(x => x.id === brotherId);
+  if (!b) return;
+  const earnedIds = new Set((b.badges || []).map(x => x.id));
+  const available = BADGES.filter(badge => !earnedIds.has(badge.id));
+  if (!available.length) { showToast(`${b.name} has earned all badges.`, 'success'); return; }
+  document.getElementById('awardBadgeBrotherId').value = brotherId;
+  document.getElementById('awardBadgeBrotherName').textContent = b.name;
+  const sel = document.getElementById('awardBadgeSelect');
+  sel.innerHTML = available.map(badge =>
+    `<option value="${badge.id}">${badge.name} (+${badge.xpReward} XP) — ${BADGE_CATEGORIES[badge.category]?.label || badge.category}</option>`
+  ).join('');
+  openModal(document.getElementById('awardBadgeModal'));
+}
+
+document.getElementById('awardBadgeForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const brotherId = document.getElementById('awardBadgeBrotherId').value;
+  const badgeId   = document.getElementById('awardBadgeSelect').value;
+  try {
+    await awardBadgeManually(brotherId, badgeId);
+    closeModal(document.getElementById('awardBadgeModal'));
+  } catch(err) { showToast('Error awarding badge.', 'error'); }
+});
+document.getElementById('awardBadgeModalClose').addEventListener('click', () => closeModal(document.getElementById('awardBadgeModal')));
+document.getElementById('awardBadgeCancelBtn').addEventListener('click',  () => closeModal(document.getElementById('awardBadgeModal')));
+
 function openCoachNoteModal(id) {
   const b = brothers.find(x => x.id === id);
   if (!b) return;
@@ -6056,6 +6463,13 @@ document.getElementById('submitProofForm').addEventListener('submit', async e =>
     const newXP = Math.min(MAX_XP, (submittingProfile.xp || 0) + xpWon);
     await updateDoc(doc(db, 'brothers', submittingProfile.id), { xp: newXP, updatedAt: new Date().toISOString() });
 
+    // Check badge eligibility — pass the new sub since memory array may not reflect it yet
+    const newSub = { id, challengeId, brotherId: submittingProfile.id, status: 'completed', submittedAt: new Date().toISOString() };
+    const newBadges = await checkAndAwardBadges({ ...submittingProfile, xp: newXP }, newSub);
+    for (const badge of newBadges) {
+      setTimeout(() => showToast(`🏅 Badge Unlocked: ${badge.name} (+${badge.xpReward} XP)`, 'success'), 1200);
+    }
+
     // Post to feed immediately
     await addDoc(collection(db, 'feed'), {
       type:           'win',
@@ -6309,7 +6723,10 @@ document.getElementById('xpCancelBtn').addEventListener('click',  () => closeMod
   el.addEventListener('click', e => { if (e.target === el) closeModal(el); }));
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal, viewCheckInModal, challengeModal, submitProofModal, archetypeModal].forEach(closeModal);
+  if (e.key === 'Escape') {
+    [brotherModal, xpModal, deleteModal, checkInModal, coachNoteModal, viewCheckInModal, challengeModal, submitProofModal, archetypeModal, document.getElementById('awardBadgeModal')].forEach(closeModal);
+    closeBadgesOverlay();
+  }
 });
 
 // ── ARCHETYPE INFO MODAL ────────────────────────

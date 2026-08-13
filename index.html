@@ -107,6 +107,9 @@
       <!-- Right: utility icons -->
       <div class="header-right">
         <span class="user-badge" id="userBadge"></span>
+        <button class="header-icon-btn" id="badgesBtn" title="Badges">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </button>
         <button class="header-icon-btn" id="themeToggleBtn" title="Toggle theme">
           <svg id="themeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
@@ -349,6 +352,41 @@
     </div>
   </div>
 
+  <!-- BADGES OVERLAY -->
+  <div class="badges-overlay hidden" id="badgesOverlay">
+    <div class="badges-panel">
+      <div class="badges-panel-header">
+        <button class="badges-back" id="badgesBack">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="badges-panel-title">BADGES</span>
+      </div>
+      <div class="badges-panel-body" id="badgesContainer"></div>
+    </div>
+  </div>
+
+  <!-- AWARD BADGE MODAL (admin) -->
+  <div class="modal-overlay" id="awardBadgeModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title">Award Badge</h2>
+        <button class="modal-close" id="awardBadgeModalClose">✕</button>
+      </div>
+      <div id="awardBadgeBrotherName" class="checkin-brother-name"></div>
+      <form class="modal-form" id="awardBadgeForm">
+        <input type="hidden" id="awardBadgeBrotherId" />
+        <div class="form-group">
+          <label>Select Badge</label>
+          <select id="awardBadgeSelect"></select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="awardBadgeCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Award Badge</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- DM CHAT PANEL -->
   <div class="dm-overlay hidden" id="dmOverlay">
     <div class="dm-panel" id="dmPanel">
@@ -497,10 +535,13 @@
           <label>Category Tag</label>
           <select id="challengeTag">
             <option value="">— None —</option>
-            <option value="Physical">Physical</option>
-            <option value="Creator">Creator</option>
-            <option value="Regulation">Regulation</option>
+            <option value="Physical">Physical (Move)</option>
+            <option value="Creator">Creator (Create)</option>
+            <option value="Regulation">Regulation (Reset)</option>
             <option value="Special">Special</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Family">Family</option>
+            <option value="Brotherhood">Brotherhood</option>
           </select>
         </div>
         <div class="form-group">
