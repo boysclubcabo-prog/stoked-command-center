@@ -2040,142 +2040,179 @@ function _renderMemberView() {
 
     </div>`;
 
-  // Animate stoke flame — illustrated fire with particles
+  // Animate stoke flame
   if (bsScore != null) {
     if (window._stokeFlameRaf) { cancelAnimationFrame(window._stokeFlameRaf); window._stokeFlameRaf = null; }
     const canvas = document.getElementById('stokeFlameCanvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
       const W = canvas.width, H = canvas.height;
-      const iv = Math.max(0.06, Math.min(1, bsScore / 100)); // intensity 0–1
 
-      // Score-driven params
-      const spd    = 0.55 + iv * 2.6;   // animation speed
-      const fuelH  = 0.30 + iv * 0.58;  // max flame height as fraction of H
-      const sway   = 0.055 + iv * 0.22; // horizontal drift
-      const emberN = Math.round(iv * 14); // rising spark count
+      // 50 = dead minimum, 100 = max rage. Below 50 clamps to 0.
+      const iv = Math.max(0, Math.min(1, (bsScore - 50) / 50));
 
-      // Ember particles
-      const embers = Array.from({ length: emberN }, (_, i) => ({
-        x: W * 0.2 + Math.random() * W * 0.6,
-        y: H - 8 - Math.random() * H * fuelH * 0.5,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: -(0.5 + Math.random() * 1.8) * (0.4 + iv * 0.6),
-        life: Math.random(),
-        decay: 0.008 + Math.random() * 0.012,
-        r: 1 + Math.random() * 1.8 * iv,
-      }));
+      // Every point on the 0-1 scale drives distinct visual params
+      const spd      = 0.22 + iv * 5.2;               // 50=barely moves, 100=chaotic fast
+      const maxH     = H * (0.16 + iv * 0.76);        // 50=tiny flicker, 100=full height
+      const baseW    = W * (0.20 + iv * 0.22);        // 50=narrow, 100=wide roaring base
+      const turb     = 0.012 + iv * 0.30;             // sway turbulence
+      const emberN   = Math.round(iv * iv * 22);      // quadratic: few until high scores
+      const tongues  = 1 + Math.round(iv * 3.5);      // 50=1 tongue, 100=4-5 tongues
 
-      let t = 0;
+      // Noise helper: sum of sines at different freqs → pseudo-random organic motion
+      const N = (ph, f1, f2, f3) =>
+        Math.sin(t * spd * f1 + ph) * 0.50 +
+        Math.sin(t * spd * f2 + ph * 1.3) * 0.30 +
+        Math.sin(t * spd * f3 + ph * 0.7) * 0.20;
 
-      // Draw one flame tongue — the core shape of this fire
-      function tongue(cx, baseY, height, halfW, phase, alpha) {
-        // 4 control-point bezier tongue: wiggles at mid and tip independently
-        const midLean  = Math.sin(t * spd * 0.9 + phase)       * halfW * 0.7;
-        const tipLean  = Math.sin(t * spd * 1.3 + phase + 0.8) * halfW * 0.5;
-        const tipJitter= Math.sin(t * spd * 2.1 + phase + 1.6) * halfW * 0.3;
-        const tipY = baseY - height;
-        const midY = baseY - height * 0.52;
-
-        // gradient: deep crimson base → orange mid → bright yellow tip
-        const grad = ctx.createLinearGradient(cx, baseY, cx + tipLean, tipY);
-        if (iv < 0.35) {
-          // dim: dark red barely alive
-          grad.addColorStop(0,   `rgba(60,10,0,0)`);
-          grad.addColorStop(0.1, `rgba(90,20,0,${alpha * 0.6})`);
-          grad.addColorStop(0.5, `rgba(140,40,10,${alpha * 0.75})`);
-          grad.addColorStop(0.85,`rgba(180,70,20,${alpha * 0.5})`);
-          grad.addColorStop(1,   `rgba(200,100,40,0)`);
+      // Color: maps 0-1 position along flame height + iv → rgba string
+      function flameRGBA(pos, alpha) {
+        // pos 0=base, 1=tip
+        let r, g, b;
+        if (iv < 0.08) {
+          // Score ~50: dark smoldering ember, barely red
+          r = Math.round(55 + pos * 70); g = Math.round(pos * 12); b = 0;
         } else {
-          // vibrant: full fire palette
-          grad.addColorStop(0,   `rgba(120,10,0,0)`);
-          grad.addColorStop(0.08,`rgba(180,20,0,${alpha * 0.85})`);
-          grad.addColorStop(0.3, `rgba(255,70,0,${alpha})`);
-          grad.addColorStop(0.6, `rgba(255,160,0,${alpha * 0.9})`);
-          grad.addColorStop(0.82,`rgba(255,220,60,${alpha * 0.65})`);
-          grad.addColorStop(1,   `rgba(255,245,180,0)`);
+          // Gradient shifts from dark-red-dominant at iv=0 to yellow-white at iv=1
+          // R channel: always bright in fire range
+          r = Math.round(Math.min(255, 120 + iv * 135));
+          // G channel: 0 at base, grows with iv and pos (yellow needs green)
+          g = Math.round(Math.max(0, Math.min(255,
+            pos * (iv * 220) - (1 - iv) * 40
+          )));
+          // B channel: only at very high iv near the tip (white-hot)
+          b = Math.round(Math.max(0, (iv - 0.75) * 4 * pos * 180));
         }
+        return `rgba(${r},${g},${b},${alpha})`;
+      }
+
+      // Draw one bezier tongue using additive blending
+      function drawTongue(ox, height, hw, phase, alphaScale) {
+        const baseY = H - 3;
+        const lean1 = N(phase, 0.8, 1.7, 3.1) * hw * 0.9 * turb * 18;
+        const lean2 = N(phase, 1.2, 2.3, 0.9) * hw * 0.6 * turb * 18;
+        const jit   = N(phase, 2.5, 0.6, 1.4) * hw * 0.4 * turb * 15;
+        const midY  = baseY - height * 0.50;
+        const tipX  = ox + lean2 + jit;
+        const tipY  = baseY - height * (0.88 + N(phase, 0.5, 1.1, 2.0) * 0.12);
+
+        const grad = ctx.createLinearGradient(ox, baseY, tipX, tipY);
+        grad.addColorStop(0,    flameRGBA(0,    0));
+        grad.addColorStop(0.05, flameRGBA(0.05, 0.80 * alphaScale));
+        grad.addColorStop(0.25, flameRGBA(0.25, 0.90 * alphaScale));
+        grad.addColorStop(0.55, flameRGBA(0.55, 0.85 * alphaScale));
+        grad.addColorStop(0.80, flameRGBA(0.80, 0.60 * alphaScale));
+        grad.addColorStop(1,    flameRGBA(1,    0));
 
         ctx.beginPath();
-        ctx.moveTo(cx - halfW, baseY);
-        // left side: sweep up to mid then narrow to tip
+        ctx.moveTo(ox - hw, baseY);
         ctx.bezierCurveTo(
-          cx - halfW * 1.2 + midLean * 0.3, midY + height * 0.15,
-          cx + midLean - halfW * 0.45,      midY,
-          cx + tipLean + tipJitter,          tipY
+          ox - hw * 1.25 + lean1 * 0.25,  midY + height * 0.18,
+          tipX - hw * 0.40 + lean1 * 0.15, midY - height * 0.05,
+          tipX, tipY
         );
-        // right side: mirror back down
         ctx.bezierCurveTo(
-          cx + midLean + halfW * 0.45,       midY,
-          cx + halfW * 1.2 + midLean * 0.3, midY + height * 0.15,
-          cx + halfW, baseY
+          tipX + hw * 0.40 + lean1 * 0.15, midY - height * 0.05,
+          ox + hw * 1.25 + lean1 * 0.25,   midY + height * 0.18,
+          ox + hw, baseY
         );
         ctx.closePath();
         ctx.fillStyle = grad;
         ctx.fill();
       }
 
+      // Embers pool
+      const embers = [];
+      for (let i = 0; i < 22; i++) {
+        embers.push({ x: W/2, y: H, life: Math.random(), decay: 0.006 + Math.random() * 0.018,
+          vx: 0, vy: 0, r: 1 + Math.random() * 2 });
+      }
+
+      let t = 0;
       function drawFrame() {
         ctx.clearRect(0, 0, W, H);
-        const baseY = H - 3;
-        const cx    = W / 2;
+        const cx = W / 2, baseY = H - 3;
 
-        // ── Base coal glow ──────────────────────────────────────
-        const coalR = W * (0.32 + iv * 0.22);
-        const coal  = ctx.createRadialGradient(cx, baseY, 0, cx, baseY, coalR);
-        coal.addColorStop(0,   `rgba(255,${iv < 0.35 ? 40 : 120},0,${0.45 + iv * 0.45})`);
-        coal.addColorStop(0.45,`rgba(255,40,0,${0.12 + iv * 0.18})`);
-        coal.addColorStop(1,   'rgba(0,0,0,0)');
+        // ── Base ember glow (additive so it blooms naturally) ───
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const gr = W * (0.24 + iv * 0.28);
+        const coal = ctx.createRadialGradient(cx, baseY, 0, cx, baseY, gr);
+        const cg = Math.round(iv * 100);
+        coal.addColorStop(0,    `rgba(255,${cg},0,${0.18 + iv * 0.55})`);
+        coal.addColorStop(0.5,  `rgba(200,${Math.round(cg*0.4)},0,${0.06 + iv * 0.12})`);
+        coal.addColorStop(1,    'rgba(0,0,0,0)');
         ctx.fillStyle = coal;
         ctx.beginPath();
-        ctx.ellipse(cx, baseY, coalR, coalR * 0.35, 0, 0, Math.PI * 2);
+        ctx.ellipse(cx, baseY, gr, gr * 0.32, 0, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
 
-        // ── Flame tongues: outer → mid → inner (back to front) ──
-        const mainH = H * fuelH;
-        const swayX = Math.sin(t * spd * 0.7) * W * sway;
+        // ── Flame tongues (back-to-front, additive) ────────────
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
 
-        // Outer wide body — deep colour, wide, slightly leaning
-        tongue(cx + swayX * 0.4, baseY, mainH * 0.88, W * 0.36, 0,           0.72);
-        // Left sub-tongue — narrower, offset left
-        tongue(cx - W * 0.14 + swayX * 0.6, baseY, mainH * 0.65, W * 0.20, 1.1, 0.60);
-        // Right sub-tongue — narrower, offset right, higher phase
-        tongue(cx + W * 0.13 + swayX * 0.5, baseY, mainH * 0.60, W * 0.18, 2.3, 0.58);
-        // Inner bright core — tall narrow, lightest colours
-        tongue(cx + swayX * 0.8, baseY, mainH * 0.78, W * 0.16, 0.5,        0.85);
+        // Outer soft haze — wide, low alpha
+        if (iv > 0.1) drawTongue(cx + N(0, 0.4, 1.0, 1.9) * W * turb * 12, maxH * 0.82, baseW * 1.30, 0.0,   0.28);
 
-        // ── Rising embers ────────────────────────────────────────
-        embers.forEach(e => {
-          e.x  += e.vx + Math.sin(t * spd + e.life * 10) * 0.35;
-          e.y  += e.vy;
-          e.life -= e.decay;
-          if (e.life <= 0) {
-            e.x    = W * 0.2 + Math.random() * W * 0.6;
-            e.y    = baseY - Math.random() * mainH * 0.3;
-            e.life = 0.6 + Math.random() * 0.4;
-            e.vx   = (Math.random() - 0.5) * 0.5;
-            e.vy   = -(0.5 + Math.random() * 1.6) * (0.4 + iv * 0.6);
-          }
-          const alpha = e.life * (0.5 + iv * 0.5);
-          const hue   = iv < 0.35 ? 15 : (40 - e.life * 20);
+        // Main tongue spread — each offset by angle
+        for (let i = 0; i < tongues; i++) {
+          const fi    = tongues === 1 ? 0 : (i / (tongues - 1) - 0.5);
+          const ox    = cx + fi * baseW * 0.85 + N(i * 1.7, 0.6, 1.4, 2.8) * W * turb * 8;
+          const tH    = maxH * (0.78 + Math.abs(fi) < 0.15 ? 0.18 : -Math.abs(fi) * 0.28);
+          const hw    = baseW * (0.55 - Math.abs(fi) * 0.18);
+          const alpha = 0.72 + (i === Math.floor(tongues / 2) ? 0.20 : 0);
+          drawTongue(ox, tH, hw, i * 2.09, alpha);
+        }
+
+        // Inner hot core — tall, narrow, brighter
+        const coreW = baseW * (0.18 + iv * 0.14);
+        const coreH = maxH * (0.70 + iv * 0.22);
+        drawTongue(cx + N(9, 1.1, 2.2, 0.8) * coreW * 0.5, coreH, coreW, 4.5, 0.90);
+
+        ctx.restore();
+
+        // ── White-hot tip core (score > 70) ────────────────────
+        if (iv > 0.4) {
+          const hotIv = (iv - 0.4) / 0.6;
+          const hx = cx + N(5, 0.9, 1.8, 3.2) * coreW * 0.6;
+          const hy = baseY - maxH * (0.30 + hotIv * 0.28);
+          const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, W * (0.06 + hotIv * 0.10));
+          hg.addColorStop(0,   `rgba(255,255,${Math.round(hotIv * 220)},${0.55 + hotIv * 0.40})`);
+          hg.addColorStop(0.5, `rgba(255,220,80,${0.20 + hotIv * 0.25})`);
+          hg.addColorStop(1,   'rgba(0,0,0,0)');
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          ctx.fillStyle = hg;
           ctx.beginPath();
-          ctx.arc(e.x, e.y, e.r * e.life, 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${hue},100%,${60 + e.life * 35}%,${alpha})`;
+          ctx.arc(hx, hy, W * (0.06 + hotIv * 0.10), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // ── Rising embers (only when score warrants) ────────────
+        const activeEmbers = Math.min(emberN, embers.length);
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        embers.slice(0, activeEmbers).forEach(e => {
+          e.x   += e.vx + N(e.r * 3, 1.2, 2.5, 0.7) * 0.28;
+          e.y   += e.vy;
+          e.life -= e.decay * (0.5 + iv * 0.5);
+          if (e.life <= 0 || e.y < -4) {
+            e.x    = cx + (Math.random() - 0.5) * baseW * 1.2;
+            e.y    = baseY - maxH * (0.1 + Math.random() * 0.4);
+            e.life = 0.5 + Math.random() * 0.5;
+            e.vx   = (Math.random() - 0.5) * (0.4 + iv * 0.8);
+            e.vy   = -(0.8 + Math.random() * 2.2) * (0.3 + iv * 0.7);
+          }
+          const ea = e.life * (0.3 + iv * 0.6);
+          const eg = Math.round(iv * 180 * e.life);
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.r * (0.4 + e.life * 0.6), 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,${eg},0,${ea})`;
           ctx.fill();
         });
-
-        // ── Inner white-hot core (high score only) ───────────────
-        if (iv > 0.55) {
-          const coreH = mainH * 0.38 * (iv - 0.55) / 0.45;
-          const coreG = ctx.createLinearGradient(cx, baseY, cx, baseY - coreH);
-          coreG.addColorStop(0,   `rgba(255,255,220,${(iv - 0.55) * 1.8})`);
-          coreG.addColorStop(0.6, `rgba(255,240,180,${(iv - 0.55) * 0.9})`);
-          coreG.addColorStop(1,   'rgba(255,220,120,0)');
-          ctx.beginPath();
-          ctx.ellipse(cx + swayX * 0.9, baseY - coreH * 0.25, W * 0.09, coreH * 0.65, 0, 0, Math.PI * 2);
-          ctx.fillStyle = coreG;
-          ctx.fill();
-        }
+        ctx.restore();
 
         t += 0.016;
         window._stokeFlameRaf = requestAnimationFrame(drawFrame);
