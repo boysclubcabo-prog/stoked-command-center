@@ -8841,89 +8841,159 @@ label, .form-label { color: rgba(0,0,0,0.5); }
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .games-hub {
-  padding: calc(52px + env(safe-area-inset-top) + 16px) 20px calc(80px + env(safe-area-inset-bottom));
-  max-width: 480px;
+  padding: calc(52px + env(safe-area-inset-top) + 16px) 16px calc(80px + env(safe-area-inset-bottom));
+  max-width: 520px;
   margin: 0 auto;
 }
 
 .games-hub-header {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 .games-hub-title {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.6px;
   color: var(--text-primary);
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .games-hub-sub {
   font-size: 13px;
   color: var(--text-muted);
-  font-weight: 400;
 }
 
 .games-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
+/* ── New game card design ── */
 .game-card {
-  background: var(--bg-card, var(--bg-elevated));
+  border-radius: 20px;
+  overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.08);
 }
 
-.game-card-top {
+.game-card--sync .game-card-banner {
+  background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%);
+}
+.game-card--chess .game-card-banner {
+  background: linear-gradient(135deg, #2d1b4e 0%, #1a0d2e 100%);
+}
+
+.game-card-banner {
   display: flex;
   align-items: center;
   gap: 14px;
+  padding: 18px 18px 16px;
 }
 
-.game-card-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  background: rgba(212,168,83,0.12);
-  color: var(--orange);
+.game-card-banner-icon {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.game-card-banner-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .game-card-name {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.2px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.3px;
+  line-height: 1.1;
 }
 
 .game-card-type {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+
+.game-card-play-btn {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.game-card-play-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+.game-card-body {
+  background: var(--bg-card, var(--bg-elevated));
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .game-card-desc {
   font-size: 13px;
   color: var(--text-secondary);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
-.game-play-btn {
-  align-self: flex-start;
-  padding: 10px 28px;
-  font-size: 14px;
+/* Inline leaderboard inside Sync Check card */
+.game-card-lb-inline {
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.game-card-lb-label {
+  font-size: 10px;
   font-weight: 700;
-  border-radius: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.game-card-lb-rows .games-lb-row {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.game-card-lb-rows .games-lb-row:last-child { border-bottom: none; }
+
+/* XP badges on Chess card */
+.game-card-xp-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.game-xp-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  background: var(--bg-card, var(--bg-elevated));
+}
+.game-xp-badge--gold {
+  border-color: var(--orange);
+  color: var(--orange);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -9302,10 +9372,8 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   color: rgba(255,255,255,0.8);
 }
 
-/* ── Games Leaderboard ── */
-.games-leaderboard {
-  margin-top: 28px;
-}
+/* ── Games Leaderboard (now inline in card) ── */
+.games-leaderboard { margin-top: 28px; }
 
 .games-lb-header {
   display: flex;

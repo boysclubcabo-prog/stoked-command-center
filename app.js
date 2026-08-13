@@ -7119,46 +7119,66 @@ async function renderGamesHub() {
         <div class="games-hub-sub">Mental performance — track your sharpness over time</div>
       </div>
       <div class="games-list">
-        <div class="game-card" id="syncCheckCard">
-          <div class="game-card-top">
-            <div class="game-card-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+
+        <!-- Sync Check card -->
+        <div class="game-card game-card--sync" id="syncCheckCard">
+          <div class="game-card-banner">
+            <div class="game-card-banner-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                <circle cx="32" cy="32" r="28" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                <circle cx="32" cy="32" r="4" fill="white"/>
+                <line x1="32" y1="10" x2="32" y2="20" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="32" y1="44" x2="32" y2="54" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="10" y1="32" x2="20" y2="32" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="44" y1="32" x2="54" y2="32" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M32 32 L32 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M32 32 L42 38" stroke="rgba(255,255,255,0.7)" stroke-width="2" stroke-linecap="round"/>
               </svg>
             </div>
-            <div class="game-card-meta">
+            <div class="game-card-banner-text">
               <div class="game-card-name">Sync Check</div>
               <div class="game-card-type">Reaction · Go/No-Go · 20 rounds</div>
             </div>
+            <button class="game-card-play-btn" id="playSyncCheckBtn">▶ Play</button>
           </div>
-          <div class="game-card-desc">A reflex test that separates speed from control. React fast to green. Stay locked on red. The back half gets harder.</div>
-          <button class="btn btn-primary game-play-btn" id="playSyncCheckBtn">Play</button>
+          <div class="game-card-body">
+            <div class="game-card-desc">React fast to green. Stay locked on red. The back half gets faster and more chaotic.</div>
+            <div class="game-card-lb-inline">
+              <div class="game-card-lb-label">Top Scores</div>
+              <div id="gamesLbList" class="game-card-lb-rows"><div class="games-lb-loading">Loading…</div></div>
+            </div>
+          </div>
         </div>
 
-        <div class="game-card" id="chessCard">
-          <div class="game-card-top">
-            <div class="game-card-icon">
-              <span style="font-size:26px;line-height:1">♟</span>
+        <!-- Chess card -->
+        <div class="game-card game-card--chess" id="chessCard">
+          <div class="game-card-banner">
+            <div class="game-card-banner-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                <rect x="14" y="46" width="36" height="6" rx="3" fill="rgba(255,255,255,0.9)"/>
+                <rect x="18" y="40" width="28" height="7" rx="2" fill="rgba(255,255,255,0.8)"/>
+                <rect x="24" y="26" width="16" height="15" rx="2" fill="rgba(255,255,255,0.8)"/>
+                <rect x="22" y="22" width="20" height="6" rx="2" fill="rgba(255,255,255,0.9)"/>
+                <rect x="28" y="12" width="8" height="12" rx="2" fill="rgba(255,255,255,0.9)"/>
+                <circle cx="32" cy="10" r="4" fill="white"/>
+              </svg>
             </div>
-            <div class="game-card-meta">
+            <div class="game-card-banner-text">
               <div class="game-card-name">Chess</div>
               <div class="game-card-type">Strategy · vs Bot or Brother</div>
             </div>
+            <button class="game-card-play-btn" id="playChessBtn">▶ Play</button>
           </div>
-          <div class="game-card-desc">Full chess against 3 bot difficulty levels, or challenge any brother to a live match.</div>
-          <button class="btn btn-primary game-play-btn" id="playChessBtn">Play</button>
+          <div class="game-card-body">
+            <div class="game-card-desc">Battle 3 bot difficulty levels or challenge a brother to a live match. Win by checkmate to earn XP.</div>
+            <div class="game-card-xp-badges">
+              <span class="game-xp-badge">Easy · 50 XP</span>
+              <span class="game-xp-badge">Medium · 150 XP</span>
+              <span class="game-xp-badge game-xp-badge--gold">Hard · 500 XP</span>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <!-- Leaderboard -->
-      <div class="games-leaderboard">
-        <div class="games-lb-header">
-          <div class="games-lb-title">Leaderboard</div>
-          <div class="games-lb-game-label">Sync Check · All Levels</div>
-        </div>
-        <div class="games-lb-list" id="gamesLbList">
-          <div class="games-lb-loading">Loading scores…</div>
-        </div>
       </div>
     </div>
     <div class="sync-check-game hidden" id="syncCheckGame"></div>
