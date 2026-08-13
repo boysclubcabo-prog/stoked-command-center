@@ -9301,3 +9301,128 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   border-color: rgba(255,255,255,0.3);
   color: rgba(255,255,255,0.8);
 }
+
+/* ── Games Leaderboard ── */
+.games-leaderboard {
+  margin-top: 28px;
+}
+
+.games-lb-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.games-lb-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+
+.games-lb-game-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.games-lb-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.games-lb-loading,
+.games-lb-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 20px 0;
+  text-align: center;
+}
+
+.games-lb-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg-card, var(--bg-elevated));
+  border: 1px solid var(--border);
+  transition: background 0.12s;
+}
+
+.games-lb-row-me {
+  border-color: var(--orange);
+  background: rgba(212,168,83,0.06);
+}
+
+.games-lb-rank {
+  font-size: 16px;
+  font-weight: 800;
+  min-width: 28px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.games-lb-arch {
+  width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.games-lb-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.games-lb-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.games-lb-you {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--orange);
+  background: rgba(212,168,83,0.15);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.games-lb-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.games-lb-score {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--orange);
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+/* Sync Check — roam hint + play again fix */
+.sc-inst-roam-hint {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.25);
+  font-style: italic;
+}
+.sc-play-again-btn {
+  background: var(--orange);
+  color: #fff;
+}
