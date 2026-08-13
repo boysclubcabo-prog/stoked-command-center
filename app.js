@@ -285,21 +285,30 @@ function challengeTagPill(tag) {
 }
 
 function proofTypeLabel(p) {
-  const map = { video:'📹 Video', photo:'📷 Photo', audio:'🎵 Audio', photo_video:'📷 Photo or Video', video_audio:'📹 Video or Audio', video_photo:'📹 Video or Photo', photo_audio:'📷 Photo or Audio' };
-  return map[p] || '📎 Proof';
+  const cam = IC.camera, vid = IC.video, aud = IC.audio, lnk = IC.link;
+  const map = {
+    video:       `${vid} Video`,
+    photo:       `${cam} Photo`,
+    audio:       `${aud} Audio`,
+    photo_video: `${cam} Photo or Video`,
+    video_audio: `${vid} Video or Audio`,
+    video_photo: `${vid} Video or Photo`,
+    photo_audio: `${cam} Photo or Audio`,
+  };
+  return map[p] || `${lnk} Proof`;
 }
 
 function buildChallengeCard(ch, statusHtml, opts = {}) {
   const t = CHALLENGE_TAGS[normalizeTag(ch.tag)];
   const accent = t?.color || '#527A8E';
   const repeatBadge = ch.repeatType === 'daily'
-    ? `<span class="ch-repeat-badge ch-repeat-daily">🔁 Daily</span>`
+    ? `<span class="ch-repeat-badge ch-repeat-daily">${IC.repeat} Daily</span>`
     : ch.repeatType === 'one_time'
-      ? `<span class="ch-repeat-badge ch-repeat-once">✦ One-and-Done</span>`
+      ? `<span class="ch-repeat-badge ch-repeat-once">${IC.once} One-and-Done</span>`
       : '';
-  const proofBadge = ch.proofType ? `<span class="ch-repeat-badge">${proofTypeLabel(ch.proofType)}</span>` : ch.photoRequired ? `<span class="ch-repeat-badge">📷 Photo required</span>` : '';
-  const coachBadge = opts.coach ? `<div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>` : '';
-  const assigneeBadge = opts.assignee ? `<div class="coach-challenge-assignee">🎯 For ${escHtml(opts.assignee)}</div>` : '';
+  const proofBadge = ch.proofType ? `<span class="ch-repeat-badge">${proofTypeLabel(ch.proofType)}</span>` : ch.photoRequired ? `<span class="ch-repeat-badge">${IC.camera} Photo required</span>` : '';
+  const coachBadge = opts.coach ? `<div class="coach-challenge-badge">${IC.coach} Personal Challenge from Coach</div>` : '';
+  const assigneeBadge = opts.assignee ? `<div class="coach-challenge-assignee">${IC.coach} For ${escHtml(opts.assignee)}</div>` : '';
   const adminBtns = opts.adminBtns ? `<div class="ch-admin-btns">${opts.adminBtns}</div>` : '';
   return `<div class="ch-card ${opts.coach ? 'ch-card--coach' : ''}" ${challengeCardStyle(ch.tag)} data-chid="${ch.id}">
     ${assigneeBadge}${coachBadge}
@@ -937,6 +946,17 @@ const IC = {
   megaphone: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13"/><path d="M11.6 16.8a3 3 0 11-5.8-1.6"/></svg>`,
   link:      `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>`,
   send:      `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+  video:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>`,
+  audio:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+  repeat:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
+  once:      `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  coach:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M16 3.5C17.5 4.5 18 6 17.5 7.5"/><path d="M18 2c2 1.5 2.5 4 1.5 6"/></svg>`,
+  run:       `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M9 20l1-5 3 2 2-8"/><path d="M6 13l2-2 4 1 3-4"/><path d="M17 20l-2-3"/></svg>`,
+  brush:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.37 2.63L14 7l-1.59-1.59a2 2 0 00-2.82 0L8 7l9 9 1.59-1.59a2 2 0 000-2.82L17 10l4.37-4.37a2.12 2.12 0 00-3-3z"/><path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"/><path d="M14.5 17.5L4.5 15"/></svg>`,
+  leaf:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.94a1 1 0 001.66.84C7.38 19 9.88 18 12 18c6 0 9-5 9-10 0 0-3 0-4-.5"/><path d="M3 22c1-1 2.5-3.5 3-6"/></svg>`,
+  compass:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  home:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  handshake: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/><path d="M12 5.36l-1 1"/></svg>`,
 };
 
 // ── MY PATH — ARCHETYPE MISSIONS ──────────────
@@ -3842,21 +3862,20 @@ document.getElementById('checkInModalClose').addEventListener('click', () => clo
 checkInModal.addEventListener('click', e => { if (e.target === checkInModal) closeModal(checkInModal); });
 
 // ── COMMUNITY FEED ────────────────────────────
-// Category icons (emoji or SVG path descriptions baked as text)
 const CATEGORY_META = {
-  Move:        { icon: '🏃', desc: 'Planks, push-ups, skating, sparring, pull-ups' },
-  Create:      { icon: '🎨', desc: 'Music, art, cooking, writing, building' },
-  Reset:       { icon: '🧘', desc: 'Sunrise, meditation, ice bath, room reset' },
-  Adventure:   { icon: '🌲', desc: 'Hiking, camping, fishing, fire, surfing' },
-  Family:      { icon: '🏠', desc: 'Chores, interviews, projects, teaching parents' },
-  Brotherhood: { icon: '🤝', desc: 'Teach, lead, encourage, hold accountable' },
+  Move:        { iconKey: 'run',       desc: 'Planks, push-ups, skating, sparring, pull-ups' },
+  Create:      { iconKey: 'brush',     desc: 'Music, art, cooking, writing, building' },
+  Reset:       { iconKey: 'leaf',      desc: 'Sunrise, meditation, ice bath, room reset' },
+  Adventure:   { iconKey: 'compass',   desc: 'Hiking, camping, fishing, fire, surfing' },
+  Family:      { iconKey: 'home',      desc: 'Chores, interviews, projects, teaching parents' },
+  Brotherhood: { iconKey: 'handshake', desc: 'Teach, lead, encourage, hold accountable' },
 };
 
 function renderCategoryGrid(extraFilters = [], hasPersonal = false) {
   const categories = Object.keys(CHALLENGE_TAGS).filter(k => k !== 'Special');
   const extras = extraFilters.map(f => `
     <button class="ch-category-card ch-category-extra" data-filter="${f}">
-      <span class="ch-category-icon">🎯</span>
+      <span class="ch-category-icon">${IC.target}</span>
       <span class="ch-category-name">${f}</span>
     </button>`).join('');
   return `<div class="ch-category-grid">
@@ -3864,8 +3883,9 @@ function renderCategoryGrid(extraFilters = [], hasPersonal = false) {
       const t = CHALLENGE_TAGS[tag];
       const m = CATEGORY_META[tag] || {};
       const count = challenges.filter(ch => !ch.assignedTo && normalizeTag(ch.tag) === tag).length;
+      const svgIcon = m.iconKey ? IC[m.iconKey] || IC.target : IC.target;
       return `<button class="ch-category-card" data-filter="${tag}" style="--cat-color:${t.color}">
-        <span class="ch-category-icon">${m.icon || '●'}</span>
+        <span class="ch-category-icon">${svgIcon}</span>
         <span class="ch-category-name">${tag}</span>
         <span class="ch-category-desc">${m.desc || ''}</span>
         <span class="ch-category-count">${count} challenge${count !== 1 ? 's' : ''}</span>
@@ -3879,13 +3899,14 @@ function renderCategoryHeader() {
   const tag = challengeFilter;
   const t = CHALLENGE_TAGS[tag];
   const m = CATEGORY_META[tag] || {};
+  const svgIcon = m.iconKey ? IC[m.iconKey] || '' : '';
   return `<div class="ch-category-header" style="--cat-color:${t?.color || '#888'}">
     <button class="ch-back-btn" id="chBackBtn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       <span>Categories</span>
     </button>
     <div class="ch-category-header-inner">
-      <span class="ch-category-header-icon">${m.icon || ''}</span>
+      <span class="ch-category-header-icon">${svgIcon}</span>
       <span class="ch-category-header-name">${tag}</span>
     </div>
   </div>`;
@@ -3937,7 +3958,7 @@ function renderFeedAdmin(el) {
     let html = adminHeaderHtml + renderCategoryGrid(['Personal']);
     if (personalChallenges.length) {
       html += `<div class="feed-section" style="margin-top:20px">
-        <div class="feed-section-title">🎯 Personal Challenges (Coach-Assigned)</div>
+        <div class="feed-section-title">${IC.coach} Personal Challenges (Coach-Assigned)</div>
         <div class="challenge-list">
           ${personalChallenges.map(ch => {
             const assigneeName = brothers.find(b => b.id === ch.assignedTo)?.name || 'Unknown';
@@ -4002,7 +4023,7 @@ function renderFeedMentor(el) {
         const resetStr = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         return `<div class="sub-status-badge status-completed daily-done">
           ${IC.check} Completed Today — +${ch.xpReward} XP<br>
-          <span class="daily-reset-note">🔁 Resets ${resetStr}</span>
+          <span class="daily-reset-note">${IC.repeat} Resets ${resetStr}</span>
         </div>`;
       }
       return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
@@ -4096,7 +4117,7 @@ function renderFeedMember(el) {
         const resetStr = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
         return `<div class="sub-status-badge status-completed daily-done">
           ${IC.check} Completed Today — +${ch.xpReward} XP<br>
-          <span class="daily-reset-note">🔁 Resets ${resetStr}</span>
+          <span class="daily-reset-note">${IC.repeat} Resets ${resetStr}</span>
         </div>`;
       }
       return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;

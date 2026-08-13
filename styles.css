@@ -3969,10 +3969,18 @@ body {
 .ch-category-card:active { transform: scale(0.97); }
 .ch-category-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
 .ch-category-icon {
-  font-size: 28px;
-  line-height: 1;
-  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--cat-color, var(--accent)) 14%, transparent);
+  color: var(--cat-color, var(--accent));
+  margin-bottom: 8px;
+  flex-shrink: 0;
 }
+.ch-category-icon svg { width: 22px; height: 22px; }
 .ch-category-name {
   font-size: 15px;
   font-weight: 700;
@@ -4026,7 +4034,8 @@ body {
   align-items: center;
   gap: 8px;
 }
-.ch-category-header-icon { font-size: 22px; line-height: 1; }
+.ch-category-header-icon { display: flex; align-items: center; color: var(--cat-color, var(--accent)); }
+.ch-category-header-icon svg { width: 20px; height: 20px; }
 .ch-category-header-name {
   font-size: 18px;
   font-weight: 800;
