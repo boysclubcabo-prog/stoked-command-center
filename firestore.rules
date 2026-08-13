@@ -135,5 +135,11 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if request.auth != null;
     }
+
+    // ── Chess Games ──────────────────────────────────────────────────
+    match /chessGames/{gameId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
   }
 }
