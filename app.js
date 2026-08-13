@@ -54,6 +54,23 @@ const CHALLENGE_TAGS = {
 };
 
 // ── BADGE SYSTEM ──────────────────────────────
+const BADGE_CHAINS = {
+  challenge_path: {
+    label: 'Challenge Path',
+    ids: ['first_challenge','five_challenges','ten_challenges','twenty_challenges','thirty_five_challenges','fifty_challenges','hundred_challenges'],
+  },
+  streak_path: {
+    label: 'Streak Path',
+    ids: ['seven_day_streak','two_week_streak','thirty_day_streak','sixty_day_streak'],
+  },
+};
+
+// Map badge id → chain id for quick lookup
+const BADGE_CHAIN_MAP = {};
+for (const [chainId, chain] of Object.entries(BADGE_CHAINS)) {
+  chain.ids.forEach(id => { BADGE_CHAIN_MAP[id] = chainId; });
+}
+
 const BADGE_CATEGORIES = {
   general:     { label: 'General',     color: '#D4A853' },
   move:        { label: 'Move',        color: '#C4693A', challengeTag: 'Move' },
@@ -1836,6 +1853,95 @@ function closeBadgesOverlay() {
   if (overlay) overlay.classList.add('hidden');
 }
 
+function renderBadgeCard(badge, earned, earnedData, progress, catColor, isMystery) {
+  if (isMystery) {
+    return `
+    <div class="badge-card badge-mystery" data-badge-id="${badge.id}">
+      <div class="badge-card-summary badge-mystery-summary">
+        <div class="badge-icon-wrap badge-icon-mystery">
+          <span class="badge-icon-glyph">◈</span>
+        </div>
+        <div class="badge-summary-info">
+          <div class="badge-name">${escHtml(badge.name)}</div>
+          <span class="badge-row-status">Complete previous to unlock</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  let statusClass = 'badge-locked';
+  let statusLabel = 'Locked';
+  if (earned) { statusClass = 'badge-earned'; statusLabel = 'Earned'; }
+  else if (progress && progress.current > 0) { statusClass = 'badge-in-progress'; statusLabel = 'In Progress'; }
+  else if (badge.verification === 'mentor_approval') { statusLabel = 'Mentor Approval Required'; }
+  else if (badge.verification === 'manual_award') { statusLabel = 'Mentor Award'; }
+
+  const summaryRight = earned
+    ? `<span class="badge-row-earned-chip">✓ Earned</span>`
+    : progress
+      ? `<span class="badge-row-progress">${progress.current} / ${progress.total}</span>`
+      : `<span class="badge-row-status">${badge.verification === 'automatic' ? 'Locked' : 'Mentor'}</span>`;
+
+  let detailProgressHtml = '';
+  if (!earned) {
+    if (progress) {
+      const pct = Math.min(100, Math.round((progress.current / progress.total) * 100));
+      detailProgressHtml = `
+        <div class="badge-detail-progress">
+          <div class="badge-progress-row">
+            <span class="badge-progress-nums">${progress.current} / ${progress.total} ${escHtml(progress.label)}</span>
+            <span class="badge-progress-pct">${pct}%</span>
+          </div>
+          <div class="badge-progress-bar"><div class="badge-progress-fill" style="width:${pct}%;background:${catColor}"></div></div>
+        </div>`;
+    } else {
+      const verif = badge.verification === 'mentor_approval' ? 'Requires mentor approval after proof submission.' : 'Awarded directly by a mentor.';
+      detailProgressHtml = `<div class="badge-detail-verif">${verif}</div>`;
+    }
+  }
+
+  return `
+  <div class="badge-card ${statusClass}" data-badge-id="${badge.id}"${earned ? ` style="border-color:${catColor}40;background:${catColor}0a"` : ''}>
+    <div class="badge-card-summary">
+      <div class="badge-icon-wrap" style="--badge-color:${catColor}${earned ? `;background:${catColor}20;box-shadow:0 0 12px ${catColor}40` : ''}">
+        <span class="badge-icon-glyph"${earned ? ` style="color:${catColor}"` : ''}>◈</span>
+      </div>
+      <div class="badge-summary-info">
+        <div class="badge-name">${escHtml(badge.name)}</div>
+        ${summaryRight}
+      </div>
+      <span class="badge-chevron">▾</span>
+    </div>
+    <div class="badge-card-detail hidden">
+      <div class="badge-detail-desc">${escHtml(badge.description)}</div>
+      ${detailProgressHtml}
+      ${earned ? `
+        <div class="badge-detail-rows">
+          <div class="badge-detail-row">
+            <span class="badge-detail-lbl">Earned</span>
+            <span class="badge-detail-val">${new Date(earnedData.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
+          </div>
+          <div class="badge-detail-row">
+            <span class="badge-detail-lbl">XP Awarded</span>
+            <span class="badge-detail-val" style="color:#C4693A">+${earnedData.xpAwarded} XP</span>
+          </div>
+        </div>
+      ` : `
+        <div class="badge-detail-rows">
+          <div class="badge-detail-row">
+            <span class="badge-detail-lbl">Reward</span>
+            <span class="badge-detail-val" style="color:#C4693A">+${badge.xpReward} XP</span>
+          </div>
+          <div class="badge-detail-row">
+            <span class="badge-detail-lbl">Status</span>
+            <span class="badge-detail-val">${statusLabel}</span>
+          </div>
+        </div>
+      `}
+    </div>
+  </div>`;
+}
+
 function renderBadgesScreen() {
   const container = document.getElementById('badgesContainer');
   if (!container) return;
@@ -1845,12 +1951,60 @@ function renderBadgesScreen() {
   const earnedIds = new Set(earnedArr.map(b => b.id));
   const activeFilter = container.dataset.filter || 'all';
 
-  const filteredBadges = activeFilter === 'all' ? BADGES : BADGES.filter(b => b.category === activeFilter);
-
   const filterKeys = ['all', 'general', 'move', 'create', 'reset', 'adventure', 'family', 'brotherhood'];
   const filterLabels = { all: 'All', general: 'General', move: 'Move', create: 'Create', reset: 'Reset', adventure: 'Adventure', family: 'Family', brotherhood: 'Brotherhood' };
-
   const earnedCount = BADGES.filter(b => earnedIds.has(b.id)).length;
+
+  function badgeHtml(badge) {
+    const earned = earnedIds.has(badge.id);
+    const earnedData = earnedArr.find(b => b.id === badge.id);
+    const progress = !earned ? getBadgeProgress(badge, profile || {}, mySubs) : null;
+    const catData = BADGE_CATEGORIES[badge.category];
+    const catColor = catData ? catData.color : '#888';
+    return renderBadgeCard(badge, earned, earnedData, progress, catColor, false);
+  }
+
+  function chainSectionHtml(chainId) {
+    const chain = BADGE_CHAINS[chainId];
+    const chainBadges = chain.ids.map(id => BADGES.find(b => b.id === id)).filter(Boolean);
+    // Find first unearned index — everything after that is mystery
+    let firstUnearnedIdx = chainBadges.findIndex(b => !earnedIds.has(b.id));
+    if (firstUnearnedIdx === -1) firstUnearnedIdx = chainBadges.length; // all earned
+
+    return `
+    <div class="badge-chain-section">
+      <div class="badge-chain-label">${chain.label}</div>
+      ${chainBadges.map((badge, i) => {
+        const earned = earnedIds.has(badge.id);
+        const earnedData = earnedArr.find(b => b.id === badge.id);
+        const isMystery = !earned && i > firstUnearnedIdx;
+        const progress = (!earned && !isMystery) ? getBadgeProgress(badge, profile || {}, mySubs) : null;
+        const catData = BADGE_CATEGORIES[badge.category];
+        const catColor = catData ? catData.color : '#888';
+        return renderBadgeCard(badge, earned, earnedData, progress, catColor, isMystery);
+      }).join('')}
+    </div>`;
+  }
+
+  // Badges that are NOT part of any chain
+  const chainedIds = new Set(Object.values(BADGE_CHAINS).flatMap(c => c.ids));
+
+  let bodyHtml = '';
+  if (activeFilter === 'all' || activeFilter === 'general') {
+    bodyHtml += chainSectionHtml('challenge_path');
+    bodyHtml += chainSectionHtml('streak_path');
+    // Non-chain general badges
+    const generalOthers = BADGES.filter(b => b.category === 'general' && !chainedIds.has(b.id));
+    if (generalOthers.length) bodyHtml += `<div class="badge-list">${generalOthers.map(b => badgeHtml(b)).join('')}</div>`;
+    // For 'all', also render other categories
+    if (activeFilter === 'all') {
+      const others = BADGES.filter(b => b.category !== 'general' && !chainedIds.has(b.id));
+      if (others.length) bodyHtml += `<div class="badge-list">${others.map(b => badgeHtml(b)).join('')}</div>`;
+    }
+  } else {
+    const filtered = BADGES.filter(b => b.category === activeFilter && !chainedIds.has(b.id));
+    bodyHtml = `<div class="badge-list">${filtered.map(b => badgeHtml(b)).join('')}</div>`;
+  }
 
   container.innerHTML = `
     <div class="badge-screen">
@@ -1862,94 +2016,14 @@ function renderBadgesScreen() {
       <div class="badge-filter-row">
         ${filterKeys.map(k => `<button class="badge-filter-btn${activeFilter === k ? ' active' : ''}" data-filter="${k}">${filterLabels[k]}</button>`).join('')}
       </div>
-      <div class="badge-list">
-        ${filteredBadges.map(badge => {
-          const earned = earnedIds.has(badge.id);
-          const earnedData = earnedArr.find(b => b.id === badge.id);
-          const progress = !earned ? getBadgeProgress(badge, profile || {}, mySubs) : null;
-          const catData = BADGE_CATEGORIES[badge.category];
-          const catColor = catData ? catData.color : '#888';
-
-          let statusClass = 'badge-locked';
-          let statusLabel = 'Locked';
-          if (earned) { statusClass = 'badge-earned'; statusLabel = 'Earned'; }
-          else if (progress && progress.current > 0) { statusClass = 'badge-in-progress'; statusLabel = 'In Progress'; }
-          else if (badge.verification === 'mentor_approval') { statusLabel = 'Mentor Approval Required'; }
-          else if (badge.verification === 'manual_award') { statusLabel = 'Mentor Award'; }
-
-          const summaryRight = earned
-            ? `<span class="badge-row-earned-chip">✓ Earned</span>`
-            : progress
-              ? `<span class="badge-row-progress">${progress.current} / ${progress.total}</span>`
-              : `<span class="badge-row-status">${badge.verification === 'automatic' ? 'Locked' : 'Mentor'}</span>`;
-
-          let detailProgressHtml = '';
-          if (!earned) {
-            if (progress) {
-              const pct = Math.min(100, Math.round((progress.current / progress.total) * 100));
-              detailProgressHtml = `
-                <div class="badge-detail-progress">
-                  <div class="badge-progress-row">
-                    <span class="badge-progress-nums">${progress.current} / ${progress.total} ${escHtml(progress.label)}</span>
-                    <span class="badge-progress-pct">${pct}%</span>
-                  </div>
-                  <div class="badge-progress-bar"><div class="badge-progress-fill" style="width:${pct}%;background:${catColor}"></div></div>
-                </div>`;
-            } else {
-              const verif = badge.verification === 'mentor_approval' ? 'Requires mentor approval after proof submission.' : 'Awarded directly by a mentor.';
-              detailProgressHtml = `<div class="badge-detail-verif">${verif}</div>`;
-            }
-          }
-
-          return `
-          <div class="badge-card ${statusClass}" data-badge-id="${badge.id}"${earned ? ` style="--badge-color:${catColor};border-color:${catColor}40;background:${catColor}0a"` : ''}>
-            <div class="badge-card-summary">
-              <div class="badge-icon-wrap" style="--badge-color:${catColor}${earned ? `;background:${catColor}20;box-shadow:0 0 12px ${catColor}40` : ''}">
-                <span class="badge-icon-glyph"${earned ? ` style="color:${catColor}"` : ''}>◈</span>
-              </div>
-              <div class="badge-summary-info">
-                <div class="badge-name">${escHtml(badge.name)}</div>
-                ${summaryRight}
-              </div>
-              <span class="badge-chevron">▾</span>
-            </div>
-            <div class="badge-card-detail hidden">
-              <div class="badge-detail-desc">${escHtml(badge.description)}</div>
-              ${detailProgressHtml}
-              ${earned ? `
-                <div class="badge-detail-rows">
-                  <div class="badge-detail-row">
-                    <span class="badge-detail-lbl">Earned</span>
-                    <span class="badge-detail-val">${new Date(earnedData.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
-                  </div>
-                  <div class="badge-detail-row">
-                    <span class="badge-detail-lbl">XP Awarded</span>
-                    <span class="badge-detail-val" style="color:#C4693A">+${earnedData.xpAwarded} XP</span>
-                  </div>
-                </div>
-              ` : `
-                <div class="badge-detail-rows">
-                  <div class="badge-detail-row">
-                    <span class="badge-detail-lbl">Reward</span>
-                    <span class="badge-detail-val" style="color:#C4693A">+${badge.xpReward} XP</span>
-                  </div>
-                  <div class="badge-detail-row">
-                    <span class="badge-detail-lbl">Status</span>
-                    <span class="badge-detail-val">${statusLabel}</span>
-                  </div>
-                </div>
-              `}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
+      ${bodyHtml}
     </div>
   `;
 
   container.querySelectorAll('.badge-filter-btn').forEach(btn => {
     btn.addEventListener('click', () => { container.dataset.filter = btn.dataset.filter; renderBadgesScreen(); });
   });
-  container.querySelectorAll('.badge-card').forEach(card => {
+  container.querySelectorAll('.badge-card:not(.badge-mystery)').forEach(card => {
     card.querySelector('.badge-card-summary').addEventListener('click', () => {
       const detail = card.querySelector('.badge-card-detail');
       const chev   = card.querySelector('.badge-chevron');

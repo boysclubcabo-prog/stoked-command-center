@@ -8639,3 +8639,27 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* ── Badge Chains / Veins ── */
+.badge-chain-section {
+  margin-bottom: 24px;
+}
+.badge-chain-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 0 4px 8px;
+  opacity: 0.6;
+}
+.badge-mystery {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.badge-mystery-summary {
+  cursor: default;
+}
+.badge-icon-mystery .badge-icon-glyph {
+  opacity: 0.3;
+}
