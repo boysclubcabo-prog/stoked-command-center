@@ -3929,10 +3929,31 @@ function renderFeedMentor(el) {
   const showCoach   = challengeFilter === 'All' || challengeFilter === 'From Coach';
   const showPubM    = challengeFilter !== 'From Coach';
 
+  const todayStrM = new Date().toISOString().slice(0, 10);
+  function challengeStatusHtmlM(ch, subs) {
+    const isDaily = ch.repeatType === 'daily';
+    if (isDaily) {
+      const doneToday = subs.some(s => s.challengeId === ch.id && s.submittedAt?.slice(0,10) === todayStrM);
+      if (doneToday) {
+        const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+        const resetStr = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        return `<div class="sub-status-badge status-completed daily-done">
+          ${IC.check} Completed Today — +${ch.xpReward} XP<br>
+          <span class="daily-reset-note">🔁 Resets ${resetStr}</span>
+        </div>`;
+      }
+      return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    } else {
+      const mySub = subs.find(s => s.challengeId === ch.id);
+      return mySub
+        ? `<div class="sub-status-badge status-completed">${IC.check} Challenge Complete — +${ch.xpReward} XP!</div>`
+        : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    }
+  }
+
   if (showCoach && myPersonalM.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonalM.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       html += `<div class="challenge-card coach-challenge" ${challengeCardStyle(ch.tag)}>
         <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
         <div class="ch-top">
@@ -3946,10 +3967,9 @@ function renderFeedMentor(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
         </div>
-        ${mySub ? `<div class="sub-status-badge status-completed">
-          ${IC.check} Challenge Complete — +${ch.xpReward} XP!
-        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtmlM(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -3960,7 +3980,6 @@ function renderFeedMentor(el) {
   } else if (showPubM) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChsM.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
       html += `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
         <div class="ch-top">
@@ -3974,11 +3993,10 @@ function renderFeedMentor(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
           <span>${IC.check} ${totalCompleted} completed</span>
         </div>
-        ${mySub ? `<div class="sub-status-badge status-completed">
-          ${IC.check} Challenge Complete — +${ch.xpReward} XP!
-        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtmlM(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -4028,10 +4046,37 @@ function renderFeedMember(el) {
   let html = `<div class="feed-header"><h2 class="feed-title">Challenges</h2></div>
   ${challengeFilterBar(myPersonal.length ? ['From Coach'] : [])}`;
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  function isCompletedToday(subs, challengeId) {
+    return subs.some(s => s.challengeId === challengeId && s.submittedAt && s.submittedAt.slice(0, 10) === todayStr);
+  }
+  function challengeStatusHtml(ch, mySubs) {
+    const isDaily = ch.repeatType === 'daily';
+    if (isDaily) {
+      const doneToday = isCompletedToday(mySubs, ch.id);
+      if (doneToday) {
+        const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+        const resetStr = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        return `<div class="sub-status-badge status-completed daily-done">
+          ${IC.check} Completed Today — +${ch.xpReward} XP<br>
+          <span class="daily-reset-note">🔁 Resets ${resetStr}</span>
+        </div>`;
+      }
+      return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    } else {
+      const mySub = mySubs.find(s => s.challengeId === ch.id);
+      if (mySub) {
+        return `<div class="sub-status-badge status-completed">
+          ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
+        </div>`;
+      }
+      return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    }
+  }
+
   if (showCoachM && myPersonal.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonal.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       html += `<div class="challenge-card member coach-challenge" ${challengeCardStyle(ch.tag)}>
         <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
         <div class="ch-top">
@@ -4045,12 +4090,9 @@ function renderFeedMember(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
         </div>
-        ${mySub ? `
-          <div class="sub-status-badge status-completed">
-            ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
-          </div>
-        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtml(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -4061,7 +4103,6 @@ function renderFeedMember(el) {
   } else if (showPubCh) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChs.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
       html += `<div class="challenge-card member" ${challengeCardStyle(ch.tag)}>
         <div class="ch-top">
@@ -4075,13 +4116,10 @@ function renderFeedMember(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
           <span>${IC.check} ${totalCompleted} completed</span>
         </div>
-        ${mySub ? `
-          <div class="sub-status-badge status-completed">
-            ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
-          </div>
-        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtml(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -4479,7 +4517,13 @@ function renderSocialFeed() {
       </div>`;
     } else {
       const tagColor = post.challengeTag && CHALLENGE_TAGS[post.challengeTag] ? CHALLENGE_TAGS[post.challengeTag].color : '#888';
-      const alreadyDone = post.challengeId && profile ? submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id) : null;
+      const feedCh = post.challengeId ? challenges.find(c => c.id === post.challengeId) : null;
+      const todayStrFeed = new Date().toISOString().slice(0, 10);
+      const alreadyDone = post.challengeId && profile
+        ? (feedCh?.repeatType === 'daily'
+            ? submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id && s.submittedAt?.slice(0,10) === todayStrFeed)
+            : submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id))
+        : null;
       html += `<div class="sf-post">
         <div class="sf-post-header">
           <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
@@ -6459,9 +6503,22 @@ function populateAssignSelect(preAssignId) {
   });
 }
 
+function setRepeatType(value) {
+  document.getElementById('challengeRepeatType').value = value;
+  document.querySelectorAll('.repeat-type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.value === value);
+  });
+}
+
+document.getElementById('repeatTypeToggle').addEventListener('click', e => {
+  const btn = e.target.closest('.repeat-type-btn');
+  if (btn) setRepeatType(btn.dataset.value);
+});
+
 function openCreateChallengeModal(preAssignId) {
   editingChallengeId = null;
   document.getElementById('challengeForm').reset();
+  setRepeatType('one_time');
   document.querySelector('#challengeModal .modal-title').textContent = preAssignId
     ? `Personal Challenge — ${brothers.find(b => b.id === preAssignId)?.name || ''}`
     : 'New Challenge';
@@ -6480,6 +6537,7 @@ function openEditChallengeModal(id) {
   document.getElementById('challengeTag').value             = ch.tag          || '';
   document.getElementById('challengeDeadline').value        = ch.deadline     || '';
   document.getElementById('challengePhotoRequired').checked = ch.photoRequired !== false;
+  setRepeatType(ch.repeatType || 'one_time');
   populateAssignSelect(ch.assignedTo || null);
   document.querySelector('#challengeModal .modal-title').textContent = 'Edit Challenge';
   document.querySelector('#challengeForm [type="submit"]').textContent = 'Save Changes';
@@ -6504,6 +6562,7 @@ document.getElementById('challengeForm').addEventListener('submit', async e => {
     tag:           document.getElementById('challengeTag').value || null,
     deadline:      document.getElementById('challengeDeadline').value || null,
     photoRequired: document.getElementById('challengePhotoRequired').checked,
+    repeatType:    document.getElementById('challengeRepeatType').value || 'one_time',
     assignedTo,
   };
 

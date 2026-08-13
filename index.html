@@ -547,6 +547,22 @@
           <div class="form-hint" id="challengeAssignHint" style="display:none">🔒 Only this brother will see this challenge</div>
         </div>
         <div class="form-group">
+          <label>Challenge Type</label>
+          <div class="repeat-type-toggle" id="repeatTypeToggle">
+            <button type="button" class="repeat-type-btn active" data-value="one_time">
+              <span class="repeat-type-icon">🏅</span>
+              <span class="repeat-type-label">One-Time</span>
+              <span class="repeat-type-sub">Complete once, done forever</span>
+            </button>
+            <button type="button" class="repeat-type-btn" data-value="daily">
+              <span class="repeat-type-icon">🔁</span>
+              <span class="repeat-type-label">Daily</span>
+              <span class="repeat-type-sub">Resets every day</span>
+            </button>
+          </div>
+          <input type="hidden" id="challengeRepeatType" value="one_time" />
+        </div>
+        <div class="form-group">
           <label class="checkbox-label">
             <input type="checkbox" id="challengePhotoRequired" checked />
             <span>Photo proof required</span>
