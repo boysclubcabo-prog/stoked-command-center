@@ -8606,6 +8606,11 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   margin-bottom: 16px;
   display: block;
 }
+.badge-cel-icon img {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+}
 .badge-cel-eyebrow {
   font-size: 11px;
   font-weight: 700;
@@ -8770,8 +8775,8 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 
 .mhv2-badge-strip-item {
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8779,8 +8784,8 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   -webkit-tap-highlight-color: transparent;
 }
 .mhv2-badge-strip-item img {
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 120px;
   object-fit: contain;
 }
 

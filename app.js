@@ -2074,7 +2074,7 @@ function showBadgeUnlockCelebration(badges) {
   overlay.innerHTML = `
     <div class="badge-celebration-card">
       <div class="badge-cel-glow" style="--cel-color:${color}"></div>
-      <div class="badge-cel-icon" style="${BADGE_ICONS[badge.id] ? '' : `color:${color}`}">${badgeIconHtml(badge.id, 120, false)}</div>
+      <div class="badge-cel-icon" style="${BADGE_ICONS[badge.id] ? '' : `color:${color}`}">${badgeIconHtml(badge.id, 180, false)}</div>
       <div class="badge-cel-eyebrow">Congratulations</div>
       <div class="badge-cel-name">${escHtml(badge.name)}</div>
       <div class="badge-cel-desc">${escHtml(badge.description)}</div>
@@ -2574,7 +2574,7 @@ function _renderMemberView() {
           <div class="mhv2-badge-strip">
             ${myBadges.map(b => `
               <div class="mhv2-badge-strip-item" data-tooltip="${escHtml(b.def.name + ' — ' + b.def.description)}">
-                ${badgeIconHtml(b.def.id, 56, false)}
+                ${badgeIconHtml(b.def.id, 120, false)}
               </div>`).join('')}
           </div>
         </div>`;
