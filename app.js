@@ -2028,7 +2028,8 @@ function _renderMemberView() {
         ? `<button class="mhv2-complete-btn" data-dc-complete="1">COMPLETE MISSION →</button>`
         : `<button class="mhv2-checkin-btn${checkInDone ? ' done' : ''}" data-checkin="${profile.id}">
              ${checkInDone ? '✓ CHECKED IN TODAY' : '✓ DAILY CHECK-IN'}
-           </button>`}
+           </button>
+           ${checkInDone ? `<button class="mhv2-recheckin-btn" data-checkin="${profile.id}">↺ Redo Check-In</button>` : ''}`}
 
       ${!profile.primaryArchetype ? `
       <div class="mhv2-assess-cta">

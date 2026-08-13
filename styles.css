@@ -7968,6 +7968,20 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   cursor: default;
 }
 .mhv2-checkin-btn.done:hover { opacity: 1; }
+.mhv2-recheckin-btn {
+  width: 100%;
+  background: none;
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: border-color 0.15s, color 0.15s;
+}
+.mhv2-recheckin-btn:hover { border-color: var(--accent); color: var(--accent); }
 
 /* Assessment CTA */
 .mhv2-assess-cta {
