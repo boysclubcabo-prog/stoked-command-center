@@ -7637,8 +7637,9 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .mhv2-flame-canvas {
   display: block;
   flex-shrink: 0;
-  margin-bottom: 4px;
-  filter: blur(0.4px);
+  align-self: flex-end;
+  margin-bottom: 6px;
+  filter: blur(0.5px);
 }
 .mhv2-rank-num {
   font-family: 'Bebas Neue','Barlow Condensed',Impact,sans-serif;
