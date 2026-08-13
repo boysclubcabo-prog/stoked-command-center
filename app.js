@@ -951,12 +951,13 @@ const IC = {
   repeat:    `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>`,
   once:      `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
   coach:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><path d="M16 3.5C17.5 4.5 18 6 17.5 7.5"/><path d="M18 2c2 1.5 2.5 4 1.5 6"/></svg>`,
-  run:       `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M9 20l1-5 3 2 2-8"/><path d="M6 13l2-2 4 1 3-4"/><path d="M17 20l-2-3"/></svg>`,
-  brush:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.37 2.63L14 7l-1.59-1.59a2 2 0 00-2.82 0L8 7l9 9 1.59-1.59a2 2 0 000-2.82L17 10l4.37-4.37a2.12 2.12 0 00-3-3z"/><path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"/><path d="M14.5 17.5L4.5 15"/></svg>`,
-  leaf:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.94a1 1 0 001.66.84C7.38 19 9.88 18 12 18c6 0 9-5 9-10 0 0-3 0-4-.5"/><path d="M3 22c1-1 2.5-3.5 3-6"/></svg>`,
-  compass:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
-  home:      `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
-  handshake: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.42 4.58a5.4 5.4 0 00-7.65 0l-.77.78-.77-.78a5.4 5.4 0 00-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/><path d="M12 5.36l-1 1"/></svg>`,
+  run:       `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5C6.5 5.12 7.62 4 9 4s2.5 1.12 2.5 2.5S10.38 9 9 9 6.5 7.88 6.5 6.5z"/><path d="M4 20c0 0 1.5-3 4-4l1 3"/><path d="M9 16l2-4 3 2 2.5-5"/><path d="M16.5 9C17.5 7.5 19 7 20 8"/></svg>`,
+  bicep:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15c0 3.31 2.69 6 6 6s6-2.69 6-6"/><path d="M6 15V9a3 3 0 013-3h3a3 3 0 013 3v1"/><path d="M9 6V4"/><path d="M12 15c0 1.66-1.34 3-3 3"/><path d="M18 10c1.5 0 2 1 2 2s-.5 2-2 2"/></svg>`,
+  brush:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18.37 2.63L14 7l-1.59-1.59a2 2 0 00-2.82 0L8 7l9 9 1.59-1.59a2 2 0 000-2.82L17 10l4.37-4.37a2.12 2.12 0 00-3-3z"/><path d="M9 8c-2 3-4 3.5-7 4l8 10c2-1 6-5 6-7"/><path d="M14.5 17.5L4.5 15"/></svg>`,
+  scale:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="3" x2="12" y2="21"/><path d="M5 21h14"/><path d="M3 7l9-4 9 4"/><path d="M3 7c0 2.21 2.02 4 4.5 4S12 9.21 12 7"/><path d="M21 7c0 2.21-2.02 4-4.5 4S12 9.21 12 7"/></svg>`,
+  compass:   `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  users:     `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`,
+  handshake: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l2-2 4 4 4-4 4 4 4-4 2 2"/><path d="M7 17l-3-3"/><path d="M17 17l3-3"/><path d="M7 17c0 0 1 2 5 2s5-2 5-2"/></svg>`,
 };
 
 // ── MY PATH — ARCHETYPE MISSIONS ──────────────
@@ -3863,11 +3864,11 @@ checkInModal.addEventListener('click', e => { if (e.target === checkInModal) clo
 
 // ── COMMUNITY FEED ────────────────────────────
 const CATEGORY_META = {
-  Move:        { iconKey: 'run',       desc: 'Planks, push-ups, skating, sparring, pull-ups' },
+  Move:        { iconKey: 'bicep',     desc: 'Planks, push-ups, skating, sparring, pull-ups' },
   Create:      { iconKey: 'brush',     desc: 'Music, art, cooking, writing, building' },
-  Reset:       { iconKey: 'leaf',      desc: 'Sunrise, meditation, ice bath, room reset' },
+  Reset:       { iconKey: 'scale',     desc: 'Sunrise, meditation, ice bath, room reset' },
   Adventure:   { iconKey: 'compass',   desc: 'Hiking, camping, fishing, fire, surfing' },
-  Family:      { iconKey: 'home',      desc: 'Chores, interviews, projects, teaching parents' },
+  Family:      { iconKey: 'users',     desc: 'Chores, interviews, projects, teaching parents' },
   Brotherhood: { iconKey: 'handshake', desc: 'Teach, lead, encourage, hold accountable' },
 };
 
