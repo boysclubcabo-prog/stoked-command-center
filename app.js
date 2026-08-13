@@ -1921,7 +1921,7 @@ function renderBadgeCard(badge, earned, earnedData, progress, catColor, isMyster
   return `
   <div class="badge-card ${statusClass}" data-badge-id="${badge.id}"${earned ? ` style="border-color:${catColor}40;background:${catColor}0a"` : ''}>
     <div class="badge-card-summary">
-      <div class="badge-icon-wrap" style="--badge-color:${catColor}${earned ? `;background:${catColor}20;box-shadow:0 0 12px ${catColor}40` : ''}">
+      <div class="badge-icon-wrap" style="--badge-color:${catColor}">
         ${badgeIconHtml(badge.id, 36, false)}
       </div>
       <div class="badge-summary-info">
