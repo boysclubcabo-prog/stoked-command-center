@@ -8331,8 +8331,8 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 }
 
 .badge-icon-wrap {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 0;
   border: none;
   background: none;
@@ -8342,8 +8342,8 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   flex-shrink: 0;
 }
 .badge-icon-wrap img {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
 }
 
