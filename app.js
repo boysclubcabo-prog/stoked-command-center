@@ -2476,23 +2476,6 @@ function _renderMemberView() {
         <button class="mhv2-fc-complete-btn" data-fc-complete="${fc.id}">COMPLETE CHALLENGE →</button>
       </div>`).join('') : ''}
 
-      <!-- Today's Mission card — dark -->
-      <div class="mhv2-mission">
-        <div class="mhv2-mission-top">
-          <span class="mhv2-mission-label">TODAY'S MISSION</span>
-          <span class="mhv2-mission-count">${brosCompletedToday}/${totalBros} done</span>
-        </div>
-        ${dcText
-          ? `<div class="mhv2-mission-text">${escHtml(dcText)}</div>`
-          : `<div class="mhv2-mission-empty">No mission set yet.</div>`}
-        <div class="mhv2-mission-bar-track">
-          <div class="mhv2-mission-bar-fill" style="width:${pct}%"></div>
-        </div>
-        ${brosCompletedToday > 0 ? `<div class="mhv2-mission-social">🔥 ${brosCompletedToday} ${brosCompletedToday === 1 ? 'brother' : 'brothers'} already completed</div>` : ''}
-        ${!dcText ? `<button class="mhv2-set-btn" data-dc-set="1">Set Today's Mission</button>` : ''}
-        ${dcDone ? `<div class="mhv2-mission-done-badge">✓ Mission Complete · +50 XP</div>` : ''}
-      </div>
-
       <!-- Challenge a Brother block -->
       <div class="mhv2-challenge-block">
         <div class="mhv2-mission-top">
