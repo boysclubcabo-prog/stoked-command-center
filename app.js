@@ -2303,6 +2303,14 @@ function renderGrid() {
     btn.addEventListener('click', () => openViewCheckInModal(btn.dataset.viewcheckin)));
   document.querySelectorAll('[data-awardbadge]').forEach(btn =>
     btn.addEventListener('click', () => openAwardBadgeModal(btn.dataset.awardbadge)));
+  document.querySelectorAll('[data-badgestoggle]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const panel = document.getElementById(`card-badges-${btn.dataset.badgestoggle}`);
+      const chev  = btn.querySelector('.card-badges-chevron');
+      if (!panel) return;
+      panel.classList.toggle('hidden');
+      chev.textContent = panel.classList.contains('hidden') ? '▾' : '▴';
+    }));
   document.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();
@@ -2778,6 +2786,38 @@ function renderCard(brother) {
         <button class="btn-coach-note" data-coachnote="${brother.id}" title="Coach Note">📋</button>
         <button class="btn-award-badge" data-awardbadge="${brother.id}" title="Award Badge">🏅</button>
       </div>
+      ${(() => {
+        const earnedBadges = (brother.badges || [])
+          .map(b => ({ ...b, def: BADGES.find(d => d.id === b.id) }))
+          .filter(b => b.def)
+          .sort((a, b) => new Date(b.earnedAt) - new Date(a.earnedAt));
+        const count = earnedBadges.length;
+        return `
+        <div class="card-badges-section">
+          <button class="card-badges-toggle" data-badgestoggle="${brother.id}">
+            <span>Badges</span>
+            <span class="card-badges-count">${count}</span>
+            <span class="card-badges-chevron">▾</span>
+          </button>
+          <div class="card-badges-panel hidden" id="card-badges-${brother.id}">
+            ${count === 0
+              ? `<div class="card-badges-empty">No badges earned yet.</div>`
+              : earnedBadges.map(b => {
+                  const catData = BADGE_CATEGORIES[b.def.category];
+                  const color = catData ? catData.color : '#888';
+                  return `<div class="card-badge-chip" style="border-color:${color}30;background:${color}0d">
+                    <span class="card-badge-glyph" style="color:${color}">◈</span>
+                    <div class="card-badge-info">
+                      <span class="card-badge-name">${escHtml(b.def.name)}</span>
+                      <span class="card-badge-date">${new Date(b.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
+                    </div>
+                    <span class="card-badge-xp" style="color:${color}">+${b.xpAwarded} XP</span>
+                  </div>`;
+                }).join('')
+            }
+          </div>
+        </div>`;
+      })()}
     </div>`;
 }
 
