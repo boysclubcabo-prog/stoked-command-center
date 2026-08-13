@@ -44,9 +44,9 @@ const LEVELS = Array.from({ length: MAX_LEVEL }, (_, i) => ({
 }));
 
 const CHALLENGE_TAGS = {
-  Physical:    { cardBg: 'rgba(196,105,58,0.07)',  cardBorder: 'rgba(196,105,58,0.4)',  pillBg: 'rgba(196,105,58,0.15)',  color: '#C4693A' },
-  Creator:     { cardBg: 'rgba(91,138,160,0.07)',  cardBorder: 'rgba(91,138,160,0.4)',  pillBg: 'rgba(91,138,160,0.15)',  color: '#5B8AA0' },
-  Regulation:  { cardBg: 'rgba(90,140,90,0.07)',   cardBorder: 'rgba(90,140,90,0.4)',   pillBg: 'rgba(90,140,90,0.15)',   color: '#5a8c5a' },
+  Move:        { cardBg: 'rgba(196,105,58,0.07)',  cardBorder: 'rgba(196,105,58,0.4)',  pillBg: 'rgba(196,105,58,0.15)',  color: '#C4693A' },
+  Create:      { cardBg: 'rgba(91,138,160,0.07)',  cardBorder: 'rgba(91,138,160,0.4)',  pillBg: 'rgba(91,138,160,0.15)',  color: '#5B8AA0' },
+  Reset:       { cardBg: 'rgba(90,140,90,0.07)',   cardBorder: 'rgba(90,140,90,0.4)',   pillBg: 'rgba(90,140,90,0.15)',   color: '#5a8c5a' },
   Special:     { cardBg: 'rgba(212,168,83,0.07)',  cardBorder: 'rgba(212,168,83,0.4)',  pillBg: 'rgba(212,168,83,0.15)',  color: '#D4A853' },
   Adventure:   { cardBg: 'rgba(122,138,82,0.07)',  cardBorder: 'rgba(122,138,82,0.4)',  pillBg: 'rgba(122,138,82,0.15)',  color: '#7a8a52' },
   Family:      { cardBg: 'rgba(158,141,114,0.07)', cardBorder: 'rgba(158,141,114,0.4)', pillBg: 'rgba(158,141,114,0.15)', color: '#9e8d72' },
@@ -56,9 +56,9 @@ const CHALLENGE_TAGS = {
 // ── BADGE SYSTEM ──────────────────────────────
 const BADGE_CATEGORIES = {
   general:     { label: 'General',     color: '#D4A853' },
-  move:        { label: 'Move',        color: '#C4693A', challengeTag: 'Physical' },
-  create:      { label: 'Create',      color: '#5B8AA0', challengeTag: 'Creator' },
-  reset:       { label: 'Reset',       color: '#5a8c5a', challengeTag: 'Regulation' },
+  move:        { label: 'Move',        color: '#C4693A', challengeTag: 'Move' },
+  create:      { label: 'Create',      color: '#5B8AA0', challengeTag: 'Create' },
+  reset:       { label: 'Reset',       color: '#5a8c5a', challengeTag: 'Reset' },
   adventure:   { label: 'Adventure',   color: '#7a8a52', challengeTag: 'Adventure' },
   family:      { label: 'Family',      color: '#9e8d72', challengeTag: 'Family' },
   brotherhood: { label: 'Brotherhood', color: '#9c5a42', challengeTag: 'Brotherhood' },
@@ -174,7 +174,7 @@ const BADGES = [
     description: 'Complete 25 Move challenges.',
     xpReward: 750,
     verification: 'automatic',
-    requirement: { type: 'category_challenges', tag: 'Physical', count: 25 },
+    requirement: { type: 'category_challenges', tag: 'Move', count: 25 },
   },
   {
     id: 'monk_mode',
@@ -183,7 +183,7 @@ const BADGES = [
     description: 'Complete 25 Reset challenges.',
     xpReward: 750,
     verification: 'automatic',
-    requirement: { type: 'category_challenges', tag: 'Regulation', count: 25 },
+    requirement: { type: 'category_challenges', tag: 'Reset', count: 25 },
   },
   {
     id: 'creators_mark',
@@ -192,7 +192,7 @@ const BADGES = [
     description: 'Complete 25 Create challenges.',
     xpReward: 750,
     verification: 'automatic',
-    requirement: { type: 'category_challenges', tag: 'Creator', count: 25 },
+    requirement: { type: 'category_challenges', tag: 'Create', count: 25 },
   },
   {
     id: 'clear_space',
@@ -232,16 +232,21 @@ const BADGES = [
   },
 ];
 
+// Normalize legacy tag names from Firestore to current names
+const TAG_ALIASES = { Physical: 'Move', Creator: 'Create', Regulation: 'Reset' };
+function normalizeTag(tag) { return TAG_ALIASES[tag] || tag; }
+
 function challengeCardStyle(tag) {
-  if (!tag || !CHALLENGE_TAGS[tag]) return '';
-  const t = CHALLENGE_TAGS[tag];
+  const t = CHALLENGE_TAGS[normalizeTag(tag)];
+  if (!t) return '';
   return `style="--ch-bg:${t.cardBg};--ch-border:${t.cardBorder}"`;
 }
 
 function challengeTagPill(tag) {
-  if (!tag || !CHALLENGE_TAGS[tag]) return '';
-  const t = CHALLENGE_TAGS[tag];
-  return `<span class="ch-tag" style="background:${t.pillBg};color:${t.color};border-color:${t.cardBorder}">${tag}</span>`;
+  const norm = normalizeTag(tag);
+  const t = CHALLENGE_TAGS[norm];
+  if (!t) return '';
+  return `<span class="ch-tag" style="background:${t.pillBg};color:${t.color};border-color:${t.cardBorder}">${norm}</span>`;
 }
 
 const ARCHETYPE_COLORS = {
@@ -2098,9 +2103,8 @@ function getBadgeProgress(badge, profile, mySubs) {
     return { current: mySubs.length, total: req.count, label: 'Challenges' };
   }
   if (req.type === 'category_challenges') {
-    const count = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.tag === req.tag; }).length;
-    const tagName = req.tag === 'Physical' ? 'Move' : req.tag === 'Regulation' ? 'Reset' : req.tag;
-    return { current: count, total: req.count, label: `${tagName} Challenges` };
+    const count = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && normalizeTag(ch.tag) === req.tag; }).length;
+    return { current: count, total: req.count, label: `${req.tag} Challenges` };
   }
   if (req.type === 'specific_challenge_title') {
     const count = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.title.toLowerCase().includes(req.titleMatch.toLowerCase()); }).length;
@@ -2131,7 +2135,7 @@ async function checkAndAwardBadges(profile, newSub = null) {
     if (req.type === 'total_challenges') {
       met = mySubs.length >= req.count;
     } else if (req.type === 'category_challenges') {
-      met = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.tag === req.tag; }).length >= req.count;
+      met = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && normalizeTag(ch.tag) === req.tag; }).length >= req.count;
     } else if (req.type === 'specific_challenge_title') {
       met = mySubs.filter(s => { const ch = challenges.find(c => c.id === s.challengeId); return ch && ch.title.toLowerCase().includes(req.titleMatch.toLowerCase()); }).length >= req.count;
     } else if (req.type === 'login_streak') {
