@@ -7202,8 +7202,7 @@ async function loadGamesLeaderboard(gameId) {
   try {
     const snap = await getDocs(query(
       collection(db, 'gameScores'),
-      where('gameId', '==', gameId),
-      orderBy('score', 'desc')
+      where('gameId', '==', gameId)
     ));
 
     if (snap.empty) {
