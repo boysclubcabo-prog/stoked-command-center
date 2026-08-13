@@ -3842,26 +3842,76 @@ document.getElementById('checkInModalClose').addEventListener('click', () => clo
 checkInModal.addEventListener('click', e => { if (e.target === checkInModal) closeModal(checkInModal); });
 
 // ── COMMUNITY FEED ────────────────────────────
-function challengeFilterBar(extraFilters = []) {
-  const tags = ['All', ...Object.keys(CHALLENGE_TAGS), ...extraFilters];
-  return `<div class="ch-filter-bar">
-    ${tags.map(t => `<button class="ch-filter-btn ${challengeFilter === t ? 'active' : ''}" data-filter="${t}">${t}</button>`).join('')}
+// Category icons (emoji or SVG path descriptions baked as text)
+const CATEGORY_META = {
+  Move:        { icon: '🏃', desc: 'Planks, push-ups, skating, sparring, pull-ups' },
+  Create:      { icon: '🎨', desc: 'Music, art, cooking, writing, building' },
+  Reset:       { icon: '🧘', desc: 'Sunrise, meditation, ice bath, room reset' },
+  Adventure:   { icon: '🌲', desc: 'Hiking, camping, fishing, fire, surfing' },
+  Family:      { icon: '🏠', desc: 'Chores, interviews, projects, teaching parents' },
+  Brotherhood: { icon: '🤝', desc: 'Teach, lead, encourage, hold accountable' },
+};
+
+function renderCategoryGrid(extraFilters = [], hasPersonal = false) {
+  const categories = Object.keys(CHALLENGE_TAGS).filter(k => k !== 'Special');
+  const extras = extraFilters.map(f => `
+    <button class="ch-category-card ch-category-extra" data-filter="${f}">
+      <span class="ch-category-icon">🎯</span>
+      <span class="ch-category-name">${f}</span>
+    </button>`).join('');
+  return `<div class="ch-category-grid">
+    ${categories.map(tag => {
+      const t = CHALLENGE_TAGS[tag];
+      const m = CATEGORY_META[tag] || {};
+      const count = challenges.filter(ch => !ch.assignedTo && normalizeTag(ch.tag) === tag).length;
+      return `<button class="ch-category-card" data-filter="${tag}" style="--cat-color:${t.color}">
+        <span class="ch-category-icon">${m.icon || '●'}</span>
+        <span class="ch-category-name">${tag}</span>
+        <span class="ch-category-desc">${m.desc || ''}</span>
+        <span class="ch-category-count">${count} challenge${count !== 1 ? 's' : ''}</span>
+      </button>`;
+    }).join('')}
+    ${extras}
+  </div>`;
+}
+
+function renderCategoryHeader() {
+  const tag = challengeFilter;
+  const t = CHALLENGE_TAGS[tag];
+  const m = CATEGORY_META[tag] || {};
+  return `<div class="ch-category-header" style="--cat-color:${t?.color || '#888'}">
+    <button class="ch-back-btn" id="chBackBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span>Categories</span>
+    </button>
+    <div class="ch-category-header-inner">
+      <span class="ch-category-header-icon">${m.icon || ''}</span>
+      <span class="ch-category-header-name">${tag}</span>
+    </div>
   </div>`;
 }
 
 function bindChallengeFilterBar(el) {
-  el.querySelectorAll('.ch-filter-btn').forEach(btn => {
+  el.querySelectorAll('.ch-category-card').forEach(btn => {
     btn.addEventListener('click', () => {
       challengeFilter = btn.dataset.filter;
       renderFeed();
     });
   });
+  el.querySelector('#chBackBtn')?.addEventListener('click', () => {
+    challengeFilter = 'All';
+    renderFeed();
+  });
 }
 
 function applyFilter(list) {
   if (challengeFilter === 'All') return list;
-  if (challengeFilter === 'From Coach') return list; // personal list handled separately
+  if (challengeFilter === 'From Coach') return list;
   return list.filter(ch => normalizeTag(ch.tag) === challengeFilter);
+}
+
+function isOnCategoryGrid() {
+  return challengeFilter === 'All';
 }
 
 function renderFeed() {
@@ -3873,52 +3923,50 @@ function renderFeed() {
 }
 
 function renderFeedAdmin(el) {
-  let html = `<div class="feed-header">
+  const adminHeaderHtml = `<div class="feed-header">
     <h2 class="feed-title">Challenges</h2>
     <div style="display:flex;gap:8px">
       <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
       <button class="btn-ghost-sm" id="seedChallengesBtn" title="Add all preset challenges">Seed DB</button>
     </div>
-  </div>
-  ${challengeFilterBar(['Personal'])}`;
+  </div>`;
 
-  const publicChallenges   = applyFilter(challenges.filter(ch => !ch.assignedTo));
-  const personalChallenges = challenges.filter(ch => ch.assignedTo);
-  const showPersonal = challengeFilter === 'All' || challengeFilter === 'Personal';
-  const showPublic   = challengeFilter !== 'Personal';
-
-  if (showPublic && !publicChallenges.length) {
-    html += `<div class="feed-empty">No challenges in this category yet.</div>`;
-  } else if (showPublic) {
-    html += `<div class="feed-section">
-      <div class="feed-section-title">${IC.trophy} Active Challenges</div>
-      <div class="challenge-list">
+  if (isOnCategoryGrid()) {
+    // Show category grid + personal challenges section
+    const personalChallenges = challenges.filter(ch => ch.assignedTo);
+    let html = adminHeaderHtml + renderCategoryGrid(['Personal']);
+    if (personalChallenges.length) {
+      html += `<div class="feed-section" style="margin-top:20px">
+        <div class="feed-section-title">🎯 Personal Challenges (Coach-Assigned)</div>
+        <div class="challenge-list">
+          ${personalChallenges.map(ch => {
+            const assigneeName = brothers.find(b => b.id === ch.assignedTo)?.name || 'Unknown';
+            const completed = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
+            const adminBtns = `<button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
+              <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>`;
+            return buildChallengeCard(ch, '', { assignee: assigneeName, completedCount: completed, adminBtns });
+          }).join('')}
+        </div>
+      </div>`;
+    }
+    el.innerHTML = html;
+  } else {
+    const publicChallenges = applyFilter(challenges.filter(ch => !ch.assignedTo));
+    let html = adminHeaderHtml + renderCategoryHeader();
+    if (!publicChallenges.length) {
+      html += `<div class="feed-empty">No challenges in this category yet.</div>`;
+    } else {
+      html += `<div class="challenge-list" style="margin-top:12px">
         ${publicChallenges.map(ch => {
           const completed = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
           const adminBtns = `<button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
             <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>`;
           return buildChallengeCard(ch, '', { completedCount: completed, adminBtns });
         }).join('')}
-      </div>
-    </div>`;
+      </div>`;
+    }
+    el.innerHTML = html;
   }
-
-  if (showPersonal && personalChallenges.length) {
-    html += `<div class="feed-section">
-      <div class="feed-section-title">🎯 Personal Challenges (Coach-Assigned)</div>
-      <div class="challenge-list">
-        ${personalChallenges.map(ch => {
-          const assigneeName = brothers.find(b => b.id === ch.assignedTo)?.name || 'Unknown';
-          const completed = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
-          const adminBtns = `<button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
-            <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>`;
-          return buildChallengeCard(ch, '', { assignee: assigneeName, completedCount: completed, adminBtns });
-        }).join('')}
-      </div>
-    </div>`;
-  }
-
-  el.innerHTML = html;
 
   bindChallengeFilterBar(el);
   bindChallengeCards(el);
@@ -3930,8 +3978,6 @@ function renderFeedAdmin(el) {
     btn.addEventListener('click', e => { e.stopPropagation(); archiveChallenge(btn.dataset.closech); }));
   el.querySelectorAll('.btn-edit-challenge').forEach(btn =>
     btn.addEventListener('click', e => { e.stopPropagation(); openEditChallengeModal(btn.dataset.editch); }));
-
-  // Tap photo to open lightbox
   el.querySelectorAll('.sub-photo-tap').forEach(img => {
     img.addEventListener('click', () => openPhotoLightbox(
       img.dataset.lightbox, img.dataset.subid,
@@ -3944,19 +3990,9 @@ function renderFeedAdmin(el) {
 function renderFeedMentor(el) {
   const profile = brothers.find(b => b.email && b.email.toLowerCase() === currentUser.email.toLowerCase());
   const mySubs  = submissions.filter(s => s.brotherId === profile?.id);
-
-  let html = `<div class="feed-header">
-    <h2 class="feed-title">Challenges</h2>
-    <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
-  </div>
-  ${challengeFilterBar(['From Coach'])}`;
-
   const myPersonalM = challenges.filter(ch => ch.assignedTo === profile?.id);
-  const publicChsM  = applyFilter(challenges.filter(ch => !ch.assignedTo));
-  const showCoach   = challengeFilter === 'All' || challengeFilter === 'From Coach';
-  const showPubM    = challengeFilter !== 'From Coach';
-
   const todayStrM = new Date().toISOString().slice(0, 10);
+
   function challengeStatusHtmlM(ch, subs) {
     const isDaily = ch.repeatType === 'daily';
     if (isDaily) {
@@ -3978,41 +4014,53 @@ function renderFeedMentor(el) {
     }
   }
 
-  if (showCoach && myPersonalM.length) {
-    html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
-    myPersonalM.forEach(ch => {
-      html += buildChallengeCard(ch, challengeStatusHtmlM(ch, mySubs), { coach: true });
-    });
-    html += `</div></div>`;
-  }
+  const mentorHeaderHtml = `<div class="feed-header">
+    <h2 class="feed-title">Challenges</h2>
+    <button class="btn btn-primary" id="createChallengeBtn">+ New Challenge</button>
+  </div>`;
 
-  if (showPubM && !publicChsM.length) {
-    html += `<div class="feed-empty">No challenges in this category yet.</div>`;
-  } else if (showPubM) {
-    html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
-    publicChsM.forEach(ch => {
-      const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
-      html += buildChallengeCard(ch, challengeStatusHtmlM(ch, mySubs), { completedCount: totalCompleted });
-    });
-    html += `</div></div>`;
-  }
-
-  // Mentor-only: coach notes section
-  const otherBrothers = brothers.filter(b => b.id !== profile?.id);
-  if (otherBrothers.length) {
-    html += `<div class="feed-section">
-      <div class="feed-section-title">${IC.clipboard} Coach Notes</div>
-      <div class="challenge-list">
-        ${otherBrothers.map(b => `
-          <div class="challenge-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-            <div>
-              <div style="font-weight:700;color:var(--text-primary)">${escHtml(b.name)}</div>
-              ${b.coachNote ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">"${escHtml(b.coachNote.slice(0,60))}${b.coachNote.length>60?'…':''}"</div>` : `<div style="font-size:12px;color:var(--text-muted)">No note yet</div>`}
-            </div>
-            <button class="btn-coach-note btn btn-ghost" style="white-space:nowrap" data-coachnote="${b.id}">${IC.edit} Note</button>
-          </div>`).join('')}
-      </div>
-    </div>`;
+  let html;
+  if (isOnCategoryGrid()) {
+    html = mentorHeaderHtml + renderCategoryGrid(myPersonalM.length ? ['From Coach'] : []);
+    // Coach notes always visible on grid
+    const otherBrothers = brothers.filter(b => b.id !== profile?.id);
+    if (otherBrothers.length) {
+      html += `<div class="feed-section" style="margin-top:20px">
+        <div class="feed-section-title">${IC.clipboard} Coach Notes</div>
+        <div class="challenge-list">
+          ${otherBrothers.map(b => `
+            <div class="ch-card" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+              <div>
+                <div style="font-weight:700;color:var(--text-primary)">${escHtml(b.name)}</div>
+                ${b.coachNote ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">"${escHtml(b.coachNote.slice(0,60))}${b.coachNote.length>60?'…':''}"</div>` : `<div style="font-size:12px;color:var(--text-muted)">No note yet</div>`}
+              </div>
+              <button class="btn-coach-note btn btn-ghost" style="white-space:nowrap" data-coachnote="${b.id}">${IC.edit} Note</button>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }
+  } else if (challengeFilter === 'From Coach') {
+    html = mentorHeaderHtml + renderCategoryHeader();
+    if (myPersonalM.length) {
+      html += `<div class="challenge-list" style="margin-top:12px">`;
+      myPersonalM.forEach(ch => { html += buildChallengeCard(ch, challengeStatusHtmlM(ch, mySubs), { coach: true }); });
+      html += `</div>`;
+    } else {
+      html += `<div class="feed-empty">No personal challenges assigned.</div>`;
+    }
+  } else {
+    const publicChsM = applyFilter(challenges.filter(ch => !ch.assignedTo));
+    html = mentorHeaderHtml + renderCategoryHeader();
+    if (!publicChsM.length) {
+      html += `<div class="feed-empty">No challenges in this category yet.</div>`;
+    } else {
+      html += `<div class="challenge-list" style="margin-top:12px">`;
+      publicChsM.forEach(ch => {
+        const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
+        html += buildChallengeCard(ch, challengeStatusHtmlM(ch, mySubs), { completedCount: totalCompleted });
+      });
+      html += `</div>`;
+    }
   }
 
   el.innerHTML = html;
@@ -4032,17 +4080,10 @@ function renderFeedMember(el) {
     return;
   }
 
-  const mySubs = submissions.filter(s => s.brotherId === profile.id);
-
+  const mySubs    = submissions.filter(s => s.brotherId === profile.id);
   const myPersonal = challenges.filter(ch => ch.assignedTo === profile.id);
-  const publicChs  = applyFilter(challenges.filter(ch => !ch.assignedTo));
-  const showCoachM = challengeFilter === 'All' || challengeFilter === 'From Coach';
-  const showPubCh  = challengeFilter !== 'From Coach';
+  const todayStr  = new Date().toISOString().slice(0, 10);
 
-  let html = `<div class="feed-header"><h2 class="feed-title">Challenges</h2></div>
-  ${challengeFilterBar(myPersonal.length ? ['From Coach'] : [])}`;
-
-  const todayStr = new Date().toISOString().slice(0, 10);
   function isCompletedToday(subs, challengeId) {
     return subs.some(s => s.challengeId === challengeId && s.submittedAt && s.submittedAt.slice(0, 10) === todayStr);
   }
@@ -4061,51 +4102,56 @@ function renderFeedMember(el) {
       return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
     } else {
       const mySub = mySubs.find(s => s.challengeId === ch.id);
-      if (mySub) {
-        return `<div class="sub-status-badge status-completed">
-          ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
-        </div>`;
-      }
+      if (mySub) return `<div class="sub-status-badge status-completed">${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!</div>`;
       return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
     }
   }
 
-  if (showCoachM && myPersonal.length) {
-    html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
-    myPersonal.forEach(ch => {
-      html += buildChallengeCard(ch, challengeStatusHtml(ch, mySubs), { coach: true });
-    });
-    html += `</div></div>`;
-  }
+  const memberHeaderHtml = `<div class="feed-header"><h2 class="feed-title">Challenges</h2></div>`;
 
-  if (showPubCh && !publicChs.length) {
-    html += `<div class="feed-empty">No challenges in this category right now. 🏆</div>`;
-  } else if (showPubCh) {
-    html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
-    publicChs.forEach(ch => {
-      const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
-      html += buildChallengeCard(ch, challengeStatusHtml(ch, mySubs), { completedCount: totalCompleted });
-    });
-    html += `</div></div>`;
-  }
-
-  if (mySubs.length) {
-    html += `<div class="feed-section"><div class="feed-section-title">${IC.clipboard} My Submissions</div><div class="sub-list">`;
-    mySubs.slice().reverse().forEach(s => {
-      const ch = challenges.find(c => c.id === s.challengeId) || { title: 'Challenge', xpReward: 0 };
-      html += `<div class="sub-card status-${s.status}">
-        ${s.photoUrl ? `<img src="${s.photoUrl}" class="sub-photo" alt="proof" />` : ''}
-        <div class="sub-info">
-          <div class="sub-challenge">${escHtml(ch.title)}</div>
-          ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
-          <div class="sub-status-pill status-completed">
-            ${IC.check} Complete +${ch.xpReward} XP
+  let html;
+  if (isOnCategoryGrid()) {
+    html = memberHeaderHtml + renderCategoryGrid(myPersonal.length ? ['From Coach'] : []);
+    if (mySubs.length) {
+      html += `<div class="feed-section" style="margin-top:20px">
+        <div class="feed-section-title">${IC.clipboard} My Submissions</div>
+        <div class="sub-list">`;
+      mySubs.slice().reverse().forEach(s => {
+        const ch = challenges.find(c => c.id === s.challengeId) || { title: 'Challenge', xpReward: 0 };
+        html += `<div class="sub-card status-${s.status}">
+          ${s.photoUrl ? `<img src="${s.photoUrl}" class="sub-photo" alt="proof" />` : ''}
+          <div class="sub-info">
+            <div class="sub-challenge">${escHtml(ch.title)}</div>
+            ${s.caption ? `<div class="sub-caption">"${escHtml(s.caption)}"</div>` : ''}
+            <div class="sub-status-pill status-completed">${IC.check} Complete +${ch.xpReward} XP</div>
+            <div class="sub-date">${new Date(s.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
           </div>
-          <div class="sub-date">${new Date(s.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
-        </div>
-      </div>`;
-    });
-    html += `</div></div>`;
+        </div>`;
+      });
+      html += `</div></div>`;
+    }
+  } else if (challengeFilter === 'From Coach') {
+    html = memberHeaderHtml + renderCategoryHeader();
+    if (myPersonal.length) {
+      html += `<div class="challenge-list" style="margin-top:12px">`;
+      myPersonal.forEach(ch => { html += buildChallengeCard(ch, challengeStatusHtml(ch, mySubs), { coach: true }); });
+      html += `</div>`;
+    } else {
+      html += `<div class="feed-empty">No personal challenges assigned yet.</div>`;
+    }
+  } else {
+    const publicChs = applyFilter(challenges.filter(ch => !ch.assignedTo));
+    html = memberHeaderHtml + renderCategoryHeader();
+    if (!publicChs.length) {
+      html += `<div class="feed-empty">No challenges in this category right now.</div>`;
+    } else {
+      html += `<div class="challenge-list" style="margin-top:12px">`;
+      publicChs.forEach(ch => {
+        const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
+        html += buildChallengeCard(ch, challengeStatusHtml(ch, mySubs), { completedCount: totalCompleted });
+      });
+      html += `</div>`;
+    }
   }
 
   el.innerHTML = html;
@@ -4113,13 +4159,6 @@ function renderFeedMember(el) {
   bindChallengeCards(el);
   el.querySelectorAll('[data-submit]').forEach(btn =>
     btn.addEventListener('click', e => { e.stopPropagation(); openSubmitProofModal(btn.dataset.submit, profile); }));
-  el.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      const snap = btn.nextElementSibling;
-      const nowCollapsed = snap.classList.toggle('collapsed');
-      btn.querySelector('.snapshot-chevron').textContent = nowCollapsed ? '▾' : '▴';
-    }));
 }
 
 // ── LIVE CALL ─────────────────────────────────
