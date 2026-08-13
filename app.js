@@ -2566,25 +2566,12 @@ function _renderMemberView() {
           .sort((a, b) => new Date(b.earnedAt) - new Date(a.earnedAt));
         if (!myBadges.length) return '';
         return `
-        <div class="mhv2-comp-section mhv2-badge-section">
-          <button class="mhv2-comp-toggle" data-badge-toggle>
-            <span>My Badges</span>
-            <span class="mhv2-comp-count">${myBadges.length}</span>
-            <span class="mhv2-comp-chevron">▾</span>
-          </button>
-          <div class="mhv2-badge-list hidden">
-            ${myBadges.map(b => {
-              const catData = BADGE_CATEGORIES[b.def.category];
-              const color = catData ? catData.color : '#888';
-              return `<div class="mhv2-badge-chip" style="border-color:${color}30;background:${color}0d">
-                <span class="mhv2-badge-chip-glyph">${badgeIconHtml(b.def.id, 28, false)}</span>
-                <div class="mhv2-badge-chip-info">
-                  <span class="mhv2-badge-chip-name">${escHtml(b.def.name)}</span>
-                  <span class="mhv2-badge-chip-date">${new Date(b.earnedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</span>
-                </div>
-                <span class="mhv2-badge-chip-xp">+${b.xpAwarded} XP</span>
-              </div>`;
-            }).join('')}
+        <div class="mhv2-badge-strip-wrap">
+          <div class="mhv2-badge-strip">
+            ${myBadges.map(b => `
+              <div class="mhv2-badge-strip-item" data-tooltip="${escHtml(b.def.name + ' — ' + b.def.description)}">
+                ${badgeIconHtml(b.def.id, 56, false)}
+              </div>`).join('')}
           </div>
         </div>`;
       })()}
@@ -2632,11 +2619,24 @@ function _renderMemberView() {
   });
 
   // Wire my badges toggle
-  memberHero.querySelector('[data-badge-toggle]')?.addEventListener('click', function() {
-    const list = this.closest('.mhv2-badge-section').querySelector('.mhv2-badge-list');
-    const chevron = this.querySelector('.mhv2-comp-chevron');
-    list.classList.toggle('hidden');
-    chevron.textContent = list.classList.contains('hidden') ? '▾' : '▴';
+  // Badge strip tooltips — hover on desktop, tap on mobile
+  memberHero.querySelectorAll('.mhv2-badge-strip-item').forEach(item => {
+    const text = item.dataset.tooltip;
+    let tip = null;
+    const show = () => {
+      if (tip) return;
+      tip = document.createElement('div');
+      tip.className = 'badge-strip-tooltip';
+      tip.textContent = text;
+      document.body.appendChild(tip);
+      const r = item.getBoundingClientRect();
+      tip.style.left = Math.min(window.innerWidth - tip.offsetWidth - 8, Math.max(8, r.left + r.width / 2 - tip.offsetWidth / 2)) + 'px';
+      tip.style.top = (r.top + window.scrollY - tip.offsetHeight - 8) + 'px';
+    };
+    const hide = () => { tip?.remove(); tip = null; };
+    item.addEventListener('mouseenter', show);
+    item.addEventListener('mouseleave', hide);
+    item.addEventListener('touchstart', e => { e.preventDefault(); show(); setTimeout(hide, 2400); }, { passive: false });
   });
 
   // Wire friend challenge complete buttons

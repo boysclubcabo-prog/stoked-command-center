@@ -8751,3 +8751,50 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   font-weight: 700;
   flex-shrink: 0;
 }
+
+/* ── My Badges strip on member hero card ── */
+.mhv2-badge-strip-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 4px 0 8px;
+  padding: 4px 0;
+}
+.mhv2-badge-strip-wrap::-webkit-scrollbar { display: none; }
+
+.mhv2-badge-strip {
+  display: flex;
+  gap: 10px;
+  padding: 0 2px;
+}
+
+.mhv2-badge-strip-item {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.mhv2-badge-strip-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.badge-strip-tooltip {
+  position: absolute;
+  z-index: 3000;
+  background: #111;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 7px 11px;
+  border-radius: 8px;
+  max-width: 220px;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
