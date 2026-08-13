@@ -7134,6 +7134,20 @@ async function renderGamesHub() {
           <div class="game-card-desc">A reflex test that separates speed from control. React fast to green. Stay locked on red. The back half gets harder.</div>
           <button class="btn btn-primary game-play-btn" id="playSyncCheckBtn">Play</button>
         </div>
+
+        <div class="game-card" id="chessCard">
+          <div class="game-card-top">
+            <div class="game-card-icon">
+              <span style="font-size:26px;line-height:1">♟</span>
+            </div>
+            <div class="game-card-meta">
+              <div class="game-card-name">Chess</div>
+              <div class="game-card-type">Strategy · vs Bot or Brother</div>
+            </div>
+          </div>
+          <div class="game-card-desc">Full chess against 3 bot difficulty levels, or challenge any brother to a live match.</div>
+          <button class="btn btn-primary game-play-btn" id="playChessBtn">Play</button>
+        </div>
       </div>
 
       <!-- Leaderboard -->
@@ -7148,9 +7162,11 @@ async function renderGamesHub() {
       </div>
     </div>
     <div class="sync-check-game hidden" id="syncCheckGame"></div>
+    <div class="chess-game-container hidden" id="chessGame"></div>
   `;
 
   document.getElementById('playSyncCheckBtn').addEventListener('click', launchSyncCheck);
+  document.getElementById('playChessBtn').addEventListener('click', launchChess);
   await loadGamesLeaderboard('sync_check');
 }
 
@@ -7495,4 +7511,469 @@ function syncShowResults() {
     launchSyncCheck();
   });
   syncState = null;
+}
+
+// ── Chess Game ────────────────────────────────────────────────────────────────
+
+let _ChessClass = null;
+
+async function getChessClass() {
+  if (_ChessClass) return _ChessClass;
+  const mod = await import('https://cdn.jsdelivr.net/npm/chess.js@1.0.0/+esm');
+  _ChessClass = mod.Chess;
+  return _ChessClass;
+}
+
+const CHESS_UNICODE = {
+  wk:'♔', wq:'♕', wr:'♖', wb:'♗', wn:'♘', wp:'♙',
+  bk:'♚', bq:'♛', br:'♜', bb:'♝', bn:'♞', bp:'♟',
+};
+const CHESS_PIECE_VALUES = { p:100, n:320, b:330, r:500, q:900, k:20000 };
+
+let chessInst = null;
+let chessSelected = null;
+let chessPlayerColor = 'w';
+let chessBotDiff = 'medium';
+let chessMode = null;
+let chessGameId = null;
+let chessUnsub = null;
+
+// ── Entry / Exit ──────────────────────────────────────────────────────────────
+
+function launchChess() {
+  document.querySelector('.games-hub').classList.add('hidden');
+  document.getElementById('chessGame').classList.remove('hidden');
+  renderChessModeScreen();
+}
+
+function exitChess() {
+  if (chessUnsub) { chessUnsub(); chessUnsub = null; }
+  chessInst = null; chessSelected = null; chessGameId = null;
+  document.getElementById('chessGame').classList.add('hidden');
+  document.querySelector('.games-hub').classList.remove('hidden');
+}
+
+// ── Mode Selection ────────────────────────────────────────────────────────────
+
+async function renderChessModeScreen() {
+  const el = document.getElementById('chessGame');
+  el.innerHTML = `<div class="chess-loading">Loading…</div>`;
+
+  const myProfile = brothers.find(b => b.email?.toLowerCase() === currentUser?.email?.toLowerCase());
+
+  // Load pending challenges
+  let invitesHtml = '';
+  if (myProfile) {
+    try {
+      const snap = await getDocs(query(
+        collection(db, 'chessGames'),
+        where('challengedId', '==', myProfile.id),
+        where('status', '==', 'pending')
+      ));
+      if (!snap.empty) {
+        invitesHtml = `<div class="chess-invites-section">
+          <div class="chess-section-label">Challenges Waiting</div>
+          ${snap.docs.map(d => {
+            const g = d.data();
+            return `<div class="chess-invite-row">
+              <span class="chess-invite-who">${escHtml(g.challengerName)} challenged you</span>
+              <button class="btn btn-primary chess-accept-btn" data-id="${d.id}">Accept</button>
+            </div>`;
+          }).join('')}
+        </div>`;
+      }
+    } catch(e) {}
+  }
+
+  const brotherList = brothers
+    .filter(b => b.email?.toLowerCase() !== currentUser?.email?.toLowerCase())
+    .map(b => `<button class="chess-brother-btn" data-id="${b.id}" data-name="${escHtml(b.name)}">${escHtml(b.name)}</button>`)
+    .join('');
+
+  el.innerHTML = `
+    <div class="chess-mode-screen">
+      <div class="chess-screen-header">
+        <button class="chess-back-btn" id="chessBackToHub">← Games</button>
+        <div class="chess-screen-title">♟ Chess</div>
+      </div>
+
+      ${invitesHtml}
+
+      <div class="chess-mode-section">
+        <div class="chess-section-label">Play vs Bot</div>
+        <div class="chess-diff-row">
+          <button class="chess-diff-btn" data-diff="easy">🤖 Easy</button>
+          <button class="chess-diff-btn" data-diff="medium">⚡ Medium</button>
+          <button class="chess-diff-btn" data-diff="hard">💀 Hard</button>
+        </div>
+      </div>
+
+      <div class="chess-mode-section">
+        <div class="chess-section-label">Challenge a Brother</div>
+        <div class="chess-brothers-list">
+          ${brotherList || '<div class="chess-no-brothers">No brothers online</div>'}
+        </div>
+      </div>
+    </div>
+  `;
+
+  el.querySelector('#chessBackToHub').addEventListener('click', exitChess);
+
+  el.querySelectorAll('.chess-diff-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      chessBotDiff = btn.dataset.diff;
+      chessMode = 'bot';
+      chessPlayerColor = 'w';
+      const C = await getChessClass();
+      chessInst = new C();
+      chessSelected = null;
+      renderChessGameScreen();
+    });
+  });
+
+  el.querySelectorAll('.chess-brother-btn').forEach(btn => {
+    btn.addEventListener('click', () => chessChallengeBrother(btn.dataset.id, btn.dataset.name));
+  });
+
+  el.querySelectorAll('.chess-accept-btn').forEach(btn => {
+    btn.addEventListener('click', () => chessAcceptChallenge(btn.dataset.id));
+  });
+}
+
+// ── Brother Challenge via Firestore ───────────────────────────────────────────
+
+async function chessChallengeBrother(brotherId, brotherName) {
+  const myProfile = brothers.find(b => b.email?.toLowerCase() === currentUser?.email?.toLowerCase());
+  if (!myProfile) return;
+
+  const ref = await addDoc(collection(db, 'chessGames'), {
+    challengerId: myProfile.id,
+    challengerName: myProfile.name,
+    challengedId: brotherId,
+    challengedName: brotherName,
+    whiteId: myProfile.id,
+    whiteName: myProfile.name,
+    blackId: brotherId,
+    blackName: brotherName,
+    moves: [],
+    status: 'pending',
+    result: null,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
+
+  chessGameId = ref.id;
+  chessMode = 'brother';
+  chessPlayerColor = 'w';
+  const C = await getChessClass();
+  chessInst = new C();
+  chessSelected = null;
+  renderChessGameScreen();
+  chessWatchGame(ref.id);
+}
+
+async function chessAcceptChallenge(gameId) {
+  await updateDoc(doc(db, 'chessGames', gameId), {
+    status: 'active',
+    updatedAt: new Date().toISOString(),
+  });
+  chessGameId = gameId;
+  chessMode = 'brother';
+  chessPlayerColor = 'b';
+  const C = await getChessClass();
+  chessInst = new C();
+  chessSelected = null;
+  renderChessGameScreen();
+  chessWatchGame(gameId);
+}
+
+function chessWatchGame(gameId) {
+  if (chessUnsub) chessUnsub();
+  chessUnsub = onSnapshot(doc(db, 'chessGames', gameId), async snap => {
+    if (!snap.exists()) return;
+    const data = snap.data();
+    if (!chessInst) {
+      const C = await getChessClass();
+      chessInst = new C();
+    }
+    chessInst.reset();
+    for (const mv of (data.moves || [])) chessInst.move(mv);
+    chessRenderBoard();
+    chessUpdateStatus(data);
+    if (data.status === 'complete') { if (chessUnsub) { chessUnsub(); chessUnsub = null; } }
+  });
+}
+
+// ── Game Screen ───────────────────────────────────────────────────────────────
+
+function renderChessGameScreen() {
+  const el = document.getElementById('chessGame');
+  const modeLabel = chessMode === 'bot' ? `vs Bot · ${chessBotDiff}` : 'vs Brother';
+  el.innerHTML = `
+    <div class="chess-game-wrap">
+      <div class="chess-game-header">
+        <button class="chess-back-btn" id="chessGameBack">← Back</button>
+        <div class="chess-game-title">♟ Chess ${modeLabel}</div>
+      </div>
+      <div class="chess-opponent-bar">
+        <div class="chess-player-label">${chessPlayerColor === 'w' ? '⬛ Opponent' : '⬜ Opponent'}</div>
+        <div class="chess-captured" id="chessCapturedTop"></div>
+      </div>
+      <div class="chess-board-wrap">
+        <div class="chess-board" id="chessBoard"></div>
+      </div>
+      <div class="chess-player-bar">
+        <div class="chess-player-label">${chessPlayerColor === 'w' ? '⬜ You (White)' : '⬛ You (Black)'}</div>
+        <div class="chess-captured" id="chessCapturedBot"></div>
+      </div>
+      <div class="chess-status" id="chessStatus">${chessMode === 'brother' && chessPlayerColor === 'w' ? 'Waiting for opponent to accept…' : 'Your turn'}</div>
+      <div class="chess-actions" id="chessActions">
+        <button class="chess-action-btn" id="chessResignBtn">Resign</button>
+      </div>
+    </div>
+  `;
+  el.querySelector('#chessGameBack').addEventListener('click', exitChess);
+  el.querySelector('#chessResignBtn').addEventListener('click', chessResign);
+  chessRenderBoard();
+}
+
+// ── Board Rendering ───────────────────────────────────────────────────────────
+
+function chessRenderBoard() {
+  const boardEl = document.getElementById('chessBoard');
+  if (!boardEl || !chessInst) return;
+
+  const board = chessInst.board();
+  const flipped = chessPlayerColor === 'b';
+  const legalTargets = chessSelected
+    ? chessInst.moves({ square: chessSelected, verbose: true }).map(m => m.to)
+    : [];
+
+  const ranks = flipped ? [0,1,2,3,4,5,6,7] : [7,6,5,4,3,2,1,0];
+  const files = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+
+  let html = '';
+  for (const r of ranks) {
+    for (const f of files) {
+      const sq = 'abcdefgh'[f] + (r + 1);
+      const piece = board[7 - r]?.[f];
+      const isLight = (r + f) % 2 === 0;
+      const isSel = sq === chessSelected;
+      const isTarget = legalTargets.includes(sq);
+      const sym = piece ? CHESS_UNICODE[piece.color + piece.type] : '';
+      const pc = piece?.color || '';
+      html += `<div class="chess-sq${isLight ? ' sq-l' : ' sq-d'}${isSel ? ' sq-sel' : ''}${isTarget ? ' sq-tgt' : ''}" data-sq="${sq}">${
+        sym ? `<span class="chess-pc chess-pc-${pc}">${sym}</span>` : ''
+      }${isTarget && !sym ? '<span class="chess-dot"></span>' : ''}${isTarget && sym ? '<span class="chess-cap-ring"></span>' : ''}</div>`;
+    }
+  }
+  boardEl.innerHTML = html;
+  boardEl.querySelectorAll('.chess-sq').forEach(sq =>
+    sq.addEventListener('click', () => chessSquareClick(sq.dataset.sq))
+  );
+  chessUpdateStatusFromInst();
+}
+
+// ── Move Logic ────────────────────────────────────────────────────────────────
+
+function chessSquareClick(sq) {
+  if (!chessInst) return;
+  if (chessInst.isGameOver()) return;
+  if (chessInst.turn() !== chessPlayerColor) return;
+
+  if (chessSelected) {
+    const targets = chessInst.moves({ square: chessSelected, verbose: true }).map(m => m.to);
+    if (targets.includes(sq)) {
+      chessExecuteMove(chessSelected, sq);
+      return;
+    }
+  }
+  const piece = chessInst.get(sq);
+  chessSelected = (piece && piece.color === chessPlayerColor) ? sq : null;
+  chessRenderBoard();
+}
+
+async function chessExecuteMove(from, to) {
+  const piece = chessInst.get(from);
+  let promotion;
+  if (piece?.type === 'p') {
+    const rank = parseInt(to[1]);
+    if ((piece.color === 'w' && rank === 8) || (piece.color === 'b' && rank === 1)) promotion = 'q';
+  }
+  const move = chessInst.move({ from, to, promotion });
+  if (!move) return;
+  chessSelected = null;
+  chessRenderBoard();
+
+  if (chessMode === 'brother' && chessGameId) {
+    const gameRef = doc(db, 'chessGames', chessGameId);
+    const snap = await getDoc(gameRef);
+    if (snap.exists()) {
+      const moves = [...(snap.data().moves || []), move.san];
+      const over = chessInst.isGameOver();
+      await updateDoc(gameRef, {
+        moves,
+        status: over ? 'complete' : 'active',
+        result: over ? chessGetResult() : null,
+        updatedAt: new Date().toISOString(),
+      });
+    }
+  } else if (chessMode === 'bot') {
+    if (chessInst.isGameOver()) { chessHandleGameOver(); return; }
+    document.getElementById('chessStatus').textContent = 'Bot thinking…';
+    setTimeout(chessBotMove, 350);
+  }
+}
+
+// ── Bot AI ────────────────────────────────────────────────────────────────────
+
+function chessBotMove() {
+  if (!chessInst || chessInst.isGameOver()) return;
+  let move;
+  if (chessBotDiff === 'easy') {
+    const moves = chessInst.moves({ verbose: true });
+    move = moves[Math.floor(Math.random() * moves.length)];
+  } else {
+    const depth = chessBotDiff === 'hard' ? 3 : 2;
+    move = chessFindBest(depth);
+  }
+  if (move) {
+    chessInst.move(move);
+    chessSelected = null;
+    chessRenderBoard();
+    if (chessInst.isGameOver()) chessHandleGameOver();
+  }
+}
+
+function chessFindBest(depth) {
+  let best = null, bestScore = -Infinity;
+  for (const move of chessInst.moves({ verbose: true })) {
+    chessInst.move(move);
+    const score = -chessAlphaBeta(depth - 1, -Infinity, Infinity, false);
+    chessInst.undo();
+    if (score > bestScore) { bestScore = score; best = move; }
+  }
+  return best;
+}
+
+function chessAlphaBeta(depth, alpha, beta, maximizing) {
+  if (depth === 0 || chessInst.isGameOver()) return chessEval();
+  const moves = chessInst.moves({ verbose: true });
+  if (maximizing) {
+    let max = -Infinity;
+    for (const m of moves) {
+      chessInst.move(m);
+      max = Math.max(max, chessAlphaBeta(depth - 1, alpha, beta, false));
+      chessInst.undo();
+      alpha = Math.max(alpha, max);
+      if (beta <= alpha) break;
+    }
+    return max;
+  } else {
+    let min = Infinity;
+    for (const m of moves) {
+      chessInst.move(m);
+      min = Math.min(min, chessAlphaBeta(depth - 1, alpha, beta, true));
+      chessInst.undo();
+      beta = Math.min(beta, min);
+      if (beta <= alpha) break;
+    }
+    return min;
+  }
+}
+
+function chessEval() {
+  if (chessInst.isCheckmate()) return chessInst.turn() === 'b' ? 15000 : -15000;
+  if (chessInst.isDraw()) return 0;
+  let score = 0;
+  for (const row of chessInst.board()) {
+    for (const p of row) {
+      if (!p) continue;
+      const val = CHESS_PIECE_VALUES[p.type] || 0;
+      score += p.color === 'b' ? val : -val;
+    }
+  }
+  return score;
+}
+
+// ── Status & Game Over ────────────────────────────────────────────────────────
+
+function chessGetResult() {
+  if (chessInst.isCheckmate()) return chessInst.turn() === 'w' ? '0-1' : '1-0';
+  if (chessInst.isDraw()) return '1/2-1/2';
+  return null;
+}
+
+function chessUpdateStatusFromInst() {
+  if (!chessInst) return;
+  if (chessInst.isGameOver()) { chessHandleGameOver(); return; }
+  const myTurn = chessInst.turn() === chessPlayerColor;
+  const inCheck = chessInst.isCheck();
+  let msg = myTurn ? (inCheck ? 'Check — your move!' : 'Your turn') : (chessMode === 'bot' ? 'Bot thinking…' : 'Opponent\'s turn…');
+  const el = document.getElementById('chessStatus');
+  if (el) el.textContent = msg;
+}
+
+function chessUpdateStatus(gameData) {
+  const el = document.getElementById('chessStatus');
+  if (!el) return;
+  if (gameData.status === 'pending') { el.textContent = 'Waiting for opponent to accept…'; return; }
+  if (gameData.status === 'complete') {
+    const r = gameData.result;
+    el.textContent = r === '1/2-1/2' ? 'Draw!' :
+      (r === '1-0' ? (chessPlayerColor === 'w' ? 'You win!' : 'Opponent wins.') : (chessPlayerColor === 'b' ? 'You win!' : 'Opponent wins.'));
+    chessShowEndButtons();
+    return;
+  }
+  const myTurn = chessInst.turn() === chessPlayerColor;
+  el.textContent = myTurn ? 'Your turn' : 'Opponent\'s turn…';
+}
+
+function chessHandleGameOver() {
+  let msg = 'Game over';
+  if (chessInst.isCheckmate()) {
+    const winnerIsWhite = chessInst.turn() === 'b';
+    if (chessMode === 'bot') {
+      msg = winnerIsWhite ? 'Checkmate — You win!' : 'Checkmate — Bot wins.';
+    } else {
+      msg = winnerIsWhite === (chessPlayerColor === 'w') ? 'Checkmate — You win!' : 'Checkmate — Opponent wins.';
+    }
+  } else if (chessInst.isStalemate()) msg = 'Stalemate — Draw!';
+  else if (chessInst.isDraw()) msg = 'Draw!';
+  const el = document.getElementById('chessStatus');
+  if (el) el.textContent = msg;
+  chessShowEndButtons();
+}
+
+function chessShowEndButtons() {
+  const el = document.getElementById('chessActions');
+  if (!el) return;
+  el.innerHTML = `
+    <button class="chess-action-btn chess-play-again-btn" id="chessPlayAgain">Play Again</button>
+    <button class="chess-action-btn" id="chessEndBack">Back to Games</button>
+  `;
+  document.getElementById('chessPlayAgain').addEventListener('click', async () => {
+    if (chessMode === 'bot') {
+      const C = await getChessClass();
+      chessInst = new C();
+      chessSelected = null;
+      renderChessGameScreen();
+    } else {
+      renderChessModeScreen();
+    }
+  });
+  document.getElementById('chessEndBack').addEventListener('click', exitChess);
+}
+
+function chessResign() {
+  if (chessMode === 'brother' && chessGameId) {
+    updateDoc(doc(db, 'chessGames', chessGameId), {
+      status: 'complete',
+      result: chessPlayerColor === 'w' ? '0-1' : '1-0',
+      updatedAt: new Date().toISOString(),
+    });
+  }
+  const el = document.getElementById('chessStatus');
+  if (el) el.textContent = 'You resigned.';
+  chessShowEndButtons();
 }
