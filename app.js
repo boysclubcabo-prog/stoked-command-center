@@ -1819,7 +1819,8 @@ function switchTab(tab) {
   const isSocialFeed = tab === 'socialfeed';
   const isChallenges = tab === 'community';
   const isRoster     = tab === 'roster';
-  const isMain       = !isSocialFeed && !isChallenges && !isRoster;
+  const isGames      = tab === 'games';
+  const isMain       = !isSocialFeed && !isChallenges && !isRoster && !isGames;
 
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('tab-active', b.dataset.tab === tab));
 
@@ -1829,6 +1830,7 @@ function switchTab(tab) {
   document.getElementById('socialFeedSection').classList.toggle('hidden', !isSocialFeed);
   document.getElementById('communitySection').classList.toggle('hidden', !isChallenges);
   document.getElementById('rosterSection').classList.toggle('hidden', !isRoster);
+  document.getElementById('gamesSection').classList.toggle('hidden', !isGames);
 
   if (isSocialFeed) {
     renderSocialFeed();
@@ -1842,6 +1844,7 @@ function switchTab(tab) {
     document.getElementById('communityBadge').classList.add('hidden');
   }
   if (isRoster) renderRoster();
+  if (isGames) renderGamesHub();
   if (isMain && !isAdmin) renderMemberView();
 }
 
@@ -3929,10 +3932,31 @@ function renderFeedMentor(el) {
   const showCoach   = challengeFilter === 'All' || challengeFilter === 'From Coach';
   const showPubM    = challengeFilter !== 'From Coach';
 
+  const todayStrM = new Date().toISOString().slice(0, 10);
+  function challengeStatusHtmlM(ch, subs) {
+    const isDaily = ch.repeatType === 'daily';
+    if (isDaily) {
+      const doneToday = subs.some(s => s.challengeId === ch.id && s.submittedAt?.slice(0,10) === todayStrM);
+      if (doneToday) {
+        const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+        const resetStr = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        return `<div class="sub-status-badge status-completed daily-done">
+          ${IC.check} Completed Today — +${ch.xpReward} XP<br>
+          <span class="daily-reset-note">🔁 Resets ${resetStr}</span>
+        </div>`;
+      }
+      return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    } else {
+      const mySub = subs.find(s => s.challengeId === ch.id);
+      return mySub
+        ? `<div class="sub-status-badge status-completed">${IC.check} Challenge Complete — +${ch.xpReward} XP!</div>`
+        : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    }
+  }
+
   if (showCoach && myPersonalM.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonalM.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       html += `<div class="challenge-card coach-challenge" ${challengeCardStyle(ch.tag)}>
         <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
         <div class="ch-top">
@@ -3946,10 +3970,9 @@ function renderFeedMentor(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
         </div>
-        ${mySub ? `<div class="sub-status-badge status-completed">
-          ${IC.check} Challenge Complete — +${ch.xpReward} XP!
-        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtmlM(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -3960,7 +3983,6 @@ function renderFeedMentor(el) {
   } else if (showPubM) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChsM.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
       html += `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
         <div class="ch-top">
@@ -3974,11 +3996,10 @@ function renderFeedMentor(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
           <span>${IC.check} ${totalCompleted} completed</span>
         </div>
-        ${mySub ? `<div class="sub-status-badge status-completed">
-          ${IC.check} Challenge Complete — +${ch.xpReward} XP!
-        </div>` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtmlM(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -4028,10 +4049,37 @@ function renderFeedMember(el) {
   let html = `<div class="feed-header"><h2 class="feed-title">Challenges</h2></div>
   ${challengeFilterBar(myPersonal.length ? ['From Coach'] : [])}`;
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  function isCompletedToday(subs, challengeId) {
+    return subs.some(s => s.challengeId === challengeId && s.submittedAt && s.submittedAt.slice(0, 10) === todayStr);
+  }
+  function challengeStatusHtml(ch, mySubs) {
+    const isDaily = ch.repeatType === 'daily';
+    if (isDaily) {
+      const doneToday = isCompletedToday(mySubs, ch.id);
+      if (doneToday) {
+        const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+        const resetStr = tomorrow.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        return `<div class="sub-status-badge status-completed daily-done">
+          ${IC.check} Completed Today — +${ch.xpReward} XP<br>
+          <span class="daily-reset-note">🔁 Resets ${resetStr}</span>
+        </div>`;
+      }
+      return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    } else {
+      const mySub = mySubs.find(s => s.challengeId === ch.id);
+      if (mySub) {
+        return `<div class="sub-status-badge status-completed">
+          ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
+        </div>`;
+      }
+      return `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`;
+    }
+  }
+
   if (showCoachM && myPersonal.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonal.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       html += `<div class="challenge-card member coach-challenge" ${challengeCardStyle(ch.tag)}>
         <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
         <div class="ch-top">
@@ -4045,12 +4093,9 @@ function renderFeedMember(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
         </div>
-        ${mySub ? `
-          <div class="sub-status-badge status-completed">
-            ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
-          </div>
-        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtml(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -4061,7 +4106,6 @@ function renderFeedMember(el) {
   } else if (showPubCh) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChs.forEach(ch => {
-      const mySub = mySubs.find(s => s.challengeId === ch.id);
       const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
       html += `<div class="challenge-card member" ${challengeCardStyle(ch.tag)}>
         <div class="ch-top">
@@ -4075,13 +4119,10 @@ function renderFeedMember(el) {
         <div class="ch-meta">
           ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
           ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
+          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
           <span>${IC.check} ${totalCompleted} completed</span>
         </div>
-        ${mySub ? `
-          <div class="sub-status-badge status-completed">
-            ${IC.check} Challenge Complete — +${ch.xpReward} XP awarded!
-          </div>
-        ` : `<button class="btn btn-primary" data-submit="${ch.id}">Complete Challenge</button>`}
+        ${challengeStatusHtml(ch, mySubs)}
       </div>`;
     });
     html += `</div></div>`;
@@ -4479,7 +4520,13 @@ function renderSocialFeed() {
       </div>`;
     } else {
       const tagColor = post.challengeTag && CHALLENGE_TAGS[post.challengeTag] ? CHALLENGE_TAGS[post.challengeTag].color : '#888';
-      const alreadyDone = post.challengeId && profile ? submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id) : null;
+      const feedCh = post.challengeId ? challenges.find(c => c.id === post.challengeId) : null;
+      const todayStrFeed = new Date().toISOString().slice(0, 10);
+      const alreadyDone = post.challengeId && profile
+        ? (feedCh?.repeatType === 'daily'
+            ? submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id && s.submittedAt?.slice(0,10) === todayStrFeed)
+            : submissions.find(s => s.challengeId === post.challengeId && s.brotherId === profile.id))
+        : null;
       html += `<div class="sf-post">
         <div class="sf-post-header">
           <div class="sf-avatar">${icon || escHtml((post.brotherName || '?')[0].toUpperCase())}</div>
@@ -6459,9 +6506,22 @@ function populateAssignSelect(preAssignId) {
   });
 }
 
+function setRepeatType(value) {
+  document.getElementById('challengeRepeatType').value = value;
+  document.querySelectorAll('.repeat-type-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.value === value);
+  });
+}
+
+document.getElementById('repeatTypeToggle').addEventListener('click', e => {
+  const btn = e.target.closest('.repeat-type-btn');
+  if (btn) setRepeatType(btn.dataset.value);
+});
+
 function openCreateChallengeModal(preAssignId) {
   editingChallengeId = null;
   document.getElementById('challengeForm').reset();
+  setRepeatType('one_time');
   document.querySelector('#challengeModal .modal-title').textContent = preAssignId
     ? `Personal Challenge — ${brothers.find(b => b.id === preAssignId)?.name || ''}`
     : 'New Challenge';
@@ -6480,6 +6540,7 @@ function openEditChallengeModal(id) {
   document.getElementById('challengeTag').value             = ch.tag          || '';
   document.getElementById('challengeDeadline').value        = ch.deadline     || '';
   document.getElementById('challengePhotoRequired').checked = ch.photoRequired !== false;
+  setRepeatType(ch.repeatType || 'one_time');
   populateAssignSelect(ch.assignedTo || null);
   document.querySelector('#challengeModal .modal-title').textContent = 'Edit Challenge';
   document.querySelector('#challengeForm [type="submit"]').textContent = 'Save Changes';
@@ -6504,6 +6565,7 @@ document.getElementById('challengeForm').addEventListener('submit', async e => {
     tag:           document.getElementById('challengeTag').value || null,
     deadline:      document.getElementById('challengeDeadline').value || null,
     photoRequired: document.getElementById('challengePhotoRequired').checked,
+    repeatType:    document.getElementById('challengeRepeatType').value || 'one_time',
     assignedTo,
   };
 
@@ -7042,4 +7104,306 @@ function linkify(str) {
   return escaped.replace(/(https?:\/\/[^\s<]+)/g, url =>
     `<a href="${url}" target="_blank" rel="noopener noreferrer" class="sf-link">${url}</a>`
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GAMES HUB
+// ─────────────────────────────────────────────────────────────────────────────
+
+function renderGamesHub() {
+  const el = document.getElementById('gamesContainer');
+  el.innerHTML = `
+    <div class="games-hub">
+      <div class="games-hub-header">
+        <div class="games-hub-title">Games</div>
+        <div class="games-hub-sub">Mental performance — track your sharpness over time</div>
+      </div>
+      <div class="games-list">
+        <div class="game-card" id="syncCheckCard">
+          <div class="game-card-top">
+            <div class="game-card-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+              </svg>
+            </div>
+            <div class="game-card-meta">
+              <div class="game-card-name">Sync Check</div>
+              <div class="game-card-type">Reaction · Go/No-Go · 20 rounds</div>
+            </div>
+          </div>
+          <div class="game-card-desc">A reflex test that separates speed from control. React fast to green. Stay locked on red. The back half gets harder.</div>
+          <button class="btn btn-primary game-play-btn" id="playSyncCheckBtn">Play</button>
+        </div>
+      </div>
+    </div>
+    <div class="sync-check-game hidden" id="syncCheckGame"></div>
+  `;
+  document.getElementById('playSyncCheckBtn').addEventListener('click', launchSyncCheck);
+}
+
+// ── Sync Check — Go/No-Go Reaction Game ──────────────────────────────────────
+
+const SYNC_TOTAL_ROUNDS = 20;
+
+// Per-phase config: [minMs, maxMs, redPct]
+const SYNC_PHASES = [
+  { minMs: 1500, maxMs: 2500, redPct: 0.25 }, // rounds 1–5
+  { minMs: 1200, maxMs: 2000, redPct: 0.35 }, // rounds 6–10
+  { minMs:  900, maxMs: 1600, redPct: 0.45 }, // rounds 11–15
+  { minMs:  700, maxMs: 1300, redPct: 0.55 }, // rounds 16–20
+];
+
+const SYNC_COACH_LINES = [
+  // speed good, control good
+  { speedOk: true,  ctrlOk: true,  line: 'Locked in — speed and discipline held all the way through.' },
+  // speed good, control bad
+  { speedOk: true,  ctrlOk: false, line: 'Fast, but discipline slipped. Speed without control isn\'t an edge — it\'s a liability.' },
+  // speed bad, control good
+  { speedOk: false, ctrlOk: true,  line: 'Discipline held. Sharpen the reaction time and nothing will touch you.' },
+  // speed bad, control bad
+  { speedOk: false, ctrlOk: false, line: 'Room to grow on both ends. Slower and sloppier than your best — come back sharper.' },
+];
+
+// Stub — wire to leaderboard/badge system later
+function submitScore(compositeScore, avgMs, falseTapRate) {
+  console.log('[SyncCheck] score submitted', { compositeScore, avgMs, falseTapRate });
+}
+
+let syncState = null;
+let syncTimeout = null;
+let syncShapeStart = null;
+
+function syncPhase(round) {
+  return SYNC_PHASES[Math.floor((round - 1) / 5)];
+}
+
+function syncRand(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function launchSyncCheck() {
+  document.getElementById('syncCheckCard').closest('.games-hub').classList.add('hidden');
+  const gameEl = document.getElementById('syncCheckGame');
+  gameEl.classList.remove('hidden');
+
+  syncState = {
+    round: 0,
+    reactionTimes: [],
+    falseCount: 0,
+    redShownCount: 0,
+    currentColor: null,
+    shapeVisible: false,
+    waiting: false,
+  };
+
+  gameEl.innerHTML = `
+    <div class="sc-wrap">
+      <div class="sc-top-bar">
+        <button class="sc-back-btn" id="scBackBtn">← Games</button>
+        <div class="sc-round-label" id="scRoundLabel">Round 1 / ${SYNC_TOTAL_ROUNDS}</div>
+      </div>
+      <div class="sc-arena" id="scArena">
+        <div class="sc-instruction" id="scInstruction">
+          <div class="sc-inst-title">Sync Check</div>
+          <div class="sc-inst-rules">
+            <span class="sc-inst-go">GREEN</span> — tap fast<br>
+            <span class="sc-inst-stop">RED</span> — do NOT tap
+          </div>
+          <button class="btn btn-primary sc-start-btn" id="scStartBtn">Start</button>
+        </div>
+        <div class="sc-shape hidden" id="scShape"></div>
+        <div class="sc-feedback hidden" id="scFeedback"></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('scBackBtn').addEventListener('click', exitSyncCheck);
+  document.getElementById('scStartBtn').addEventListener('click', syncNextRound);
+  document.getElementById('scArena').addEventListener('click', syncHandleTap);
+}
+
+function exitSyncCheck() {
+  clearTimeout(syncTimeout);
+  syncState = null;
+  const gameEl = document.getElementById('syncCheckGame');
+  gameEl.classList.add('hidden');
+  gameEl.innerHTML = '';
+  document.getElementById('syncCheckCard').closest('.games-hub').classList.remove('hidden');
+}
+
+function syncNextRound() {
+  if (!syncState) return;
+  syncState.round++;
+  syncState.shapeVisible = false;
+  syncState.waiting = true;
+  syncState.currentColor = null;
+
+  document.getElementById('scInstruction')?.classList.add('hidden');
+  document.getElementById('scShape').classList.add('hidden');
+  document.getElementById('scFeedback').classList.add('hidden');
+  document.getElementById('scRoundLabel').textContent = `Round ${syncState.round} / ${SYNC_TOTAL_ROUNDS}`;
+
+  const phase = syncPhase(syncState.round);
+  const delay = syncRand(phase.minMs, phase.maxMs);
+
+  syncTimeout = setTimeout(() => {
+    if (!syncState) return;
+    const isRed = Math.random() < phase.redPct;
+    syncState.currentColor = isRed ? 'red' : 'green';
+    syncState.shapeVisible = true;
+    syncState.waiting = false;
+    syncShapeStart = performance.now();
+
+    if (isRed) syncState.redShownCount++;
+
+    const shape = document.getElementById('scShape');
+    shape.className = `sc-shape sc-shape-${isRed ? 'red' : 'green'}`;
+    shape.classList.remove('hidden');
+
+    // Auto-expire after 1.2s if no tap
+    syncTimeout = setTimeout(() => syncExpire(), 1200);
+  }, delay);
+}
+
+function syncHandleTap() {
+  if (!syncState) return;
+
+  // Tapped during wait (anticipation error — treat as false tap on red discipline)
+  if (syncState.waiting) {
+    syncState.falseCount++;
+    syncState.redShownCount++; // counts as a penalty round
+    syncShowFeedback('early', null);
+    return;
+  }
+
+  if (!syncState.shapeVisible) return;
+  clearTimeout(syncTimeout);
+
+  const rt = performance.now() - syncShapeStart;
+  syncState.shapeVisible = false;
+
+  if (syncState.currentColor === 'green') {
+    syncState.reactionTimes.push(rt);
+    syncShowFeedback('hit', rt);
+  } else {
+    syncState.falseCount++;
+    syncShowFeedback('false', null);
+  }
+}
+
+function syncExpire() {
+  if (!syncState || !syncState.shapeVisible) return;
+  syncState.shapeVisible = false;
+  const wasGreen = syncState.currentColor === 'green';
+  document.getElementById('scShape').classList.add('hidden');
+  if (wasGreen) {
+    syncShowFeedback('miss', null);
+  } else {
+    // Correctly withheld on red
+    syncShowFeedback('hold', null);
+  }
+}
+
+function syncShowFeedback(type, rt) {
+  document.getElementById('scShape').classList.add('hidden');
+  const fb = document.getElementById('scFeedback');
+  const msgs = {
+    hit:   `<span class="sc-fb-hit">${Math.round(rt)} ms</span>`,
+    miss:  `<span class="sc-fb-miss">Too slow</span>`,
+    false: `<span class="sc-fb-false">False tap</span>`,
+    early: `<span class="sc-fb-false">Too early</span>`,
+    hold:  `<span class="sc-fb-hold">✓ Held</span>`,
+  };
+  fb.innerHTML = msgs[type] || '';
+  fb.classList.remove('hidden');
+
+  setTimeout(() => {
+    if (!syncState) return;
+    if (syncState.round >= SYNC_TOTAL_ROUNDS) {
+      syncShowResults();
+    } else {
+      syncNextRound();
+    }
+  }, 700);
+}
+
+function syncShowResults() {
+  clearTimeout(syncTimeout);
+  if (!syncState) return;
+
+  const { reactionTimes, falseCount, redShownCount } = syncState;
+  const avgMs = reactionTimes.length
+    ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
+    : 999;
+  const falseTapRate = redShownCount > 0 ? falseCount / redShownCount : 0;
+
+  // Composite: start at 1000, subtract speed penalty and heavy false-tap penalty
+  const speedPenalty  = Math.max(0, avgMs - 200) * 0.5;
+  const controlPenalty = falseTapRate * 600;
+  const composite = Math.max(0, Math.round(1000 - speedPenalty - controlPenalty));
+
+  // Coach line
+  const speedOk = avgMs < 380;
+  const ctrlOk  = falseTapRate < 0.15;
+  const coachLine = SYNC_COACH_LINES.find(l => l.speedOk === speedOk && l.ctrlOk === ctrlOk)?.line
+    || SYNC_COACH_LINES[0].line;
+
+  // Speed rating label
+  function speedLabel(ms) {
+    if (ms < 250) return 'Elite';
+    if (ms < 320) return 'Sharp';
+    if (ms < 400) return 'Good';
+    if (ms < 500) return 'Average';
+    return 'Slow';
+  }
+  function ctrlLabel(rate) {
+    if (rate === 0)   return 'Perfect';
+    if (rate < 0.10)  return 'Strong';
+    if (rate < 0.20)  return 'Moderate';
+    if (rate < 0.35)  return 'Shaky';
+    return 'Poor';
+  }
+
+  submitScore(composite, avgMs, falseTapRate);
+
+  const gameEl = document.getElementById('syncCheckGame');
+  gameEl.innerHTML = `
+    <div class="sc-wrap">
+      <div class="sc-top-bar">
+        <button class="sc-back-btn" id="scBackBtnResult">← Games</button>
+        <div class="sc-round-label">Sync Check — Results</div>
+      </div>
+      <div class="sc-results">
+        <div class="sc-composite-wrap">
+          <div class="sc-composite-num">${composite}</div>
+          <div class="sc-composite-label">Composite Score</div>
+        </div>
+        <div class="sc-stat-row">
+          <div class="sc-stat-block">
+            <div class="sc-stat-value">${avgMs} <span class="sc-stat-unit">ms</span></div>
+            <div class="sc-stat-name">Speed</div>
+            <div class="sc-stat-grade sc-grade-${speedOk ? 'good' : 'bad'}">${speedLabel(avgMs)}</div>
+          </div>
+          <div class="sc-stat-divider"></div>
+          <div class="sc-stat-block">
+            <div class="sc-stat-value">${Math.round(falseTapRate * 100)}<span class="sc-stat-unit">%</span></div>
+            <div class="sc-stat-name">Control</div>
+            <div class="sc-stat-grade sc-grade-${ctrlOk ? 'good' : 'bad'}">${ctrlLabel(falseTapRate)}</div>
+          </div>
+        </div>
+        <div class="sc-coach-note">${coachLine}</div>
+        <div class="sc-sub-stats">
+          ${reactionTimes.length} green hits · ${falseCount} false tap${falseCount !== 1 ? 's' : ''} · ${redShownCount} red shown
+        </div>
+        <button class="btn btn-primary sc-play-again-btn" id="scPlayAgainBtn">Play Again</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('scBackBtnResult').addEventListener('click', exitSyncCheck);
+  document.getElementById('scPlayAgainBtn').addEventListener('click', () => {
+    gameEl.innerHTML = '';
+    launchSyncCheck();
+  });
+  syncState = null;
 }
