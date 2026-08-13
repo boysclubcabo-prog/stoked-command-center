@@ -7631,8 +7631,14 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 }
 .mhv2-rank-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
+}
+.mhv2-flame-canvas {
+  display: block;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  filter: blur(0.4px);
 }
 .mhv2-rank-num {
   font-family: 'Bebas Neue','Barlow Condensed',Impact,sans-serif;

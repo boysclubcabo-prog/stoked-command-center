@@ -1921,6 +1921,7 @@ function _renderMemberView() {
           ? `<div class="mhv2-rank-row">
                <div class="mhv2-rank-num" style="color:${bsCat.color}">${bsScore}</div>
                <div class="mhv2-rank-of">${bsCat.label}</div>
+               <canvas class="mhv2-flame-canvas" id="stokeFlameCanvas" width="52" height="68" aria-hidden="true"></canvas>
              </div>`
           : `<div class="mhv2-no-score">No check-in yet today</div>`}
       </div>
@@ -2037,6 +2038,96 @@ function _renderMemberView() {
       </div>` : ''}
 
     </div>`;
+
+  // Animate stoke flame
+  (function startStokeFlame() {
+    const canvas = document.getElementById('stokeFlameCanvas');
+    if (!canvas || bsScore == null) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const intensity = Math.max(0, Math.min(1, bsScore / 100)); // 0–1
+
+    // Flame params driven by score
+    const speed     = 0.4 + intensity * 2.8;   // flicker rate
+    const maxHeight = 0.30 + intensity * 0.58;  // flame reaches up to this fraction of H
+    const waver     = 0.08 + intensity * 0.28;  // horizontal sway width
+    const numLayers = 3;                         // inner / mid / outer flame
+    let t = 0;
+    let raf;
+
+    // Color layers: outer→deep, mid→orange, inner→white-hot
+    // Low score = dim blue-grey tones; high = vivid orange-white
+    const layers = [
+      // [hue, sat%, light%, alphaBase, alphaTop, scale]
+      [intensity < 0.3 ? 210 : 30,  intensity < 0.3 ? 40 : 100, intensity < 0.3 ? 30 : 38, 0.18, 0.0, 1.00],
+      [intensity < 0.3 ? 200 : 24,  intensity < 0.3 ? 50 : 100, intensity < 0.3 ? 45 : 55, 0.38, 0.0, 0.72],
+      [intensity < 0.3 ? 195 : 45,  intensity < 0.3 ? 30 : 100, intensity < 0.3 ? 70 : 82, 0.80, 0.4, 0.45],
+    ];
+
+    function drawFlame() {
+      ctx.clearRect(0, 0, W, H);
+
+      for (let li = 0; li < numLayers; li++) {
+        const [h, s, l, aBase, aTop, scale] = layers[li];
+        const flameH = H * maxHeight * (1 - li * 0.18);
+        const baseY  = H - 2;
+        const baseW  = (W * 0.38) * scale;
+        const cx     = W / 2 + Math.sin(t * speed + li * 1.1) * W * waver;
+
+        // Tip wavers more than base
+        const tipX   = cx + Math.sin(t * speed * 1.4 + li * 0.7) * W * waver * 0.6;
+        const tipY   = baseY - flameH * (0.88 + Math.sin(t * speed * 0.9 + li) * 0.12);
+
+        // Gradient from base (transparent) → tip colour → transparent at very tip
+        const grad = ctx.createLinearGradient(cx, baseY, tipX, tipY);
+        grad.addColorStop(0,   `hsla(${h},${s}%,${l}%,0)`);
+        grad.addColorStop(0.2, `hsla(${h},${s}%,${l}%,${aBase})`);
+        grad.addColorStop(0.7, `hsla(${h},${s}%,${Math.min(l+18,98)}%,${aBase + (aTop - aBase) * 0.6})`);
+        grad.addColorStop(1,   `hsla(${h},${s}%,98%,${aTop})`);
+
+        // Teardrop bezier path
+        ctx.beginPath();
+        ctx.moveTo(cx - baseW, baseY);
+        ctx.bezierCurveTo(
+          cx - baseW * 1.1, baseY - flameH * 0.4,
+          tipX - baseW * 0.55, tipY + flameH * 0.18,
+          tipX, tipY
+        );
+        ctx.bezierCurveTo(
+          tipX + baseW * 0.55, tipY + flameH * 0.18,
+          cx + baseW * 1.1, baseY - flameH * 0.4,
+          cx + baseW, baseY
+        );
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      // Hot glow at base — bigger and brighter when high score
+      if (intensity > 0.15) {
+        const glowR = W * (0.20 + intensity * 0.22);
+        const glow  = ctx.createRadialGradient(W/2, H - 2, 0, W/2, H - 2, glowR);
+        glow.addColorStop(0,   `rgba(255,${Math.round(180 - intensity*60)},0,${0.25 + intensity * 0.45})`);
+        glow.addColorStop(0.5, `rgba(255,120,0,${0.08 + intensity * 0.12})`);
+        glow.addColorStop(1,   'rgba(0,0,0,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath();
+        ctx.ellipse(W/2, H - 2, glowR, glowR * 0.45, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      t += 0.016;
+      raf = requestAnimationFrame(drawFlame);
+    }
+
+    drawFlame();
+
+    // Stop when card is replaced (next renderMemberView call)
+    const obs = new MutationObserver(() => {
+      if (!document.getElementById('stokeFlameCanvas')) { cancelAnimationFrame(raf); obs.disconnect(); }
+    });
+    obs.observe(document.getElementById('memberHeroSection') || document.body, { childList: true, subtree: true });
+  })();
 
   // Wire member check-in button
   const ciBtn = memberHero.querySelector('[data-checkin]');
