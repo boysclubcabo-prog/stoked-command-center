@@ -1696,6 +1696,15 @@ function showApp() {
     if (!isAdmin && !memberDefaultTabSet) {
       memberDefaultTabSet = true;
       switchTab('mypath');
+      // Catch-up badge check — awards any badges already earned before the system existed
+      if (currentUser) {
+        const me = brothers.find(b => b.email?.toLowerCase() === currentUser.email.toLowerCase());
+        if (me) {
+          checkAndAwardBadges(me).then(newBadges => {
+            if (newBadges.length) setTimeout(() => showBadgeUnlockCelebration(newBadges), 1800);
+          });
+        }
+      }
     }
     // Re-register FCM token now that brothers are loaded (gets correct brotherId)
     if (Notification.permission === 'granted') registerFCMToken();
