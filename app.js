@@ -1886,7 +1886,7 @@ function renderBadgeCard(badge, earned, earnedData, progress, catColor, isMyster
     <div class="badge-card badge-mystery" data-badge-id="${badge.id}">
       <div class="badge-card-summary badge-mystery-summary">
         <div class="badge-icon-wrap badge-icon-mystery">
-          ${badgeIconHtml(badge.id, 80, true)}
+          ${badgeIconHtml(badge.id, 120, true)}
         </div>
         <div class="badge-summary-info">
           <div class="badge-name">${escHtml(badge.name)}</div>
@@ -1931,7 +1931,7 @@ function renderBadgeCard(badge, earned, earnedData, progress, catColor, isMyster
   <div class="badge-card ${statusClass}" data-badge-id="${badge.id}"${earned ? ` style="border-color:${catColor}40;background:${catColor}0a"` : ''}>
     <div class="badge-card-summary">
       <div class="badge-icon-wrap" style="--badge-color:${catColor}">
-        ${badgeIconHtml(badge.id, 80, false)}
+        ${badgeIconHtml(badge.id, 120, false)}
       </div>
       <div class="badge-summary-info">
         <div class="badge-name">${escHtml(badge.name)}</div>
@@ -2070,7 +2070,7 @@ function showBadgeUnlockCelebration(badges) {
   overlay.innerHTML = `
     <div class="badge-celebration-card">
       <div class="badge-cel-glow" style="--cel-color:${color}"></div>
-      <div class="badge-cel-icon" style="${BADGE_ICONS[badge.id] ? '' : `color:${color}`}">${badgeIconHtml(badge.id, 80, false)}</div>
+      <div class="badge-cel-icon" style="${BADGE_ICONS[badge.id] ? '' : `color:${color}`}">${badgeIconHtml(badge.id, 120, false)}</div>
       <div class="badge-cel-eyebrow">Congratulations</div>
       <div class="badge-cel-name">${escHtml(badge.name)}</div>
       <div class="badge-cel-desc">${escHtml(badge.description)}</div>
