@@ -274,14 +274,66 @@ function normalizeTag(tag) { return TAG_ALIASES[tag] || tag; }
 function challengeCardStyle(tag) {
   const t = CHALLENGE_TAGS[normalizeTag(tag)];
   if (!t) return '';
-  return `style="--ch-bg:${t.cardBg};--ch-border:${t.cardBorder}"`;
+  return `style="--ch-bg:${t.cardBg};--ch-border:${t.cardBorder};--ch-accent:${t.color}"`;
 }
 
 function challengeTagPill(tag) {
   const norm = normalizeTag(tag);
   const t = CHALLENGE_TAGS[norm];
   if (!t) return '';
-  return `<span class="ch-tag" style="background:${t.pillBg};color:${t.color};border-color:${t.cardBorder}">${norm}</span>`;
+  return `<span class="ch-tag" style="background:${t.color}22;color:${t.color};border-color:${t.color}44">${norm}</span>`;
+}
+
+function proofTypeLabel(p) {
+  const map = { video:'📹 Video', photo:'📷 Photo', audio:'🎵 Audio', photo_video:'📷 Photo or Video', video_audio:'📹 Video or Audio', video_photo:'📹 Video or Photo', photo_audio:'📷 Photo or Audio' };
+  return map[p] || '📎 Proof';
+}
+
+function buildChallengeCard(ch, statusHtml, opts = {}) {
+  const t = CHALLENGE_TAGS[normalizeTag(ch.tag)];
+  const accent = t?.color || '#527A8E';
+  const repeatBadge = ch.repeatType === 'daily'
+    ? `<span class="ch-repeat-badge ch-repeat-daily">🔁 Daily</span>`
+    : ch.repeatType === 'one_time'
+      ? `<span class="ch-repeat-badge ch-repeat-once">✦ One-and-Done</span>`
+      : '';
+  const proofBadge = ch.proofType ? `<span class="ch-repeat-badge">${proofTypeLabel(ch.proofType)}</span>` : ch.photoRequired ? `<span class="ch-repeat-badge">📷 Photo required</span>` : '';
+  const coachBadge = opts.coach ? `<div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>` : '';
+  const assigneeBadge = opts.assignee ? `<div class="coach-challenge-assignee">🎯 For ${escHtml(opts.assignee)}</div>` : '';
+  const adminBtns = opts.adminBtns ? `<div class="ch-admin-btns">${opts.adminBtns}</div>` : '';
+  return `<div class="ch-card ${opts.coach ? 'ch-card--coach' : ''}" ${challengeCardStyle(ch.tag)} data-chid="${ch.id}">
+    ${assigneeBadge}${coachBadge}
+    <div class="ch-card-header">
+      <div class="ch-card-accent" style="background:${accent}"></div>
+      <div class="ch-card-left">
+        ${challengeTagPill(ch.tag)}
+        <div class="ch-title">${escHtml(ch.title)}</div>
+      </div>
+      <div class="ch-card-right">
+        <div class="ch-xp-pill" style="color:${accent};border-color:${accent}44;background:${accent}18">+${ch.xpReward} XP</div>
+        <svg class="ch-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+    <div class="ch-card-body">
+      ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
+      <div class="ch-meta">
+        ${repeatBadge}${proofBadge}
+        ${ch.deadline ? `<span class="ch-repeat-badge">${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+        ${opts.completedCount != null ? `<span class="ch-repeat-badge">${IC.check} ${opts.completedCount} completed</span>` : ''}
+      </div>
+      ${statusHtml}
+      ${adminBtns}
+    </div>
+  </div>`;
+}
+
+function bindChallengeCards(el) {
+  el.querySelectorAll('.ch-card-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const card = header.closest('.ch-card');
+      card.classList.toggle('open');
+    });
+  });
 }
 
 const ARCHETYPE_COLORS = {
@@ -3842,27 +3894,10 @@ function renderFeedAdmin(el) {
       <div class="feed-section-title">${IC.trophy} Active Challenges</div>
       <div class="challenge-list">
         ${publicChallenges.map(ch => {
-          const chSubs  = submissions.filter(s => s.challengeId === ch.id);
-          const completed = chSubs.filter(s => s.status === 'completed').length;
-          return `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
-            <div class="ch-top">
-              <div>
-                ${challengeTagPill(ch.tag)}
-                <div class="ch-title">${escHtml(ch.title)}</div>
-                ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
-              </div>
-              <div class="ch-xp-pill">+${ch.xpReward} XP</div>
-            </div>
-            <div class="ch-meta">
-              ${ch.deadline ? `<span>${IC.calendar} ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-              ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-              <span>${IC.check} ${completed} completed</span>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:10px">
-              <button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
-              <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>
-            </div>
-          </div>`;
+          const completed = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
+          const adminBtns = `<button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
+            <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>`;
+          return buildChallengeCard(ch, '', { completedCount: completed, adminBtns });
         }).join('')}
       </div>
     </div>`;
@@ -3874,28 +3909,10 @@ function renderFeedAdmin(el) {
       <div class="challenge-list">
         ${personalChallenges.map(ch => {
           const assigneeName = brothers.find(b => b.id === ch.assignedTo)?.name || 'Unknown';
-          const chSubs  = submissions.filter(s => s.challengeId === ch.id);
-          const completed = chSubs.filter(s => s.status === 'completed').length;
-          return `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
-            <div class="coach-challenge-assignee">🎯 For ${escHtml(assigneeName)}</div>
-            <div class="ch-top">
-              <div>
-                ${challengeTagPill(ch.tag)}
-                <div class="ch-title">${escHtml(ch.title)}</div>
-                ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
-              </div>
-              <div class="ch-xp-pill">+${ch.xpReward} XP</div>
-            </div>
-            <div class="ch-meta">
-              ${ch.deadline ? `<span>${IC.calendar} ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-              ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-              <span>${IC.check} ${completed} completed</span>
-            </div>
-            <div style="display:flex;gap:8px;margin-top:10px">
-              <button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
-              <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>
-            </div>
-          </div>`;
+          const completed = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
+          const adminBtns = `<button class="btn-edit-challenge btn-ghost-sm" data-editch="${ch.id}">${IC.edit} Edit</button>
+            <button class="btn-close-challenge btn-ghost-sm" data-closech="${ch.id}">Archive</button>`;
+          return buildChallengeCard(ch, '', { assignee: assigneeName, completedCount: completed, adminBtns });
         }).join('')}
       </div>
     </div>`;
@@ -3904,14 +3921,15 @@ function renderFeedAdmin(el) {
   el.innerHTML = html;
 
   bindChallengeFilterBar(el);
+  bindChallengeCards(el);
   document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
   document.getElementById('seedChallengesBtn')?.addEventListener('click', () => {
     if (confirm(`Add ${CHALLENGE_SEED.length} preset challenges to Firestore? (Duplicates will be skipped.)`)) seedChallengesDB();
   });
   el.querySelectorAll('.btn-close-challenge').forEach(btn =>
-    btn.addEventListener('click', () => archiveChallenge(btn.dataset.closech)));
+    btn.addEventListener('click', e => { e.stopPropagation(); archiveChallenge(btn.dataset.closech); }));
   el.querySelectorAll('.btn-edit-challenge').forEach(btn =>
-    btn.addEventListener('click', () => openEditChallengeModal(btn.dataset.editch)));
+    btn.addEventListener('click', e => { e.stopPropagation(); openEditChallengeModal(btn.dataset.editch); }));
 
   // Tap photo to open lightbox
   el.querySelectorAll('.sub-photo-tap').forEach(img => {
@@ -3963,23 +3981,7 @@ function renderFeedMentor(el) {
   if (showCoach && myPersonalM.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonalM.forEach(ch => {
-      html += `<div class="challenge-card coach-challenge" ${challengeCardStyle(ch.tag)}>
-        <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
-        <div class="ch-top">
-          <div>
-            ${challengeTagPill(ch.tag)}
-            <div class="ch-title">${escHtml(ch.title)}</div>
-            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
-          </div>
-          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
-        </div>
-        <div class="ch-meta">
-          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
-        </div>
-        ${challengeStatusHtmlM(ch, mySubs)}
-      </div>`;
+      html += buildChallengeCard(ch, challengeStatusHtmlM(ch, mySubs), { coach: true });
     });
     html += `</div></div>`;
   }
@@ -3990,23 +3992,7 @@ function renderFeedMentor(el) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChsM.forEach(ch => {
       const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
-      html += `<div class="challenge-card" ${challengeCardStyle(ch.tag)}>
-        <div class="ch-top">
-          <div>
-            ${challengeTagPill(ch.tag)}
-            <div class="ch-title">${escHtml(ch.title)}</div>
-            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
-          </div>
-          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
-        </div>
-        <div class="ch-meta">
-          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
-          <span>${IC.check} ${totalCompleted} completed</span>
-        </div>
-        ${challengeStatusHtmlM(ch, mySubs)}
-      </div>`;
+      html += buildChallengeCard(ch, challengeStatusHtmlM(ch, mySubs), { completedCount: totalCompleted });
     });
     html += `</div></div>`;
   }
@@ -4031,9 +4017,10 @@ function renderFeedMentor(el) {
 
   el.innerHTML = html;
   bindChallengeFilterBar(el);
+  bindChallengeCards(el);
   document.getElementById('createChallengeBtn')?.addEventListener('click', openCreateChallengeModal);
   el.querySelectorAll('[data-submit]').forEach(btn =>
-    btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
+    btn.addEventListener('click', e => { e.stopPropagation(); openSubmitProofModal(btn.dataset.submit, profile); }));
   el.querySelectorAll('.btn-coach-note').forEach(btn =>
     btn.addEventListener('click', () => openCoachNoteModal(btn.dataset.coachnote)));
 }
@@ -4086,23 +4073,7 @@ function renderFeedMember(el) {
   if (showCoachM && myPersonal.length) {
     html += `<div class="feed-section"><div class="feed-section-title">🎯 Challenge from Coach</div><div class="challenge-list">`;
     myPersonal.forEach(ch => {
-      html += `<div class="challenge-card member coach-challenge" ${challengeCardStyle(ch.tag)}>
-        <div class="coach-challenge-badge">🎯 Personal Challenge from Coach</div>
-        <div class="ch-top">
-          <div>
-            ${challengeTagPill(ch.tag)}
-            <div class="ch-title">${escHtml(ch.title)}</div>
-            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
-          </div>
-          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
-        </div>
-        <div class="ch-meta">
-          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
-        </div>
-        ${challengeStatusHtml(ch, mySubs)}
-      </div>`;
+      html += buildChallengeCard(ch, challengeStatusHtml(ch, mySubs), { coach: true });
     });
     html += `</div></div>`;
   }
@@ -4113,23 +4084,7 @@ function renderFeedMember(el) {
     html += `<div class="feed-section"><div class="feed-section-title">${IC.trophy} Active Challenges</div><div class="challenge-list">`;
     publicChs.forEach(ch => {
       const totalCompleted = submissions.filter(s => s.challengeId === ch.id && s.status === 'completed').length;
-      html += `<div class="challenge-card member" ${challengeCardStyle(ch.tag)}>
-        <div class="ch-top">
-          <div>
-            ${challengeTagPill(ch.tag)}
-            <div class="ch-title">${escHtml(ch.title)}</div>
-            ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
-          </div>
-          <div class="ch-xp-pill">+${ch.xpReward} XP</div>
-        </div>
-        <div class="ch-meta">
-          ${ch.deadline ? `<span>${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
-          ${ch.photoRequired ? `<span>${IC.camera} Photo required</span>` : ''}
-          ${ch.repeatType === 'daily' ? `<span>🔁 Daily</span>` : ''}
-          <span>${IC.check} ${totalCompleted} completed</span>
-        </div>
-        ${challengeStatusHtml(ch, mySubs)}
-      </div>`;
+      html += buildChallengeCard(ch, challengeStatusHtml(ch, mySubs), { completedCount: totalCompleted });
     });
     html += `</div></div>`;
   }
@@ -4155,8 +4110,9 @@ function renderFeedMember(el) {
 
   el.innerHTML = html;
   bindChallengeFilterBar(el);
+  bindChallengeCards(el);
   el.querySelectorAll('[data-submit]').forEach(btn =>
-    btn.addEventListener('click', () => openSubmitProofModal(btn.dataset.submit, profile)));
+    btn.addEventListener('click', e => { e.stopPropagation(); openSubmitProofModal(btn.dataset.submit, profile); }));
   el.querySelectorAll('.profile-snapshot-toggle').forEach(btn =>
     btn.addEventListener('click', e => {
       e.stopPropagation();

@@ -4382,47 +4382,78 @@ body {
 
 /* Challenge cards */
 .challenge-list    { display: flex; flex-direction: column; gap: 12px; }
-.challenge-card {
-  background: var(--ch-bg, var(--bg-card));
-  border: 1px solid var(--ch-border, var(--border));
-  border-radius: var(--radius-md);
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  position: relative;
-  overflow: hidden;
-}
-.challenge-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--ch-border, var(--border));
-}
+/* ── Challenge card — collapsible ─────────────────────────── */
+.challenge-card { display: none; } /* legacy, replaced by ch-card */
 
-.coach-challenge {
-  border-color: var(--orange);
+.ch-card {
+  background: var(--bg-card);
+  border: 1px solid var(--ch-border, var(--border));
+  border-left: 3px solid var(--ch-accent, var(--border));
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: box-shadow 0.15s;
 }
-.coach-challenge::before {
-  background: var(--orange);
+.ch-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+.ch-card--coach { border-color: var(--orange); border-left-color: var(--orange); }
+
+.ch-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.ch-card-accent {
+  width: 0; /* accent is handled by border-left */
+  display: none;
+}
+.ch-card-left { flex: 1; min-width: 0; }
+.ch-card-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.ch-chevron {
+  width: 18px; height: 18px;
+  color: var(--text-muted);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.ch-card.open .ch-chevron { transform: rotate(180deg); }
+
+.ch-card-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  flex-direction: column;
+  gap: 12px;
+}
+.ch-card.open .ch-card-body { display: flex; }
+
+.ch-admin-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .coach-challenge-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--orange);
+  padding: 6px 16px 0;
 }
-
 .coach-challenge-assignee {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--orange);
-  margin-bottom: 2px;
+  padding: 6px 16px 0;
 }
 
 .form-hint {
@@ -4430,12 +4461,7 @@ body {
   color: var(--text-muted);
   margin-top: 4px;
 }
-.ch-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
+
 .ch-tag {
   display: inline-block;
   font-size: 10px;
@@ -4445,38 +4471,47 @@ body {
   padding: 2px 8px;
   border-radius: 20px;
   border: 1px solid;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
-
 .ch-title {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
+  line-height: 1.2;
 }
 .ch-desc {
   font-size: 13px;
   color: var(--text-secondary);
-  margin-top: 3px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 .ch-xp-pill {
-  background: var(--terra-dim);
-  border: 1px solid color-mix(in srgb, var(--terra) 30%, transparent);
-  color: var(--orange);
   font-size: 13px;
   font-weight: 800;
-  padding: 4px 10px;
+  padding: 4px 11px;
   border-radius: 99px;
+  border: 1px solid;
   white-space: nowrap;
 }
 .ch-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--text-muted);
+  gap: 8px;
 }
+.ch-repeat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.ch-repeat-daily  { background: rgba(196,105,58,0.1); color: #C4693A; border-color: rgba(196,105,58,0.25); }
+.ch-repeat-once   { background: rgba(82,122,142,0.1); color: #527A8E; border-color: rgba(82,122,142,0.25); }
 .btn-ghost-sm {
   background: none;
   border: 1px solid var(--border);
@@ -5241,11 +5276,7 @@ body {
   color: #D4AF37;
 }
 
-[data-theme="light"] .ch-xp-pill {
-  background: rgba(154,64,32,0.10);
-  color: #9A4020;
-  border-color: rgba(154,64,32,0.2);
-}
+/* ch-xp-pill colors set inline per category accent */
 
 [data-theme="light"] .modal-close {
   background: var(--bg-elevated);
@@ -7276,30 +7307,19 @@ body { background: var(--bg-base); color: var(--text-primary); }
 .card-age  { color: rgba(0,0,0,0.4); }
 .mentor-badge { background: rgba(212,184,92,0.15); color: #7a6010; border-color: rgba(212,184,92,0.4); }
 
-/* ── Challenge cards ── */
-.challenge-card {
-  background: #f5f3ee;
-  border: 1px solid rgba(0,0,0,0.07);
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-  border-radius: 16px;
-}
-.challenge-card::before { display: none; }
-.ch-tag { background: rgba(0,0,0,0.07); border-color: rgba(0,0,0,0.08); color: rgba(0,0,0,0.5); font-size: 10px; font-weight: 700; }
-.ch-title { color: #111; font-size: 20px; font-weight: 800; line-height: 1.2; }
-.ch-desc  { color: rgba(0,0,0,0.5); font-size: 13px; }
-.ch-xp-pill {
-  background: none;
-  border: none;
-  color: #c04a2e;
-  font-size: 15px;
-  font-weight: 800;
-  padding: 0;
-}
-.ch-meta { color: rgba(0,0,0,0.4); font-size: 13px; }
-.coach-challenge { border-color: var(--orange); }
+/* ── Challenge cards (light theme) ── */
+.ch-card { background: #fff; border-color: rgba(0,0,0,0.09); }
+.ch-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.ch-card-body { border-top-color: rgba(0,0,0,0.07); }
+.ch-title { color: #111; }
+.ch-desc  { color: rgba(0,0,0,0.5); }
+.ch-xp-pill { /* colors set inline per category */ }
+.ch-repeat-badge { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.08); color: rgba(0,0,0,0.45); }
+.ch-repeat-daily { background: rgba(196,105,58,0.10); color: #9a3a10; border-color: rgba(196,105,58,0.2); }
+.ch-repeat-once  { background: rgba(82,122,142,0.10); color: #2E5F78; border-color: rgba(82,122,142,0.2); }
 .coach-challenge-badge { color: #7a6010; }
-/* Complete challenge button inside challenge card */
-.challenge-card .btn-primary {
+.coach-challenge-assignee { color: #7a6010; }
+.ch-card .btn-primary {
   background: var(--blue);
   color: #fff;
   border-radius: 10px;
@@ -8074,14 +8094,21 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 [data-theme="dark"] .tab-btn:hover { color: var(--text-secondary); }
 [data-theme="dark"] .feed-title { color: var(--text-primary); }
 [data-theme="dark"] .brother-card,
-[data-theme="dark"] .challenge-card,
+[data-theme="dark"] .ch-card,
 [data-theme="dark"] .sub-card,
 [data-theme="dark"] .streak-card { background: var(--bg-card); border-color: var(--border); box-shadow: none; }
+[data-theme="dark"] .ch-card { border-left-color: var(--ch-accent, var(--border)); }
+[data-theme="dark"] .ch-card-body { border-top-color: var(--border); }
 [data-theme="dark"] .brother-card::before { background: var(--border); }
 [data-theme="dark"] .card-name { color: var(--text-primary); }
 [data-theme="dark"] .card-age  { color: var(--text-muted); }
 [data-theme="dark"] .ch-title  { color: var(--text-primary); }
 [data-theme="dark"] .ch-desc   { color: var(--text-secondary); }
+[data-theme="dark"] .ch-repeat-badge { background: var(--bg-elevated); border-color: var(--border); color: var(--text-muted); }
+[data-theme="dark"] .ch-repeat-daily { background: rgba(196,105,58,0.15); color: #e07040; border-color: rgba(196,105,58,0.3); }
+[data-theme="dark"] .ch-repeat-once  { background: rgba(82,122,142,0.15); color: #7aaec4; border-color: rgba(82,122,142,0.3); }
+[data-theme="dark"] .coach-challenge-badge { color: var(--orange); }
+[data-theme="dark"] .coach-challenge-assignee { color: var(--orange); }
 [data-theme="dark"] .sf-post   { background: var(--bg-card); border-color: var(--border) !important; box-shadow: none; }
 [data-theme="dark"] .sf-post:first-child { border-top-color: var(--border) !important; }
 [data-theme="dark"] .sf-avatar { background: var(--bg-elevated); border: 1.5px solid var(--border); color: var(--text-secondary); }
@@ -8144,7 +8171,7 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .btn-assess-cta,
 .btn-checkin-submit,
 .sf-comment-send,
-.challenge-card .btn-primary {
+.ch-card .btn-primary {
   background: var(--blue) !important;
   color: #fff !important;
   border: none !important;
