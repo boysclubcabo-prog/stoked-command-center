@@ -8324,15 +8324,15 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .badge-card-summary {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 16px;
+  padding: 16px;
   cursor: pointer;
   user-select: none;
 }
 
 .badge-icon-wrap {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: 0;
   border: none;
   background: none;
@@ -8342,13 +8342,13 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   flex-shrink: 0;
 }
 .badge-icon-wrap img {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
 }
 
 .badge-icon-glyph {
-  font-size: 16px;
+  font-size: 28px;
   color: var(--badge-color, #888);
   line-height: 1;
 }
@@ -8362,41 +8362,42 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .badge-name {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  letter-spacing: 0.01em;
 }
 
 .badge-locked .badge-name { color: var(--text-muted); }
 
 .badge-row-progress {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .badge-row-earned-chip {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   color: #C4693A;
   letter-spacing: 0.04em;
 }
 
 .badge-row-status {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
 }
 
 .badge-chevron {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
   flex-shrink: 0;
 }
