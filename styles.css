@@ -8145,7 +8145,7 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .badges-overlay {
   position: fixed;
   inset: 0;
-  z-index: 900;
+  z-index: 1100;
   background: var(--bg-primary);
   display: flex;
   flex-direction: column;
@@ -8158,6 +8158,7 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   flex-direction: column;
   height: 100%;
   overflow: hidden;
+  background: var(--bg-primary);
 }
 
 .badges-panel-header {
@@ -8167,6 +8168,7 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   padding: 14px 16px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  background: var(--bg-primary);
 }
 
 .badges-back {
@@ -8190,6 +8192,41 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: 80px;
+}
+
+.badges-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.badges-footer-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 10px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  width: 100%;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.badges-footer-back:active {
+  background: var(--bg-secondary);
 }
 
 /* Badges screen content */
