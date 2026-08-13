@@ -7885,36 +7885,44 @@ async function chessExecuteMove(from, to) {
 
 function chessBotMove() {
   if (!chessInst || chessInst.isGameOver()) return;
-  let move;
-  if (chessBotDiff === 'easy') {
-    const moves = chessInst.moves({ verbose: true });
-    move = moves[Math.floor(Math.random() * moves.length)];
-  } else {
-    const depth = chessBotDiff === 'hard' ? 3 : 2;
-    move = chessFindBest(depth);
-  }
-  if (move) {
-    chessInst.move(move);
-    chessSelected = null;
-    chessRenderBoard();
-    if (chessInst.isGameOver()) chessHandleGameOver();
-  }
+  // Yield to browser first so the "Bot thinking…" label renders
+  setTimeout(() => {
+    let move;
+    if (chessBotDiff === 'easy') {
+      const moves = chessInst.moves({ verbose: true });
+      move = moves[Math.floor(Math.random() * moves.length)];
+    } else {
+      const depth = chessBotDiff === 'hard' ? 3 : 2;
+      move = chessFindBest(depth);
+    }
+    if (move) {
+      chessInst.move(move);
+      chessSelected = null;
+      chessRenderBoard();
+      if (chessInst.isGameOver()) chessHandleGameOver();
+    }
+  }, 50);
 }
 
+let _chessCutoff = false;
+let _chessDeadline = 0;
+
 function chessMoveScore(move) {
-  // Score moves for ordering: captures first (MVV-LVA), then checks
   let s = 0;
   if (move.captured) s += CHESS_PIECE_VALUES[move.captured] * 10 - CHESS_PIECE_VALUES[move.piece];
-  if (move.flags.includes('p')) s += 800; // promotion
-  if (move.san.includes('+')) s += 50;    // check
+  if (move.flags.includes('p')) s += 800;
+  if (move.san.includes('+')) s += 50;
   return s;
 }
 
 function chessFindBest(depth) {
+  _chessCutoff = false;
+  _chessDeadline = Date.now() + (chessBotDiff === 'hard' ? 1800 : 1200);
   const moves = chessInst.moves({ verbose: true })
     .sort((a, b) => chessMoveScore(b) - chessMoveScore(a));
-  let best = null, bestScore = -Infinity;
+  let best = moves[0] || null, bestScore = -Infinity;
   for (const move of moves) {
+    if (_chessCutoff) break;
     chessInst.move(move);
     const score = -chessNegamax(depth - 1, -Infinity, Infinity);
     chessInst.undo();
@@ -7924,12 +7932,14 @@ function chessFindBest(depth) {
 }
 
 function chessNegamax(depth, alpha, beta) {
-  if (depth === 0) return chessQuiesce(alpha, beta);
+  if (Date.now() > _chessDeadline) { _chessCutoff = true; return chessEval(); }
+  if (depth === 0) return chessQuiesce(alpha, beta, 2);
   if (chessInst.isGameOver()) return chessEval();
   const moves = chessInst.moves({ verbose: true })
     .sort((a, b) => chessMoveScore(b) - chessMoveScore(a));
   let best = -Infinity;
   for (const m of moves) {
+    if (_chessCutoff) break;
     chessInst.move(m);
     const score = -chessNegamax(depth - 1, -beta, -alpha);
     chessInst.undo();
@@ -7940,15 +7950,15 @@ function chessNegamax(depth, alpha, beta) {
   return best;
 }
 
-// Quiescence search — search captures only to avoid horizon blunders
-function chessQuiesce(alpha, beta) {
+function chessQuiesce(alpha, beta, limit) {
   const stand = chessEval();
-  if (stand >= beta) return beta;
+  if (stand >= beta || limit <= 0) return stand;
   alpha = Math.max(alpha, stand);
   const captures = chessInst.moves({ verbose: true }).filter(m => m.captured);
   for (const m of captures) {
+    if (_chessCutoff) break;
     chessInst.move(m);
-    const score = -chessQuiesce(-beta, -alpha);
+    const score = -chessQuiesce(-beta, -alpha, limit - 1);
     chessInst.undo();
     alpha = Math.max(alpha, score);
     if (alpha >= beta) return beta;
