@@ -9950,3 +9950,43 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 
 /* Remove hardcoded sq-l/sq-d colours — now set inline per skin */
 .sq-l, .sq-d { /* colour set via inline style */ }
+
+/* ── Chess piece skins ─────────────────────────────── */
+.chess-piece-skin-row {
+  display: flex; gap: 8px; justify-content: center;
+  padding: 6px 0 10px;
+}
+.chess-piece-skin-btn {
+  display: flex; gap: 3px; align-items: center; justify-content: center;
+  padding: 5px 10px; border-radius: 10px; border: 2px solid transparent;
+  background: var(--surface2); cursor: pointer; font-size: 18px;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.chess-piece-skin-btn:hover { transform: scale(1.08); }
+.chess-piece-skin-btn.active { border-color: var(--orange); background: color-mix(in srgb, var(--orange) 10%, transparent); }
+
+/* Classic — default text-shadow style already on .chess-pc-w / .chess-pc-b */
+
+/* Bold */
+.chess-piece-skin-btn.cps-bold .chess-pc-w { color:#fff; text-shadow: -1px -1px 0 #222, 1px -1px 0 #222, -1px 1px 0 #222, 1px 1px 0 #222; }
+.chess-piece-skin-btn.cps-bold .chess-pc-b { color:#111; text-shadow: -1px -1px 0 #888, 1px -1px 0 #888, -1px 1px 0 #888, 1px 1px 0 #888; }
+.cps-bold .chess-pc-w { color:#fff; text-shadow: -1.5px -1.5px 0 #222, 1.5px -1.5px 0 #222, -1.5px 1.5px 0 #222, 1.5px 1.5px 0 #222, 0 3px 6px rgba(0,0,0,0.7); }
+.cps-bold .chess-pc-b { color:#111; text-shadow: -1.5px -1.5px 0 #888, 1.5px -1.5px 0 #888, -1.5px 1.5px 0 #888, 1.5px 1.5px 0 #888, 0 3px 6px rgba(0,0,0,0.5); }
+
+/* Carved */
+.chess-piece-skin-btn.cps-carved .chess-pc-w { color:#c8bca0; text-shadow: 1px 2px 2px rgba(0,0,0,0.8); }
+.chess-piece-skin-btn.cps-carved .chess-pc-b { color:#1c0e04; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); }
+.cps-carved .chess-pc-w { color:#e8dcc8; text-shadow: 1px 2px 3px rgba(0,0,0,0.95), -1px -1px 1px rgba(255,255,255,0.15); }
+.cps-carved .chess-pc-b { color:#1c0e04; text-shadow: 1px 2px 3px rgba(0,0,0,0.9), 0 1px 1px rgba(255,255,255,0.05); }
+
+/* Neon */
+.chess-piece-skin-btn.cps-neon .chess-pc-w { color:#00eeff; text-shadow: 0 0 4px #00eeff, 0 0 8px #00bcd4; }
+.chess-piece-skin-btn.cps-neon .chess-pc-b { color:#ff3d7f; text-shadow: 0 0 4px #ff3d7f, 0 0 8px #e91e63; }
+.cps-neon .chess-pc-w { color:#00eeff; text-shadow: 0 0 5px #00eeff, 0 0 10px #00eeff, 0 0 20px #00bcd4, 0 0 1px #000; }
+.cps-neon .chess-pc-b { color:#ff3d7f; text-shadow: 0 0 5px #ff3d7f, 0 0 10px #ff3d7f, 0 0 20px #e91e63, 0 0 1px #000; }
+
+/* Elite */
+.chess-piece-skin-btn.cps-elite .chess-pc-w { background: linear-gradient(160deg,#ffe87c,#fff6c0,#c88800); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.chess-piece-skin-btn.cps-elite .chess-pc-b { background: linear-gradient(160deg,#c0c0c0,#f8f8f8,#707070); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.cps-elite .chess-pc-w { background: linear-gradient(160deg,#ffe87c 0%,#fff6c0 45%,#c88800 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6)); }
+.cps-elite .chess-pc-b { background: linear-gradient(160deg,#c0c0c0 0%,#f8f8f8 45%,#707070 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
