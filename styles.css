@@ -7780,6 +7780,29 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   align-items: center;
   gap: 10px;
 }
+.mhv2-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.mhv2-badges-btn {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent, #527A8E);
+  border: 2px solid var(--bg-card, #fff);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s;
+}
+.mhv2-badges-btn:hover { transform: scale(1.1); }
+.mhv2-badges-btn:active { transform: scale(0.95); }
 .mhv2-avatar {
   width: 42px;
   height: 42px;
