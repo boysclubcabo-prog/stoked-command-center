@@ -2537,7 +2537,12 @@ function _renderMemberView() {
       <!-- Header: avatar + name + mentor badge -->
       <div class="mhv2-header">
         <div class="mhv2-header-left">
-          <div class="mhv2-avatar">${nameInitial}</div>
+          <div class="mhv2-avatar-wrap">
+            <div class="mhv2-avatar">${nameInitial}</div>
+            <button class="mhv2-badges-btn" id="cardBadgesBtn" title="My Badges">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </button>
+          </div>
           <div class="mhv2-name">${escHtml(profile.name || '')}</div>
         </div>
         <div class="mhv2-header-right">
@@ -2689,6 +2694,9 @@ function _renderMemberView() {
     list.classList.toggle('hidden');
     chevron.textContent = list.classList.contains('hidden') ? '▾' : '▴';
   });
+
+  // Card-level badges button (top-left of avatar)
+  memberHero.querySelector('#cardBadgesBtn')?.addEventListener('click', openBadgesOverlay);
 
   // Badge strip tooltips — hover on desktop, tap to toggle on mobile
   let activeBadgeTip = null;
