@@ -7733,6 +7733,15 @@ const CHESS_SKINS = {
 };
 let chessSkin = localStorage.getItem('chess_skin') || 'classic';
 
+const CHESS_PIECE_SKINS = {
+  classic: { name: 'Classic' },
+  bold:    { name: 'Bold' },
+  carved:  { name: 'Carved' },
+  neon:    { name: 'Neon' },
+  elite:   { name: 'Elite' },
+};
+let chessPieceSkin = localStorage.getItem('chess_piece_skin') || 'classic';
+
 let chessInst = null;
 let chessSelected = null;
 let chessPlayerColor = 'w';
@@ -7915,6 +7924,9 @@ function renderChessGameScreen() {
   const skinSwatches = Object.entries(CHESS_SKINS).map(([key, s]) =>
     `<button class="chess-skin-swatch${chessSkin === key ? ' active' : ''}" data-skin="${key}" title="${s.name}" style="background:linear-gradient(135deg,${s.light} 50%,${s.dark} 50%)"></button>`
   ).join('');
+  const pieceSkinBtns = Object.entries(CHESS_PIECE_SKINS).map(([key, p]) =>
+    `<button class="chess-piece-skin-btn cps-${key}${chessPieceSkin === key ? ' active' : ''}" data-pskin="${key}" title="${p.name}"><span class="chess-pc chess-pc-w">♔</span><span class="chess-pc chess-pc-b">♚</span></button>`
+  ).join('');
 
   el.innerHTML = `
     <div class="chess-game-wrap">
@@ -7923,12 +7935,13 @@ function renderChessGameScreen() {
         <div class="chess-game-title">♟ Chess ${modeLabel}</div>
         <div class="chess-skin-row">${skinSwatches}</div>
       </div>
+      <div class="chess-piece-skin-row">${pieceSkinBtns}</div>
       <div class="chess-opponent-bar">
         <div class="chess-player-label">${chessPlayerColor === 'w' ? '⬛ Opponent' : '⬜ Opponent'}</div>
         <div class="chess-captured" id="chessCapturedTop"></div>
       </div>
       <div class="chess-board-wrap">
-        <div class="chess-board" id="chessBoard"></div>
+        <div class="chess-board cps-${chessPieceSkin}" id="chessBoard"></div>
       </div>
       <div class="chess-player-bar">
         <div class="chess-player-label">${chessPlayerColor === 'w' ? '⬜ You (White)' : '⬛ You (Black)'}</div>
@@ -7948,6 +7961,18 @@ function renderChessGameScreen() {
       localStorage.setItem('chess_skin', chessSkin);
       el.querySelectorAll('.chess-skin-swatch').forEach(b => b.classList.toggle('active', b.dataset.skin === chessSkin));
       chessRenderBoard();
+    });
+  });
+  el.querySelectorAll('.chess-piece-skin-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      chessPieceSkin = btn.dataset.pskin;
+      localStorage.setItem('chess_piece_skin', chessPieceSkin);
+      el.querySelectorAll('.chess-piece-skin-btn').forEach(b => b.classList.toggle('active', b.dataset.pskin === chessPieceSkin));
+      const boardEl = document.getElementById('chessBoard');
+      if (boardEl) {
+        Object.keys(CHESS_PIECE_SKINS).forEach(k => boardEl.classList.remove('cps-' + k));
+        boardEl.classList.add('cps-' + chessPieceSkin);
+      }
     });
   });
   chessRenderBoard();
