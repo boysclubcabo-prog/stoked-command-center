@@ -2690,26 +2690,45 @@ function _renderMemberView() {
     chevron.textContent = list.classList.contains('hidden') ? '▾' : '▴';
   });
 
-  // Wire my badges toggle
-  // Badge strip tooltips — hover on desktop, tap on mobile
+  // Badge strip tooltips — hover on desktop, tap to toggle on mobile
+  let activeBadgeTip = null;
+  const hideActiveBadgeTip = () => { activeBadgeTip?.remove(); activeBadgeTip = null; };
+
   memberHero.querySelectorAll('.mhv2-badge-strip-item').forEach(item => {
     const text = item.dataset.tooltip;
-    let tip = null;
-    const show = () => {
-      if (tip) return;
-      tip = document.createElement('div');
+
+    const showTip = (anchorRect) => {
+      hideActiveBadgeTip();
+      const tip = document.createElement('div');
       tip.className = 'badge-strip-tooltip';
       tip.textContent = text;
+      tip.style.position = 'fixed';
+      tip.style.zIndex = '9999';
+      tip.style.visibility = 'hidden';
       document.body.appendChild(tip);
-      const r = item.getBoundingClientRect();
-      tip.style.left = Math.min(window.innerWidth - tip.offsetWidth - 8, Math.max(8, r.left + r.width / 2 - tip.offsetWidth / 2)) + 'px';
-      tip.style.top = (r.top + window.scrollY - tip.offsetHeight - 8) + 'px';
+      // Position after paint so offsetWidth is real
+      requestAnimationFrame(() => {
+        const tw = tip.offsetWidth;
+        const th = tip.offsetHeight;
+        const cx = anchorRect.left + anchorRect.width / 2;
+        tip.style.left = Math.min(window.innerWidth - tw - 8, Math.max(8, cx - tw / 2)) + 'px';
+        tip.style.top = Math.max(8, anchorRect.top - th - 8) + 'px';
+        tip.style.visibility = '';
+      });
+      activeBadgeTip = tip;
     };
-    const hide = () => { tip?.remove(); tip = null; };
-    item.addEventListener('mouseenter', show);
-    item.addEventListener('mouseleave', hide);
-    item.addEventListener('touchstart', e => { e.preventDefault(); show(); setTimeout(hide, 2400); }, { passive: false });
+
+    item.addEventListener('mouseenter', () => showTip(item.getBoundingClientRect()));
+    item.addEventListener('mouseleave', hideActiveBadgeTip);
+    item.addEventListener('touchstart', e => {
+      e.stopPropagation();
+      if (activeBadgeTip) { hideActiveBadgeTip(); return; }
+      showTip(item.getBoundingClientRect());
+    }, { passive: true });
   });
+
+  // Tap anywhere else dismisses badge tooltip
+  memberHero.addEventListener('touchstart', hideActiveBadgeTip, { passive: true });
 
   // Wire friend challenge complete buttons
   memberHero.querySelectorAll('[data-fc-complete]').forEach(btn => {
@@ -3937,6 +3956,8 @@ function isOnCategoryGrid() {
 }
 
 function renderFeed() {
+  // Clean up any stale badge tooltip left over from previous render
+  document.querySelectorAll('.badge-strip-tooltip').forEach(t => t.remove());
   const el = document.getElementById('feedContainer');
   if (!el) return;
   if (isAdmin) renderFeedAdmin(el);
