@@ -50,6 +50,7 @@ service cloud.firestore {
           'archetypeStages',
           'unlockedArchetypes',
           'earnedBadges',
+          'badges',
           'currentPathArchetype',
           // Check-in scores
           'focusScore',
