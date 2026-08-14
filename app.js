@@ -8084,6 +8084,11 @@ function chessBotMove() {
       const depth = chessBotDiff === 'hard' ? 3 : 2;
       move = chessFindBest(depth);
     }
+    // Fallback: if search returned nothing, pick a random legal move
+    if (!move) {
+      const legal = chessInst.moves({ verbose: true });
+      if (legal.length) move = legal[Math.floor(Math.random() * legal.length)];
+    }
     if (move) {
       chessInst.move(move);
       chessSelected = null;
@@ -8106,7 +8111,7 @@ function chessMoveScore(move) {
 
 // Iterative deepening — always return a complete result at some depth
 function chessFindBest(maxDepth) {
-  _chessDeadline = Date.now() + (chessBotDiff === 'hard' ? 2000 : 1400);
+  _chessDeadline = Date.now() + (chessBotDiff === 'hard' ? 1800 : 900);
   let bestMove = null;
   for (let d = 1; d <= maxDepth; d++) {
     _chessCutoff = false;
