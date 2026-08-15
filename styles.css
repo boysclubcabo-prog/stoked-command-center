@@ -3951,11 +3951,12 @@ body {
   padding: 4px 0 16px;
 }
 .ch-category-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  padding: 16px 14px 14px;
+  gap: 5px;
+  padding: 18px 14px 14px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-left: 4px solid var(--cat-color, var(--accent));
@@ -3963,43 +3964,50 @@ body {
   cursor: pointer;
   text-align: left;
   font-family: inherit;
+  overflow: hidden;
+  min-height: 120px;
   transition: box-shadow 0.15s, transform 0.1s;
   -webkit-tap-highlight-color: transparent;
 }
 .ch-category-card:active { transform: scale(0.97); }
 .ch-category-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
-.ch-category-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--cat-color, var(--accent)) 14%, transparent);
-  color: var(--cat-color, var(--accent));
-  margin-bottom: 8px;
-  flex-shrink: 0;
+.ch-category-watermark {
+  position: absolute;
+  bottom: -6px;
+  right: -4px;
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  opacity: 0.13;
+  pointer-events: none;
+  user-select: none;
 }
-.ch-category-icon svg { width: 22px; height: 22px; }
 .ch-category-name {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 800;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.15;
+  position: relative;
+  z-index: 1;
 }
 .ch-category-desc {
   font-size: 11px;
   color: var(--text-muted);
   line-height: 1.4;
+  position: relative;
+  z-index: 1;
 }
 .ch-category-count {
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 10px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--cat-color, var(--accent));
-  background: color-mix(in srgb, var(--cat-color, var(--accent)) 12%, transparent);
-  padding: 2px 8px;
+  color: var(--text-muted);
+  background: var(--surface2);
+  padding: 3px 9px;
   border-radius: 99px;
+  position: relative;
+  z-index: 1;
 }
 
 /* ── CHALLENGE CATEGORY HEADER (detail screen) ── */
