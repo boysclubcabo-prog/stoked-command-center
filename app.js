@@ -8139,7 +8139,7 @@ function chessFindBestAtDepth(depth) {
 function chessNegamax(depth, alpha, beta) {
   if (Date.now() > _chessDeadline) { _chessCutoff = true; return 0; }
   if (chessInst.isGameOver()) return chessEval();
-  if (depth === 0) return chessQuiesce(alpha, beta, 3);
+  if (depth === 0) return chessQuiesce(alpha, beta, 1);
   const moves = chessInst.moves({ verbose: true })
     .sort((a, b) => chessMoveScore(b) - chessMoveScore(a));
   let best = -Infinity;
@@ -8156,12 +8156,13 @@ function chessNegamax(depth, alpha, beta) {
 }
 
 function chessQuiesce(alpha, beta, limit) {
-  // eval() from the side-to-move's perspective
+  if (_chessCutoff || Date.now() > _chessDeadline) { _chessCutoff = true; return 0; }
   const stand = chessEval();
   if (stand >= beta || limit <= 0) return stand;
   alpha = Math.max(alpha, stand);
   const captures = chessInst.moves({ verbose: true }).filter(m => m.captured);
   for (const m of captures) {
+    if (_chessCutoff) break;
     chessInst.move(m);
     const score = -chessQuiesce(-beta, -alpha, limit - 1);
     chessInst.undo();
