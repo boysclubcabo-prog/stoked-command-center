@@ -3891,12 +3891,12 @@ checkInModal.addEventListener('click', e => { if (e.target === checkInModal) clo
 
 // ── COMMUNITY FEED ────────────────────────────
 const CATEGORY_META = {
-  Move:        { label: 'Movement',    img: '/stoked-command-center/challenges%20icons/movement-icon.png',    desc: 'Planks, push-ups, skating, sparring, pull-ups' },
-  Create:      { label: 'Create',      img: '/stoked-command-center/challenges%20icons/create-icon.png',      desc: 'Music, art, cooking, writing, building' },
-  Reset:       { label: 'Reset',       img: '/stoked-command-center/challenges%20icons/reset-icon.png',       desc: 'Sunrise, meditation, ice bath, room reset' },
-  Adventure:   { label: 'Adventure',   img: '/stoked-command-center/challenges%20icons/adventure-icon.png',   desc: 'Hiking, camping, fishing, fire, surfing' },
-  Family:      { label: 'Family',      img: '/stoked-command-center/challenges%20icons/family-icon.png',      desc: 'Chores, interviews, projects, teaching parents' },
-  Brotherhood: { label: 'Brotherhood', img: '/stoked-command-center/challenges%20icons/brotherhood-icon.png', desc: 'Teach, lead, encourage, hold accountable' },
+  Move:        { label: 'Movement',    img: '/stoked-command-center/challenges%20icon%202/movement-icon-2.png',    desc: 'Planks, push-ups, skating, sparring, pull-ups' },
+  Create:      { label: 'Create',      img: '/stoked-command-center/challenges%20icon%202/create-icon-2.png',      desc: 'Music, art, cooking, writing, building' },
+  Reset:       { label: 'Reset',       img: '/stoked-command-center/challenges%20icon%202/reset-icon-2.png',       desc: 'Sunrise, meditation, ice bath, room reset' },
+  Adventure:   { label: 'Adventure',   img: '/stoked-command-center/challenges%20icon%202/adventure-icon-2.png',   desc: 'Hiking, camping, fishing, fire, surfing' },
+  Family:      { label: 'Family',      img: '/stoked-command-center/challenges%20icon%202/family-icon-2.png',      desc: 'Chores, interviews, projects, teaching parents' },
+  Brotherhood: { label: 'Brotherhood', img: '/stoked-command-center/challenges%20icon%202/brotherhood-icon-2.png', desc: 'Teach, lead, encourage, hold accountable' },
 };
 
 function renderCategoryGrid(extraFilters = [], hasPersonal = false) {
