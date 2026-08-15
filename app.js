@@ -3891,12 +3891,12 @@ checkInModal.addEventListener('click', e => { if (e.target === checkInModal) clo
 
 // ── COMMUNITY FEED ────────────────────────────
 const CATEGORY_META = {
-  Move:        { iconKey: 'bicep',     desc: 'Planks, push-ups, skating, sparring, pull-ups' },
-  Create:      { iconKey: 'brush',     desc: 'Music, art, cooking, writing, building' },
-  Reset:       { iconKey: 'scale',     desc: 'Sunrise, meditation, ice bath, room reset' },
-  Adventure:   { iconKey: 'compass',   desc: 'Hiking, camping, fishing, fire, surfing' },
-  Family:      { iconKey: 'users',     desc: 'Chores, interviews, projects, teaching parents' },
-  Brotherhood: { iconKey: 'handshake', desc: 'Teach, lead, encourage, hold accountable' },
+  Move:        { label: 'Movement',    img: '/stoked-command-center/challenges%20icons/movement-icon.png',    desc: 'Planks, push-ups, skating, sparring, pull-ups' },
+  Create:      { label: 'Create',      img: '/stoked-command-center/challenges%20icons/create-icon.png',      desc: 'Music, art, cooking, writing, building' },
+  Reset:       { label: 'Reset',       img: '/stoked-command-center/challenges%20icons/reset-icon.png',       desc: 'Sunrise, meditation, ice bath, room reset' },
+  Adventure:   { label: 'Adventure',   img: '/stoked-command-center/challenges%20icons/adventure-icon.png',   desc: 'Hiking, camping, fishing, fire, surfing' },
+  Family:      { label: 'Family',      img: '/stoked-command-center/challenges%20icons/family-icon.png',      desc: 'Chores, interviews, projects, teaching parents' },
+  Brotherhood: { label: 'Brotherhood', img: '/stoked-command-center/challenges%20icons/brotherhood-icon.png', desc: 'Teach, lead, encourage, hold accountable' },
 };
 
 function renderCategoryGrid(extraFilters = [], hasPersonal = false) {
@@ -3911,10 +3911,11 @@ function renderCategoryGrid(extraFilters = [], hasPersonal = false) {
       const t = CHALLENGE_TAGS[tag];
       const m = CATEGORY_META[tag] || {};
       const count = challenges.filter(ch => !ch.assignedTo && normalizeTag(ch.tag) === tag).length;
-      const svgIcon = m.iconKey ? IC[m.iconKey] || IC.target : IC.target;
+      const label = m.label || tag;
+      const imgHtml = m.img ? `<img class="ch-category-watermark" src="${m.img}" alt="" aria-hidden="true">` : '';
       return `<button class="ch-category-card" data-filter="${tag}" style="--cat-color:${t.color}">
-        <span class="ch-category-icon">${svgIcon}</span>
-        <span class="ch-category-name">${tag}</span>
+        ${imgHtml}
+        <span class="ch-category-name">${label}</span>
         <span class="ch-category-desc">${m.desc || ''}</span>
         <span class="ch-category-count">${count} challenge${count !== 1 ? 's' : ''}</span>
       </button>`;
