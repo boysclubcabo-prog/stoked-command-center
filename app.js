@@ -313,10 +313,9 @@ function buildChallengeCard(ch, statusHtml, opts = {}) {
   return `<div class="ch-card ${opts.coach ? 'ch-card--coach' : ''}" ${challengeCardStyle(ch.tag)} data-chid="${ch.id}">
     ${assigneeBadge}${coachBadge}
     <div class="ch-card-header">
-      <div class="ch-card-accent" style="background:${accent}"></div>
       <div class="ch-card-left">
-        ${challengeTagPill(ch.tag)}
         <div class="ch-title">${escHtml(ch.title)}</div>
+        ${ch.description ? `<div class="ch-desc-preview">${escHtml(ch.description)}</div>` : ''}
       </div>
       <div class="ch-card-right">
         <div class="ch-xp-pill" style="color:${accent};border-color:${accent}44;background:${accent}18">+${ch.xpReward} XP</div>
