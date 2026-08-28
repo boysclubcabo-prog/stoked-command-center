@@ -1559,6 +1559,8 @@ async function maybeShowOnboarding() {
   loginScreen.classList.add('hidden');
   onboardEl.classList.remove('hidden');
 
+  // ── Screen 0: Splash ──
+  showOnboardSplash(onboardEl, () => {
   // ── Screen 1: Welcome ──
   showOnboardWelcome(onboardEl, () => {
     // ── Screen 2: Profile setup ──
@@ -1609,56 +1611,95 @@ async function maybeShowOnboarding() {
       });
     });
   });
+  }); // end splash
 
   return true;
 }
 
-function showOnboardAssessmentBridge(container, onBegin) {
+const ONBOARD_BASE = '/stoked-command-center/';
+
+function onboardSlide(container, bg, content, { tap } = {}) {
   container.innerHTML = `
-    <div class="onboard-welcome">
+    <div class="ob-slide" style="background-image:url('${ONBOARD_BASE}${bg}')">
+      <div class="ob-bg-overlay"></div>
+      ${content}
+      <div class="ob-wordmark">STOKED.</div>
+    </div>`;
+}
+
+function showOnboardSplash(container, onNext) {
+  onboardSlide(container, 'surfer-stoked.png', `<div class="ob-splash-tap">Tap to begin</div>`, { tap: true });
+  container.querySelector('.ob-slide').addEventListener('click', onNext, { once: true });
+}
+
+function showOnboardWelcome(container, onAccept) {
+  onboardSlide(container, 'onboard-bg-1.jpg', `
+    <div class="ob-card">
+      <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
+      <div class="onboard-body">
+        <h1 class="onboard-title">Become<br/>Authentic</h1>
+        <div class="onboard-divider"></div>
+        <p class="onboard-line">You will be pushed to be better.</p>
+        <p class="onboard-line">Be challenged to create improvement.</p>
+        <p class="onboard-line onboard-line-em">You will be supported.</p>
+      </div>
+      <div class="onboard-footer">
+        <button class="btn onboard-accept-btn" id="onboardAcceptBtn">↑ Accept</button>
+      </div>
+    </div>`);
+  container.querySelector('#onboardAcceptBtn').onclick = onAccept;
+}
+
+function showOnboardAssessmentBridge(container, onBegin) {
+  onboardSlide(container, 'onboard-bg-3.jpg', `
+    <div class="ob-card">
       <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
       <div class="onboard-body">
         <h1 class="onboard-title">Before You<br/>Enter</h1>
         <div class="onboard-divider"></div>
         <p class="onboard-line">Every man who has come before you has done this first.</p>
         <p class="onboard-line">Before we can walk beside you, we need to understand you.</p>
-        <p class="onboard-line">Your strengths. Your blind spots. The way you think, respond, and see the world.</p>
-        <p class="onboard-line">This assessment will surface what is already true about you — things you may have sensed but never had words for.</p>
         <p class="onboard-line onboard-line-em">It will take about 15 minutes. Answer honestly. There are no right answers.</p>
-        <p class="onboard-line" style="margin-top:20px;font-size:13px;opacity:0.45">Your result will reveal your Brotherhood Archetype — the core of who you are and the frontier of where you are going.</p>
       </div>
       <div class="onboard-footer">
         <button class="btn onboard-accept-btn" id="onboardBeginAssessBtn">Begin the Assessment</button>
       </div>
-    </div>`;
-  container.querySelector('#onboardBeginAssessBtn').onclick = onBegin;
+    </div>`);
+  container.querySelector('#onboardBeginAssessBtn').onclick = () => showOnboardArchetypeTeaser(container, onBegin);
 }
 
-function showOnboardWelcome(container, onAccept) {
-  container.innerHTML = `
-    <div class="onboard-welcome">
+function showOnboardArchetypeTeaser(container, onBegin) {
+  const archetypeWords = [
+    { name: 'Warrior',    word: 'Conqueror' },
+    { name: 'Explorer',   word: 'Seeker' },
+    { name: 'Creator',    word: 'Maker' },
+    { name: 'Builder',    word: 'Architect' },
+    { name: 'Protector',  word: 'Guardian' },
+    { name: 'Monk',       word: 'Still' },
+    { name: 'Visionary',  word: 'Seer' },
+  ];
+  const rows = archetypeWords.map(a =>
+    `<div class="ob-arch-row"><span class="ob-arch-name">${a.name}</span><span class="ob-arch-word">${a.word}</span></div>`
+  ).join('');
+  onboardSlide(container, 'onboard-bg-4.jpg', `
+    <div class="ob-card ob-card-arch">
       <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
       <div class="onboard-body">
-        <h1 class="onboard-title">Welcome to<br/>Stoked Brotherhood</h1>
+        <h1 class="onboard-title">Discover Your<br/>Archetype</h1>
         <div class="onboard-divider"></div>
-        <p class="onboard-line">You have been invited into a space built for growth.</p>
-        <p class="onboard-line">This is a place to become stronger, more disciplined, more capable, and more honest with yourself.</p>
-        <p class="onboard-line">You will be challenged.</p>
-        <p class="onboard-line">You will be expected to keep your word.</p>
-        <p class="onboard-line">You will learn what you are capable of.</p>
-        <p class="onboard-line">You will not be asked to become someone else.</p>
-        <p class="onboard-line onboard-line-em">You will be challenged to become more fully who you are.</p>
+        <p class="onboard-line" style="margin-bottom:18px">Which one are you?</p>
+        <div class="ob-arch-list">${rows}</div>
       </div>
       <div class="onboard-footer">
-        <button class="btn onboard-accept-btn" id="onboardAcceptBtn">I Accept</button>
+        <button class="btn onboard-accept-btn" id="onboardFinalBtn">Find Out →</button>
       </div>
-    </div>`;
-  container.querySelector('#onboardAcceptBtn').onclick = onAccept;
+    </div>`);
+  container.querySelector('#onboardFinalBtn').onclick = onBegin;
 }
 
 function showOnboardProfile(container, onComplete) {
-  container.innerHTML = `
-    <div class="onboard-welcome">
+  onboardSlide(container, 'onboard-bg-2.jpg', `
+    <div class="ob-card ob-card-form">
       <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
       <div class="onboard-body onboard-body-form">
         <h1 class="onboard-title">Set Up<br/>Your Profile</h1>
@@ -1683,7 +1724,7 @@ function showOnboardProfile(container, onComplete) {
       <div class="onboard-footer">
         <button class="btn onboard-accept-btn" id="onboardProfileBtn">Continue</button>
       </div>
-    </div>`;
+    </div>`);
 
   container.querySelector('#onboardProfileBtn').onclick = async () => {
     const name = container.querySelector('#onboardName').value.trim();
