@@ -1616,7 +1616,7 @@ async function maybeShowOnboarding() {
   return true;
 }
 
-const ONBOARD_BASE = '/stoked-command-center/';
+const ONBOARD_BASE = '/stoked-command-center/stock-stoked/';
 
 function onboardSlide(container, bg, content, { tap } = {}) {
   container.innerHTML = `
@@ -1633,7 +1633,7 @@ function showOnboardSplash(container, onNext) {
 }
 
 function showOnboardWelcome(container, onAccept) {
-  onboardSlide(container, 'onboard-bg-1.jpg', `
+  onboardSlide(container, 'boxer-stoked.png', `
     <div class="ob-card">
       <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
       <div class="onboard-body">
@@ -1651,7 +1651,7 @@ function showOnboardWelcome(container, onAccept) {
 }
 
 function showOnboardAssessmentBridge(container, onBegin) {
-  onboardSlide(container, 'onboard-bg-3.jpg', `
+  onboardSlide(container, 'meditation-stoked.png', `
     <div class="ob-card">
       <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
       <div class="onboard-body">
@@ -1681,7 +1681,7 @@ function showOnboardArchetypeTeaser(container, onBegin) {
   const rows = archetypeWords.map(a =>
     `<div class="ob-arch-row"><span class="ob-arch-name">${a.name}</span><span class="ob-arch-word">${a.word}</span></div>`
   ).join('');
-  onboardSlide(container, 'onboard-bg-4.jpg', `
+  onboardSlide(container, 'friends-stoked.png', `
     <div class="ob-card ob-card-arch">
       <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
       <div class="onboard-body">
@@ -1698,7 +1698,7 @@ function showOnboardArchetypeTeaser(container, onBegin) {
 }
 
 function showOnboardProfile(container, onComplete) {
-  onboardSlide(container, 'onboard-bg-2.jpg', `
+  onboardSlide(container, 'painter-stoked.png', `
     <div class="ob-card ob-card-form">
       <div class="onboard-wordmark">STOKED BROTHERHOOD</div>
       <div class="onboard-body onboard-body-form">
