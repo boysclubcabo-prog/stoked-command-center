@@ -79,6 +79,8 @@ service cloud.firestore {
           // Presence & notifications
           'lastSeen',
           'fcmToken',
+          // Pinned challenges
+          'pinnedChallenges',
           // Metadata
           'updatedAt',
         ]);

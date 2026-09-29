@@ -316,6 +316,12 @@ function buildChallengeCard(ch, statusHtml, opts = {}) {
 
   const xpNum = ch.xpReward || 0;
 
+  const isPinned = !isAdmin && profile && (profile.pinnedChallenges || []).includes(ch.id);
+  const pinBtn = !isAdmin && !opts.adminBtns ? `<button class="ch-pin-btn${isPinned ? ' pinned' : ''}" data-pin="${ch.id}" title="${isPinned ? 'Unpin from card' : 'Pin to My Card'}">📌 ${isPinned ? 'Pinned' : 'Pin to Card'}</button>` : '';
+
+  // Admin pin-to-brother button (shown when admin is looking at a specific brother's challenges)
+  const adminPinBtn = opts.adminPinTo ? `<button class="ch-admin-pin-btn" data-admin-pin="${ch.id}" data-admin-pin-to="${opts.adminPinTo}">📌 Pin to Card</button>` : '';
+
   return `<div class="ch-card ${opts.coach ? 'ch-card--coach' : ''}" ${challengeCardStyle(ch.tag)} data-chid="${ch.id}" style="--ch-accent:${accent}">
     ${assigneeBadge}${coachBadge}
     <div class="ch-card-header">
@@ -339,6 +345,8 @@ function buildChallengeCard(ch, statusHtml, opts = {}) {
         ${opts.completedCount != null ? `<span class="ch-repeat-badge">${IC.check} ${opts.completedCount} completed</span>` : ''}
       </div>
       ${statusHtml}
+      ${pinBtn}
+      ${adminPinBtn}
       ${adminBtns}
     </div>
   </div>`;
@@ -349,6 +357,47 @@ function bindChallengeCards(el) {
     header.addEventListener('click', () => {
       const card = header.closest('.ch-card');
       card.classList.toggle('open');
+    });
+  });
+
+  // Pin/unpin challenge to My Card
+  el.querySelectorAll('[data-pin]').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      if (!profile) return;
+      const chId = btn.dataset.pin;
+      const current = profile.pinnedChallenges || [];
+      const isPinned = current.includes(chId);
+      const updated = isPinned ? current.filter(id => id !== chId) : [...current, chId];
+      try {
+        await updateDoc(doc(db, 'brothers', profile.id), { pinnedChallenges: updated, updatedAt: new Date().toISOString() });
+        profile.pinnedChallenges = updated;
+        btn.classList.toggle('pinned', !isPinned);
+        btn.textContent = `📌 ${!isPinned ? 'Pinned' : 'Pin to Card'}`;
+        showToast(isPinned ? 'Removed from your card' : 'Pinned to your card', 'success');
+        renderMemberHeroV2();
+      } catch (err) { showToast('Error: ' + err.message, 'info'); }
+    });
+  });
+
+  // Admin pin challenge to a specific brother
+  el.querySelectorAll('[data-admin-pin]').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const chId = btn.dataset.adminPin;
+      const brotherId = btn.dataset.adminPinTo;
+      const brother = brothers.find(b => b.id === brotherId);
+      if (!brother) return;
+      const current = brother.pinnedChallenges || [];
+      if (current.includes(chId)) { showToast('Already pinned to their card', 'info'); return; }
+      const updated = [...current, chId];
+      try {
+        await updateDoc(doc(db, 'brothers', brotherId), { pinnedChallenges: updated, updatedAt: new Date().toISOString() });
+        brother.pinnedChallenges = updated;
+        btn.textContent = '📌 Pinned!';
+        btn.disabled = true;
+        showToast(`Pinned to ${brother.name || 'their'} card`, 'success');
+      } catch (err) { showToast('Error: ' + err.message, 'info'); }
     });
   });
 }
@@ -2621,6 +2670,41 @@ function _renderMemberView() {
         </div>
       </div>
 
+      <!-- Pinned Challenges -->
+      ${(() => {
+        const pinned = (profile.pinnedChallenges || []).map(id => challenges.find(c => c.id === id)).filter(Boolean);
+        if (!pinned.length) return `
+        <div class="mhv2-pinned-empty" data-open-challenges-tab="1">
+          <span class="mhv2-pinned-empty-ico">📌</span>
+          <span>Pin challenges here for quick access</span>
+        </div>`;
+        const mySubs = submissions.filter(s => s.brotherId === profile.id && s.status === 'completed');
+        return `<div class="mhv2-pinned-section">
+          <div class="mhv2-pinned-header">
+            <span class="mhv2-pinned-title-lbl">📌 PINNED CHALLENGES</span>
+          </div>
+          <div class="mhv2-pinned-list">
+            ${pinned.map(ch => {
+              const t = CHALLENGE_TAGS[normalizeTag(ch.tag)];
+              const accent = t?.color || '#527A8E';
+              const done = mySubs.some(s => s.challengeId === ch.id);
+              return `<div class="mhv2-pinned-card" style="--pin-accent:${accent}" data-chid="${ch.id}">
+                <div class="mhv2-pinned-card-left">
+                  <div class="mhv2-pinned-ch-title">${escHtml(ch.title)}</div>
+                  <div class="mhv2-pinned-ch-xp" style="color:${accent}">+${ch.xpReward} XP</div>
+                </div>
+                <div class="mhv2-pinned-card-right">
+                  ${done
+                    ? `<span class="mhv2-pinned-done">✓</span>`
+                    : `<button class="mhv2-pinned-complete-btn" data-submit="${ch.id}">Go →</button>`}
+                  <button class="mhv2-unpin-btn" data-unpin="${ch.id}" title="Unpin">✕</button>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+      })()}
+
       <!-- Incoming friend challenges -->
       ${activeFriendChallenges.length ? activeFriendChallenges.map(fc => `
       <div class="mhv2-friend-challenge" data-fc-id="${fc.id}">
@@ -2645,12 +2729,7 @@ function _renderMemberView() {
         <button class="mhv2-challenge-block-btn" data-open-challenge="1">⚡ SEND A CHALLENGE</button>
       </div>
 
-      ${hasReflection ? `
-      <div class="mhv2-reflection">
-        ${profile.weeklyWin        ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Win</span><span class="mhv2-r-val">${escHtml(profile.weeklyWin)}</span></div>` : ''}
-        ${profile.weeklyChallenge  ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Challenge</span><span class="mhv2-r-val">${escHtml(profile.weeklyChallenge)}</span></div>` : ''}
-        ${profile.weeklyCommitment ? `<div class="mhv2-r-row"><span class="mhv2-r-lbl">Commitment</span><span class="mhv2-r-val">${escHtml(profile.weeklyCommitment)}</span></div>` : ''}
-      </div>` : ''}
+      ${hasReflection ? `` : ''}
 
       <!-- Completed Challenges history -->
       ${(() => {
@@ -2734,6 +2813,35 @@ function _renderMemberView() {
 
   // Wire challenge-a-brother button
   memberHero.querySelector('[data-open-challenge]')?.addEventListener('click', () => openFriendChallengeModal(profile));
+
+  // Wire "pin to card" empty state tap → go to challenges tab
+  memberHero.querySelector('[data-open-challenges-tab]')?.addEventListener('click', () => {
+    document.querySelector('[data-tab="challenges"]')?.click();
+  });
+
+  // Wire unpin buttons on pinned challenge cards
+  memberHero.querySelectorAll('[data-unpin]').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      if (!profile) return;
+      const chId = btn.dataset.unpin;
+      const updated = (profile.pinnedChallenges || []).filter(id => id !== chId);
+      try {
+        await updateDoc(doc(db, 'brothers', profile.id), { pinnedChallenges: updated, updatedAt: new Date().toISOString() });
+        profile.pinnedChallenges = updated;
+        renderMemberHeroV2();
+      } catch (err) { showToast('Error: ' + err.message, 'info'); }
+    });
+  });
+
+  // Wire pinned challenge "Go →" complete buttons
+  memberHero.querySelectorAll('.mhv2-pinned-complete-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const chId = btn.dataset.submit;
+      openSubmitModal(chId);
+    });
+  });
 
   // Wire completed challenges toggle
   memberHero.querySelector('[data-comp-toggle]')?.addEventListener('click', function() {

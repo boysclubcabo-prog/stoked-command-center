@@ -8090,6 +8090,128 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   gap: 10px;
   color: #fff;
 }
+/* ── Pinned Challenges on My Card ── */
+.mhv2-pinned-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-elevated);
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.mhv2-pinned-empty:hover { border-color: var(--terra); }
+.mhv2-pinned-empty-ico { font-size: 18px; }
+
+.mhv2-pinned-section { display: flex; flex-direction: column; gap: 8px; }
+.mhv2-pinned-header { display: flex; align-items: center; justify-content: space-between; }
+.mhv2-pinned-title-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+.mhv2-pinned-list { display: flex; flex-direction: column; gap: 6px; }
+
+.mhv2-pinned-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1c1c1e;
+  border-left: 3px solid var(--pin-accent, #527A8E);
+  border-radius: 10px;
+  padding: 12px 14px;
+  gap: 10px;
+}
+.mhv2-pinned-card-left { flex: 1; min-width: 0; }
+.mhv2-pinned-ch-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 17px;
+  color: #fff;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mhv2-pinned-ch-xp {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.mhv2-pinned-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mhv2-pinned-complete-btn {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  background: var(--pin-accent, #527A8E);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mhv2-pinned-done {
+  font-size: 18px;
+  color: #7aaec4;
+  font-weight: 700;
+}
+.mhv2-unpin-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.25);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.mhv2-unpin-btn:hover { color: rgba(255,255,255,0.6); }
+
+/* Pin button inside challenge card body */
+.ch-pin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: flex-start;
+}
+.ch-pin-btn:hover { border-color: rgba(255,255,255,0.35); color: rgba(255,255,255,0.85); }
+.ch-pin-btn.pinned { background: rgba(196,105,58,0.15); border-color: rgba(196,105,58,0.4); color: #e07040; }
+.ch-admin-pin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(212,184,92,0.3);
+  background: rgba(212,184,92,0.08);
+  color: #c8a832;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
 .mhv2-mission-top { display: flex; justify-content: space-between; align-items: center; }
 /* Challenge a Brother block — same dark card as mission */
 .mhv2-challenge-block {
