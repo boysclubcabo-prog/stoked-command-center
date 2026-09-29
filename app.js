@@ -301,32 +301,41 @@ function proofTypeLabel(p) {
 function buildChallengeCard(ch, statusHtml, opts = {}) {
   const t = CHALLENGE_TAGS[normalizeTag(ch.tag)];
   const accent = t?.color || '#527A8E';
-  const repeatBadge = ch.repeatType === 'daily'
-    ? `<span class="ch-repeat-badge ch-repeat-daily">${IC.repeat} Daily</span>`
-    : ch.repeatType === 'one_time'
-      ? `<span class="ch-repeat-badge ch-repeat-once">${IC.once} One-and-Done</span>`
-      : '';
-  const proofBadge = ch.proofType ? `<span class="ch-repeat-badge">${proofTypeLabel(ch.proofType)}</span>` : ch.photoRequired ? `<span class="ch-repeat-badge">${IC.camera} Photo required</span>` : '';
+  const m = CATEGORY_META[ch.tag] || CATEGORY_META[Object.keys(CATEGORY_META).find(k => k.toLowerCase() === (ch.tag||'').toLowerCase())] || {};
+  const imgUrl = m.img || '';
+
+  const repeatLabel = ch.repeatType === 'daily' ? 'Daily'
+    : ch.repeatType === 'one_time' ? 'Once' : 'Open';
+  const repeatIcon = ch.repeatType === 'daily' ? IC.repeat : ch.repeatType === 'one_time' ? IC.once : '';
+
+  const proofLabel = ch.proofType ? proofTypeLabel(ch.proofType) : ch.photoRequired ? `${IC.camera} Photo` : '';
+
   const coachBadge = opts.coach ? `<div class="coach-challenge-badge">${IC.coach} Personal Challenge from Coach</div>` : '';
   const assigneeBadge = opts.assignee ? `<div class="coach-challenge-assignee">${IC.coach} For ${escHtml(opts.assignee)}</div>` : '';
   const adminBtns = opts.adminBtns ? `<div class="ch-admin-btns">${opts.adminBtns}</div>` : '';
-  return `<div class="ch-card ${opts.coach ? 'ch-card--coach' : ''}" ${challengeCardStyle(ch.tag)} data-chid="${ch.id}">
+
+  const xpNum = ch.xpReward || 0;
+
+  return `<div class="ch-card ${opts.coach ? 'ch-card--coach' : ''}" ${challengeCardStyle(ch.tag)} data-chid="${ch.id}" style="--ch-accent:${accent}">
     ${assigneeBadge}${coachBadge}
     <div class="ch-card-header">
+      ${imgUrl ? `<img class="ch-card-art" src="${imgUrl}" alt="" aria-hidden="true">` : ''}
       <div class="ch-card-left">
         <div class="ch-title">${escHtml(ch.title)}</div>
-        ${ch.description ? `<div class="ch-desc-preview">${escHtml(ch.description)}</div>` : ''}
+        <div class="ch-card-meta">
+          ${repeatIcon ? `<span class="ch-meta-pill">${repeatIcon} ${repeatLabel}</span>` : ''}
+          ${proofLabel ? `<span class="ch-meta-pill">${proofLabel}</span>` : ''}
+          ${ch.deadline ? `<span class="ch-meta-pill">${IC.calendar} ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
+        </div>
       </div>
       <div class="ch-card-right">
-        <div class="ch-xp-pill" style="color:${accent};border-color:${accent}44;background:${accent}18">+${ch.xpReward} XP</div>
+        <div class="ch-xp-badge">+${xpNum}<span class="ch-xp-label">XP</span></div>
         <svg class="ch-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
     </div>
     <div class="ch-card-body">
       ${ch.description ? `<div class="ch-desc">${escHtml(ch.description)}</div>` : ''}
       <div class="ch-meta">
-        ${repeatBadge}${proofBadge}
-        ${ch.deadline ? `<span class="ch-repeat-badge">${IC.calendar} Due ${new Date(ch.deadline).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>` : ''}
         ${opts.completedCount != null ? `<span class="ch-repeat-badge">${IC.check} ${opts.completedCount} completed</span>` : ''}
       </div>
       ${statusHtml}
