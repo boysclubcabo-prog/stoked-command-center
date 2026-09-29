@@ -8105,7 +8105,6 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   transition: border-color 0.15s;
 }
 .mhv2-pinned-empty:hover { border-color: var(--terra); }
-.mhv2-pinned-empty-ico { font-size: 18px; }
 
 .mhv2-pinned-section { display: flex; flex-direction: column; gap: 8px; }
 .mhv2-pinned-header { display: flex; align-items: center; justify-content: space-between; }
@@ -8163,9 +8162,15 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   white-space: nowrap;
 }
 .mhv2-pinned-done {
-  font-size: 18px;
-  color: #7aaec4;
+  font-size: 11px;
+  font-family: 'Barlow Condensed', sans-serif;
   font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #7aaec4;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(122,174,196,0.12);
 }
 .mhv2-unpin-btn {
   background: none;

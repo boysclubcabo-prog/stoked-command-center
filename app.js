@@ -317,10 +317,10 @@ function buildChallengeCard(ch, statusHtml, opts = {}) {
   const xpNum = ch.xpReward || 0;
 
   const isPinned = !isAdmin && profile && (profile.pinnedChallenges || []).includes(ch.id);
-  const pinBtn = !isAdmin && !opts.adminBtns ? `<button class="ch-pin-btn${isPinned ? ' pinned' : ''}" data-pin="${ch.id}" title="${isPinned ? 'Unpin from card' : 'Pin to My Card'}">📌 ${isPinned ? 'Pinned' : 'Pin to Card'}</button>` : '';
+  const pinBtn = !isAdmin && !opts.adminBtns ? `<button class="ch-pin-btn${isPinned ? ' pinned' : ''}" data-pin="${ch.id}" title="${isPinned ? 'Unpin from card' : 'Pin to My Card'}">${isPinned ? 'Pinned' : 'Pin to Card'}</button>` : '';
 
   // Admin pin-to-brother button (shown when admin is looking at a specific brother's challenges)
-  const adminPinBtn = opts.adminPinTo ? `<button class="ch-admin-pin-btn" data-admin-pin="${ch.id}" data-admin-pin-to="${opts.adminPinTo}">📌 Pin to Card</button>` : '';
+  const adminPinBtn = opts.adminPinTo ? `<button class="ch-admin-pin-btn" data-admin-pin="${ch.id}" data-admin-pin-to="${opts.adminPinTo}">Pin to Card</button>` : '';
 
   return `<div class="ch-card ${opts.coach ? 'ch-card--coach' : ''}" ${challengeCardStyle(ch.tag)} data-chid="${ch.id}" style="--ch-accent:${accent}">
     ${assigneeBadge}${coachBadge}
@@ -373,7 +373,7 @@ function bindChallengeCards(el) {
         await updateDoc(doc(db, 'brothers', profile.id), { pinnedChallenges: updated, updatedAt: new Date().toISOString() });
         profile.pinnedChallenges = updated;
         btn.classList.toggle('pinned', !isPinned);
-        btn.textContent = `📌 ${!isPinned ? 'Pinned' : 'Pin to Card'}`;
+        btn.textContent = !isPinned ? 'Pinned' : 'Pin to Card';
         showToast(isPinned ? 'Removed from your card' : 'Pinned to your card', 'success');
         renderMemberHeroV2();
       } catch (err) { showToast('Error: ' + err.message, 'info'); }
@@ -394,7 +394,7 @@ function bindChallengeCards(el) {
       try {
         await updateDoc(doc(db, 'brothers', brotherId), { pinnedChallenges: updated, updatedAt: new Date().toISOString() });
         brother.pinnedChallenges = updated;
-        btn.textContent = '📌 Pinned!';
+        btn.textContent = 'Pinned';
         btn.disabled = true;
         showToast(`Pinned to ${brother.name || 'their'} card`, 'success');
       } catch (err) { showToast('Error: ' + err.message, 'info'); }
@@ -2675,13 +2675,12 @@ function _renderMemberView() {
         const pinned = (profile.pinnedChallenges || []).map(id => challenges.find(c => c.id === id)).filter(Boolean);
         if (!pinned.length) return `
         <div class="mhv2-pinned-empty" data-open-challenges-tab="1">
-          <span class="mhv2-pinned-empty-ico">📌</span>
           <span>Pin challenges here for quick access</span>
         </div>`;
         const mySubs = submissions.filter(s => s.brotherId === profile.id && s.status === 'completed');
         return `<div class="mhv2-pinned-section">
           <div class="mhv2-pinned-header">
-            <span class="mhv2-pinned-title-lbl">📌 PINNED CHALLENGES</span>
+            <span class="mhv2-pinned-title-lbl">PINNED CHALLENGES</span>
           </div>
           <div class="mhv2-pinned-list">
             ${pinned.map(ch => {
@@ -2695,9 +2694,9 @@ function _renderMemberView() {
                 </div>
                 <div class="mhv2-pinned-card-right">
                   ${done
-                    ? `<span class="mhv2-pinned-done">✓</span>`
-                    : `<button class="mhv2-pinned-complete-btn" data-submit="${ch.id}">Go →</button>`}
-                  <button class="mhv2-unpin-btn" data-unpin="${ch.id}" title="Unpin">✕</button>
+                    ? `<span class="mhv2-pinned-done">Done</span>`
+                    : `<button class="mhv2-pinned-complete-btn" data-submit="${ch.id}">Go</button>`}
+                  <button class="mhv2-unpin-btn" data-unpin="${ch.id}" title="Unpin">&times;</button>
                 </div>
               </div>`;
             }).join('')}
