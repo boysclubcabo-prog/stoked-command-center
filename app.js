@@ -2674,13 +2674,15 @@ function _renderMemberView() {
       ${(() => {
         const pinned = (profile.pinnedChallenges || []).map(id => challenges.find(c => c.id === id)).filter(Boolean);
         if (!pinned.length) return `
-        <div class="mhv2-pinned-empty" data-open-challenges-tab="1">
+        <div class="mhv2-pinned-empty" data-open-pin-picker="1">
           <span>Pin challenges here for quick access</span>
+          <span class="mhv2-pinned-empty-add">+ Add</span>
         </div>`;
         const mySubs = submissions.filter(s => s.brotherId === profile.id && s.status === 'completed');
         return `<div class="mhv2-pinned-section">
           <div class="mhv2-pinned-header">
             <span class="mhv2-pinned-title-lbl">PINNED CHALLENGES</span>
+            <button class="mhv2-pinned-add-btn" data-open-pin-picker="1">+ Add</button>
           </div>
           <div class="mhv2-pinned-list">
             ${pinned.map(ch => {
@@ -2813,9 +2815,9 @@ function _renderMemberView() {
   // Wire challenge-a-brother button
   memberHero.querySelector('[data-open-challenge]')?.addEventListener('click', () => openFriendChallengeModal(profile));
 
-  // Wire "pin to card" empty state tap → go to challenges tab
-  memberHero.querySelector('[data-open-challenges-tab]')?.addEventListener('click', () => {
-    document.querySelector('[data-tab="challenges"]')?.click();
+  // Wire "pin to card" buttons → open pin picker modal
+  memberHero.querySelectorAll('[data-open-pin-picker]').forEach(el => {
+    el.addEventListener('click', () => openPinPickerModal());
   });
 
   // Wire unpin buttons on pinned challenge cards
@@ -5139,6 +5141,125 @@ function dailyChallengeRosterBadge(b) {
   if (!b.dailyChallenge) return '';
   const done = isDailyChallengeCompleted(b);
   return `<span class="dc-roster-badge${done ? ' dc-roster-done' : ''}" title="${escHtml(b.dailyChallenge)}">${done ? '✓' : '◎'} Daily</span>`;
+}
+
+// ── PIN PICKER MODAL ──────────────────────────
+function openPinPickerModal() {
+  if (!profile) return;
+  let overlay = document.getElementById('pinPickerModal');
+  if (overlay) { overlay.classList.add('active'); buildPinPickerContent(); return; }
+
+  overlay = document.createElement('div');
+  overlay.id = 'pinPickerModal';
+  overlay.className = 'modal-overlay pin-picker-overlay';
+  overlay.innerHTML = `
+    <div class="modal pin-picker-modal" role="dialog" aria-modal="true" aria-label="Pin Challenges">
+      <div class="pin-picker-header">
+        <span class="pin-picker-title">Pin Challenges</span>
+        <button class="modal-close" id="pinPickerClose" aria-label="Close">&times;</button>
+      </div>
+      <div class="pin-picker-search-row">
+        <input class="pin-picker-search" id="pinPickerSearch" type="search" placeholder="Search challenges…" autocomplete="off">
+      </div>
+      <div class="pin-picker-body" id="pinPickerBody"></div>
+      <div class="pin-picker-footer">
+        <button class="pin-picker-save-btn" id="pinPickerSave">Save</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) closePinPicker(); });
+  overlay.querySelector('#pinPickerClose').addEventListener('click', closePinPicker);
+  overlay.querySelector('#pinPickerSearch').addEventListener('input', e => buildPinPickerContent(e.target.value));
+  overlay.querySelector('#pinPickerSave').addEventListener('click', savePinnedFromPicker);
+
+  overlay.classList.add('active');
+  buildPinPickerContent();
+}
+
+function closePinPicker() {
+  document.getElementById('pinPickerModal')?.classList.remove('active');
+}
+
+function buildPinPickerContent(searchQuery = '') {
+  const body = document.getElementById('pinPickerBody');
+  if (!body) return;
+  const q = searchQuery.trim().toLowerCase();
+  const currentPinned = new Set(profile.pinnedChallenges || []);
+  const mySubs = new Set(submissions.filter(s => s.brotherId === profile.id && s.status === 'completed').map(s => s.challengeId));
+
+  // Group challenges by category
+  const grouped = {};
+  for (const ch of challenges) {
+    if (q && !ch.title.toLowerCase().includes(q) && !(ch.tag||'').toLowerCase().includes(q)) continue;
+    const cat = ch.tag || 'Other';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(ch);
+  }
+
+  const categoryOrder = ['Move', 'Create', 'Reset', 'Adventure', 'Family', 'Brotherhood'];
+  const sortedCats = [...categoryOrder.filter(c => grouped[c]), ...Object.keys(grouped).filter(c => !categoryOrder.includes(c))];
+
+  if (!sortedCats.length) {
+    body.innerHTML = `<div class="pin-picker-empty">No challenges found</div>`;
+    return;
+  }
+
+  body.innerHTML = sortedCats.map(cat => {
+    const t = CHALLENGE_TAGS[normalizeTag(cat)];
+    const accent = t?.color || '#527A8E';
+    const items = grouped[cat];
+    return `<div class="pin-picker-group">
+      <div class="pin-picker-group-header" style="--grp-accent:${accent}">
+        <span class="pin-picker-group-name">${escHtml(cat.toUpperCase())}</span>
+        <span class="pin-picker-group-count">${items.length}</span>
+      </div>
+      <div class="pin-picker-group-list">
+        ${items.map(ch => {
+          const sel = currentPinned.has(ch.id);
+          const done = mySubs.has(ch.id);
+          return `<label class="pin-picker-item${sel ? ' selected' : ''}" data-chid="${ch.id}">
+            <div class="pin-picker-item-info">
+              <span class="pin-picker-item-title">${escHtml(ch.title)}</span>
+              <span class="pin-picker-item-xp" style="color:${accent}">+${ch.xpReward||0} XP${done ? ' · Done' : ''}</span>
+            </div>
+            <div class="pin-picker-item-check${sel ? ' checked' : ''}" aria-hidden="true"></div>
+            <input type="checkbox" class="pin-picker-cb" data-chid="${ch.id}" ${sel ? 'checked' : ''} hidden>
+          </label>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Toggle selection on label click
+  body.querySelectorAll('.pin-picker-item').forEach(label => {
+    label.addEventListener('click', e => {
+      e.preventDefault();
+      const cb = label.querySelector('.pin-picker-cb');
+      cb.checked = !cb.checked;
+      label.classList.toggle('selected', cb.checked);
+      label.querySelector('.pin-picker-item-check').classList.toggle('checked', cb.checked);
+      updatePinPickerCount();
+    });
+  });
+  updatePinPickerCount();
+}
+
+function updatePinPickerCount() {
+  const checked = document.querySelectorAll('#pinPickerBody .pin-picker-cb:checked').length;
+  const btn = document.getElementById('pinPickerSave');
+  if (btn) btn.textContent = checked ? `Save (${checked} pinned)` : 'Save';
+}
+
+async function savePinnedFromPicker() {
+  const checked = [...document.querySelectorAll('#pinPickerBody .pin-picker-cb:checked')].map(cb => cb.dataset.chid);
+  try {
+    await updateDoc(doc(db, 'brothers', profile.id), { pinnedChallenges: checked, updatedAt: new Date().toISOString() });
+    profile.pinnedChallenges = checked;
+    closePinPicker();
+    renderMemberHeroV2();
+    showToast(checked.length ? `${checked.length} challenge${checked.length > 1 ? 's' : ''} pinned` : 'Pins cleared', 'success');
+  } catch (err) { showToast('Error: ' + err.message, 'info'); }
 }
 
 // Modal for setting / editing the challenge

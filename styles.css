@@ -8217,6 +8217,178 @@ label, .form-label { color: rgba(0,0,0,0.5); }
   align-self: flex-start;
 }
 
+/* ── Pin Picker Add button & empty state ── */
+.mhv2-pinned-empty-add {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--terra);
+  letter-spacing: 0.03em;
+}
+.mhv2-pinned-add-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--terra);
+  cursor: pointer;
+  padding: 2px 0;
+  letter-spacing: 0.03em;
+}
+.mhv2-pinned-add-btn:hover { opacity: 0.75; }
+
+/* ── Pin Picker Modal ── */
+.pin-picker-overlay { align-items: flex-end; padding: 0; }
+.pin-picker-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  border-radius: 20px 20px 0 0;
+  background: var(--bg-card, #1a1a1a);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  margin: 0 auto;
+}
+.pin-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+  flex-shrink: 0;
+}
+.pin-picker-title {
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: var(--text-primary, #fff);
+}
+.pin-picker-search-row {
+  padding: 10px 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+.pin-picker-search {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 14px;
+  color: var(--text-primary, #fff);
+  outline: none;
+  box-sizing: border-box;
+}
+.pin-picker-search::placeholder { color: rgba(255,255,255,0.3); }
+.pin-picker-search:focus { border-color: rgba(255,255,255,0.25); }
+.pin-picker-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0 4px;
+}
+.pin-picker-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted, rgba(255,255,255,0.35));
+  font-size: 14px;
+}
+.pin-picker-group { margin-bottom: 4px; }
+.pin-picker-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px 6px;
+  position: sticky;
+  top: 0;
+  background: var(--bg-card, #1a1a1a);
+  z-index: 1;
+}
+.pin-picker-group-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--grp-accent, #888);
+}
+.pin-picker-group-count {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+}
+.pin-picker-group-list { padding: 0 12px; }
+.pin-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+}
+.pin-picker-item:hover { background: rgba(255,255,255,0.04); }
+.pin-picker-item.selected { background: rgba(255,255,255,0.05); }
+.pin-picker-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pin-picker-item-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #fff);
+  line-height: 1.3;
+}
+.pin-picker-item-xp {
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.03em;
+}
+.pin-picker-item-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+  transition: all 0.15s;
+  position: relative;
+}
+.pin-picker-item-check.checked {
+  background: var(--terra, #C4693A);
+  border-color: var(--terra, #C4693A);
+}
+.pin-picker-item-check.checked::after {
+  content: '';
+  position: absolute;
+  left: 5px; top: 2px;
+  width: 6px; height: 10px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+.pin-picker-footer {
+  padding: 12px 16px 20px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+.pin-picker-save-btn {
+  width: 100%;
+  background: var(--terra, #C4693A);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.pin-picker-save-btn:hover { opacity: 0.85; }
+
 .mhv2-mission-top { display: flex; justify-content: space-between; align-items: center; }
 /* Challenge a Brother block — same dark card as mission */
 .mhv2-challenge-block {
