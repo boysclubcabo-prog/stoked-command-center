@@ -1443,6 +1443,7 @@ document.getElementById('badgesBack').addEventListener('click', closeBadgesOverl
 const userBadge     = document.getElementById('userBadge');
 const statsBar      = document.getElementById('statsBar');
 const memberHero    = document.getElementById('memberHero');
+let currentProfile  = null; // module-level reference to logged-in member's profile
 const brothersGrid  = document.getElementById('brothersGrid');
 const emptyState    = document.getElementById('emptyState');
 const addBrotherBtn = document.getElementById('addBrotherBtn');
@@ -2550,6 +2551,7 @@ function _renderMemberView() {
     emptyState.classList.add('hidden');
     return;
   }
+  currentProfile = profile;
 
   if (!profile.assessmentCompletedAt) {
     memberHero.innerHTML = `
@@ -5143,8 +5145,11 @@ function dailyChallengeRosterBadge(b) {
   return `<span class="dc-roster-badge${done ? ' dc-roster-done' : ''}" title="${escHtml(b.dailyChallenge)}">${done ? '✓' : '◎'} Daily</span>`;
 }
 
+function renderMemberHeroV2() { renderMemberView(); }
+
 // ── PIN PICKER MODAL ──────────────────────────
 function openPinPickerModal() {
+  const profile = currentProfile;
   if (!profile) return;
   let overlay = document.getElementById('pinPickerModal');
   if (overlay) { overlay.classList.add('active'); buildPinPickerContent(); return; }
@@ -5184,6 +5189,8 @@ function closePinPicker() {
 function buildPinPickerContent(searchQuery = '') {
   const body = document.getElementById('pinPickerBody');
   if (!body) return;
+  const profile = currentProfile;
+  if (!profile) return;
   const q = searchQuery.trim().toLowerCase();
   const currentPinned = new Set(profile.pinnedChallenges || []);
   const mySubs = new Set(submissions.filter(s => s.brotherId === profile.id && s.status === 'completed').map(s => s.challengeId));
@@ -5252,6 +5259,8 @@ function updatePinPickerCount() {
 }
 
 async function savePinnedFromPicker() {
+  const profile = currentProfile;
+  if (!profile) return;
   const checked = [...document.querySelectorAll('#pinPickerBody .pin-picker-cb:checked')].map(cb => cb.dataset.chid);
   try {
     await updateDoc(doc(db, 'brothers', profile.id), { pinnedChallenges: checked, updatedAt: new Date().toISOString() });
