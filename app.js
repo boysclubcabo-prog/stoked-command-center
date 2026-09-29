@@ -2840,7 +2840,7 @@ function _renderMemberView() {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const chId = btn.dataset.submit;
-      openSubmitModal(chId);
+      openSubmitProofModal(chId, profile);
     });
   });
 
