@@ -5152,7 +5152,7 @@ function openPinPickerModal() {
   const profile = currentProfile;
   if (!profile) return;
   let overlay = document.getElementById('pinPickerModal');
-  if (overlay) { overlay.classList.add('active'); buildPinPickerContent(); return; }
+  if (overlay) { openModal(overlay); buildPinPickerContent(); return; }
 
   overlay = document.createElement('div');
   overlay.id = 'pinPickerModal';
@@ -5178,12 +5178,13 @@ function openPinPickerModal() {
   overlay.querySelector('#pinPickerSearch').addEventListener('input', e => buildPinPickerContent(e.target.value));
   overlay.querySelector('#pinPickerSave').addEventListener('click', savePinnedFromPicker);
 
-  overlay.classList.add('active');
+  openModal(overlay);
   buildPinPickerContent();
 }
 
 function closePinPicker() {
-  document.getElementById('pinPickerModal')?.classList.remove('active');
+  const overlay = document.getElementById('pinPickerModal');
+  if (overlay) closeModal(overlay);
 }
 
 function buildPinPickerContent(searchQuery = '') {
