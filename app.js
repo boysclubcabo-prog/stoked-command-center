@@ -4507,6 +4507,8 @@ function startBrotherhoodCall(hostProfile) {
       sheet.querySelector('#startCallLinkInput').focus();
       return;
     }
+    // Open window synchronously (before any await) so popup blockers don't suppress it
+    const callWindow = window.open(link, '_blank');
     const hostName = isAdmin ? 'Coach' : (hostProfile?.name || 'Mentor');
     const callData = {
       active: true,
@@ -4517,15 +4519,13 @@ function startBrotherhoodCall(hostProfile) {
       invitedBrothers: inviteAll ? [] : [...selectedIds],
     };
     liveCall = callData;
+    sheet.remove();
     try {
       await setDoc(doc(db, 'feed', '_liveCall_'), callData);
     } catch (err) {
       console.error('startBrotherhoodCall error:', err);
-      alert('Could not start call: ' + err.message);
-      return;
+      showToast('Could not start call: ' + err.message, 'info');
     }
-    sheet.remove();
-    window.open(link, '_blank');
   });
 }
 
