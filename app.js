@@ -540,30 +540,16 @@ const ARCHETYPE_DESC = {
 
 // ── ARCHETYPE ASSESSMENT ──────────────────────
 const ASSESS_QUESTIONS = [
-  { left: 'Just go for it — face it head on and figure it out in motion', right: 'Step back first — get still and understand what is actually happening', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
-  { left: 'Try something completely new — discover what else is out there', right: 'Go deeper with what you have already started — master the craft', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
-  { left: 'Make something that moves people emotionally', right: 'Design a vision of something that does not exist yet', leftScore: { arch: 'Creator', el: 'Water' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: 'Be the voice — say what needs to be said in the room', right: 'Be the presence — calm, still, and fully listening', leftScore: { arch: 'Protector', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
-  { left: 'Train hard, compete, and test your limits', right: 'Explore deeply — go places and meet people you have never experienced', leftScore: { arch: 'Warrior', el: 'Earth' }, rightScore: { arch: 'Explorer', el: 'Water' } },
-  { left: 'Build something reliable, step by step, until it is done', right: 'Design the bigger picture first — imagine what it could become', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: 'Step in because someone around you needs protecting', right: 'Step in because the challenge is there and needs to be confronted', leftScore: { arch: 'Protector', el: 'Water' }, rightScore: { arch: 'Warrior', el: 'Fire' } },
-  { left: 'Explain an idea so clearly that others understand and believe in it', right: 'Show up for your people consistently, whether or not they ask', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Protector', el: 'Earth' } },
-  { left: 'Jump into the adventure before the plan is ready', right: 'Create the plan first — then build it right', leftScore: { arch: 'Explorer', el: 'Fire' }, rightScore: { arch: 'Builder', el: 'Air' } },
-  { left: 'Sit with your thoughts until they become clear', right: 'Put your thoughts into the world in some form', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Creator', el: 'Air' } },
-  { left: 'Defend what matters — stand between your people and what threatens them', right: 'Lead your people toward a future worth building', leftScore: { arch: 'Protector', el: 'Fire' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: 'Win the competition — prove what you are made of', right: 'Win the trust — make people feel genuinely understood', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Protector', el: 'Water' } },
-  { left: 'Start with an original idea — even if it breaks the rules', right: 'Start with a proven plan — and execute it without cutting corners', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
-  { left: 'Seek out new experiences — the unfamiliar is where you come alive', right: 'Go deeper with what is already in front of you — depth over breadth', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Monk', el: 'Earth' } },
-  { left: 'Help people feel heard — be the one they open up to', right: 'Be the one people can count on — reliable when it actually matters', leftScore: { arch: 'Protector', el: 'Water' }, rightScore: { arch: 'Builder', el: 'Earth' } },
-  { left: 'Think several moves ahead — see what others miss', right: 'Act now — the man who moves first shapes what happens next', leftScore: { arch: 'Visionary', el: 'Air' }, rightScore: { arch: 'Warrior', el: 'Fire' } },
-  { left: 'Make it work — practical, functional, and built to last', right: 'Make it mean something — express what needs to be expressed', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Creator', el: 'Water' } },
-  { left: 'Observe and understand yourself — your inner world is the real work', right: 'Go out and discover — experience teaches what reflection cannot', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Explorer', el: 'Fire' } },
-  { left: 'Cover your people — loyalty, responsibility, and follow-through', right: 'Connect your people — bring them together through words and understanding', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: 'Compete and conquer — challenge is where you are most alive', right: 'Envision and design — the real work is seeing what nobody else sees yet', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Visionary', el: 'Air' } },
-  { left: 'Express it boldly and originally — put your voice out there', right: 'Build it quietly and precisely — craftsmanship over performance', leftScore: { arch: 'Creator', el: 'Fire' }, rightScore: { arch: 'Builder', el: 'Earth' } },
-  { left: 'Energize the room — bring people in, make them feel something', right: 'Go out alone — discover what you find when it is just you and the world', leftScore: { arch: 'Creator', el: 'Fire' }, rightScore: { arch: 'Explorer', el: 'Air' } },
-  { left: 'Master your own mind — discipline and stillness from the inside', right: 'Show up for others — discipline through loyalty and responsibility', leftScore: { arch: 'Monk', el: 'Water' }, rightScore: { arch: 'Protector', el: 'Earth' } },
-  { left: 'Dream up something original — imagination is your greatest tool', right: 'See where things are heading — patterns and possibilities over inspiration', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Visionary', el: 'Water' } },
+  { left: 'Jump in and figure it out as you go', right: 'Think it through before making a move', leftScore: { arch: 'Explorer', el: 'Fire' }, rightScore: { arch: 'Builder', el: 'Earth' } },
+  { left: 'Train, compete, and push your limits', right: 'Make something — music, art, content, anything original', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Creator', el: 'Air' } },
+  { left: 'Take charge and make the call when no one else will', right: 'Listen first — help everyone feel heard before deciding', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Protector', el: 'Water' } },
+  { left: 'Go explore somewhere new — discovery is the whole point', right: 'Go deep on what you have already started — master it', leftScore: { arch: 'Explorer', el: 'Air' }, rightScore: { arch: 'Monk', el: 'Earth' } },
+  { left: 'Be the one who shows up for people without being asked', right: 'Be the one who sees the big picture when no one else does', leftScore: { arch: 'Protector', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
+  { left: 'An idea nobody thought of — creative and unexpected', right: 'A real plan that will actually get done', leftScore: { arch: 'Creator', el: 'Air' }, rightScore: { arch: 'Builder', el: 'Earth' } },
+  { left: 'Pressure makes you sharper — you thrive when the stakes are real', right: 'Pressure makes you go quiet — you step back and find clarity', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: 'Get out and explore — experience teaches what books never will', right: 'Sit with your thoughts — your inner world is where the real work happens', leftScore: { arch: 'Explorer', el: 'Fire' }, rightScore: { arch: 'Monk', el: 'Water' } },
+  { left: 'Build something solid, step by step, that actually lasts', right: 'Inspire people — paint a picture of what could be possible', leftScore: { arch: 'Builder', el: 'Earth' }, rightScore: { arch: 'Visionary', el: 'Air' } },
+  { left: 'Win the competition — prove what you are made of', right: 'Win the trust — be the one people actually open up to', leftScore: { arch: 'Warrior', el: 'Fire' }, rightScore: { arch: 'Protector', el: 'Water' } },
 ];
 
 const SCENARIO_QUESTIONS = [
@@ -2801,7 +2787,7 @@ function _renderMemberView() {
       ${!profile.primaryArchetype ? `
       <div class="mhv2-assess-cta">
         <div class="mhv2-assess-title">Discover Your Archetype</div>
-        <div class="mhv2-assess-sub">29 questions · ~6 minutes · Reveals your archetype and element</div>
+        <div class="mhv2-assess-sub">40 questions · ~4 minutes · Reveals your archetype and element</div>
         <button class="mhv2-assess-btn" data-take-assessment="${profile.id}">BEGIN ASSESSMENT →</button>
       </div>` : ''}
 
@@ -3409,7 +3395,7 @@ function renderAssessIntro() {
           <div class="stage-preview-num">I</div>
           <div>
             <div class="stage-preview-label">Instinct</div>
-            <div class="stage-preview-sub">24 questions</div>
+            <div class="stage-preview-sub">10 questions</div>
           </div>
         </div>
         <div class="stage-preview-divider"></div>
@@ -4507,6 +4493,8 @@ function startBrotherhoodCall(hostProfile) {
       sheet.querySelector('#startCallLinkInput').focus();
       return;
     }
+    // Open window synchronously (before any await) so popup blockers don't suppress it
+    const callWindow = window.open(link, '_blank');
     const hostName = isAdmin ? 'Coach' : (hostProfile?.name || 'Mentor');
     const callData = {
       active: true,
@@ -4517,15 +4505,13 @@ function startBrotherhoodCall(hostProfile) {
       invitedBrothers: inviteAll ? [] : [...selectedIds],
     };
     liveCall = callData;
+    sheet.remove();
     try {
       await setDoc(doc(db, 'feed', '_liveCall_'), callData);
     } catch (err) {
       console.error('startBrotherhoodCall error:', err);
-      alert('Could not start call: ' + err.message);
-      return;
+      showToast('Could not start call: ' + err.message, 'info');
     }
-    sheet.remove();
-    window.open(link, '_blank');
   });
 }
 
