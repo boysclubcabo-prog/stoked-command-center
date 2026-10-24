@@ -5152,7 +5152,7 @@ function openPinPickerModal() {
   const profile = currentProfile;
   if (!profile) return;
   let overlay = document.getElementById('pinPickerModal');
-  if (overlay) { openModal(overlay); buildPinPickerContent(); return; }
+  if (overlay) { openModal(overlay); buildPinPickerContent(''); return; }
 
   overlay = document.createElement('div');
   overlay.id = 'pinPickerModal';
@@ -5199,6 +5199,7 @@ function buildPinPickerContent(searchQuery = '') {
   // Group challenges by category
   const grouped = {};
   for (const ch of challenges) {
+    if (!ch.title) continue; // skip malformed entries
     if (q && !ch.title.toLowerCase().includes(q) && !(ch.tag||'').toLowerCase().includes(q)) continue;
     const cat = ch.tag || 'Other';
     if (!grouped[cat]) grouped[cat] = [];
@@ -5209,6 +5210,12 @@ function buildPinPickerContent(searchQuery = '') {
   const sortedCats = [...categoryOrder.filter(c => grouped[c]), ...Object.keys(grouped).filter(c => !categoryOrder.includes(c))];
 
   if (!sortedCats.length) {
+    if (!q && !challenges.length) {
+      // Challenges not loaded yet — retry shortly
+      body.innerHTML = `<div class="pin-picker-empty">Loading challenges…</div>`;
+      setTimeout(() => buildPinPickerContent(''), 800);
+      return;
+    }
     body.innerHTML = `<div class="pin-picker-empty">No challenges found</div>`;
     return;
   }
