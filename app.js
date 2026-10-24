@@ -4664,7 +4664,7 @@ function renderSocialFeed() {
             <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}${mentorTag(brother)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
-          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
+          ${(isAdmin || isMentor) ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
         </div>
         <div class="sf-post-footer">
           <button class="sf-comment-toggle" data-comment-toggle="${post.id}">${IC.comment}${commentLabel ? ` <span class="sf-comment-count">${commentLabel}</span>` : ''}</button>
@@ -4684,7 +4684,7 @@ function renderSocialFeed() {
             <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}${mentorTag(brother)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
-          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
+          ${(isAdmin || isMentor) ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
         </div>
         <div class="sf-win-banner sf-friend-challenge-banner">
           <span class="sf-win-label">⚡ Friend Challenge Complete</span>
@@ -4733,7 +4733,7 @@ function renderSocialFeed() {
             <div class="sf-post-author">${escHtml(post.brotherName || 'Brother')}${mentorTag(brother)}</div>
             <div class="sf-post-time">${ago}</div>
           </div>
-          ${isAdmin ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
+          ${(isAdmin || isMentor) ? `<button class="sf-delete-btn" data-delete-post="${post.id}" title="Delete">${IC.xmark}</button>` : ''}
         </div>
         <div class="sf-win-banner">
           <span class="sf-win-label">${IC.check} Challenge Complete</span>
