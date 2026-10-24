@@ -316,7 +316,7 @@ function buildChallengeCard(ch, statusHtml, opts = {}) {
 
   const xpNum = ch.xpReward || 0;
 
-  const isPinned = !isAdmin && profile && (profile.pinnedChallenges || []).includes(ch.id);
+  const isPinned = !isAdmin && currentProfile && (currentProfile.pinnedChallenges || []).includes(ch.id);
   const pinBtn = !isAdmin && !opts.adminBtns ? `<button class="ch-pin-btn${isPinned ? ' pinned' : ''}" data-pin="${ch.id}" title="${isPinned ? 'Unpin from card' : 'Pin to My Card'}">${isPinned ? 'Pinned' : 'Pin to Card'}</button>` : '';
 
   // Admin pin-to-brother button (shown when admin is looking at a specific brother's challenges)
@@ -364,6 +364,7 @@ function bindChallengeCards(el) {
   el.querySelectorAll('[data-pin]').forEach(btn => {
     btn.addEventListener('click', async e => {
       e.stopPropagation();
+      const profile = currentProfile;
       if (!profile) return;
       const chId = btn.dataset.pin;
       const current = profile.pinnedChallenges || [];
