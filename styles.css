@@ -7839,6 +7839,44 @@ body { background: var(--bg-base); color: var(--text-primary); }
 .btn-dm-inbox:hover { background: rgba(0,0,0,0.1); color: #111; }
 .roster-dm-btn { background: none; border: none; font-size: 16px; cursor: pointer; color: rgba(0,0,0,0.35); }
 
+/* ── Roster card mobile tightening ── */
+@media (max-width: 420px) {
+  .roster-card {
+    gap: 8px;
+    padding: 12px 10px;
+  }
+  .roster-icon,
+  .roster-icon .arch-icon-wrap,
+  .roster-icon .arch-icon-img {
+    width: 72px !important;
+    height: 72px !important;
+  }
+  .roster-rank {
+    font-size: 18px;
+    width: 26px;
+  }
+  .roster-name {
+    font-size: 15px;
+  }
+  .roster-xp-num {
+    font-size: 12px;
+  }
+  .roster-score {
+    font-size: 17px;
+    min-width: 28px;
+  }
+  .roster-meta {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .dc-roster-badge {
+    font-size: 8px;
+  }
+  .roster-dm-btn {
+    font-size: 14px;
+  }
+}
+
 /* ── Inputs / forms / modals ── */
 input, textarea, select { background: #fff; border: 1px solid rgba(0,0,0,0.12); color: #111; }
 input::placeholder, textarea::placeholder { color: rgba(0,0,0,0.3); }
