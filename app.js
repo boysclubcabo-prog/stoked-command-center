@@ -7575,6 +7575,34 @@ async function renderGamesHub() {
           </div>
         </div>
 
+        <!-- Feed & Chum card -->
+        <div class="game-card game-card--feedchum" id="feedChumCard">
+          <div class="game-card-banner">
+            <div class="game-card-banner-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+                <ellipse cx="32" cy="40" rx="18" ry="10" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                <path d="M20 36 Q24 28 32 30 Q40 28 44 36" stroke="rgba(255,255,255,0.7)" stroke-width="2" fill="none" stroke-linecap="round"/>
+                <circle cx="22" cy="34" r="3" fill="rgba(255,255,255,0.9)"/>
+                <circle cx="38" cy="32" r="4" fill="rgba(255,255,255,0.9)"/>
+                <circle cx="46" cy="38" r="2.5" fill="rgba(255,255,255,0.8)"/>
+                <path d="M32 20 Q34 14 38 12 Q36 18 40 18 Q36 20 38 26 Q34 22 32 20Z" fill="white"/>
+                <line x1="32" y1="20" x2="32" y2="30" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-dasharray="2 2"/>
+              </svg>
+            </div>
+            <div class="game-card-banner-text">
+              <div class="game-card-name">Feed &amp; Chum</div>
+              <div class="game-card-type">Arcade · Made by a Brother</div>
+            </div>
+            <button class="game-card-play-btn" id="playFeedChumBtn">▶ Play</button>
+          </div>
+          <div class="game-card-body">
+            <div class="game-card-desc">An original game built by one of your own. Feed the fish, dodge the chum — built from scratch by Brother Dogeledon.</div>
+            <div class="game-card-xp-badges">
+              <span class="game-xp-badge game-xp-badge--gold">Brotherhood Built 🎮</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Chess card -->
         <div class="game-card game-card--chess" id="chessCard">
           <div class="game-card-banner">
@@ -7608,10 +7636,12 @@ async function renderGamesHub() {
     </div>
     <div class="sync-check-game hidden" id="syncCheckGame"></div>
     <div class="chess-game-container hidden" id="chessGame"></div>
+    <div class="feedchum-game-container hidden" id="feedChumGame"></div>
   `;
 
   document.getElementById('playSyncCheckBtn').addEventListener('click', launchSyncCheck);
   document.getElementById('playChessBtn').addEventListener('click', launchChess);
+  document.getElementById('playFeedChumBtn').addEventListener('click', launchFeedChum);
   await loadGamesLeaderboard('sync_check');
 }
 
@@ -8030,6 +8060,28 @@ let chessBotDiff = 'medium';
 let chessMode = null;
 let chessGameId = null;
 let chessUnsub = null;
+
+function launchFeedChum() {
+  document.querySelector('.games-hub').classList.add('hidden');
+  const el = document.getElementById('feedChumGame');
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="feedchum-wrap">
+      <button class="game-back-btn" id="feedChumBackBtn">← Back to Games</button>
+      <iframe
+        src="https://itch.io/embed-upload/13540696?color=0a1628"
+        allowfullscreen
+        class="feedchum-iframe"
+        title="Feed & Chum"
+      ></iframe>
+    </div>
+  `;
+  el.querySelector('#feedChumBackBtn').addEventListener('click', () => {
+    el.classList.add('hidden');
+    el.innerHTML = '';
+    document.querySelector('.games-hub').classList.remove('hidden');
+  });
+}
 
 // ── Entry / Exit ──────────────────────────────────────────────────────────────
 

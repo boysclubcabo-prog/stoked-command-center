@@ -10508,3 +10508,9 @@ label, .form-label { color: rgba(0,0,0,0.5); }
 .chess-piece-skin-btn.cps-elite .chess-pc-b { background: linear-gradient(160deg,#c0c0c0,#f8f8f8,#707070); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
 .cps-elite .chess-pc-w { background: linear-gradient(160deg,#ffe87c 0%,#fff6c0 45%,#c88800 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6)); }
 .cps-elite .chess-pc-b { background: linear-gradient(160deg,#c0c0c0 0%,#f8f8f8 45%,#707070 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+
+/* ── Feed & Chum game ──────────────────────────────────────────────── */
+.feedchum-game-container { position:fixed; inset:0; background:var(--bg-primary); z-index:200; display:flex; flex-direction:column; }
+.feedchum-game-container.hidden { display:none; }
+.feedchum-wrap { display:flex; flex-direction:column; height:100%; }
+.feedchum-iframe { flex:1; width:100%; border:none; display:block; }
