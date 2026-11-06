@@ -7636,12 +7636,11 @@ async function renderGamesHub() {
     </div>
     <div class="sync-check-game hidden" id="syncCheckGame"></div>
     <div class="chess-game-container hidden" id="chessGame"></div>
-    <div class="feedchum-game-container hidden" id="feedChumGame"></div>
   `;
 
   document.getElementById('playSyncCheckBtn').addEventListener('click', launchSyncCheck);
   document.getElementById('playChessBtn').addEventListener('click', launchChess);
-  document.getElementById('playFeedChumBtn').addEventListener('click', launchFeedChum);
+  document.getElementById('playFeedChumBtn').addEventListener('click', () => window.open('https://dogeledon.itch.io/feed-and-chum', '_blank'));
   await loadGamesLeaderboard('sync_check');
 }
 
@@ -8060,41 +8059,6 @@ let chessBotDiff = 'medium';
 let chessMode = null;
 let chessGameId = null;
 let chessUnsub = null;
-
-function launchFeedChum() {
-  document.querySelector('.games-hub').classList.add('hidden');
-  const el = document.getElementById('feedChumGame');
-  el.classList.remove('hidden');
-  el.innerHTML = `
-    <div class="feedchum-wrap">
-      <div class="feedchum-header">
-        <button class="game-back-btn" id="feedChumBackBtn">← Back to Games</button>
-        <div class="feedchum-credit">Created by Everett Headley, A.K.A. Dogeledon</div>
-      </div>
-      <div class="feedchum-loading" id="feedChumLoading">
-        <div class="feedchum-loading-spinner"></div>
-        <div class="feedchum-loading-title">Feed &amp; Chum</div>
-        <div class="feedchum-loading-sub">Loading game…</div>
-        <div class="feedchum-loading-credit">Created by Everett Headley, A.K.A. Dogeledon</div>
-      </div>
-      <iframe
-        src="https://itch.io/embed-upload/13540696?color=1565c0"
-        allowfullscreen
-        class="feedchum-iframe"
-        title="Feed & Chum"
-        id="feedChumIframe"
-      ></iframe>
-    </div>
-  `;
-  const iframe = el.querySelector('#feedChumIframe');
-  const loading = el.querySelector('#feedChumLoading');
-  iframe.addEventListener('load', () => loading.classList.add('hidden'));
-  el.querySelector('#feedChumBackBtn').addEventListener('click', () => {
-    el.classList.add('hidden');
-    el.innerHTML = '';
-    document.querySelector('.games-hub').classList.remove('hidden');
-  });
-}
 
 // ── Entry / Exit ──────────────────────────────────────────────────────────────
 
