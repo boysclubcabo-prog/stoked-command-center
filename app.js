@@ -8067,15 +8067,28 @@ function launchFeedChum() {
   el.classList.remove('hidden');
   el.innerHTML = `
     <div class="feedchum-wrap">
-      <button class="game-back-btn" id="feedChumBackBtn">← Back to Games</button>
+      <div class="feedchum-header">
+        <button class="game-back-btn" id="feedChumBackBtn">← Back to Games</button>
+        <div class="feedchum-credit">Created by Everett Headley, A.K.A. Dogeledon</div>
+      </div>
+      <div class="feedchum-loading" id="feedChumLoading">
+        <div class="feedchum-loading-spinner"></div>
+        <div class="feedchum-loading-title">Feed &amp; Chum</div>
+        <div class="feedchum-loading-sub">Loading game…</div>
+        <div class="feedchum-loading-credit">Created by Everett Headley, A.K.A. Dogeledon</div>
+      </div>
       <iframe
-        src="https://itch.io/embed-upload/13540696?color=0a1628"
+        src="https://itch.io/embed-upload/13540696?color=1565c0"
         allowfullscreen
         class="feedchum-iframe"
         title="Feed & Chum"
+        id="feedChumIframe"
       ></iframe>
     </div>
   `;
+  const iframe = el.querySelector('#feedChumIframe');
+  const loading = el.querySelector('#feedChumLoading');
+  iframe.addEventListener('load', () => loading.classList.add('hidden'));
   el.querySelector('#feedChumBackBtn').addEventListener('click', () => {
     el.classList.add('hidden');
     el.innerHTML = '';
