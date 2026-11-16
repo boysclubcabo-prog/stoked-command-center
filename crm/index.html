@@ -1,0 +1,921 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>STOKED CRM</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;
+  --text:#e6edf3;--muted:#8b949e;--accent:#2f81f7;--accent2:#3fb950;
+  --red:#f85149;--yellow:#d29922;--purple:#8957e5;--orange:#db6d28;
+  --radius:10px;--font:'Inter',system-ui,sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px}
+a{color:var(--accent);text-decoration:none}
+input,textarea,select{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 12px;font-size:14px;font-family:var(--font);width:100%;outline:none;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px}
+select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;cursor:pointer}
+button{cursor:pointer;border:none;border-radius:6px;font-family:var(--font);font-size:14px;padding:8px 16px;transition:opacity .15s}
+button:hover{opacity:.85}
+.btn-primary{background:var(--accent);color:#fff;font-weight:600}
+.btn-danger{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.hidden{display:none!important}
+/* ── AUTH SCREEN ── */
+#authScreen{display:flex;align-items:center;justify-content:center;height:100vh}
+.auth-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:40px;width:360px;text-align:center}
+.auth-logo{font-size:28px;font-weight:900;letter-spacing:1px;color:var(--accent);margin-bottom:4px}
+.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px}
+.auth-box input{margin-bottom:12px}
+.auth-box .btn-primary{width:100%;padding:11px}
+.auth-err{color:var(--red);font-size:13px;margin-top:10px;min-height:18px}
+/* ── APP SHELL ── */
+#app{display:none;flex-direction:column;height:100vh}
+/* header */
+.crm-header{display:flex;align-items:center;gap:12px;padding:12px 20px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;z-index:50}
+.crm-logo{font-size:18px;font-weight:900;letter-spacing:.5px;color:var(--accent)}
+.crm-logo span{color:var(--muted);font-weight:400;font-size:13px;margin-left:6px}
+.header-search{flex:1;max-width:340px}
+.header-search input{background:var(--bg3)}
+.header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.total-badge{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px;color:var(--muted)}
+/* sidebar + content */
+.crm-body{display:flex;flex:1;overflow:hidden}
+.crm-sidebar{width:200px;background:var(--bg2);border-right:1px solid var(--border);padding:12px 8px;flex-shrink:0;overflow-y:auto}
+.sidebar-label{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);padding:4px 8px;margin-bottom:4px}
+.sidebar-item{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--muted);transition:background .1s}
+.sidebar-item:hover{background:var(--bg3);color:var(--text)}
+.sidebar-item.active{background:var(--accent);color:#fff}
+.sidebar-item .cnt{font-size:11px;background:rgba(255,255,255,.12);border-radius:10px;padding:1px 7px}
+.sidebar-item.active .cnt{background:rgba(255,255,255,.25)}
+/* main content */
+.crm-main{flex:1;overflow-y:auto;padding:20px}
+/* filters bar */
+.filters-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s}
+.filter-chip:hover,.filter-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(47,129,247,.1)}
+/* grid */
+.students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+/* card */
+.student-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .15s,transform .1s}
+.student-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card-top{padding:14px 14px 10px;display:flex;align-items:center;gap:12px}
+.card-avatar{width:46px;height:46px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--text);flex-shrink:0;border:2px solid var(--border)}
+.card-info{flex:1;min-width:0}
+.card-name{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-age-loc{font-size:12px;color:var(--muted);margin-top:2px}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px;padding:0 14px 10px}
+.tag{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.tag-program{background:rgba(47,129,247,.18);color:#79b8ff}
+.tag-archetype{background:rgba(63,185,80,.15);color:#56d364}
+.tag-tz{background:rgba(139,87,229,.15);color:#bc8cff}
+.tag-hs{background:rgba(219,109,40,.15);color:#ffa657}
+.card-note{padding:0 14px 12px;font-size:12px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.card-footer{border-top:1px solid var(--border);padding:8px 14px;display:flex;gap:6px;align-items:center}
+.card-footer .btn-sm{flex:1;text-align:center}
+/* ── DETAIL PANEL (slide-over) ── */
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;display:none}
+.detail-overlay.open{display:block}
+.detail-panel{position:fixed;top:0;right:0;bottom:0;width:min(600px,100vw);background:var(--bg2);border-left:1px solid var(--border);z-index:101;overflow-y:auto;transform:translateX(100%);transition:transform .25s}
+.detail-panel.open{transform:translateX(0)}
+.detail-header{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:10}
+.detail-avatar{width:52px;height:52px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;border:2px solid var(--border)}
+.detail-name{font-size:19px;font-weight:800}
+.detail-meta{font-size:13px;color:var(--muted)}
+.detail-close{margin-left:auto;background:var(--bg3);border:1px solid var(--border);color:var(--text);width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;padding:0}
+.detail-body{padding:20px}
+/* tabs inside detail */
+.detail-tabs{display:flex;gap:2px;margin-bottom:20px;border-bottom:1px solid var(--border)}
+.detail-tab{padding:8px 14px;font-size:13px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s}
+.detail-tab:hover{color:var(--text)}
+.detail-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+/* form grid inside detail */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.single{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:12px;color:var(--muted);font-weight:500}
+/* log entries */
+.log-entry{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.log-date{font-size:11px;color:var(--muted);margin-bottom:4px}
+.log-text{font-size:13px;line-height:1.6;white-space:pre-wrap}
+.log-delete{float:right;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0;line-height:1}
+.log-delete:hover{color:var(--red)}
+.add-log-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px}
+/* brotherhood pull */
+.brotherhood-pull{background:rgba(47,129,247,.08);border:1px solid rgba(47,129,247,.25);border-radius:8px;padding:14px;margin-bottom:16px}
+.brotherhood-pull h4{font-size:13px;color:var(--accent);margin-bottom:10px}
+.pull-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pull-item{display:flex;flex-direction:column;gap:2px}
+.pull-label{font-size:11px;color:var(--muted)}
+.pull-val{font-size:13px;font-weight:600}
+/* empty state */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state .icon{font-size:48px;margin-bottom:12px}
+.empty-state h3{font-size:17px;color:var(--text);margin-bottom:6px}
+/* modal (add student) */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.modal-title{font-size:17px;font-weight:700}
+.modal-close{background:var(--bg3);border:1px solid var(--border);color:var(--text);width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;padding:0}
+.modal-body{padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1f2937;border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;transition:transform .3s;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+/* responsive */
+@media(max-width:640px){
+  .crm-sidebar{display:none}
+  .students-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .detail-panel{width:100vw}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">STOKED.</div>
+    <div class="auth-sub">Coach CRM — Private Access</div>
+    <input type="email" id="authEmail" placeholder="Email" autocomplete="username"/>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password"/>
+    <button class="btn-primary" id="authBtn">Sign In</button>
+    <div class="auth-err" id="authErr"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="crm-header">
+    <div class="crm-logo">STOKED. <span>CRM</span></div>
+    <div class="header-search">
+      <input type="search" id="searchInput" placeholder="Search students…"/>
+    </div>
+    <div class="header-actions">
+      <span class="total-badge" id="totalBadge">0 students</span>
+      <button class="btn-primary" id="addStudentBtn">+ Add Student</button>
+      <button class="btn-ghost btn-sm" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <div class="crm-body">
+    <div class="crm-sidebar">
+      <div class="sidebar-label">Programs</div>
+      <div class="sidebar-item active" data-program="all">All <span class="cnt" id="cnt-all">0</span></div>
+      <div class="sidebar-item" data-program="boys-club-cabo">Boys Club Cabo <span class="cnt" id="cnt-boys-club-cabo">0</span></div>
+      <div class="sidebar-item" data-program="damara">Damara BC <span class="cnt" id="cnt-damara">0</span></div>
+      <div class="sidebar-item" data-program="san-jose">San José BC <span class="cnt" id="cnt-san-jose">0</span></div>
+      <div class="sidebar-item" data-program="music">Music <span class="cnt" id="cnt-music">0</span></div>
+      <div class="sidebar-item" data-program="private">Private <span class="cnt" id="cnt-private">0</span></div>
+      <div style="margin-top:16px" class="sidebar-label">Quick Filters</div>
+      <div class="sidebar-item" data-filter="homeschooled">Homeschooled</div>
+      <div class="sidebar-item" data-filter="brotherhood">Has Brotherhood</div>
+    </div>
+
+    <div class="crm-main">
+      <div class="filters-bar" id="filtersBar">
+        <span class="filter-chip active" data-sort="name">A–Z</span>
+        <span class="filter-chip" data-sort="recent">Recent</span>
+        <span class="filter-chip" data-sort="age">By Age</span>
+      </div>
+      <div class="students-grid" id="studentsGrid"></div>
+      <div class="empty-state hidden" id="emptyState">
+        <div class="icon">📋</div>
+        <h3>No students yet</h3>
+        <p>Click <strong>+ Add Student</strong> to get started.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detailOverlay"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <div class="detail-avatar" id="dpAvatar"></div>
+    <div>
+      <div class="detail-name" id="dpName"></div>
+      <div class="detail-meta" id="dpMeta"></div>
+    </div>
+    <button class="detail-close" id="detailClose">×</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-tabs">
+      <div class="detail-tab active" data-tab="profile">Profile</div>
+      <div class="detail-tab" data-tab="family">Family</div>
+      <div class="detail-tab" data-tab="personality">Personality</div>
+      <div class="detail-tab" data-tab="brotherhood">Brotherhood</div>
+      <div class="detail-tab" data-tab="log">Coach Log</div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div class="tab-pane active" id="tab-profile">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Full Name</label><input id="f-name" placeholder="Name"/></div>
+        <div class="form-group"><label class="form-label">Nickname / Goes By</label><input id="f-nickname" placeholder="Nickname"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Age</label><input id="f-age" type="number" placeholder="Age"/></div>
+        <div class="form-group"><label class="form-label">Birthday</label><input id="f-birthday" type="date"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Program</label>
+          <select id="f-program">
+            <option value="">Select program…</option>
+            <option value="boys-club-cabo">Boys Club Cabo</option>
+            <option value="damara">Damara Boys Club</option>
+            <option value="san-jose">San José Boys Club</option>
+            <option value="music">Music Student</option>
+            <option value="private">Private Student</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Time Zone</label>
+          <select id="f-timezone">
+            <option value="">Select…</option>
+            <option value="PT">Pacific (PT)</option>
+            <option value="MT">Mountain (MT)</option>
+            <option value="CT">Central (CT)</option>
+            <option value="ET">Eastern (ET)</option>
+            <option value="MX">Mexico City</option>
+            <option value="GT">Guatemala</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">City / Location</label><input id="f-location" placeholder="City, State/Country"/></div>
+        <div class="form-group"><label class="form-label">Homeschooled?</label>
+          <select id="f-homeschool">
+            <option value="">Select…</option>
+            <option value="yes">Yes</option>
+            <option value="no">No — traditional school</option>
+            <option value="hybrid">Hybrid</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">School / Grade</label><input id="f-school" placeholder="School name or grade level"/></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Interests</label><textarea id="f-interests" placeholder="What they're into — sports, music, gaming, art…"></textarea></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Struggles / Challenges</label><textarea id="f-struggles" placeholder="What they're working through…"></textarea></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Goals</label><textarea id="f-goals" placeholder="What they want to achieve…"></textarea></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Likes</label><textarea id="f-likes" placeholder="Things they love…" style="min-height:60px"></textarea></div>
+        <div class="form-group"><label class="form-label">Dislikes</label><textarea id="f-dislikes" placeholder="Things they avoid…" style="min-height:60px"></textarea></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button class="btn-primary" id="saveProfileBtn">Save Profile</button>
+      </div>
+    </div>
+
+    <!-- FAMILY TAB -->
+    <div class="tab-pane" id="tab-family">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Parent / Guardian Name</label><input id="f-parentName" placeholder="Full name"/></div>
+        <div class="form-group"><label class="form-label">Relationship</label>
+          <select id="f-parentRel">
+            <option value="">Select…</option>
+            <option value="Mom">Mom</option>
+            <option value="Dad">Dad</option>
+            <option value="Both Parents">Both Parents</option>
+            <option value="Grandparent">Grandparent</option>
+            <option value="Guardian">Guardian</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Parent Phone</label><input id="f-parentPhone" type="tel" placeholder="+1 (555) 000-0000"/></div>
+        <div class="form-group"><label class="form-label">Parent Email</label><input id="f-parentEmail" type="email" placeholder="parent@email.com"/></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Parent Dynamic / Notes</label><textarea id="f-parentDynamic" placeholder="How they relate to their kid, communication style, involvement level…"></textarea></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Second Parent / Guardian (optional)</label><input id="f-parent2" placeholder="Name, phone, email…"/></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Siblings</label><textarea id="f-siblings" placeholder="Names, ages, any relevant notes…" style="min-height:60px"></textarea></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Home / Family Situation</label><textarea id="f-homeSituation" placeholder="Household structure, relevant context…"></textarea></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button class="btn-primary" id="saveFamilyBtn">Save Family</button>
+      </div>
+    </div>
+
+    <!-- PERSONALITY TAB -->
+    <div class="tab-pane" id="tab-personality">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Archetype (manual)</label>
+          <select id="f-archetype">
+            <option value="">Select…</option>
+            <option value="Warrior">Warrior</option>
+            <option value="Explorer">Explorer</option>
+            <option value="Creator">Creator</option>
+            <option value="Builder">Builder</option>
+            <option value="Protector">Protector</option>
+            <option value="Visionary">Visionary</option>
+            <option value="Monk">Monk</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Element</label>
+          <select id="f-element">
+            <option value="">Select…</option>
+            <option value="Fire">Fire 🔥</option>
+            <option value="Earth">Earth 🌍</option>
+            <option value="Air">Air 💨</option>
+            <option value="Water">Water 💧</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Energy / Vibe</label>
+          <select id="f-energy">
+            <option value="">Select…</option>
+            <option value="High energy">High energy</option>
+            <option value="Calm/reserved">Calm / reserved</option>
+            <option value="Analytical">Analytical</option>
+            <option value="Creative/expressive">Creative / expressive</option>
+            <option value="Social/outgoing">Social / outgoing</option>
+            <option value="Introverted">Introverted</option>
+            <option value="Mixed">Mixed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Learning Style</label>
+          <select id="f-learning">
+            <option value="">Select…</option>
+            <option value="Visual">Visual</option>
+            <option value="Hands-on">Hands-on / kinesthetic</option>
+            <option value="Verbal/discussion">Verbal / discussion</option>
+            <option value="Reading/writing">Reading / writing</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Strengths</label><textarea id="f-strengths" placeholder="Natural gifts, what they're good at…"></textarea></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Growth Areas</label><textarea id="f-growthAreas" placeholder="Where they need the most development…"></textarea></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Coach Notes (personality)</label><textarea id="f-personalityNotes" placeholder="Your read on who this kid is…"></textarea></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button class="btn-primary" id="savePersonalityBtn">Save Personality</button>
+      </div>
+    </div>
+
+    <!-- BROTHERHOOD TAB -->
+    <div class="tab-pane" id="tab-brotherhood">
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Brotherhood App Email (to link account)</label><input id="f-brotherhoodEmail" placeholder="Their Brotherhood login email" type="email"/></div>
+      </div>
+      <div id="brotherhoodData" class="hidden">
+        <div class="brotherhood-pull">
+          <h4>⚡ Brotherhood Data (live)</h4>
+          <div class="pull-grid">
+            <div class="pull-item"><span class="pull-label">Archetype</span><span class="pull-val" id="bp-archetype">—</span></div>
+            <div class="pull-item"><span class="pull-label">Element</span><span class="pull-val" id="bp-element">—</span></div>
+            <div class="pull-item"><span class="pull-label">XP</span><span class="pull-val" id="bp-xp">—</span></div>
+            <div class="pull-item"><span class="pull-label">Streak</span><span class="pull-val" id="bp-streak">—</span></div>
+            <div class="pull-item"><span class="pull-label">Brotherhood Score</span><span class="pull-val" id="bp-bs">—</span></div>
+            <div class="pull-item"><span class="pull-label">Last Seen</span><span class="pull-val" id="bp-seen">—</span></div>
+          </div>
+          <div style="margin-top:10px">
+            <div class="pull-label" style="margin-bottom:4px">Weekly Win</div>
+            <div class="pull-val" id="bp-win" style="font-weight:400;font-size:13px">—</div>
+          </div>
+          <div style="margin-top:10px">
+            <div class="pull-label" style="margin-bottom:4px">Weekly Commitment</div>
+            <div class="pull-val" id="bp-commit" style="font-weight:400;font-size:13px">—</div>
+          </div>
+          <div style="margin-top:10px">
+            <div class="pull-label" style="margin-bottom:4px">Earned Badges</div>
+            <div class="pull-val" id="bp-badges" style="font-weight:400;font-size:13px">—</div>
+          </div>
+        </div>
+      </div>
+      <div id="brotherhoodNone" style="color:var(--muted);font-size:13px;padding:10px 0">Enter their Brotherhood email above and click Link to pull live data.</div>
+      <button class="btn-primary btn-sm" id="linkBrotherhoodBtn" style="margin-top:4px">Link Brotherhood Account</button>
+      <div style="display:flex;justify-content:flex-end;margin-top:16px">
+        <button class="btn-primary" id="saveBrotherhoodBtn">Save</button>
+      </div>
+    </div>
+
+    <!-- LOG TAB -->
+    <div class="tab-pane" id="tab-log">
+      <div class="add-log-box" style="margin-bottom:16px">
+        <textarea id="newLogText" placeholder="Add a coach note, observation, win, concern…" style="min-height:70px;background:transparent;border:none;padding:0;margin-bottom:8px"></textarea>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn-primary btn-sm" id="addLogBtn">Add Entry</button>
+        </div>
+      </div>
+      <div id="logEntries"></div>
+    </div>
+
+    <!-- DANGER ZONE -->
+    <div style="border-top:1px solid var(--border);margin-top:24px;padding-top:16px;display:flex;justify-content:flex-end">
+      <button class="btn-danger btn-sm" id="deleteStudentBtn">Delete Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD STUDENT MODAL -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Student</div>
+      <button class="modal-close" id="closeAddModal">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Full Name *</label><input id="new-name" placeholder="Student name"/></div>
+        <div class="form-group"><label class="form-label">Age</label><input id="new-age" type="number" placeholder="Age"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Program *</label>
+          <select id="new-program">
+            <option value="">Select program…</option>
+            <option value="boys-club-cabo">Boys Club Cabo</option>
+            <option value="damara">Damara Boys Club</option>
+            <option value="san-jose">San José Boys Club</option>
+            <option value="music">Music Student</option>
+            <option value="private">Private Student</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Location</label><input id="new-location" placeholder="City, State"/></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label class="form-label">Quick Note</label><textarea id="new-note" placeholder="Anything to remember right away…" style="min-height:60px"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="cancelAddModal">Cancel</button>
+      <button class="btn-primary" id="confirmAddModal">Add Student</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBIfsac4gqRxCEoU8655AnrajxmRQOSDo4",
+  authDomain: "stoked-brotherhood-app.firebaseapp.com",
+  projectId: "stoked-brotherhood-app",
+  storageBucket: "stoked-brotherhood-app.firebasestorage.app",
+  messagingSenderId: "243670203554",
+  appId: "1:243670203554:web:adfed8e3bcb431368f6bfb"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const ADMIN_EMAIL = 'boysclubcabo@gmail.com';
+
+// ── State ──────────────────────────────────────────────────────────
+let students = [];
+let activeProgram = 'all';
+let activeSort = 'name';
+let searchQuery = '';
+let currentStudentId = null;
+let unsub = null;
+
+// ── Auth ───────────────────────────────────────────────────────────
+document.getElementById('authBtn').addEventListener('click', async () => {
+  const email = document.getElementById('authEmail').value.trim();
+  const pass  = document.getElementById('authPass').value;
+  document.getElementById('authErr').textContent = '';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    document.getElementById('authErr').textContent = 'Invalid email or password.';
+  }
+});
+document.getElementById('authEmail').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('authPass').focus(); });
+document.getElementById('authPass').addEventListener('keydown',  e => { if(e.key==='Enter') document.getElementById('authBtn').click(); });
+
+document.getElementById('signOutBtn').addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, user => {
+  if (user && user.email === ADMIN_EMAIL) {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    subscribeStudents();
+  } else {
+    document.getElementById('authScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    if (unsub) { unsub(); unsub = null; }
+    students = [];
+  }
+});
+
+// ── Firestore subscription ─────────────────────────────────────────
+function subscribeStudents() {
+  const q = query(collection(db, 'crm_students'), orderBy('name'));
+  unsub = onSnapshot(q, snap => {
+    students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAll();
+  });
+}
+
+// ── Render ─────────────────────────────────────────────────────────
+const PROGRAM_LABELS = {
+  'boys-club-cabo': 'Boys Club Cabo',
+  'damara': 'Damara BC',
+  'san-jose': 'San José BC',
+  'music': 'Music',
+  'private': 'Private',
+};
+const PROGRAM_COLORS = {
+  'boys-club-cabo': '#2f81f7',
+  'damara': '#3fb950',
+  'san-jose': '#d29922',
+  'music': '#8957e5',
+  'private': '#db6d28',
+};
+
+function initials(name) {
+  if (!name) return '?';
+  return name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+}
+
+function avatarBg(name) {
+  const colors = ['#2f81f7','#3fb950','#8957e5','#d29922','#db6d28','#f85149','#79b8ff'];
+  let h = 0;
+  for (let c of (name||'')) h = (h*31 + c.charCodeAt(0)) & 0xffff;
+  return colors[h % colors.length];
+}
+
+function relativeDate(ts) {
+  if (!ts) return '';
+  const ms = ts.toMillis ? ts.toMillis() : ts;
+  const diff = Date.now() - ms;
+  if (diff < 60000) return 'just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  if (diff < 604800000) return Math.floor(diff/86400000) + 'd ago';
+  return new Date(ms).toLocaleDateString();
+}
+
+function filtered() {
+  let list = [...students];
+  if (activeProgram !== 'all') {
+    if (activeProgram === 'homeschooled') list = list.filter(s => s.homeschool === 'yes');
+    else if (activeProgram === 'brotherhood') list = list.filter(s => s.brotherhoodEmail);
+    else list = list.filter(s => s.program === activeProgram);
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(s =>
+      (s.name||'').toLowerCase().includes(q) ||
+      (s.location||'').toLowerCase().includes(q) ||
+      (s.interests||'').toLowerCase().includes(q) ||
+      (s.program||'').toLowerCase().includes(q)
+    );
+  }
+  if (activeSort === 'age') list.sort((a,b) => (a.age||99)-(b.age||99));
+  else if (activeSort === 'recent') list.sort((a,b) => {
+    const ta = a.updatedAt?.toMillis?.() || 0;
+    const tb = b.updatedAt?.toMillis?.() || 0;
+    return tb - ta;
+  });
+  else list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  return list;
+}
+
+function renderAll() {
+  // sidebar counts
+  const counts = {};
+  students.forEach(s => { counts[s.program] = (counts[s.program]||0)+1; });
+  document.getElementById('cnt-all').textContent = students.length;
+  ['boys-club-cabo','damara','san-jose','music','private'].forEach(p => {
+    const el = document.getElementById('cnt-'+p);
+    if (el) el.textContent = counts[p]||0;
+  });
+  document.getElementById('totalBadge').textContent = students.length + ' student' + (students.length!==1?'s':'');
+
+  const list = filtered();
+  const grid = document.getElementById('studentsGrid');
+  const empty = document.getElementById('emptyState');
+  if (!list.length) { grid.innerHTML=''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  grid.innerHTML = list.map(s => {
+    const color = avatarBg(s.name);
+    const progLabel = PROGRAM_LABELS[s.program] || s.program || '';
+    const progColor = PROGRAM_COLORS[s.program] || '#8b949e';
+    const tags = [
+      progLabel ? `<span class="tag tag-program" style="background:${progColor}22;color:${progColor}">${progLabel}</span>` : '',
+      s.archetype ? `<span class="tag tag-archetype">${s.archetype}</span>` : '',
+      s.timezone  ? `<span class="tag tag-tz">${s.timezone}</span>` : '',
+      s.homeschool==='yes' ? `<span class="tag tag-hs">Homeschool</span>` : '',
+    ].filter(Boolean).join('');
+    const ageStr = s.age ? `Age ${s.age}` : '';
+    const locStr = s.location || '';
+    const meta = [ageStr, locStr].filter(Boolean).join(' · ');
+    const preview = s.interests || s.struggles || s.goals || s.coachNote || '';
+    return `
+      <div class="student-card" data-id="${s.id}">
+        <div class="card-top">
+          <div class="card-avatar" style="background:${color};border-color:${color}40">${initials(s.name)}</div>
+          <div class="card-info">
+            <div class="card-name">${s.name||'Unnamed'}</div>
+            <div class="card-age-loc">${meta}</div>
+          </div>
+        </div>
+        ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+        ${preview ? `<div class="card-note">${preview}</div>` : ''}
+        <div class="card-footer">
+          <button class="btn-ghost btn-sm" data-open="${s.id}">View Profile</button>
+          ${s.brotherhoodEmail ? `<span style="font-size:11px;color:var(--accent)">⚡ Brotherhood</span>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  grid.querySelectorAll('[data-open]').forEach(btn =>
+    btn.addEventListener('click', e => { e.stopPropagation(); openDetail(btn.dataset.open); })
+  );
+  grid.querySelectorAll('.student-card').forEach(card =>
+    card.addEventListener('click', () => openDetail(card.dataset.id))
+  );
+}
+
+// ── Sidebar / filter wiring ────────────────────────────────────────
+document.querySelectorAll('.sidebar-item[data-program]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    activeProgram = item.dataset.program;
+    renderAll();
+  });
+});
+document.querySelectorAll('.sidebar-item[data-filter]').forEach(item => {
+  item.addEventListener('click', () => {
+    document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+    item.classList.add('active');
+    activeProgram = item.dataset.filter;
+    renderAll();
+  });
+});
+document.querySelectorAll('.filter-chip[data-sort]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+    chip.classList.add('active');
+    activeSort = chip.dataset.sort;
+    renderAll();
+  });
+});
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderAll();
+});
+
+// ── Add Student ────────────────────────────────────────────────────
+document.getElementById('addStudentBtn').addEventListener('click', () => openAddModal());
+document.getElementById('closeAddModal').addEventListener('click', closeAddModal);
+document.getElementById('cancelAddModal').addEventListener('click', closeAddModal);
+document.getElementById('addModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeAddModal(); });
+
+function openAddModal() {
+  ['new-name','new-age','new-location','new-note'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('new-program').value='';
+  document.getElementById('addModal').classList.add('open');
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+document.getElementById('confirmAddModal').addEventListener('click', async () => {
+  const name = document.getElementById('new-name').value.trim();
+  const program = document.getElementById('new-program').value;
+  if (!name) { showToast('Name is required'); return; }
+  if (!program) { showToast('Select a program'); return; }
+  const data = {
+    name,
+    program,
+    age: parseInt(document.getElementById('new-age').value)||null,
+    location: document.getElementById('new-location').value.trim(),
+    coachNote: document.getElementById('new-note').value.trim(),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  const ref = await addDoc(collection(db, 'crm_students'), data);
+  closeAddModal();
+  showToast(`${name} added`);
+  openDetail(ref.id);
+});
+
+// ── Detail Panel ───────────────────────────────────────────────────
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('detailOverlay').addEventListener('click', closeDetail);
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('detailOverlay').classList.remove('open');
+  currentStudentId = null;
+}
+
+async function openDetail(id) {
+  currentStudentId = id;
+  const s = students.find(x=>x.id===id) || (await getDoc(doc(db,'crm_students',id))).data();
+  if (!s) return;
+
+  // header
+  const color = avatarBg(s.name);
+  document.getElementById('dpAvatar').textContent = initials(s.name);
+  document.getElementById('dpAvatar').style.background = color;
+  document.getElementById('dpName').textContent = s.name||'';
+  document.getElementById('dpMeta').textContent = [
+    PROGRAM_LABELS[s.program]||s.program||'',
+    s.age ? 'Age '+s.age : '',
+    s.location||''
+  ].filter(Boolean).join(' · ');
+
+  // populate fields
+  const fields = {
+    'f-name': s.name, 'f-nickname': s.nickname, 'f-age': s.age, 'f-birthday': s.birthday,
+    'f-program': s.program, 'f-timezone': s.timezone, 'f-location': s.location,
+    'f-homeschool': s.homeschool, 'f-school': s.school, 'f-interests': s.interests,
+    'f-struggles': s.struggles, 'f-goals': s.goals, 'f-likes': s.likes, 'f-dislikes': s.dislikes,
+    'f-parentName': s.parentName, 'f-parentRel': s.parentRel, 'f-parentPhone': s.parentPhone,
+    'f-parentEmail': s.parentEmail, 'f-parentDynamic': s.parentDynamic, 'f-parent2': s.parent2,
+    'f-siblings': s.siblings, 'f-homeSituation': s.homeSituation,
+    'f-archetype': s.archetype, 'f-element': s.element, 'f-energy': s.energy,
+    'f-learning': s.learning, 'f-strengths': s.strengths, 'f-growthAreas': s.growthAreas,
+    'f-personalityNotes': s.personalityNotes, 'f-brotherhoodEmail': s.brotherhoodEmail,
+  };
+  Object.entries(fields).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val || '';
+  });
+
+  // switch to profile tab
+  switchTab('profile');
+
+  // brotherhood data
+  if (s.brotherhoodEmail) loadBrotherhoodData(s.brotherhoodEmail);
+  else { document.getElementById('brotherhoodData').classList.add('hidden'); document.getElementById('brotherhoodNone').style.display=''; }
+
+  // log
+  loadLog(id);
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('detailOverlay').classList.add('open');
+}
+
+// tabs
+document.querySelectorAll('.detail-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+});
+function switchTab(name) {
+  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active', p.id==='tab-'+name));
+}
+
+// ── Save helpers ───────────────────────────────────────────────────
+async function saveFields(fields) {
+  if (!currentStudentId) return;
+  const data = { ...fields, updatedAt: serverTimestamp() };
+  await updateDoc(doc(db,'crm_students',currentStudentId), data);
+  showToast('Saved');
+}
+
+document.getElementById('saveProfileBtn').addEventListener('click', () => saveFields({
+  name: v('f-name'), nickname: v('f-nickname'), age: parseInt(v('f-age'))||null,
+  birthday: v('f-birthday'), program: v('f-program'), timezone: v('f-timezone'),
+  location: v('f-location'), homeschool: v('f-homeschool'), school: v('f-school'),
+  interests: v('f-interests'), struggles: v('f-struggles'), goals: v('f-goals'),
+  likes: v('f-likes'), dislikes: v('f-dislikes'),
+}));
+
+document.getElementById('saveFamilyBtn').addEventListener('click', () => saveFields({
+  parentName: v('f-parentName'), parentRel: v('f-parentRel'), parentPhone: v('f-parentPhone'),
+  parentEmail: v('f-parentEmail'), parentDynamic: v('f-parentDynamic'), parent2: v('f-parent2'),
+  siblings: v('f-siblings'), homeSituation: v('f-homeSituation'),
+}));
+
+document.getElementById('savePersonalityBtn').addEventListener('click', () => saveFields({
+  archetype: v('f-archetype'), element: v('f-element'), energy: v('f-energy'),
+  learning: v('f-learning'), strengths: v('f-strengths'), growthAreas: v('f-growthAreas'),
+  personalityNotes: v('f-personalityNotes'),
+}));
+
+document.getElementById('saveBrotherhoodBtn').addEventListener('click', () => saveFields({
+  brotherhoodEmail: v('f-brotherhoodEmail'),
+}));
+
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+// ── Brotherhood link ───────────────────────────────────────────────
+document.getElementById('linkBrotherhoodBtn').addEventListener('click', async () => {
+  const email = v('f-brotherhoodEmail');
+  if (!email) return;
+  await loadBrotherhoodData(email);
+  await saveFields({ brotherhoodEmail: email });
+});
+
+async function loadBrotherhoodData(email) {
+  const none = document.getElementById('brotherhoodNone');
+  const dataEl = document.getElementById('brotherhoodData');
+  try {
+    const snap = await getDocs(query(collection(db,'brothers'), where('email','==',email)));
+    if (snap.empty) { none.textContent='No Brotherhood account found for that email.'; none.style.display=''; dataEl.classList.add('hidden'); return; }
+    const b = snap.docs[0].data();
+    document.getElementById('bp-archetype').textContent = b.primaryArchetype||'—';
+    document.getElementById('bp-element').textContent   = b.dominantElement||'—';
+    document.getElementById('bp-xp').textContent        = b.xp?.toLocaleString()||'—';
+    document.getElementById('bp-streak').textContent    = b.currentStreak ? b.currentStreak+' days' : '—';
+    document.getElementById('bp-bs').textContent        = b.brotherhoodScore||'—';
+    document.getElementById('bp-seen').textContent      = b.lastSeen ? relativeDate(b.lastSeen) : '—';
+    document.getElementById('bp-win').textContent       = b.weeklyWin||'—';
+    document.getElementById('bp-commit').textContent    = b.weeklyCommitment||'—';
+    const badges = b.earnedBadges || b.badges || [];
+    document.getElementById('bp-badges').textContent = badges.length ? badges.join(', ') : '—';
+    dataEl.classList.remove('hidden');
+    none.style.display = 'none';
+  } catch(e) {
+    none.textContent = 'Could not load Brotherhood data.';
+    none.style.display = '';
+    dataEl.classList.add('hidden');
+  }
+}
+
+// ── Coach Log ──────────────────────────────────────────────────────
+let logUnsub = null;
+function loadLog(studentId) {
+  if (logUnsub) { logUnsub(); logUnsub = null; }
+  const container = document.getElementById('logEntries');
+  container.innerHTML = '<div style="color:var(--muted);font-size:13px">Loading…</div>';
+  const q = query(collection(db,'crm_students',studentId,'log'), orderBy('createdAt','desc'));
+  logUnsub = onSnapshot(q, snap => {
+    if (snap.empty) { container.innerHTML='<div style="color:var(--muted);font-size:13px">No entries yet.</div>'; return; }
+    container.innerHTML = snap.docs.map(d => {
+      const entry = d.data();
+      const dateStr = entry.createdAt ? new Date(entry.createdAt.toMillis()).toLocaleString() : '';
+      return `<div class="log-entry" data-log-id="${d.id}">
+        <div class="log-date">${dateStr}<button class="log-delete" data-del="${d.id}" title="Delete">×</button></div>
+        <div class="log-text">${entry.text||''}</div>
+      </div>`;
+    }).join('');
+    container.querySelectorAll('[data-del]').forEach(btn =>
+      btn.addEventListener('click', async () => {
+        if (!confirm('Delete this entry?')) return;
+        await deleteDoc(doc(db,'crm_students',currentStudentId,'log',btn.dataset.del));
+      })
+    );
+  });
+}
+
+document.getElementById('addLogBtn').addEventListener('click', async () => {
+  const text = document.getElementById('newLogText').value.trim();
+  if (!text || !currentStudentId) return;
+  await addDoc(collection(db,'crm_students',currentStudentId,'log'), { text, createdAt: serverTimestamp() });
+  document.getElementById('newLogText').value = '';
+  showToast('Entry added');
+});
+
+// ── Delete student ─────────────────────────────────────────────────
+document.getElementById('deleteStudentBtn').addEventListener('click', async () => {
+  const s = students.find(x=>x.id===currentStudentId);
+  if (!confirm(`Delete ${s?.name||'this student'}? This cannot be undone.`)) return;
+  if (logUnsub) { logUnsub(); logUnsub = null; }
+  await deleteDoc(doc(db,'crm_students',currentStudentId));
+  closeDetail();
+  showToast('Student deleted');
+});
+
+// ── Toast ──────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>
