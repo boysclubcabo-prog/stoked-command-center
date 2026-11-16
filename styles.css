@@ -230,6 +230,22 @@ body {
   gap: 4px;
   flex-shrink: 0;
 }
+.crm-shortcut-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(47,129,247,.12);
+  border: 1px solid rgba(47,129,247,.35);
+  border-radius: 20px;
+  color: #79b8ff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s;
+}
+.crm-shortcut-btn:hover { background: rgba(47,129,247,.22); }
 
 .stat-value {
   font-family: 'Bebas Neue', 'Barlow Condensed', sans-serif;
