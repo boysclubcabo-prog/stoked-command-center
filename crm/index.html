@@ -177,16 +177,22 @@ button:hover{opacity:.85}
 
   <div class="crm-body">
     <div class="crm-sidebar">
-      <div class="sidebar-label">Programs</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px">
+        <div class="sidebar-label" style="margin-bottom:0">Programs</div>
+        <button id="editProgramsBtn" title="Rename programs" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;line-height:1">✏️</button>
+      </div>
+      <div style="margin-bottom:4px"></div>
       <div class="sidebar-item active" data-program="all">All <span class="cnt" id="cnt-all">0</span></div>
-      <div class="sidebar-item" data-program="boys-club-cabo">Boys Club Cabo <span class="cnt" id="cnt-boys-club-cabo">0</span></div>
-      <div class="sidebar-item" data-program="damara">Damara BC <span class="cnt" id="cnt-damara">0</span></div>
-      <div class="sidebar-item" data-program="san-jose">San José BC <span class="cnt" id="cnt-san-jose">0</span></div>
-      <div class="sidebar-item" data-program="music">Music <span class="cnt" id="cnt-music">0</span></div>
-      <div class="sidebar-item" data-program="private">Private <span class="cnt" id="cnt-private">0</span></div>
+      <div class="sidebar-item" data-program="boys-club-cabo"><span class="prog-label" data-program="boys-club-cabo">Boys Club Cabo</span> <span class="cnt" id="cnt-boys-club-cabo">0</span></div>
+      <div class="sidebar-item" data-program="damara"><span class="prog-label" data-program="damara">Damara BC</span> <span class="cnt" id="cnt-damara">0</span></div>
+      <div class="sidebar-item" data-program="san-jose"><span class="prog-label" data-program="san-jose">San José BC</span> <span class="cnt" id="cnt-san-jose">0</span></div>
+      <div class="sidebar-item" data-program="music"><span class="prog-label" data-program="music">Music</span> <span class="cnt" id="cnt-music">0</span></div>
+      <div class="sidebar-item" data-program="private"><span class="prog-label" data-program="private">Private</span> <span class="cnt" id="cnt-private">0</span></div>
       <div style="margin-top:16px" class="sidebar-label">Quick Filters</div>
       <div class="sidebar-item" data-filter="homeschooled">Homeschooled</div>
       <div class="sidebar-item" data-filter="brotherhood">Has Brotherhood</div>
+      <div style="margin-top:16px" class="sidebar-label">Parents</div>
+      <div id="parentsList"></div>
     </div>
 
     <div class="crm-main">
@@ -482,6 +488,18 @@ button:hover{opacity:.85}
   </div>
 </div>
 
+<!-- RENAME PROGRAMS MODAL -->
+<div class="modal-overlay" id="renameProgramsModal">
+  <div class="modal" style="max-width:380px;width:100%">
+    <div class="modal-header"><span class="modal-title">Rename Programs</span><button class="modal-close" id="closeRenameProgramsBtn">✕</button></div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:10px" id="renameProgramsFields"></div>
+    <div style="padding:0 16px 16px;display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn-ghost" id="cancelRenameProgramsBtn">Cancel</button>
+      <button class="btn-primary" id="saveRenameProgramsBtn">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- IMPORT CSV MODAL -->
 <div class="modal-overlay" id="importModal">
   <div class="modal" style="max-width:640px">
@@ -576,6 +594,7 @@ onAuthStateChanged(auth, user => {
   if (user && user.email === ADMIN_EMAIL) {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
+    loadProgramLabels();
     subscribeStudents();
   } else {
     document.getElementById('authScreen').style.display = 'flex';
@@ -595,6 +614,7 @@ function subscribeStudents() {
 }
 
 // ── Render ─────────────────────────────────────────────────────────
+const PROGRAM_KEYS = ['boys-club-cabo','damara','san-jose','music','private'];
 const PROGRAM_LABELS = {
   'boys-club-cabo': 'Boys Club Cabo',
   'damara': 'Damara BC',
@@ -602,6 +622,28 @@ const PROGRAM_LABELS = {
   'music': 'Music',
   'private': 'Private',
 };
+
+async function loadProgramLabels() {
+  try {
+    const snap = await getDoc(doc(db, 'crm_settings', 'programs'));
+    if (snap.exists()) {
+      const data = snap.data();
+      PROGRAM_KEYS.forEach(k => { if (data[k]) PROGRAM_LABELS[k] = data[k]; });
+      applyProgramLabels();
+    }
+  } catch(e) { /* use defaults */ }
+}
+
+function applyProgramLabels() {
+  document.querySelectorAll('.prog-label[data-program]').forEach(el => {
+    const k = el.dataset.program;
+    if (PROGRAM_LABELS[k]) el.textContent = PROGRAM_LABELS[k];
+  });
+  // update dropdowns
+  document.querySelectorAll('option[value]').forEach(opt => {
+    if (PROGRAM_LABELS[opt.value]) opt.textContent = PROGRAM_LABELS[opt.value];
+  });
+}
 const PROGRAM_COLORS = {
   'boys-club-cabo': '#2f81f7',
   'damara': '#3fb950',
@@ -638,7 +680,10 @@ function filtered() {
   if (activeProgram !== 'all') {
     if (activeProgram === 'homeschooled') list = list.filter(s => s.homeschool === 'yes');
     else if (activeProgram === 'brotherhood') list = list.filter(s => s.brotherhoodEmail);
-    else list = list.filter(s => s.program === activeProgram);
+    else if (activeProgram.startsWith('parent:')) {
+      const pName = activeProgram.slice(7).toLowerCase();
+      list = list.filter(s => (s.parentName||'').toLowerCase() === pName);
+    } else list = list.filter(s => s.program === activeProgram);
   }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -669,6 +714,40 @@ function renderAll() {
     if (el) el.textContent = counts[p]||0;
   });
   document.getElementById('totalBadge').textContent = students.length + ' student' + (students.length!==1?'s':'');
+
+  // parents list
+  const parentMap = {};
+  students.forEach(s => {
+    const p = (s.parentName||'').trim();
+    if (!p) return;
+    if (!parentMap[p]) parentMap[p] = { phone: s.parentPhone||'', count: 0 };
+    parentMap[p].count++;
+  });
+  const parentEl = document.getElementById('parentsList');
+  const sortedParents = Object.keys(parentMap).sort();
+  if (!sortedParents.length) {
+    parentEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 10px">No parents yet</div>';
+  } else {
+    parentEl.innerHTML = sortedParents.map(p => {
+      const key = 'parent:' + p.toLowerCase();
+      const isActive = activeProgram === key;
+      return `<div class="sidebar-item${isActive?' active':''}" data-parent="${p}" style="flex-direction:column;align-items:flex-start;gap:1px;padding:6px 10px">
+        <div style="display:flex;width:100%;justify-content:space-between;align-items:center">
+          <span style="font-weight:500">${p}</span>
+          <span class="cnt">${parentMap[p].count}</span>
+        </div>
+        ${parentMap[p].phone ? `<span style="font-size:11px;opacity:.6">${parentMap[p].phone}</span>` : ''}
+      </div>`;
+    }).join('');
+    parentEl.querySelectorAll('.sidebar-item[data-parent]').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+        item.classList.add('active');
+        activeProgram = 'parent:' + item.dataset.parent.toLowerCase();
+        renderAll();
+      });
+    });
+  }
 
   const list = filtered();
   const grid = document.getElementById('studentsGrid');
@@ -1123,30 +1202,83 @@ function parseImportCSV(text) {
 document.getElementById('confirmImportBtn').addEventListener('click', async () => {
   if (!importRows.length) return;
   const btn = document.getElementById('confirmImportBtn');
+  const errEl = document.getElementById('importErr');
   btn.disabled = true;
   btn.textContent = 'Importing…';
+  errEl.textContent = '';
 
   const toAdd = importRows.filter(row =>
     !students.find(s => s.name.toLowerCase() === row.name.toLowerCase())
   );
 
-  // Firestore batch: max 500 ops per batch
-  let count = 0;
-  const CHUNK = 490;
-  for (let i = 0; i < toAdd.length; i += CHUNK) {
-    const batch = writeBatch(db);
-    toAdd.slice(i, i + CHUNK).forEach(row => {
-      const ref = doc(collection(db, 'crm_students'));
-      batch.set(ref, { ...row, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-      count++;
-    });
-    await batch.commit();
+  if (!toAdd.length) {
+    btn.disabled = false;
+    btn.textContent = 'Import Students';
+    closeImportModal();
+    showToast('All students already exist — nothing to import.');
+    return;
   }
 
+  try {
+    let count = 0;
+    const CHUNK = 490;
+    for (let i = 0; i < toAdd.length; i += CHUNK) {
+      const batch = writeBatch(db);
+      toAdd.slice(i, i + CHUNK).forEach(row => {
+        const ref = doc(collection(db, 'crm_students'));
+        batch.set(ref, { ...row, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        count++;
+      });
+      await batch.commit();
+    }
+    btn.disabled = false;
+    btn.textContent = 'Import Students';
+    closeImportModal();
+    showToast(`${count} students imported`);
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Import Students';
+    errEl.textContent = `Import failed: ${err.message}`;
+    console.error('Import error:', err);
+  }
+});
+
+// ── Rename Programs ────────────────────────────────────────────────
+document.getElementById('editProgramsBtn').addEventListener('click', () => {
+  const container = document.getElementById('renameProgramsFields');
+  container.innerHTML = PROGRAM_KEYS.map(k => `
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">${k}</label>
+      <input class="form-input" data-program-key="${k}" value="${PROGRAM_LABELS[k]||k}" style="margin:0"/>
+    </div>
+  `).join('');
+  document.getElementById('renameProgramsModal').classList.add('open');
+});
+
+document.getElementById('closeRenameProgramsBtn').addEventListener('click', () => document.getElementById('renameProgramsModal').classList.remove('open'));
+document.getElementById('cancelRenameProgramsBtn').addEventListener('click', () => document.getElementById('renameProgramsModal').classList.remove('open'));
+document.getElementById('renameProgramsModal').addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+document.getElementById('saveRenameProgramsBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('saveRenameProgramsBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  const updates = {};
+  document.querySelectorAll('#renameProgramsFields input[data-program-key]').forEach(inp => {
+    const k = inp.dataset.programKey;
+    const v = inp.value.trim();
+    if (v) { PROGRAM_LABELS[k] = v; updates[k] = v; }
+  });
+  try {
+    await setDoc(doc(db, 'crm_settings', 'programs'), updates, { merge: true });
+    applyProgramLabels();
+    document.getElementById('renameProgramsModal').classList.remove('open');
+    showToast('Program names saved');
+  } catch(e) {
+    showToast('Save failed: ' + e.message);
+  }
   btn.disabled = false;
-  btn.textContent = 'Import Students';
-  closeImportModal();
-  showToast(`${count} students imported`);
+  btn.textContent = 'Save';
 });
 </script>
 </body>

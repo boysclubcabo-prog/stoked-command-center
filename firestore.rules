@@ -147,6 +147,10 @@ service cloud.firestore {
     }
 
     // ── CRM (coach-only) ─────────────────────────────────────────────
+    match /crm_settings/{docId} {
+      allow read, write: if request.auth != null &&
+        request.auth.token.email == 'boysclubcabo@gmail.com';
+    }
     match /crm_students/{studentId} {
       allow read, write: if request.auth != null &&
         request.auth.token.email == 'boysclubcabo@gmail.com';
