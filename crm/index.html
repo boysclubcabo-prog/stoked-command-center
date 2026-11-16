@@ -177,13 +177,17 @@ button:hover{opacity:.85}
 
   <div class="crm-body">
     <div class="crm-sidebar">
-      <div class="sidebar-label">Programs</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px">
+        <div class="sidebar-label" style="margin-bottom:0">Programs</div>
+        <button id="editProgramsBtn" title="Rename programs" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px;border-radius:4px;line-height:1">✏️</button>
+      </div>
+      <div style="margin-bottom:4px"></div>
       <div class="sidebar-item active" data-program="all">All <span class="cnt" id="cnt-all">0</span></div>
-      <div class="sidebar-item" data-program="boys-club-cabo">Boys Club Cabo <span class="cnt" id="cnt-boys-club-cabo">0</span></div>
-      <div class="sidebar-item" data-program="damara">Damara BC <span class="cnt" id="cnt-damara">0</span></div>
-      <div class="sidebar-item" data-program="san-jose">San José BC <span class="cnt" id="cnt-san-jose">0</span></div>
-      <div class="sidebar-item" data-program="music">Music <span class="cnt" id="cnt-music">0</span></div>
-      <div class="sidebar-item" data-program="private">Private <span class="cnt" id="cnt-private">0</span></div>
+      <div class="sidebar-item" data-program="boys-club-cabo"><span class="prog-label" data-program="boys-club-cabo">Boys Club Cabo</span> <span class="cnt" id="cnt-boys-club-cabo">0</span></div>
+      <div class="sidebar-item" data-program="damara"><span class="prog-label" data-program="damara">Damara BC</span> <span class="cnt" id="cnt-damara">0</span></div>
+      <div class="sidebar-item" data-program="san-jose"><span class="prog-label" data-program="san-jose">San José BC</span> <span class="cnt" id="cnt-san-jose">0</span></div>
+      <div class="sidebar-item" data-program="music"><span class="prog-label" data-program="music">Music</span> <span class="cnt" id="cnt-music">0</span></div>
+      <div class="sidebar-item" data-program="private"><span class="prog-label" data-program="private">Private</span> <span class="cnt" id="cnt-private">0</span></div>
       <div style="margin-top:16px" class="sidebar-label">Quick Filters</div>
       <div class="sidebar-item" data-filter="homeschooled">Homeschooled</div>
       <div class="sidebar-item" data-filter="brotherhood">Has Brotherhood</div>
@@ -482,6 +486,18 @@ button:hover{opacity:.85}
   </div>
 </div>
 
+<!-- RENAME PROGRAMS MODAL -->
+<div class="modal-overlay" id="renameProgramsModal">
+  <div class="modal" style="max-width:380px;width:100%">
+    <div class="modal-header"><span class="modal-title">Rename Programs</span><button class="modal-close" id="closeRenameProgramsBtn">✕</button></div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:10px" id="renameProgramsFields"></div>
+    <div style="padding:0 16px 16px;display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn-ghost" id="cancelRenameProgramsBtn">Cancel</button>
+      <button class="btn-primary" id="saveRenameProgramsBtn">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- IMPORT CSV MODAL -->
 <div class="modal-overlay" id="importModal">
   <div class="modal" style="max-width:640px">
@@ -576,6 +592,7 @@ onAuthStateChanged(auth, user => {
   if (user && user.email === ADMIN_EMAIL) {
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
+    loadProgramLabels();
     subscribeStudents();
   } else {
     document.getElementById('authScreen').style.display = 'flex';
@@ -595,6 +612,7 @@ function subscribeStudents() {
 }
 
 // ── Render ─────────────────────────────────────────────────────────
+const PROGRAM_KEYS = ['boys-club-cabo','damara','san-jose','music','private'];
 const PROGRAM_LABELS = {
   'boys-club-cabo': 'Boys Club Cabo',
   'damara': 'Damara BC',
@@ -602,6 +620,28 @@ const PROGRAM_LABELS = {
   'music': 'Music',
   'private': 'Private',
 };
+
+async function loadProgramLabels() {
+  try {
+    const snap = await getDoc(doc(db, 'crm_settings', 'programs'));
+    if (snap.exists()) {
+      const data = snap.data();
+      PROGRAM_KEYS.forEach(k => { if (data[k]) PROGRAM_LABELS[k] = data[k]; });
+      applyProgramLabels();
+    }
+  } catch(e) { /* use defaults */ }
+}
+
+function applyProgramLabels() {
+  document.querySelectorAll('.prog-label[data-program]').forEach(el => {
+    const k = el.dataset.program;
+    if (PROGRAM_LABELS[k]) el.textContent = PROGRAM_LABELS[k];
+  });
+  // update dropdowns
+  document.querySelectorAll('option[value]').forEach(opt => {
+    if (PROGRAM_LABELS[opt.value]) opt.textContent = PROGRAM_LABELS[opt.value];
+  });
+}
 const PROGRAM_COLORS = {
   'boys-club-cabo': '#2f81f7',
   'damara': '#3fb950',
@@ -1162,6 +1202,44 @@ document.getElementById('confirmImportBtn').addEventListener('click', async () =
     errEl.textContent = `Import failed: ${err.message}`;
     console.error('Import error:', err);
   }
+});
+
+// ── Rename Programs ────────────────────────────────────────────────
+document.getElementById('editProgramsBtn').addEventListener('click', () => {
+  const container = document.getElementById('renameProgramsFields');
+  container.innerHTML = PROGRAM_KEYS.map(k => `
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">${k}</label>
+      <input class="form-input" data-program-key="${k}" value="${PROGRAM_LABELS[k]||k}" style="margin:0"/>
+    </div>
+  `).join('');
+  document.getElementById('renameProgramsModal').classList.add('open');
+});
+
+document.getElementById('closeRenameProgramsBtn').addEventListener('click', () => document.getElementById('renameProgramsModal').classList.remove('open'));
+document.getElementById('cancelRenameProgramsBtn').addEventListener('click', () => document.getElementById('renameProgramsModal').classList.remove('open'));
+document.getElementById('renameProgramsModal').addEventListener('click', e => { if(e.target===e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+document.getElementById('saveRenameProgramsBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('saveRenameProgramsBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  const updates = {};
+  document.querySelectorAll('#renameProgramsFields input[data-program-key]').forEach(inp => {
+    const k = inp.dataset.programKey;
+    const v = inp.value.trim();
+    if (v) { PROGRAM_LABELS[k] = v; updates[k] = v; }
+  });
+  try {
+    await setDoc(doc(db, 'crm_settings', 'programs'), updates, { merge: true });
+    applyProgramLabels();
+    document.getElementById('renameProgramsModal').classList.remove('open');
+    showToast('Program names saved');
+  } catch(e) {
+    showToast('Save failed: ' + e.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Save';
 });
 </script>
 </body>
