@@ -1123,30 +1123,45 @@ function parseImportCSV(text) {
 document.getElementById('confirmImportBtn').addEventListener('click', async () => {
   if (!importRows.length) return;
   const btn = document.getElementById('confirmImportBtn');
+  const errEl = document.getElementById('importErr');
   btn.disabled = true;
   btn.textContent = 'Importing…';
+  errEl.textContent = '';
 
   const toAdd = importRows.filter(row =>
     !students.find(s => s.name.toLowerCase() === row.name.toLowerCase())
   );
 
-  // Firestore batch: max 500 ops per batch
-  let count = 0;
-  const CHUNK = 490;
-  for (let i = 0; i < toAdd.length; i += CHUNK) {
-    const batch = writeBatch(db);
-    toAdd.slice(i, i + CHUNK).forEach(row => {
-      const ref = doc(collection(db, 'crm_students'));
-      batch.set(ref, { ...row, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-      count++;
-    });
-    await batch.commit();
+  if (!toAdd.length) {
+    btn.disabled = false;
+    btn.textContent = 'Import Students';
+    closeImportModal();
+    showToast('All students already exist — nothing to import.');
+    return;
   }
 
-  btn.disabled = false;
-  btn.textContent = 'Import Students';
-  closeImportModal();
-  showToast(`${count} students imported`);
+  try {
+    let count = 0;
+    const CHUNK = 490;
+    for (let i = 0; i < toAdd.length; i += CHUNK) {
+      const batch = writeBatch(db);
+      toAdd.slice(i, i + CHUNK).forEach(row => {
+        const ref = doc(collection(db, 'crm_students'));
+        batch.set(ref, { ...row, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        count++;
+      });
+      await batch.commit();
+    }
+    btn.disabled = false;
+    btn.textContent = 'Import Students';
+    closeImportModal();
+    showToast(`${count} students imported`);
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Import Students';
+    errEl.textContent = `Import failed: ${err.message}`;
+    console.error('Import error:', err);
+  }
 });
 </script>
 </body>
