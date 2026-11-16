@@ -1799,6 +1799,8 @@ function showApp() {
   // Admin-only UI
   addBrotherBtn.classList.toggle('hidden', !isAdmin);
   exportBtn.classList.toggle('hidden', !isAdmin);
+  const crmHeaderBtn = document.getElementById('crmHeaderBtn');
+  if (crmHeaderBtn) crmHeaderBtn.classList.toggle('hidden', !isAdmin);
   statsBar.classList.toggle('hidden', !isAdmin);
   memberHero.classList.toggle('hidden', isAdmin);
 
