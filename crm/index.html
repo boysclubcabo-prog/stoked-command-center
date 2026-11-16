@@ -191,6 +191,8 @@ button:hover{opacity:.85}
       <div style="margin-top:16px" class="sidebar-label">Quick Filters</div>
       <div class="sidebar-item" data-filter="homeschooled">Homeschooled</div>
       <div class="sidebar-item" data-filter="brotherhood">Has Brotherhood</div>
+      <div style="margin-top:16px" class="sidebar-label">Parents</div>
+      <div id="parentsList"></div>
     </div>
 
     <div class="crm-main">
@@ -678,7 +680,10 @@ function filtered() {
   if (activeProgram !== 'all') {
     if (activeProgram === 'homeschooled') list = list.filter(s => s.homeschool === 'yes');
     else if (activeProgram === 'brotherhood') list = list.filter(s => s.brotherhoodEmail);
-    else list = list.filter(s => s.program === activeProgram);
+    else if (activeProgram.startsWith('parent:')) {
+      const pName = activeProgram.slice(7).toLowerCase();
+      list = list.filter(s => (s.parentName||'').toLowerCase() === pName);
+    } else list = list.filter(s => s.program === activeProgram);
   }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
@@ -709,6 +714,40 @@ function renderAll() {
     if (el) el.textContent = counts[p]||0;
   });
   document.getElementById('totalBadge').textContent = students.length + ' student' + (students.length!==1?'s':'');
+
+  // parents list
+  const parentMap = {};
+  students.forEach(s => {
+    const p = (s.parentName||'').trim();
+    if (!p) return;
+    if (!parentMap[p]) parentMap[p] = { phone: s.parentPhone||'', count: 0 };
+    parentMap[p].count++;
+  });
+  const parentEl = document.getElementById('parentsList');
+  const sortedParents = Object.keys(parentMap).sort();
+  if (!sortedParents.length) {
+    parentEl.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 10px">No parents yet</div>';
+  } else {
+    parentEl.innerHTML = sortedParents.map(p => {
+      const key = 'parent:' + p.toLowerCase();
+      const isActive = activeProgram === key;
+      return `<div class="sidebar-item${isActive?' active':''}" data-parent="${p}" style="flex-direction:column;align-items:flex-start;gap:1px;padding:6px 10px">
+        <div style="display:flex;width:100%;justify-content:space-between;align-items:center">
+          <span style="font-weight:500">${p}</span>
+          <span class="cnt">${parentMap[p].count}</span>
+        </div>
+        ${parentMap[p].phone ? `<span style="font-size:11px;opacity:.6">${parentMap[p].phone}</span>` : ''}
+      </div>`;
+    }).join('');
+    parentEl.querySelectorAll('.sidebar-item[data-parent]').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+        item.classList.add('active');
+        activeProgram = 'parent:' + item.dataset.parent.toLowerCase();
+        renderAll();
+      });
+    });
+  }
 
   const list = filtered();
   const grid = document.getElementById('studentsGrid');
