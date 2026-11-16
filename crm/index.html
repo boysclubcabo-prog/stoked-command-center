@@ -524,7 +524,7 @@ button:hover{opacity:.85}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, where, addDoc, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBIfsac4gqRxCEoU8655AnrajxmRQOSDo4",
@@ -1119,18 +1119,24 @@ document.getElementById('confirmImportBtn').addEventListener('click', async () =
   const btn = document.getElementById('confirmImportBtn');
   btn.disabled = true;
   btn.textContent = 'Importing…';
+
+  const toAdd = importRows.filter(row =>
+    !students.find(s => s.name.toLowerCase() === row.name.toLowerCase())
+  );
+
+  // Firestore batch: max 500 ops per batch
   let count = 0;
-  for (const row of importRows) {
-    // skip if name already exists
-    const exists = students.find(s => s.name.toLowerCase() === row.name.toLowerCase());
-    if (exists) continue;
-    await addDoc(collection(db, 'crm_students'), {
-      ...row,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+  const CHUNK = 490;
+  for (let i = 0; i < toAdd.length; i += CHUNK) {
+    const batch = writeBatch(db);
+    toAdd.slice(i, i + CHUNK).forEach(row => {
+      const ref = doc(collection(db, 'crm_students'));
+      batch.set(ref, { ...row, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+      count++;
     });
-    count++;
+    await batch.commit();
   }
+
   btn.disabled = false;
   btn.textContent = 'Import Students';
   closeImportModal();
