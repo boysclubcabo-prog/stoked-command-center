@@ -70,6 +70,10 @@ button:hover{opacity:.85}
 .pin-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:2px 4px;border-radius:4px;color:var(--muted);line-height:1;transition:color .15s}
 .pin-btn:hover{color:#f0c040}
 .pin-btn.pinned{color:#f0c040}
+.group-header{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:6px 2px 2px;margin-top:8px}
+.group-header:first-child{margin-top:0}
+.group-header-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;white-space:nowrap}
+.group-header-line{flex:1;height:1px;background:var(--border)}
 /* grid */
 .students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 /* card */
@@ -189,9 +193,10 @@ button:hover{opacity:.85}
       </div>
       <div style="margin-bottom:4px"></div>
       <div class="sidebar-item active" data-program="all">All <span class="cnt" id="cnt-all">0</span></div>
-      <div class="sidebar-item" data-program="boys-club-cabo"><span class="prog-label" data-program="boys-club-cabo">Boys Club Cabo</span> <span class="cnt" id="cnt-boys-club-cabo">0</span></div>
-      <div class="sidebar-item" data-program="damara"><span class="prog-label" data-program="damara">Damara BC</span> <span class="cnt" id="cnt-damara">0</span></div>
-      <div class="sidebar-item" data-program="san-jose"><span class="prog-label" data-program="san-jose">San José BC</span> <span class="cnt" id="cnt-san-jose">0</span></div>
+      <div class="sidebar-item" data-program="bsj-8-12"><span class="prog-label" data-program="bsj-8-12">Brotherhood SJ 8–12</span> <span class="cnt" id="cnt-bsj-8-12">0</span></div>
+      <div class="sidebar-item" data-program="bsj-12plus"><span class="prog-label" data-program="bsj-12plus">Brotherhood SJ 12+</span> <span class="cnt" id="cnt-bsj-12plus">0</span></div>
+      <div class="sidebar-item" data-program="bd-8-12"><span class="prog-label" data-program="bd-8-12">Brotherhood DM 8–12</span> <span class="cnt" id="cnt-bd-8-12">0</span></div>
+      <div class="sidebar-item" data-program="bd-12plus"><span class="prog-label" data-program="bd-12plus">Brotherhood DM 12+</span> <span class="cnt" id="cnt-bd-12plus">0</span></div>
       <div class="sidebar-item" data-program="music"><span class="prog-label" data-program="music">Music</span> <span class="cnt" id="cnt-music">0</span></div>
       <div class="sidebar-item" data-program="private"><span class="prog-label" data-program="private">Private</span> <span class="cnt" id="cnt-private">0</span></div>
       <div style="margin-top:16px" class="sidebar-label">Quick Filters</div>
@@ -256,11 +261,12 @@ button:hover{opacity:.85}
         <div class="form-group"><label class="form-label">Program</label>
           <select id="f-program">
             <option value="">Select program…</option>
-            <option value="boys-club-cabo">Boys Club Cabo</option>
-            <option value="damara">Damara Boys Club</option>
-            <option value="san-jose">San José Boys Club</option>
-            <option value="music">Music Student</option>
-            <option value="private">Private Student</option>
+            <option value="bsj-8-12">Brotherhood San José 8–12</option>
+            <option value="bsj-12plus">Brotherhood San José 12+</option>
+            <option value="bd-8-12">Brotherhood Damara 8–12</option>
+            <option value="bd-12plus">Brotherhood Damara 12+</option>
+            <option value="music">Music</option>
+            <option value="private">Private</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Time Zone</label>
@@ -479,11 +485,12 @@ button:hover{opacity:.85}
         <div class="form-group"><label class="form-label">Program *</label>
           <select id="new-program">
             <option value="">Select program…</option>
-            <option value="boys-club-cabo">Boys Club Cabo</option>
-            <option value="damara">Damara Boys Club</option>
-            <option value="san-jose">San José Boys Club</option>
-            <option value="music">Music Student</option>
-            <option value="private">Private Student</option>
+            <option value="bsj-8-12">Brotherhood San José 8–12</option>
+            <option value="bsj-12plus">Brotherhood San José 12+</option>
+            <option value="bd-8-12">Brotherhood Damara 8–12</option>
+            <option value="bd-12plus">Brotherhood Damara 12+</option>
+            <option value="music">Music</option>
+            <option value="private">Private</option>
           </select>
         </div>
         <div class="form-group"><label class="form-label">Location</label><input id="new-location" placeholder="City, State"/></div>
@@ -528,11 +535,12 @@ button:hover{opacity:.85}
       <div style="margin-bottom:14px">
         <label class="form-label" style="margin-bottom:6px;display:block">Default Program (for rows without a clear program)</label>
         <select id="importDefaultProgram">
-          <option value="boys-club-cabo">Boys Club Cabo</option>
-          <option value="damara">Damara Boys Club</option>
-          <option value="san-jose">San José Boys Club</option>
-          <option value="music">Music Student</option>
-          <option value="private">Private Student</option>
+          <option value="bsj-8-12">Brotherhood San José 8–12</option>
+          <option value="bsj-12plus">Brotherhood San José 12+</option>
+          <option value="bd-8-12">Brotherhood Damara 8–12</option>
+          <option value="bd-12plus">Brotherhood Damara 12+</option>
+          <option value="music">Music</option>
+          <option value="private">Private</option>
         </select>
       </div>
       <div style="margin-bottom:14px">
@@ -625,13 +633,14 @@ function subscribeStudents() {
 }
 
 // ── Render ─────────────────────────────────────────────────────────
-const PROGRAM_KEYS = ['boys-club-cabo','damara','san-jose','music','private'];
+const PROGRAM_KEYS = ['bsj-8-12','bsj-12plus','bd-8-12','bd-12plus','music','private'];
 const PROGRAM_LABELS = {
-  'boys-club-cabo': 'Boys Club Cabo',
-  'damara': 'Damara BC',
-  'san-jose': 'San José BC',
-  'music': 'Music',
-  'private': 'Private',
+  'bsj-8-12':   'Brotherhood San José 8–12',
+  'bsj-12plus': 'Brotherhood San José 12+',
+  'bd-8-12':    'Brotherhood Damara 8–12',
+  'bd-12plus':  'Brotherhood Damara 12+',
+  'music':      'Music',
+  'private':    'Private',
 };
 
 async function loadProgramLabels() {
@@ -656,11 +665,12 @@ function applyProgramLabels() {
   });
 }
 const PROGRAM_COLORS = {
-  'boys-club-cabo': '#2f81f7',
-  'damara': '#3fb950',
-  'san-jose': '#d29922',
-  'music': '#8957e5',
-  'private': '#db6d28',
+  'bsj-8-12':   '#2f81f7',
+  'bsj-12plus': '#79b8ff',
+  'bd-8-12':    '#3fb950',
+  'bd-12plus':  '#56d364',
+  'music':      '#8957e5',
+  'private':    '#db6d28',
 };
 
 function initials(name) {
@@ -726,7 +736,7 @@ function renderAll() {
   const counts = {};
   students.forEach(s => { counts[s.program] = (counts[s.program]||0)+1; });
   document.getElementById('cnt-all').textContent = students.length;
-  ['boys-club-cabo','damara','san-jose','music','private'].forEach(p => {
+  PROGRAM_KEYS.forEach(p => {
     const el = document.getElementById('cnt-'+p);
     if (el) el.textContent = counts[p]||0;
   });
@@ -772,7 +782,7 @@ function renderAll() {
   if (!list.length) { grid.innerHTML=''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
 
-  grid.innerHTML = list.map(s => {
+  function cardHTML(s) {
     const color = avatarBg(s.name);
     const progLabel = PROGRAM_LABELS[s.program] || s.program || '';
     const progColor = PROGRAM_COLORS[s.program] || '#8b949e';
@@ -807,7 +817,26 @@ function renderAll() {
         </div>
       </div>
     `;
-  }).join('');
+  }
+
+  if (showCurrentOnly) {
+    // grouped by program
+    const groups = {};
+    list.forEach(s => {
+      const k = s.program || 'other';
+      if (!groups[k]) groups[k] = [];
+      groups[k].push(s);
+    });
+    const orderedKeys = [...PROGRAM_KEYS, 'other'].filter(k => groups[k]);
+    grid.innerHTML = orderedKeys.map(k => {
+      const label = PROGRAM_LABELS[k] || (k === 'other' ? 'No Program' : k);
+      const color = PROGRAM_COLORS[k] || '#8b949e';
+      return `<div class="group-header"><span class="group-header-label" style="color:${color}">${label}</span><span class="group-header-line"></span></div>` +
+        groups[k].map(cardHTML).join('');
+    }).join('');
+  } else {
+    grid.innerHTML = list.map(cardHTML).join('');
+  }
 
   grid.querySelectorAll('[data-open]').forEach(btn =>
     btn.addEventListener('click', e => { e.stopPropagation(); openDetail(btn.dataset.open); })
@@ -1195,7 +1224,7 @@ function parseImportCSV(text) {
       const age = ages[ci] || ages[0] || null;
 
       let program = defaultProg;
-      if (bcRaw === '1' || bcRaw.toLowerCase().includes('cabo')) program = 'boys-club-cabo';
+      if (bcRaw === '1' || bcRaw.toLowerCase().includes('cabo') || bcRaw.toLowerCase().includes('jose') || bcRaw.toLowerCase().includes('sj')) program = defaultProg;
 
       importRows.push({
         name,
