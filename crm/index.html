@@ -64,6 +64,12 @@ button:hover{opacity:.85}
 .filters-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
 .filter-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-size:12px;cursor:pointer;transition:all .15s}
 .filter-chip:hover,.filter-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(47,129,247,.1)}
+.filter-chip-current{border-color:rgba(63,185,80,.4);color:#3fb950;background:rgba(63,185,80,.08)}
+.filter-chip-current:hover,.filter-chip-current.active{border-color:#3fb950;color:#fff;background:#3fb950}
+.card-current-dot{width:8px;height:8px;border-radius:50%;background:#3fb950;flex-shrink:0}
+.pin-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:2px 4px;border-radius:4px;color:var(--muted);line-height:1;transition:color .15s}
+.pin-btn:hover{color:#f0c040}
+.pin-btn.pinned{color:#f0c040}
 /* grid */
 .students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
 /* card */
@@ -191,12 +197,17 @@ button:hover{opacity:.85}
       <div style="margin-top:16px" class="sidebar-label">Quick Filters</div>
       <div class="sidebar-item" data-filter="homeschooled">Homeschooled</div>
       <div class="sidebar-item" data-filter="brotherhood">Has Brotherhood</div>
-      <div style="margin-top:16px" class="sidebar-label">Parents</div>
+      <div style="margin-top:16px;display:flex;align-items:center;justify-content:space-between;padding:0 2px;cursor:pointer" id="parentsToggle">
+        <div class="sidebar-label" style="margin-bottom:0">Parents</div>
+        <span id="parentsArrow" style="color:var(--muted);font-size:11px;transition:transform .2s">▼</span>
+      </div>
       <div id="parentsList"></div>
     </div>
 
     <div class="crm-main">
       <div class="filters-bar" id="filtersBar">
+        <span class="filter-chip filter-chip-current" data-filter="current" id="currentChip">⭐ Current</span>
+        <span style="width:1px;background:var(--border);margin:0 4px;align-self:stretch"></span>
         <span class="filter-chip active" data-sort="name">A–Z</span>
         <span class="filter-chip" data-sort="recent">Recent</span>
         <span class="filter-chip" data-sort="age">By Age</span>
@@ -675,9 +686,13 @@ function relativeDate(ts) {
   return new Date(ms).toLocaleDateString();
 }
 
+let showCurrentOnly = false;
+
 function filtered() {
   let list = [...students];
-  if (activeProgram !== 'all') {
+  if (showCurrentOnly) {
+    list = list.filter(s => s.current);
+  } else if (activeProgram !== 'all') {
     if (activeProgram === 'homeschooled') list = list.filter(s => s.homeschool === 'yes');
     else if (activeProgram === 'brotherhood') list = list.filter(s => s.brotherhoodEmail);
     else if (activeProgram.startsWith('parent:')) {
@@ -701,6 +716,8 @@ function filtered() {
     return tb - ta;
   });
   else list.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+  // current members always float to top when not filtering by current only
+  if (!showCurrentOnly) list.sort((a,b) => (b.current?1:0)-(a.current?1:0));
   return list;
 }
 
@@ -770,13 +787,17 @@ function renderAll() {
     const meta = [ageStr, locStr].filter(Boolean).join(' · ');
     const preview = s.interests || s.struggles || s.goals || s.coachNote || '';
     return `
-      <div class="student-card" data-id="${s.id}">
+      <div class="student-card" data-id="${s.id}" style="${s.current ? 'border-color:rgba(63,185,80,.35)' : ''}">
         <div class="card-top">
           <div class="card-avatar" style="background:${color};border-color:${color}40">${initials(s.name)}</div>
           <div class="card-info">
-            <div class="card-name">${s.name||'Unnamed'}</div>
+            <div class="card-name" style="display:flex;align-items:center;gap:6px">
+              ${s.name||'Unnamed'}
+              ${s.current ? '<span class="card-current-dot" title="Current member"></span>' : ''}
+            </div>
             <div class="card-age-loc">${meta}</div>
           </div>
+          <button class="pin-btn${s.current?' pinned':''}" data-pin="${s.id}" title="${s.current?'Remove from current':'Mark as current'}">★</button>
         </div>
         ${tags ? `<div class="card-tags">${tags}</div>` : ''}
         ${preview ? `<div class="card-note">${preview}</div>` : ''}
@@ -794,6 +815,17 @@ function renderAll() {
   grid.querySelectorAll('.student-card').forEach(card =>
     card.addEventListener('click', () => openDetail(card.dataset.id))
   );
+  grid.querySelectorAll('.pin-btn[data-pin]').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const id = btn.dataset.pin;
+      const s = students.find(x => x.id === id);
+      if (!s) return;
+      const newVal = !s.current;
+      btn.classList.toggle('pinned', newVal);
+      await updateDoc(doc(db, 'crm_students', id), { current: newVal, updatedAt: serverTimestamp() });
+    });
+  });
 }
 
 // ── Sidebar / filter wiring ────────────────────────────────────────
@@ -813,9 +845,23 @@ document.querySelectorAll('.sidebar-item[data-filter]').forEach(item => {
     renderAll();
   });
 });
+document.getElementById('currentChip').addEventListener('click', () => {
+  showCurrentOnly = !showCurrentOnly;
+  document.getElementById('currentChip').classList.toggle('active', showCurrentOnly);
+  renderAll();
+});
+
+let parentsCollapsed = false;
+document.getElementById('parentsToggle').addEventListener('click', () => {
+  parentsCollapsed = !parentsCollapsed;
+  document.getElementById('parentsList').style.display = parentsCollapsed ? 'none' : '';
+  document.getElementById('parentsArrow').style.transform = parentsCollapsed ? 'rotate(-90deg)' : '';
+});
+
 document.querySelectorAll('.filter-chip[data-sort]').forEach(chip => {
   chip.addEventListener('click', () => {
     document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+    document.getElementById('currentChip').classList.toggle('active', showCurrentOnly);
     chip.classList.add('active');
     activeSort = chip.dataset.sort;
     renderAll();
